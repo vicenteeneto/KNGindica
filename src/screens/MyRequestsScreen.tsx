@@ -168,7 +168,7 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
         </div>
       </main>
 
-      <MobileNav onNavigate={onNavigate} currentScreen={'dashboard'} /> {/* Forcing active state to 'dashboard'/orders icon temporarily logic-wise */}
+      <MobileNav onNavigate={onNavigate} currentScreen="myRequests" />
     </div>
   );
 }
