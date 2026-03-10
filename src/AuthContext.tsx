@@ -18,6 +18,7 @@ interface AuthContextType {
   profile: UserProfile | null;
   loading: boolean;
   logout: () => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   setDevRole: (role: UserRole) => void;
   refreshProfile: () => Promise<void>;
 }
@@ -93,13 +94,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
   };
 
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin
+      }
+    });
+    if (error) throw error;
+  };
+
   // Keep this for the sandbox mode in AuthScreen
   const setDevRole = (newRole: UserRole) => {
     setRole(newRole);
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, role, profile, loading, logout, setDevRole, refreshProfile }}>
+    <AuthContext.Provider value={{ user, session, role, profile, loading, logout, signInWithGoogle, setDevRole, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
