@@ -38,7 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchUserProfile(session.user.id);
+        fetchUserProfile(session.user.id, session.user.email);
       } else {
         setLoading(false);
       }
@@ -50,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          fetchUserProfile(session.user.id);
+          fetchUserProfile(session.user.id, session.user.email);
         } else {
           setRole(null);
           setProfile(null);
@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const fetchUserProfile = async (userId: string) => {
+  const fetchUserProfile = async (userId: string, userEmail?: string) => {
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -73,9 +73,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .eq('id', userId)
         .single();
 
+      const adminEmails = ['offkngpublicidade@gmail.com', 'netu.araujo@gmail.com'];
+      const isHardcodedAdmin = userEmail && adminEmails.includes(userEmail);
+
       if (!error && data) {
-        setRole(data.role as UserRole);
+        const finalRole = isHardcodedAdmin ? 'admin' : (data.role as UserRole);
+        setRole(finalRole);
         setProfile(data as UserProfile);
+
+        // Se é um admin via e-mail mas o banco diz outra coisa, tenta atualizar no banco
+        if (isHardcodedAdmin && data.role !== 'admin') {
+          await supabase.from('profiles').update({ role: 'admin' }).eq('id', userId);
+        }
+      } else if (isHardcodedAdmin) {
+        // Se o perfil não existir ainda mas for admin por e-mail, permite acesso básico
+        setRole('admin');
       }
     } catch (error) {
       console.error('Error fetching profile:', error);

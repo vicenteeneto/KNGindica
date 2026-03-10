@@ -47,7 +47,8 @@ function AppContent() {
       } else if (currentScreen === 'auth' && role !== null) {
         // If logged in, role is loaded, and on auth screen, redirect based on role
         // Extra security: only allow the specific email to access admin
-        if (role === 'admin' && user?.email === 'offkngpublicidade@gmail.com') {
+        const isAdmin = user?.email === 'offkngpublicidade@gmail.com' || user?.email === 'netu.araujo@gmail.com' || role === 'admin';
+        if (isAdmin) {
           setCurrentScreen('adminDashboard');
         } else if (role === 'provider') {
           setCurrentScreen('dashboard');

@@ -59,7 +59,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             <button onClick={() => onNavigate('userProfile')} className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-2">
               <span className="material-symbols-outlined text-[20px]">person</span> Perfil
             </button>
-            {user?.email === 'offkngpublicidade@gmail.com' && (
+            {(user?.email === 'offkngpublicidade@gmail.com' || user?.email === 'netu.araujo@gmail.com') && (
               <button onClick={() => onNavigate('adminDashboard')} className="text-sm font-medium text-red-400 hover:text-red-500 transition-colors flex items-center gap-2">
                 <span className="material-symbols-outlined text-[20px]">admin_panel_settings</span> Admin
               </button>

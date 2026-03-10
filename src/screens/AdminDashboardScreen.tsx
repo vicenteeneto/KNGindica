@@ -13,9 +13,72 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
     platformRevenue: 0,
   });
   const [providersList, setProvidersList] = useState<any[]>([]);
+  const [clientsList, setClientsList] = useState<any[]>([]);
   const [ordersList, setOrdersList] = useState<any[]>([]);
   const [reviewsList, setReviewsList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedProviderForKYC, setSelectedProviderForKYC] = useState<any>(null);
+  const [selectedDispute, setSelectedDispute] = useState<any>(null);
+
+  const [categoriesList, setCategoriesList] = useState<any[]>([]);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<any>(null);
+  const [categoryForm, setCategoryForm] = useState({ name: '', description: '', icon_name: '', base_price: '' });
+
+  const AVAILABLE_ICONS = [
+    'handyman', 'bolt', 'plumbing', 'cleaning_services', 'yard', 'local_shipping', 'ac_unit', 'format_paint', 
+    'carpenter', 'pest_control', 'iron', 'local_laundry_service', 'computer', 'tv', 'directions_car', 
+    'content_cut', 'imagesearch_roller', 'construction', 'engineering', 'architecture', 'pets', 'camera_alt',
+    'fitness_center', 'school', 'spa', 'local_florist', 'local_dining', 'local_pizza', 'child_care', 'sports_esports'
+  ];
+
+  const handleUpdateProviderStatus = async (providerId: string, status: string) => {
+    try {
+      const { error } = await supabase.from('profiles').update({ status }).eq('id', providerId);
+      if (error) throw error;
+      setProvidersList(prev => prev.map(p => p.id === providerId ? { ...p, status } : p));
+      setSelectedProviderForKYC(null);
+    } catch (e) {
+      console.error("Erro ao atualizar status do prestador", e);
+      alert("Erro ao atualizar status");
+    }
+  };
+
+  const handleResolveDispute = async (requestId: string, resolution: 'refund_client' | 'pay_provider' | 'resolved') => {
+    try {
+      const { error } = await supabase.from('service_requests').update({ status: resolution }).eq('id', requestId);
+      if (error) throw error;
+      setOrdersList(prev => prev.map(o => o.id === requestId ? { ...o, status: resolution } : o));
+      setSelectedDispute(null);
+    } catch (e) {
+      console.error("Erro ao resolver disputa", e);
+      alert("Erro ao resolver disputa. Verifique as permissões de banco.");
+    }
+  };
+
+  const exportToCSV = () => {
+    const concludedOrders = ordersList.filter(o => o.status === 'completed');
+    if (concludedOrders.length === 0) {
+      alert("Nenhum pedido concluído para exportar.");
+      return;
+    }
+    const headers = "ID,Cliente,Prestador,Servico,Status,Valor Total,Taxa Plataforma,Data\n";
+    const rows = concludedOrders.map(order => {
+      const date = new Date(order.created_at).toLocaleDateString('pt-BR');
+      const val = order.price || 0;
+      const tax = val * 0.15; // 15% platform fee
+      return `"${order.id}","${order.client?.full_name || ''}","${order.provider?.full_name || ''}","${order.category?.name || 'Serviço Direto'}","${order.status}","R$ ${val.toFixed(2)}","R$ ${tax.toFixed(2)}","${date}"`;
+    }).join("\n");
+    
+    const csvContent = "data:text/csv;charset=utf-8," + headers + rows;
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `faturamento_iservice_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   useEffect(() => {
     // Only fetch for admin if needed, but for now fetch all to simulate dashboard
@@ -37,6 +100,9 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
         // 3. Fetch reviews
         const { data: reviews } = await supabase.from('reviews').select('*, reviewer:profiles!reviews_reviewer_id_fkey(full_name), provider:profiles!reviews_provider_id_fkey(full_name, role)').order('created_at', { ascending: false });
 
+        // 4. Fetch Categories
+        const { data: categories } = await supabase.from('service_categories').select('*').order('name');
+
         setStats({
           providers: providers.length,
           clients: clients.length,
@@ -45,8 +111,10 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
         });
 
         setProvidersList(providers);
+        setClientsList(clients);
         setOrdersList(requests || []);
         setReviewsList(reviews || []);
+        setCategoriesList(categories || []);
       } catch (e) {
         console.error("Error fetching admin data", e);
       } finally {
@@ -56,6 +124,54 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
 
     fetchAdminData();
   }, []);
+
+  const handleSaveCategory = async () => {
+    try {
+      const payload = {
+        name: categoryForm.name,
+        description: categoryForm.description,
+        icon: categoryForm.icon_name || 'handyman',
+      };
+
+      if (editingCategory) {
+        const { error } = await supabase.from('service_categories').update(payload).eq('id', editingCategory.id);
+        if (error) throw error;
+        setCategoriesList(prev => prev.map(c => c.id === editingCategory.id ? { ...c, ...payload } : c));
+      } else {
+        const { data, error } = await supabase.from('service_categories').insert([payload]).select().single();
+        if (error) throw error;
+        if (data) setCategoriesList(prev => [...prev, data]);
+      }
+      setIsCategoryModalOpen(false);
+      setEditingCategory(null);
+    } catch (e) {
+      console.error("Erro ao salvar categoria", e);
+      alert("Erro ao salvar categoria");
+    }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    if (!window.confirm('Tem certeza que deseja excluir esta categoria?')) return;
+    try {
+      const { error } = await supabase.from('service_categories').delete().eq('id', id);
+      if (error) throw error;
+      setCategoriesList(prev => prev.filter(c => c.id !== id));
+    } catch (e) {
+      console.error("Erro ao excluir categoria", e);
+      alert("Erro ao excluir. Pode haver serviços vinculados a ela.");
+    }
+  };
+
+  const openCategoryModal = (cat: any = null) => {
+    if (cat) {
+      setEditingCategory(cat);
+      setCategoryForm({ name: cat.name, description: cat.description || '', icon_name: cat.icon || '', base_price: cat.base_price?.toString() || '' });
+    } else {
+      setEditingCategory(null);
+      setCategoryForm({ name: '', description: '', icon_name: '', base_price: '' });
+    }
+    setIsCategoryModalOpen(true);
+  };
 
   const handleLogout = () => {
     logout();
@@ -71,38 +187,61 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
           <span className="text-sm text-primary font-medium cursor-pointer hover:underline">Ver relatórios detalhados</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+          {/* Card: Providers - Clickable */}
+          <div 
+            onClick={() => setActiveTab('providers')}
+            className="group cursor-pointer bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-primary/50 hover:shadow-lg transition-all active:scale-95"
+          >
             <div className="flex justify-between items-start mb-4">
-              <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-lg flex items-center justify-center">
+              <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 group-hover:bg-primary group-hover:text-white rounded-lg flex items-center justify-center transition-colors">
                 <span className="material-symbols-outlined">engineering</span>
               </div>
+              <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">arrow_forward_ios</span>
             </div>
             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Total de Prestadores</p>
             <p className="text-2xl font-bold">{stats.providers}</p>
           </div>
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+
+          {/* Card: Clients - Clickable */}
+          <div 
+            onClick={() => setActiveTab('clients')}
+            className="group cursor-pointer bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-purple-500/50 hover:shadow-lg transition-all active:scale-95"
+          >
             <div className="flex justify-between items-start mb-4">
-              <div className="p-2 bg-purple-50 dark:bg-purple-900/20 text-purple-600 rounded-lg flex items-center justify-center">
+              <div className="p-2 bg-purple-50 dark:bg-purple-900/20 text-purple-600 group-hover:bg-purple-600 group-hover:text-white rounded-lg flex items-center justify-center transition-colors">
                 <span className="material-symbols-outlined">group</span>
               </div>
+              <span className="material-symbols-outlined text-slate-300 group-hover:text-purple-500 transition-colors">arrow_forward_ios</span>
             </div>
             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Total de Clientes</p>
             <p className="text-2xl font-bold">{stats.clients}</p>
           </div>
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+
+          {/* Card: Services - Clickable */}
+          <div 
+            onClick={() => setActiveTab('orders')}
+            className="group cursor-pointer bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-green-500/50 hover:shadow-lg transition-all active:scale-95"
+          >
             <div className="flex justify-between items-start mb-4">
-              <div className="p-2 bg-green-50 dark:bg-green-900/20 text-green-600 rounded-lg flex items-center justify-center">
+              <div className="p-2 bg-green-50 dark:bg-green-900/20 text-green-600 group-hover:bg-green-600 group-hover:text-white rounded-lg flex items-center justify-center transition-colors">
                 <span className="material-symbols-outlined">task_alt</span>
               </div>
+              <span className="material-symbols-outlined text-slate-300 group-hover:text-green-500 transition-colors">arrow_forward_ios</span>
             </div>
             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Serviços Concluídos</p>
             <p className="text-2xl font-bold">{stats.completedServices}</p>
           </div>
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+
+          {/* Card: Revenue - Clickable */}
+          <div 
+            onClick={() => setActiveTab('orders')}
+            className="group cursor-pointer bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-orange-500/50 hover:shadow-lg transition-all active:scale-95"
+          >
             <div className="flex justify-between items-start mb-4">
-              <div className="p-2 bg-orange-50 dark:bg-orange-900/20 text-orange-600 rounded-lg flex items-center justify-center">
+              <div className="p-2 bg-orange-50 dark:bg-orange-900/20 text-orange-600 group-hover:bg-orange-600 group-hover:text-white rounded-lg flex items-center justify-center transition-colors">
                 <span className="material-symbols-outlined">payments</span>
               </div>
+              <span className="material-symbols-outlined text-slate-300 group-hover:text-orange-500 transition-colors">arrow_forward_ios</span>
             </div>
             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Receita Estimada</p>
             <p className="text-2xl font-bold">R$ {stats.platformRevenue.toFixed(2)}</p>
@@ -293,6 +432,9 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
     <div className="animate-in fade-in duration-500 space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
+          <button onClick={() => setActiveTab('dashboard')} className="flex items-center gap-1 text-slate-500 hover:text-primary transition-colors text-sm mb-2 font-medium">
+            <span className="material-symbols-outlined text-[16px]">arrow_back</span> Voltar ao Dashboard
+          </button>
           <h2 className="text-xl font-bold">Gestão de Prestadores</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400">Gerencie todos os prestadores cadastrados na plataforma</p>
         </div>
@@ -316,25 +458,25 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
         <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center">
           <p className="text-xs text-slate-500 font-medium mb-1">Total Cadastrados</p>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">1,240</h3>
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{providersList.length}</h3>
           </div>
         </div>
         <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-green-500">
           <p className="text-xs text-slate-500 font-medium mb-1">Ativos</p>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">1,180</h3>
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{providersList.filter(p => p.status !== 'blocked' && p.status !== 'pending').length}</h3>
           </div>
         </div>
         <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-yellow-500">
           <p className="text-xs text-slate-500 font-medium mb-1">Em Análise (KYC)</p>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">45</h3>
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{providersList.filter(p => p.status === 'pending').length}</h3>
           </div>
         </div>
         <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-red-500">
           <p className="text-xs text-slate-500 font-medium mb-1">Bloqueados</p>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">15</h3>
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{providersList.filter(p => p.status === 'blocked').length}</h3>
           </div>
         </div>
       </div>
@@ -353,146 +495,84 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-
-              <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="relative h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden shrink-0">
-                      <img className="h-full w-full object-cover" alt="Profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDnMVXlAm2PcGLz-sLY7rG--yL8zLJOs9L5xoTDJDTskdL-E4_Tbic31AwKnCMVULA5ihBND4Ud7UJKROZ2z3eiGQvlP8zvY5lplvoGXkdaVd0ykZ3eMJaJMIic1aedja1pq2q-NRqfQjHI-YYlRmnsOjpR6_Q3LUUv_veLReaplcgAM3nNCkTFlgFZOCqKzVxquAzOJYboWG-j3QHvYQE71DWY7NOQpIZbx9O2Bmzjjpx9CaIHXGehSMTIE5s53tYqZrnzAI5hm1I" />
-                      <div className="absolute bottom-0 right-0 h-3 w-3 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full"></div>
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-1">
-                        <p className="font-bold text-sm text-slate-900 dark:text-white">Carlos Silva</p>
-                        <span className="material-symbols-outlined text-blue-500 text-[14px]" title="Identidade Verificada">verified</span>
+              {loading ? (
+                <tr><td colSpan={6} className="p-6 text-center text-slate-500">Carregando prestadores...</td></tr>
+              ) : providersList.length === 0 ? (
+                <tr><td colSpan={6} className="p-6 text-center text-slate-500">Nenhum prestador encontrado.</td></tr>
+              ) : (
+                providersList.map(provider => (
+                  <tr key={provider.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="relative h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden shrink-0">
+                          <img className="h-full w-full object-cover" alt="Profile" src={provider.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} />
+                          <div className={`absolute bottom-0 right-0 h-3 w-3 border-2 border-white dark:border-slate-900 rounded-full ${provider.status === 'blocked' ? 'bg-red-500' : 'bg-green-500'}`}></div>
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1">
+                            <p className="font-bold text-sm text-slate-900 dark:text-white">{provider.full_name || 'Usuário Sem Nome'}</p>
+                            {provider.is_verified && <span className="material-symbols-outlined text-blue-500 text-[14px]" title="Identidade Verificada">verified</span>}
+                          </div>
+                          <p className="text-xs text-slate-500">{provider.email || provider.id.substring(0, 12)}</p>
+                        </div>
                       </div>
-                      <p className="text-xs text-slate-500">carlos.silva@prestador.com</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <p className="text-sm font-medium text-slate-900 dark:text-white">Eletricista Residencial</p>
-                  <p className="text-xs text-slate-500">142 concluídos • <span className="text-green-600 font-semibold">R$ 14.5k</span></p>
-                </td>
-                <td className="px-6 py-4">
-                  <span className="px-2 py-1 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white text-[10px] font-bold uppercase rounded-full shadow-sm">VIP Ouro</span>
-                </td>
-                <td className="px-6 py-4">
-                  <span className="px-2 py-1 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 text-xs font-semibold rounded-full flex items-center gap-1 w-max">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span> Ativo
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex flex-col">
-                    <div className="flex items-center gap-1 text-orange-400">
-                      <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                      <span className="text-sm font-bold text-slate-900 dark:text-white">4.8</span>
-                    </div>
-                    <span className="text-[10px] text-slate-500">(98 reviews)</span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <div className="flex gap-2 justify-end">
-                    <button className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Ver Perfil Completo">
-                      <span className="material-symbols-outlined text-[20px]">visibility</span>
-                    </button>
-                    <button className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="Editar">
-                      <span className="material-symbols-outlined text-[20px]">edit</span>
-                    </button>
-                    <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 self-center mx-1"></div>
-                    <button className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Suspender Conta">
-                      <span className="material-symbols-outlined text-[20px]">block</span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-
-              <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="relative h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden shrink-0">
-                      <span className="w-full h-full flex items-center justify-center text-slate-500 font-bold text-sm bg-slate-200 dark:bg-slate-800">JR</span>
-                      <div className="absolute bottom-0 right-0 h-3 w-3 bg-yellow-500 border-2 border-white dark:border-slate-900 rounded-full"></div>
-                    </div>
-                    <div>
-                      <p className="font-bold text-sm text-slate-900 dark:text-white">João Roberto</p>
-                      <p className="text-xs text-slate-500">joao.r@email.com</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <p className="text-sm font-medium text-slate-900 dark:text-white">Montador de Móveis</p>
-                  <p className="text-xs text-slate-500">0 concluídos • R$ 0</p>
-                </td>
-                <td className="px-6 py-4">
-                  <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold uppercase rounded-full">Básico</span>
-                </td>
-                <td className="px-6 py-4">
-                  <span className="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400 text-xs font-semibold rounded-full flex items-center gap-1 w-max">
-                    <span className="material-symbols-outlined text-[12px]">schedule</span> Em Análise (KYC)
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <span className="text-sm text-slate-400 italic">Novo</span>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <div className="flex gap-2 justify-end">
-                    <button className="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary/90 transition-colors shadow-sm flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[14px]">fact_check</span> Aprovar Doc
-                    </button>
-                    <button className="px-3 py-1.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs font-bold rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors">
-                      Recusar
-                    </button>
-                  </div>
-                </td>
-              </tr>
-
-              <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="relative h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden shrink-0">
-                      <img className="h-full w-full object-cover grayscale opacity-60" alt="Profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLSw6idectrBtJ67W7Kue22sNR3SHP9zVfNhqPdJcHLOLsBHDVJJS3YqGc9GK9pnWJsw_GIMiymlyFCn3qTsM-QCDMhDGhSBTa_xeDfv-hjCYYN1luyHQqVUdbqu9TG-_DHhh52S8QDwnEbSMmyclkB-ss9-xTJZ3yNfR3u7GI0-F26ATWAtFF7RnGqaLBnLEt7eRNcrEbA4NO5NDknOUPESqN0whNAJdPF2mHjPB5L2IKvEt5_REWGyd8Tt1iWD2_aHDOMz2S-ys" />
-                      <div className="absolute bottom-0 right-0 h-3 w-3 bg-red-500 border-2 border-white dark:border-slate-900 rounded-full"></div>
-                    </div>
-                    <div>
-                      <p className="font-bold text-sm text-slate-900 dark:text-white line-through text-slate-400">Roberto Alves</p>
-                      <p className="text-xs text-slate-500">roberto.alves@encanador.net</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 opacity-60">
-                  <p className="text-sm font-medium text-slate-900 dark:text-white">Encanador Profissional</p>
-                  <p className="text-xs text-slate-500">32 concluídos • R$ 3.2k</p>
-                </td>
-                <td className="px-6 py-4 opacity-60">
-                  <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold uppercase rounded-full">Básico</span>
-                </td>
-                <td className="px-6 py-4">
-                  <span className="px-2 py-1 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 text-xs font-semibold rounded-full flex items-center gap-1 w-max">
-                    <span className="material-symbols-outlined text-[12px]">lock</span> Bloqueado
-                  </span>
-                </td>
-                <td className="px-6 py-4 opacity-60">
-                  <div className="flex flex-col">
-                    <div className="flex items-center gap-1 text-orange-400">
-                      <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                      <span className="text-sm font-bold text-slate-900 dark:text-white">3.2</span>
-                    </div>
-                    <span className="text-[10px] text-slate-500">(41 reviews)</span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <button className="px-3 py-1.5 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-1 ml-auto">
-                    <span className="material-symbols-outlined text-[14px]">lock_open</span> Desbloquear
-                  </button>
-                </td>
-              </tr>
-
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-sm font-medium text-slate-900 dark:text-white">{provider.service_category || 'Prestador de Serviços'}</p>
+                      <p className="text-xs text-slate-500">-- concluídos • <span className="text-green-600 font-semibold">R$ --</span></p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold uppercase rounded-full">Básico</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      {provider.status === 'blocked' ? (
+                        <span className="px-2 py-1 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 text-xs font-semibold rounded-full flex items-center gap-1 w-max">
+                          <span className="material-symbols-outlined text-[12px]">lock</span> Bloqueado
+                        </span>
+                      ) : provider.status === 'pending' ? (
+                        <span className="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400 text-xs font-semibold rounded-full flex items-center gap-1 w-max">
+                          <span className="material-symbols-outlined text-[12px]">schedule</span> Em Análise
+                        </span>
+                      ) : (
+                        <span className="px-2 py-1 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 text-xs font-semibold rounded-full flex items-center gap-1 w-max">
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span> Ativo
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-1 text-orange-400">
+                          <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                          <span className="text-sm font-bold text-slate-900 dark:text-white">--</span>
+                        </div>
+                        <span className="text-[10px] text-slate-500">(-- reviews)</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      {provider.status === 'blocked' ? (
+                        <button onClick={() => handleUpdateProviderStatus(provider.id, 'active')} className="px-3 py-1.5 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-1 ml-auto">
+                          <span className="material-symbols-outlined text-[14px]">lock_open</span> Desbloquear
+                        </button>
+                      ) : (
+                        <div className="flex gap-2 justify-end">
+                          <button onClick={() => setSelectedProviderForKYC(provider)} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Ver Perfil Completo / Analisar KYC">
+                            <span className="material-symbols-outlined text-[20px]">visibility</span>
+                          </button>
+                          <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 self-center mx-1"></div>
+                          <button onClick={() => handleUpdateProviderStatus(provider.id, 'blocked')} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Bloquear Conta">
+                            <span className="material-symbols-outlined text-[20px]">block</span>
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
         <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-          <p className="text-xs text-slate-500 font-medium">Mostrando 3 de 1,240 prestadores</p>
+          <p className="text-xs text-slate-500 font-medium">Mostrando {providersList.length} de {providersList.length} prestadores</p>
           <div className="flex gap-2">
             <button className="p-1.5 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-400 disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" disabled>
               <span className="material-symbols-outlined text-sm">chevron_left</span>
@@ -506,10 +586,81 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
     </div>
   );
 
+  const renderClientsTab = () => (
+    <div className="animate-in fade-in duration-500 space-y-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <button onClick={() => setActiveTab('dashboard')} className="flex items-center gap-1 text-slate-500 hover:text-primary transition-colors text-sm mb-2 font-medium">
+            <span className="material-symbols-outlined text-[16px]">arrow_back</span> Voltar ao Dashboard
+          </button>
+          <h2 className="text-xl font-bold">Gestão de Clientes</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Usuários que contratam serviços na plataforma</p>
+        </div>
+        <div className="flex gap-2">
+          <div className="relative flex-1 md:flex-none">
+            <span className="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-xl pointer-events-none">search</span>
+            <input
+              className="pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all w-full md:w-64"
+              placeholder="Buscar cliente por nome ou email..."
+              type="text"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse whitespace-nowrap">
+            <thead>
+              <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Cliente</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">ID</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              {loading ? (
+                <tr><td colSpan={4} className="p-6 text-center text-slate-500">Carregando...</td></tr>
+              ) : clientsList.length === 0 ? (
+                <tr><td colSpan={4} className="p-6 text-center text-slate-500">Nenhum cliente encontrado.</td></tr>
+              ) : (
+                clientsList.map(client => (
+                  <tr key={client.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden shrink-0">
+                          <img className="h-full w-full object-cover" alt="Profile" src={client.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} />
+                        </div>
+                        <p className="font-medium text-sm text-slate-900 dark:text-white">{client.full_name || 'Usuário Sem Nome'}</p>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-xs text-slate-500">{client.id.substring(0, 12)}...</td>
+                    <td className="px-6 py-4">
+                      <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] font-bold uppercase rounded">Ativo</span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <button className="text-slate-400 hover:text-red-500 p-2 transition-colors" title="Bloquear Cliente">
+                        <span className="material-symbols-outlined">block</span>
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderOrdersTab = () => (
     <div className="animate-in fade-in duration-500 space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
+          <button onClick={() => setActiveTab('dashboard')} className="flex items-center gap-1 text-slate-500 hover:text-primary transition-colors text-sm mb-2 font-medium">
+            <span className="material-symbols-outlined text-[16px]">arrow_back</span> Voltar ao Dashboard
+          </button>
           <h2 className="text-xl font-bold">Gestão Operacional e Financeira</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400">Acompanhe os pedidos, fluxo de caixa e disputas ativas</p>
         </div>
@@ -528,28 +679,28 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
         <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center">
           <p className="text-xs text-slate-500 font-medium mb-1">Total Pedidos</p>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">1,452</h3>
-            <span className="text-xs text-green-500 font-bold">+12%</span>
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{ordersList.length}</h3>
+            <span className="text-xs text-green-500 font-bold"></span>
           </div>
         </div>
         <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center">
           <p className="text-xs text-slate-500 font-medium mb-1">Volume Transacionado (GMV)</p>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">R$ 384k</h3>
-            <span className="text-xs text-green-500 font-bold">+5%</span>
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">R$ {(ordersList.reduce((acc, order) => acc + (order.price || 0), 0)).toLocaleString('pt-BR')}</h3>
+            <span className="text-xs text-green-500 font-bold"></span>
           </div>
         </div>
         <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-primary">
           <p className="text-xs text-slate-500 font-medium mb-1">Receita da Plataforma</p>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">R$ 57.6k</h3>
-            <span className="text-xs text-green-500 font-bold">+8%</span>
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">R$ {(ordersList.reduce((acc, order) => acc + ((order.price || 0) * 0.15), 0)).toLocaleString('pt-BR')}</h3>
+            <span className="text-xs text-green-500 font-bold"></span>
           </div>
         </div>
         <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-red-500 cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
           <p className="text-xs text-slate-500 font-medium mb-1 text-red-600 dark:text-red-400">Disputas Abertas</p>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-2xl font-bold text-red-600 dark:text-red-400">12</h3>
+            <h3 className="text-2xl font-bold text-red-600 dark:text-red-400">{ordersList.filter(o => o.status === 'disputed').length}</h3>
             <span className="material-symbols-outlined text-sm text-red-500">warning</span>
           </div>
         </div>
@@ -562,7 +713,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
         <button className="px-4 py-1.5 rounded-full text-sm font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">Agendados</button>
         <button className="px-4 py-1.5 rounded-full text-sm font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">Em Andamento</button>
         <button className="px-4 py-1.5 rounded-full text-sm font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">Concluídos</button>
-        <button className="px-4 py-1.5 rounded-full text-sm font-semibold border border-red-200 dark:border-red-900/40 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center gap-1">Disputas <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">12</span></button>
+        <button className="px-4 py-1.5 rounded-full text-sm font-semibold border border-red-200 dark:border-red-900/40 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center gap-1">Disputas <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{ordersList.filter(o => o.status === 'disputed').length}</span></button>
       </div>
 
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
@@ -635,6 +786,9 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
     <div className="animate-in fade-in duration-500 space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
+          <button onClick={() => setActiveTab('dashboard')} className="flex items-center gap-1 text-slate-500 hover:text-primary transition-colors text-sm mb-2 font-medium">
+            <span className="material-symbols-outlined text-[16px]">arrow_back</span> Voltar ao Dashboard
+          </button>
           <h2 className="text-xl font-bold">Moderação de Avaliações</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400">Gerencie o feedback da comunidade e modere comentários</p>
         </div>
@@ -826,6 +980,245 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
     </div>
   );
 
+  const renderDisputesTab = () => {
+    const disputedOrders = ordersList.filter(o => o.status === 'disputed' || o.status === 'conflict');
+    
+    return (
+      <div className="animate-in fade-in duration-500 space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <button onClick={() => setActiveTab('dashboard')} className="flex items-center gap-1 text-slate-500 hover:text-primary transition-colors text-sm mb-2 font-medium">
+              <span className="material-symbols-outlined text-[16px]">arrow_back</span> Voltar ao Dashboard
+            </button>
+            <h2 className="text-xl font-bold text-red-600 dark:text-red-400">Central de Disputas</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Mediação de conflitos entre clientes e prestadores</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-white dark:bg-slate-900 border border-red-200 dark:border-red-900/50 p-4 rounded-xl shadow-sm text-center">
+            <span className="material-symbols-outlined text-4xl text-red-500 mb-2">gavel</span>
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{disputedOrders.length}</h3>
+            <p className="text-sm text-slate-500">Disputas Abertas</p>
+          </div>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm text-center">
+            <span className="material-symbols-outlined text-4xl text-green-500 mb-2">check_circle</span>
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
+              {ordersList.filter(o => o.status === 'resolved' || o.status === 'pay_provider' || o.status === 'refund_client').length}
+            </h3>
+            <p className="text-sm text-slate-500">Disputas Resolvidas</p>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+          <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/30">
+            <h3 className="font-bold">Aguardando Avaliação ({disputedOrders.length})</h3>
+          </div>
+          <div className="divide-y divide-slate-100 dark:divide-slate-800">
+            {disputedOrders.length === 0 ? (
+              <div className="p-8 text-center text-slate-500">
+                <span className="material-symbols-outlined text-4xl mb-2 text-slate-300">task_alt</span>
+                <p>Nenhuma disputa aberta no momento. Tudo limpo!</p>
+              </div>
+            ) : (
+              disputedOrders.map(dispute => (
+                <div key={dispute.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+                  <div className="flex gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/40 text-red-600 flex flex-col items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined">warning</span>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-bold px-2 py-0.5 bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 rounded">URGENTE</span>
+                        <p className="font-bold text-slate-900 dark:text-white">Pedido #{dispute.id.split('-')[0].toUpperCase()}</p>
+                      </div>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                        <span className="font-medium text-slate-800 dark:text-slate-200">{dispute.client?.full_name}</span> relata problemas no serviço de <span className="font-medium text-slate-800 dark:text-slate-200">{dispute.provider?.full_name}</span>.
+                      </p>
+                      <p className="text-xs text-slate-500">Valor Retido: R$ {dispute.price ? dispute.price.toLocaleString('pt-BR') : '0,00'}</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setSelectedDispute(dispute)}
+                    className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 hover:border-red-200 dark:hover:border-red-800 font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 w-full md:w-auto"
+                  >
+                    Examinar Caso <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderFinanceTab = () => {
+    const concludedOrders = ordersList.filter(o => o.status === 'completed');
+    const grossVolume = concludedOrders.reduce((acc, order) => acc + (order.price || 0), 0);
+    const platformRevenue = grossVolume * 0.15; // fixed 15% fee assumption
+    const avgTicket = concludedOrders.length > 0 ? grossVolume / concludedOrders.length : 0;
+
+    return (
+      <div className="animate-in fade-in duration-500 space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <button onClick={() => setActiveTab('dashboard')} className="flex items-center gap-1 text-slate-500 hover:text-primary transition-colors text-sm mb-2 font-medium">
+              <span className="material-symbols-outlined text-[16px]">arrow_back</span> Voltar ao Dashboard
+            </button>
+            <h2 className="text-xl font-bold">Relatórios Financeiros</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Visão geral do faturamento e repasses da plataforma</p>
+          </div>
+          <button onClick={exportToCSV} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm">
+            <span className="material-symbols-outlined text-[20px]">download</span>
+            Exportar CSV
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm">
+            <div className="p-2 bg-amber-50 dark:bg-amber-900/20 text-amber-600 rounded-lg inline-flex mb-3">
+              <span className="material-symbols-outlined text-2xl">account_balance_wallet</span>
+            </div>
+            <p className="text-sm text-slate-500 font-medium">Volume Bruto Transacionado</p>
+            <h3 className="text-3xl font-black text-slate-900 dark:text-white mt-1">
+              R$ {grossVolume.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </h3>
+          </div>
+          
+          <div className="bg-gradient-to-br from-primary to-primary-hover p-6 rounded-xl shadow-md text-white">
+            <div className="p-2 bg-white/20 rounded-lg inline-flex mb-3">
+              <span className="material-symbols-outlined text-2xl text-white">savings</span>
+            </div>
+            <p className="text-sm text-white/80 font-medium">Receita da Plataforma (15%)</p>
+            <h3 className="text-3xl font-black mt-1">
+              R$ {platformRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </h3>
+          </div>
+
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm">
+            <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-lg inline-flex mb-3">
+              <span className="material-symbols-outlined text-2xl">monitoring</span>
+            </div>
+            <p className="text-sm text-slate-500 font-medium">Ticket Médio por Serviço</p>
+            <h3 className="text-3xl font-black text-slate-900 dark:text-white mt-1">
+              R$ {avgTicket.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </h3>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+            <h3 className="font-bold mb-6">Desempenho Simplificado</h3>
+            <div className="space-y-4">
+              {/* CSS Progress Bar Mockup for Service Types */}
+              {['Limpeza', 'Eletricista', 'Encanador', 'Mudanças'].map((cat, idx) => {
+                const percentage = [45, 25, 20, 10][idx];
+                return (
+                  <div key={idx}>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="font-semibold text-slate-700 dark:text-slate-300">{cat}</span>
+                      <span className="text-slate-500">{percentage}%</span>
+                    </div>
+                    <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2">
+                      <div className="bg-primary h-2 rounded-full" style={{ width: `${percentage}%` }}></div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="text-xs text-slate-400 mt-6 text-center">* Dados ilustrativos de distribuição por categoria.</p>
+          </div>
+
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm flex flex-col justify-center items-center text-center">
+             <div className="w-20 h-20 bg-emerald-50 text-emerald-500 dark:bg-emerald-900/20 rounded-full flex items-center justify-center mb-4">
+                <span className="material-symbols-outlined text-4xl">inventory</span>
+             </div>
+             <h3 className="font-bold text-lg mb-2">Exportar Relatório</h3>
+             <p className="text-sm text-slate-500 mb-6">
+               Baixe a planilha contendo os dados brutos de todos os pedidos finalizados com sucesso para realizar seus fechamentos de mês.
+             </p>
+             <button onClick={exportToCSV} className="w-full px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2">
+               <span className="material-symbols-outlined text-[18px]">table_chart</span>
+               Gerar Planilha
+             </button>
+          </div>
+        </div>
+
+      </div>
+    );
+  };
+
+  const renderCategoriesTab = () => (
+    <div className="animate-in fade-in duration-500 space-y-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <button onClick={() => setActiveTab('dashboard')} className="flex items-center gap-1 text-slate-500 hover:text-primary transition-colors text-sm mb-2 font-medium">
+            <span className="material-symbols-outlined text-[16px]">arrow_back</span> Voltar ao Dashboard
+          </button>
+          <h2 className="text-xl font-bold">Categorias de Serviço</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Gerencie os tipos de serviços oferecidos na plataforma</p>
+        </div>
+        <button onClick={() => openCategoryModal()} className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm">
+          <span className="material-symbols-outlined text-[20px]">add</span>
+          Nova Categoria
+        </button>
+      </div>
+
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Ícone</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Nome</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Descrição</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Preço Base</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              {loading ? (
+                <tr><td colSpan={5} className="p-6 text-center text-slate-500">Carregando categorias...</td></tr>
+              ) : categoriesList.length === 0 ? (
+                <tr><td colSpan={5} className="p-6 text-center text-slate-500">Nenhuma categoria cadastrada.</td></tr>
+              ) : (
+                categoriesList.map(cat => (
+                  <tr key={cat.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                    <td className="px-6 py-4 w-16 text-center">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mx-auto">
+                        <span className="material-symbols-outlined">{cat.icon || 'handyman'}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">
+                      {cat.name}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-slate-500 max-w-xs truncate" title={cat.description}>
+                      {cat.description || '-'}
+                    </td>
+                    <td className="px-6 py-4 text-sm font-semibold text-slate-900 dark:text-white">
+                      {cat.base_price ? `R$ ${cat.base_price.toLocaleString('pt-BR')}` : '-'}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex gap-2 justify-end">
+                        <button onClick={() => openCategoryModal(cat)} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Editar">
+                          <span className="material-symbols-outlined text-[20px]">edit</span>
+                        </button>
+                        <button onClick={() => handleDeleteCategory(cat.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Excluir">
+                          <span className="material-symbols-outlined text-[20px]">delete</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="flex flex-col min-h-screen bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
 
@@ -864,11 +1257,15 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
         </div>
       </header>
 
-      <main className="flex-1 max-w-7xl mx-auto w-full p-4 md:p-6 space-y-8 pb-24 md:pb-8">
+      <main className="flex-1 max-w-7xl mx-auto w-full p-4 md:p-6 space-y-8 pb-32 md:pb-32">
         {activeTab === 'dashboard' && renderDashboardTab()}
         {activeTab === 'providers' && renderProvidersTab()}
+        {activeTab === 'clients' && renderClientsTab()}
         {activeTab === 'orders' && renderOrdersTab()}
         {activeTab === 'reviews' && renderReviewsTab()}
+        {activeTab === 'categories' && renderCategoriesTab()}
+        {activeTab === 'disputes' && renderDisputesTab()}
+        {activeTab === 'finance' && renderFinanceTab()}
         {activeTab === 'settings' && renderSettingsTab()}
       </main>
 
@@ -880,16 +1277,35 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
             <span className="text-[10px] font-medium hidden md:block">Dashboard</span>
           </button>
           <button onClick={() => setActiveTab('providers')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'providers' ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary'}`}>
-            <span className="material-symbols-outlined text-[24px]" style={activeTab === 'providers' ? { fontVariationSettings: "'FILL' 1" } : {}}>groups</span>
+            <span className="material-symbols-outlined text-[24px]" style={activeTab === 'providers' ? { fontVariationSettings: "'FILL' 1" } : {}}>engineering</span>
             <span className="text-[10px] font-medium hidden md:block">Prestadores</span>
+          </button>
+          <button onClick={() => setActiveTab('clients')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'clients' ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary'}`}>
+            <span className="material-symbols-outlined text-[24px]" style={activeTab === 'clients' ? { fontVariationSettings: "'FILL' 1" } : {}}>group</span>
+            <span className="text-[10px] font-medium hidden md:block">Clientes</span>
           </button>
           <button onClick={() => setActiveTab('orders')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'orders' ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary'}`}>
             <span className="material-symbols-outlined text-[24px]" style={activeTab === 'orders' ? { fontVariationSettings: "'FILL' 1" } : {}}>receipt</span>
             <span className="text-[10px] font-medium hidden md:block">Pedidos</span>
           </button>
-          <button onClick={() => setActiveTab('reviews')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'reviews' ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary'}`}>
+          <button onClick={() => setActiveTab('reviews')} className={`hidden lg:flex flex-col items-center gap-1 transition-colors ${activeTab === 'reviews' ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary'}`}>
             <span className="material-symbols-outlined text-[24px]" style={activeTab === 'reviews' ? { fontVariationSettings: "'FILL' 1" } : {}}>reviews</span>
             <span className="text-[10px] font-medium hidden md:block">Reviews</span>
+          </button>
+          <button onClick={() => setActiveTab('categories')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'categories' ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary'}`}>
+            <span className="material-symbols-outlined text-[24px]" style={activeTab === 'categories' ? { fontVariationSettings: "'FILL' 1" } : {}}>category</span>
+            <span className="text-[10px] font-medium hidden md:block">Categorias</span>
+          </button>
+          <button onClick={() => setActiveTab('disputes')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'disputes' ? 'text-red-500' : 'text-slate-500 dark:text-slate-400 hover:text-red-500'}`}>
+            <span className="material-symbols-outlined text-[24px] relative" style={activeTab === 'disputes' ? { fontVariationSettings: "'FILL' 1" } : {}}>
+              gavel
+              {ordersList.filter(o => o.status === 'disputed').length > 0 && <span className="absolute -top-1 -right-1 flex h-3 w-3 rounded-full bg-red-500 border-2 border-white dark:border-slate-900"></span>}
+            </span>
+            <span className="text-[10px] font-medium hidden md:block">Disputas</span>
+          </button>
+          <button onClick={() => setActiveTab('finance')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'finance' ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary'}`}>
+            <span className="material-symbols-outlined text-[24px]" style={activeTab === 'finance' ? { fontVariationSettings: "'FILL' 1" } : {}}>payments</span>
+            <span className="text-[10px] font-medium hidden md:block">Financeiro</span>
           </button>
           <button onClick={() => setActiveTab('settings')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'settings' ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary'}`}>
             <span className="material-symbols-outlined text-[24px]" style={activeTab === 'settings' ? { fontVariationSettings: "'FILL' 1" } : {}}>settings</span>
@@ -900,6 +1316,234 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
           </button>
         </div>
       </nav>
+
+      {/* KYC Modal */}
+      {selectedProviderForKYC && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white dark:bg-slate-900 z-10">
+              <h3 className="text-xl font-bold">Análise de Prestador (KYC)</h3>
+              <button onClick={() => setSelectedProviderForKYC(null)} className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="p-6 space-y-6">
+              <div className="flex items-center gap-4">
+                <img src={selectedProviderForKYC.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} alt="Avatar" className="w-20 h-20 rounded-full object-cover bg-slate-200" />
+                <div>
+                  <h4 className="text-2xl font-bold">{selectedProviderForKYC.full_name || 'Sem Nome'}</h4>
+                  <p className="text-slate-500">{selectedProviderForKYC.email || selectedProviderForKYC.id}</p>
+                  <p className="text-sm font-medium mt-1 inline-block px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800">{selectedProviderForKYC.service_category || 'Categoria não definida'}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
+                  <p className="text-xs text-slate-500 font-bold uppercase mb-1">Documento de Identidade (Frente)</p>
+                  <div className="h-32 bg-slate-200 dark:bg-slate-700 rounded-lg flex items-center justify-center text-slate-400">
+                    <span className="material-symbols-outlined text-4xl">id_card</span>
+                  </div>
+                </div>
+                <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
+                  <p className="text-xs text-slate-500 font-bold uppercase mb-1">Selfie com Documento</p>
+                  <div className="h-32 bg-slate-200 dark:bg-slate-700 rounded-lg flex items-center justify-center text-slate-400">
+                    <span className="material-symbols-outlined text-4xl">face</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-sm font-bold mb-2">Detalhes Adicionais</p>
+                <div className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
+                  <p><strong>Status Atual:</strong> {selectedProviderForKYC.status || 'active'}</p>
+                  <p><strong>Telefone:</strong> {selectedProviderForKYC.phone || 'Não informado'}</p>
+                  <p><strong>Criado em:</strong> {new Date(selectedProviderForKYC.created_at).toLocaleString('pt-BR')}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row gap-3 justify-end bg-slate-50 dark:bg-slate-800/30">
+              <button 
+                onClick={() => handleUpdateProviderStatus(selectedProviderForKYC.id, 'blocked')}
+                className="px-6 py-2.5 bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40 rounded-xl font-bold transition-colors"
+              >
+                Bloquear / Recusar
+              </button>
+              <button
+                onClick={() => handleUpdateProviderStatus(selectedProviderForKYC.id, 'active')} 
+                className="px-6 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold transition-colors shadow-sm flex items-center gap-2"
+              >
+                <span className="material-symbols-outlined text-[18px]">verified</span> Aprovar Perfil
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Category Add/Edit Modal */}
+      {isCategoryModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
+            <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/30">
+              <h3 className="text-xl font-bold">{editingCategory ? 'Editar Categoria' : 'Nova Categoria'}</h3>
+              <button onClick={() => setIsCategoryModalOpen(false)} className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-semibold mb-1">Nome da Categoria</label>
+                <input 
+                  type="text" 
+                  value={categoryForm.name} 
+                  onChange={e => setCategoryForm({...categoryForm, name: e.target.value})}
+                  className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                  placeholder="Ex: Eletricista"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold mb-1">Descrição</label>
+                <textarea 
+                  value={categoryForm.description} 
+                  onChange={e => setCategoryForm({...categoryForm, description: e.target.value})}
+                  className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all resize-none h-24"
+                  placeholder="Descreva o que este serviço contempla."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold mb-2 flex items-center justify-between">
+                  Escolha um Ícone para a Categoria
+                  {categoryForm.icon_name && (
+                    <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[14px]">{categoryForm.icon_name}</span> Selecionado
+                    </span>
+                  )}
+                </label>
+                <div className="grid grid-cols-6 sm:grid-cols-10 gap-2 p-3 border border-slate-200 dark:border-slate-700 rounded-xl h-32 overflow-y-auto bg-slate-50 dark:bg-slate-800/20">
+                  {AVAILABLE_ICONS.map(icon => (
+                    <button
+                      key={icon}
+                      type="button"
+                      onClick={() => setCategoryForm({...categoryForm, icon_name: icon})}
+                      className={`p-2 rounded-lg flex items-center justify-center transition-all ${categoryForm.icon_name === icon ? 'bg-primary text-white shadow-md scale-110 relative z-10' : 'text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white'}`}
+                      title={icon}
+                    >
+                      <span className="material-symbols-outlined text-[20px]">{icon}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-semibold mb-1">Preço Base Exibido (R$)</label>
+                <input 
+                  type="number" 
+                  value={categoryForm.base_price} 
+                  onChange={e => setCategoryForm({...categoryForm, base_price: e.target.value})}
+                  className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                  placeholder="Visão ilustrativa. Deixe 0.00 se o prestador negociar na hora."
+                />
+              </div>
+            </div>
+            <div className="p-6 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3 bg-slate-50 dark:bg-slate-800/30">
+              <button 
+                onClick={() => setIsCategoryModalOpen(false)}
+                className="px-5 py-2.5 font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={handleSaveCategory}
+                disabled={!categoryForm.name}
+                className="px-5 py-2.5 bg-primary hover:bg-primary-hover disabled:bg-primary/50 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-colors flex items-center gap-2"
+              >
+                <span className="material-symbols-outlined text-[18px]">save</span> 
+                {editingCategory ? 'Salvar Edição' : 'Criar Categoria'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Dispute Modal */}
+      {selectedDispute && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="p-6 border-b border-red-200 dark:border-red-900/50 flex items-center justify-between sticky top-0 bg-red-50 dark:bg-red-900/20 z-10">
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-red-500 text-3xl">gavel</span>
+                <div>
+                  <h3 className="text-xl font-bold text-red-700 dark:text-red-400">Resolução de Disputa</h3>
+                  <p className="text-sm text-red-600 dark:text-red-500 font-medium">Pedido #{selectedDispute.id.split('-')[0].toUpperCase()}</p>
+                </div>
+              </div>
+              <button onClick={() => setSelectedDispute(null)} className="p-2 text-red-400 hover:text-red-700 dark:hover:text-red-200 rounded-full hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              <div className="flex flex-col md:flex-row gap-6">
+                
+                {/* Client Box */}
+                <div className="flex-1 p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800/30">
+                  <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Lado do Cliente</div>
+                  <div className="flex items-center gap-3 mb-3">
+                    <img src={selectedDispute.client?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} alt="Cliente" className="w-10 h-10 rounded-full object-cover bg-slate-200" />
+                    <div>
+                      <p className="font-bold">{selectedDispute.client?.full_name || 'Usuário'}</p>
+                      <p className="text-xs text-slate-500">Solicitante</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 p-3 bg-white dark:bg-slate-900 rounded-lg shadow-sm">
+                    "O serviço não foi prestado conforme o combinado e o prestador danificou a pintura da minha parede."
+                  </p>
+                </div>
+
+                {/* Provider Box */}
+                <div className="flex-1 p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800/30">
+                  <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Lado do Prestador</div>
+                  <div className="flex items-center gap-3 mb-3">
+                    <img src={selectedDispute.provider?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} alt="Prestador" className="w-10 h-10 rounded-full object-cover bg-slate-200" />
+                    <div>
+                      <p className="font-bold">{selectedDispute.provider?.full_name || 'Prestador'}</p>
+                      <p className="text-xs text-slate-500">Profissional</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 p-3 bg-white dark:bg-slate-900 rounded-lg shadow-sm">
+                    "Fiz a instalação perfeitamente, a parede já estava descascada antes de eu começar."
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-900/50">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-sm text-amber-800 dark:text-amber-500 font-bold">Valor Retido / Em Disputa</p>
+                    <p className="text-xs text-amber-700 dark:text-amber-600">O pagamento está em escrow na plataforma.</p>
+                  </div>
+                  <p className="text-2xl font-black text-amber-600">R$ {selectedDispute.price ? selectedDispute.price.toLocaleString('pt-BR') : '0,00'}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-6 border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row gap-3 bg-slate-50 dark:bg-slate-800/30 justify-end">
+              <button 
+                onClick={() => handleResolveDispute(selectedDispute.id, 'refund_client')}
+                className="flex-1 md:flex-none px-6 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all flex items-center justify-center gap-2"
+              >
+                <span className="material-symbols-outlined text-[20px]">undo</span> Estornar Cliente
+              </button>
+              <button 
+                onClick={() => handleResolveDispute(selectedDispute.id, 'pay_provider')}
+                className="flex-1 md:flex-none px-6 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all flex items-center justify-center gap-2"
+              >
+                <span className="material-symbols-outlined text-[20px]">payments</span> Pagar Prestador
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
