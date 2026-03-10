@@ -1,0 +1,153 @@
+import React, { useState, useEffect } from 'react';
+import { NavigationProps } from '../types';
+import MobileNav from '../components/MobileNav';
+import ProviderMobileNav from '../components/ProviderMobileNav';
+import { useAuth } from '../AuthContext';
+import { supabase } from '../lib/supabase';
+
+export default function ChatListScreen({ onNavigate }: NavigationProps) {
+  const { user, role } = useAuth();
+
+  const [rooms, setRooms] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      if (!user) return;
+      try {
+        const roleColumn = role === 'provider' ? 'provider_id' : 'client_id';
+        const { data: roomsData, error } = await supabase
+          .from('chat_rooms')
+          .select(`
+            id,
+            request_id,
+            client_id,
+            provider_id,
+            client:profiles!chat_rooms_client_id_fkey(full_name, avatar_url),
+            provider:profiles!chat_rooms_provider_id_fkey(full_name, avatar_url),
+            service_requests(title)
+          `)
+          .eq(roleColumn, user.id);
+
+        if (error) throw error;
+
+        // Fetch latest messages for each room
+        const roomsWithMessages = await Promise.all((roomsData || []).map(async (room) => {
+          const { data: messages } = await supabase
+            .from('chat_messages')
+            .select('*')
+            .eq('room_id', room.id)
+            .order('created_at', { ascending: false })
+            .limit(1);
+
+          return {
+            ...room,
+            latestMessage: messages?.[0] || null
+          };
+        }));
+
+        // Sort by the latest message date
+        roomsWithMessages.sort((a, b) => {
+          const dateA = a.latestMessage ? new Date(a.latestMessage.created_at).getTime() : 0;
+          const dateB = b.latestMessage ? new Date(b.latestMessage.created_at).getTime() : 0;
+          return dateB - dateA;
+        });
+
+        setRooms(roomsWithMessages);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRooms();
+  }, [user, role]);
+
+  const handleOpenChat = (roomId: string, requestTitle: string, opponentName: string, opponentAvatar: string) => {
+    onNavigate('chat', { roomId, requestTitle, opponentName, opponentAvatar });
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen w-full bg-white dark:bg-slate-900 shadow-xl relative font-display text-slate-900 dark:text-slate-100">
+      {/* Header */}
+      <header className="sticky top-0 z-10 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-4">
+        <div className="flex items-center justify-between max-w-7xl mx-auto w-full">
+          <div className="flex items-center gap-3">
+            <button onClick={() => onNavigate('home')} className="material-symbols-outlined text-slate-600 dark:text-slate-400 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 p-1 rounded-full transition-colors">arrow_back</button>
+            <h1 className="text-xl font-bold tracking-tight">Mensagens</h1>
+          </div>
+          <button className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            <span className="material-symbols-outlined text-slate-600 dark:text-slate-400">search</span>
+          </button>
+        </div>
+        {/* Categories / Tabs */}
+        <div className="flex gap-6 mt-4 overflow-x-auto no-scrollbar max-w-7xl mx-auto w-full px-4 md:px-0">
+          <button className="pb-2 border-b-2 border-primary text-primary font-semibold text-sm whitespace-nowrap">Todas</button>
+          <button className="pb-2 border-b-2 border-transparent text-slate-500 dark:text-slate-400 font-medium text-sm whitespace-nowrap hover:text-slate-700">Serviços</button>
+          <button className="pb-2 border-b-2 border-transparent text-slate-500 dark:text-slate-400 font-medium text-sm whitespace-nowrap hover:text-slate-700">Suporte</button>
+          <button className="pb-2 border-b-2 border-transparent text-slate-500 dark:text-slate-400 font-medium text-sm whitespace-nowrap hover:text-slate-700">Arquivadas</button>
+        </div>
+      </header>
+
+      {/* Inbox List */}
+      <main className="flex-1 overflow-y-auto pb-24 md:pb-8">
+        <div className="max-w-7xl mx-auto w-full">
+          {loading ? (
+            <div className="flex justify-center p-8">
+              <span className="material-symbols-outlined animate-spin text-4xl text-slate-300">progress_activity</span>
+            </div>
+          ) : rooms.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center text-slate-500">
+              <span className="material-symbols-outlined text-6xl mb-4 opacity-50">chat_bubble</span>
+              <p className="text-lg">Você não possui nenhuma conversa.</p>
+            </div>
+          ) : (
+            rooms.map((room) => {
+              const profile = role === 'provider' ? room.client : room.provider;
+              const title = room.service_requests?.title || 'Serviço';
+              const latestMessage = room.latestMessage?.message || 'Inicie a conversa!';
+              const time = room.latestMessage ? new Date(room.latestMessage.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+
+              return (
+                <div
+                  key={room.id}
+                  onClick={() => handleOpenChat(room.id, title, profile?.full_name || 'Usuário', profile?.avatar_url)}
+                  className="flex items-center gap-4 px-4 py-4 border-b border-slate-100 dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                >
+                  <div className="relative flex-shrink-0">
+                    <div className="w-14 h-14 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden border border-slate-200 dark:border-slate-700">
+                      <img className="w-full h-full object-cover" alt={profile?.full_name || 'Usuário'} src={profile?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} />
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-baseline mb-0.5">
+                      <h3 className="font-semibold text-slate-800 dark:text-slate-200 truncate">{profile?.full_name || 'Usuário'}</h3>
+                      <span className="text-xs text-slate-400">{time}</span>
+                    </div>
+                    <p className="text-xs font-bold text-primary mb-0.5 truncate">{title}</p>
+                    <div className="flex justify-between items-center">
+                      <p className="text-sm text-slate-500 dark:text-slate-400 truncate">{latestMessage}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </main>
+
+      {/* Bottom Navigation Bar (Mobile Only) */}
+      {role === 'provider' ? (
+        <ProviderMobileNav onNavigate={onNavigate} currentScreen={'chatList' as any} />
+      ) : (
+        <MobileNav onNavigate={onNavigate} currentScreen="chatList" />
+      )}
+
+      {/* Action Button */}
+      <button onClick={() => alert('Abrir lista de contatos para novo chat')} className="absolute bottom-24 right-6 w-14 h-14 bg-primary text-white rounded-full shadow-lg flex items-center justify-center hover:scale-105 transition-transform z-40">
+        <span className="material-symbols-outlined text-3xl">add_comment</span>
+      </button>
+    </div>
+  );
+}
