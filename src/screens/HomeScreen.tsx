@@ -1,13 +1,148 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { NavigationProps, Screen } from '../types';
-import { professionals } from '../data/mockData';
+import { professionals as mockProfessionals } from '../data/mockData';
 import MobileNav from '../components/MobileNav';
 import { useAuth } from '../AuthContext';
+import { supabase } from '../lib/supabase';
+
+// Helper for calculating distance in km (Haversine Formula)
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371; // Radius of the earth in km
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+  return R * c; 
+}
 
 export default function HomeScreen({ onNavigate }: NavigationProps) {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
+  
+  const [locationName, setLocationName] = useState('Brasil (Sem GPS)');
+  const [userCoords, setUserCoords] = useState<{lat: number, lng: number} | null>(null);
+  const [providers, setProviders] = useState<any[]>([]);
+  const [loadingProviders, setLoadingProviders] = useState(true);
+  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [manualCityInput, setManualCityInput] = useState('');
+  const isManualLocation = useRef(false);
+
+  // Ask for location on mount (or you can trigger this with a UI button)
+  useEffect(() => {
+    const savedLocation = localStorage.getItem('iService_manualCity');
+    if (savedLocation) {
+      isManualLocation.current = true;
+      setLocationName(savedLocation);
+      setManualCityInput(savedLocation);
+    } else if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          if (!isManualLocation.current) {
+            setUserCoords({ lat: position.coords.latitude, lng: position.coords.longitude });
+            setLocationName("Sua Localização Atual");
+          }
+        },
+        (error) => {
+          console.warn("GPS negado ou indisponível:", error);
+          if (!isManualLocation.current) {
+            setLocationName("Localização Indisponível (GPS Negado)");
+          }
+        }
+      );
+    }
+  }, []);
+
+  // Fetch providers from Supabase instead of only relying on mock data
+  useEffect(() => {
+    const fetchProviders = async () => {
+      setLoadingProviders(true);
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('role', 'provider');
+          // For now, ignoring status='pending' to show everyone, but in production only show 'active'
+          
+        if (error) throw error;
+
+        // Map them to look like our UI components expect
+        let mapped = (data || []).map(p => {
+          let distanceStr = 'N/A';
+          if (userCoords && p.latitude && p.longitude) {
+            const dist = calculateDistance(userCoords.lat, userCoords.lng, p.latitude, p.longitude);
+            distanceStr = dist.toFixed(1);
+          } else if (p.city) {
+             distanceStr = 'N/A (' + p.city + ')';
+          }
+
+          return {
+            id: p.id,
+            name: p.full_name || 'Profissional Sem Nome',
+            service: p.category || 'Serviços Gerais',
+            rating: p.rating || (4.5 + Math.random() * 0.5).toFixed(1),
+            price: (Math.random() * 100 + 50).toFixed(2),
+            priceUnit: 'hora',
+            distance: distanceStr,
+            city: p.city,
+            image: p.avatar_url || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
+            isAffiliate: true, // Mocking affiliate for UI
+            isVerified: true,
+            rawDistance: distanceStr === 'N/A' || distanceStr.includes('N/A') ? 999999 : parseFloat(distanceStr)
+          };
+        });
+
+        // Sort by distance if we have GPS
+        // If not GPS, prioritize the matched city
+        mapped.sort((a, b) => {
+           if (userCoords) {
+             return a.rawDistance - b.rawDistance;
+           } else if (locationName && locationName !== 'Brasil (Sem GPS)' && locationName !== 'Localização Indisponível (GPS Negado)') {
+             // Basic text match priority if no GPS
+             const aMatch = a.city?.toLowerCase().includes(locationName.toLowerCase()) ? -1 : 1;
+             const bMatch = b.city?.toLowerCase().includes(locationName.toLowerCase()) ? -1 : 1;
+             return aMatch - bMatch;
+           }
+           return 0;
+        });
+        
+        // Blend in mock ones if we have none, just to avoid empty UI for the demo
+        if (mapped.length === 0) {
+          mapped = mockProfessionals.filter(mp => mp.isAffiliate).map(mp => ({
+            ...mp, 
+            price: String(mp.price), 
+            distance: String(mp.distance),
+            city: 'N/A', 
+            isAffiliate: mp.isAffiliate ?? false,
+            isVerified: mp.isVerified ?? false,
+            rawDistance: 999999
+          }));
+        }
+
+        setProviders(mapped);
+      } catch (err) {
+        console.error("Error fetching providers:", err);
+      } finally {
+        setLoadingProviders(false);
+      }
+    };
+    fetchProviders();
+  }, [userCoords, locationName]);
+
+  const handleManualLocationSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if(manualCityInput.trim() !== '') {
+      isManualLocation.current = true;
+      const city = manualCityInput.trim();
+      setLocationName(city);
+      setUserCoords(null); // Clear GPS since we are using explicit city
+      localStorage.setItem('iService_manualCity', city);
+      setShowLocationModal(false);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,8 +157,6 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
       onNavigate('listing', { searchQuery });
     }
   };
-
-  const featuredProfessionals = professionals.filter(p => p.isAffiliate);
 
   return (
     <div className="w-full bg-slate-50 dark:bg-[#141414] min-h-screen flex flex-col font-display text-slate-900 dark:text-slate-100 pb-20 md:pb-0 overflow-x-hidden">
@@ -41,7 +174,11 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
               <p className={`text-[10px] uppercase tracking-wider font-bold ${isScrolled ? 'text-slate-500 dark:text-slate-400' : 'text-white/80'}`}>
                 Localização
               </p>
-              <h2 className={`text-lg font-bold leading-tight ${isScrolled ? 'text-slate-900 dark:text-white' : 'text-white'}`}>Rondonópolis</h2>
+              <h2 className={`text-base font-bold leading-tight ${isScrolled ? 'text-slate-900 dark:text-white' : 'text-white'} flex items-center gap-1 cursor-pointer`}
+                  onClick={() => setShowLocationModal(true)}>
+                {locationName}
+                <span className="material-symbols-outlined text-[14px]">edit</span>
+              </h2>
             </div>
           </div>
 
@@ -224,56 +361,63 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
             {/* Horizontal Scroll Area */}
             <div className="flex gap-4 md:gap-6 overflow-x-auto pb-8 pt-4 snap-x snap-mandatory hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 scroll-smooth">
-              {featuredProfessionals.map((professional) => (
-                <div
-                  key={professional.id}
-                  onClick={() => onNavigate('profile', { professionalId: professional.id })}
-                  className="snap-start shrink-0 w-[240px] md:w-[280px] group cursor-pointer"
-                >
-                  <div className="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-lg bg-slate-200 dark:bg-slate-800 mb-3">
-                    <img
-                      className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
-                      src={professional.image}
-                      alt={professional.name}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/20 to-transparent opacity-80 transition-opacity duration-300"></div>
+              {loadingProviders ? (
+                <div className="py-10 text-slate-500 flex items-center gap-2">
+                   <span className="material-symbols-outlined animate-spin">refresh</span>
+                   Buscando os mais próximos...
+                </div>
+              ) : (
+                providers.map((professional) => (
+                  <div
+                    key={professional.id}
+                    onClick={() => onNavigate('profile', { professionalId: professional.id })}
+                    className="snap-start shrink-0 w-[240px] md:w-[280px] group cursor-pointer"
+                  >
+                    <div className="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-lg bg-slate-200 dark:bg-slate-800 mb-3">
+                      <img
+                        className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
+                        src={professional.image}
+                        alt={professional.name}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/20 to-transparent opacity-80 transition-opacity duration-300"></div>
 
-                    {/* Top Badges */}
-                    <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
-                      <div className="bg-black/60 backdrop-blur-md border border-white/10 px-2 py-1 rounded text-[10px] flex items-center gap-1 font-bold text-white shadow-sm w-max">
-                        <span className="material-symbols-outlined text-[12px] text-yellow-500">star</span>
-                        {professional.rating}
+                      {/* Top Badges */}
+                      <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
+                        <div className="bg-black/60 backdrop-blur-md border border-white/10 px-2 py-1 rounded text-[10px] flex items-center gap-1 font-bold text-white shadow-sm w-max">
+                          <span className="material-symbols-outlined text-[12px] text-yellow-500">star</span>
+                          {professional.rating}
+                        </div>
                       </div>
-                    </div>
-                    {/* MAIA verification badge */}
-                    <div className="absolute top-3 right-3 bg-primary/90 backdrop-blur-md rounded-full w-8 h-8 flex items-center justify-center shadow-lg transform rotate-12 group-hover:rotate-0 transition-transform z-10">
-                      <span className="material-symbols-outlined text-white text-[16px]">verified</span>
-                    </div>
-
-                    {/* Bottom Info inside image */}
-                    <div className="absolute bottom-4 left-4 right-4 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300 z-10">
-                      <div className="flex items-center justify-between mb-1">
-                        <h4 className="font-bold text-lg md:text-xl leading-tight truncate drop-shadow-md">
-                          {professional.name}
-                        </h4>
+                      {/* MAIA verification badge */}
+                      <div className="absolute top-3 right-3 bg-primary/90 backdrop-blur-md rounded-full w-8 h-8 flex items-center justify-center shadow-lg transform rotate-12 group-hover:rotate-0 transition-transform z-10">
+                        <span className="material-symbols-outlined text-white text-[16px]">verified</span>
                       </div>
-                      <p className="text-xs text-white/80 drop-shadow-md text-primary font-semibold mb-2">
-                        {professional.service}
-                      </p>
 
-                      <div className="flex items-center justify-between pt-2 border-t border-white/20">
-                        <span className="text-sm font-bold text-white">
-                          R$ {professional.price}<span className="text-[10px] text-white/60 font-normal">/{professional.priceUnit}</span>
-                        </span>
-                        <p className="text-[10px] text-white/70 flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[12px]">location_on</span>
-                          {professional.distance}km
+                      {/* Bottom Info inside image */}
+                      <div className="absolute bottom-4 left-4 right-4 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300 z-10">
+                        <div className="flex items-center justify-between mb-1">
+                          <h4 className="font-bold text-lg md:text-xl leading-tight truncate drop-shadow-md">
+                            {professional.name}
+                          </h4>
+                        </div>
+                        <p className="text-xs text-white/80 drop-shadow-md text-primary font-semibold mb-2">
+                          {professional.service}
                         </p>
+
+                        <div className="flex items-center justify-between pt-2 border-t border-white/20">
+                          <span className="text-sm font-bold text-white">
+                            A Combinar
+                          </span>
+                          <p className="text-[10px] text-white/70 flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[12px]">location_on</span>
+                            {professional.distance === 999999 ? 'Longe' : `${professional.distance} km`}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </section>
         </div>
@@ -291,6 +435,50 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
       {/* Bottom Navigation (Mobile Only) */}
       <MobileNav onNavigate={onNavigate} currentScreen="home" />
+
+       {/* Manual Location Modal */}
+       {showLocationModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-fade-in-up">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+              <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary">edit_location</span>
+                Alterar Localização
+              </h3>
+              <button onClick={() => setShowLocationModal(false)} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <form onSubmit={handleManualLocationSubmit} className="p-6">
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                Não conseguimos acessar seu GPS automaticamente. Digite sua cidade para encontrarmos os profissionais mais próximos de você.
+              </p>
+              <div className="mb-6">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Qual é a sua cidade?</label>
+                <div className="relative">
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">location_city</span>
+                  <input
+                    type="text"
+                    value={manualCityInput}
+                    onChange={(e) => setManualCityInput(e.target.value)}
+                    placeholder="Ex: Rondonópolis, São Paulo, etc."
+                    className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                    autoFocus
+                  />
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <button type="button" onClick={() => setShowLocationModal(false)} className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                  Cancelar
+                </button>
+                <button type="submit" disabled={!manualCityInput.trim()} className="flex-1 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors disabled:opacity-50">
+                  Confirmar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Custom Styles */}
       <style dangerouslySetInnerHTML={{

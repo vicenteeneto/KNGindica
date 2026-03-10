@@ -1,7 +1,84 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { NavigationProps } from '../types';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../AuthContext';
 
 export default function ProviderRegistrationScreen({ onNavigate }: NavigationProps) {
+  const { user, refreshProfile } = useAuth();
+  
+  const [formData, setFormData] = useState({
+    name: '',
+    document: '',
+    category: '',
+    bio: '',
+    city: '',
+    latitude: null as number | null,
+    longitude: null as number | null
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [geoLoading, setGeoLoading] = useState(false);
+
+  const handleGetLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocalização não é suportada pelo seu navegador.");
+      return;
+    }
+    
+    setGeoLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setFormData(prev => ({
+          ...prev,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          // You could potentially reverse geocode here, but let's allow manual city entry for now
+        }));
+        setGeoLoading(false);
+      },
+      (error) => {
+        console.error("Erro GPS:", error);
+        alert("Não foi possível acessar a localização. Por favor, libere a permissão ou digite a cidade manualmente.");
+        setGeoLoading(false);
+      }
+    );
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) {
+      alert("Usuário não autenticado");
+      return;
+    }
+    if (!formData.name || !formData.category || !formData.city) {
+      alert("Por favor, preencha pelo menos Nome, Categoria e Cidade.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase.from('profiles').update({
+        full_name: formData.name,
+        // Assume document and bio might need columns added eventually, but skipping if not in schema yet
+        // However, city, latitude, and longitude are critical now:
+        city: formData.city,
+        latitude: formData.latitude,
+        longitude: formData.longitude,
+        role: 'provider',
+        status: 'pending' // KYC logic
+      }).eq('id', user.id);
+
+      if (error) throw error;
+      
+      await refreshProfile();
+      onNavigate('plan');
+    } catch (e: any) {
+      console.error(e);
+      alert("Erro ao salvar cadastro: " + e.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
       {/* Header / Navigation */}
@@ -23,7 +100,7 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
           <p className="text-slate-500 dark:text-slate-400 text-sm">Preencha suas informações profissionais para começar a receber solicitações.</p>
         </header>
 
-        <form className="space-y-6">
+        <form className="space-y-6" onSubmit={handleSubmit}>
           {/* Profile Photo Upload */}
           <div className="flex flex-col items-center mb-8">
             <div className="relative group">
@@ -43,21 +120,42 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
 
           {/* Full Name */}
           <div className="space-y-1.5">
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300" htmlFor="name">Nome Completo</label>
-            <input className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" id="name" placeholder="Ex: João Silva" type="text"/>
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300" htmlFor="name">Nome Completo *</label>
+            <input 
+              className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" 
+              id="name" 
+              placeholder="Ex: João Silva" 
+              type="text"
+              value={formData.name}
+              onChange={e => setFormData({...formData, name: e.target.value})}
+              required
+            />
           </div>
 
           {/* CPF/CNPJ */}
           <div className="space-y-1.5">
             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300" htmlFor="document">CPF ou CNPJ</label>
-            <input className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" id="document" placeholder="000.000.000-00" type="text"/>
+            <input 
+              className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" 
+              id="document" 
+              placeholder="000.000.000-00" 
+              type="text"
+              value={formData.document}
+              onChange={e => setFormData({...formData, document: e.target.value})}
+            />
           </div>
 
           {/* Professional Category */}
           <div className="space-y-1.5">
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300" htmlFor="category">Categoria Profissional</label>
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300" htmlFor="category">Categoria Profissional *</label>
             <div className="relative">
-              <select defaultValue="" className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none appearance-none" id="category">
+              <select 
+                className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none appearance-none" 
+                id="category"
+                value={formData.category}
+                onChange={e => setFormData({...formData, category: e.target.value})}
+                required
+              >
                 <option disabled value="">Selecione uma categoria</option>
                 <option value="electrician">Eletricista</option>
                 <option value="plumber">Encanador</option>
@@ -73,19 +171,52 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
           {/* Bio / Description */}
           <div className="space-y-1.5">
             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300" htmlFor="bio">Bio / Descrição Profissional</label>
-            <textarea className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none resize-none" id="bio" placeholder="Conte um pouco sobre sua experiência e diferenciais..." rows={4}></textarea>
+            <textarea 
+              className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none resize-none" 
+              id="bio" 
+              placeholder="Conte um pouco sobre sua experiência e diferenciais..." 
+              rows={4}
+              value={formData.bio}
+              onChange={e => setFormData({...formData, bio: e.target.value})}
+            />
             <p className="text-[10px] text-slate-400 text-right italic">Mínimo de 30 caracteres</p>
           </div>
 
-          {/* City (Fixed) */}
-          <div className="space-y-1.5">
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Cidade de Atuação</label>
-            <div className="flex items-center w-full px-4 py-3 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-xl cursor-not-allowed">
-              <span className="material-symbols-outlined text-primary text-sm mr-2">location_on</span>
-              <span className="text-slate-600 dark:text-slate-300">Rondonópolis - MT</span>
-              <span className="ml-auto material-symbols-outlined text-slate-400 text-sm">lock</span>
+          {/* Location Area */}
+          <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-800">
+            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">Localização e Raio de Atendimento</h3>
+            
+            <button
+              type="button"
+              onClick={handleGetLocation}
+              disabled={geoLoading}
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50 rounded-xl font-medium hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors disabled:opacity-50"
+            >
+              <span className="material-symbols-outlined">{geoLoading ? 'refresh' : 'my_location'}</span>
+              {geoLoading ? 'Obtendo localização...' : 'Usar minha Localização Atual (GPS)'}
+            </button>
+            
+            {formData.latitude && formData.longitude && (
+              <div className="p-3 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-lg text-xs font-medium flex items-center gap-2 border border-green-200 dark:border-green-800/50">
+                <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                Coordenadas capturadas com sucesso!
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Cidade de Atuação *</label>
+              <div className="flex items-center w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent transition-all">
+                <span className="material-symbols-outlined text-primary text-sm mr-2">location_city</span>
+                <input 
+                  type="text" 
+                  className="w-full bg-transparent outline-none" 
+                  placeholder="Ex: Rondonópolis - MT"
+                  value={formData.city}
+                  onChange={e => setFormData({...formData, city: e.target.value})}
+                  required
+                />
+              </div>
             </div>
-            <p className="text-[10px] text-slate-400">Atualmente disponível apenas para Rondonópolis.</p>
           </div>
 
           {/* Footer Spacing */}
@@ -96,11 +227,12 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
       {/* Bottom Action Bar */}
       <footer className="sticky bottom-0 p-6 bg-gradient-to-t from-background-light dark:from-background-dark via-background-light dark:via-background-dark to-transparent">
         <button 
-          onClick={() => onNavigate('plan')}
-          className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-[0.98] flex items-center justify-center"
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+          className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-[0.98] flex items-center justify-center disabled:opacity-70"
         >
-          <span>Finalizar Cadastro</span>
-          <span className="material-symbols-outlined ml-2 text-sm">check_circle</span>
+          <span>{isSubmitting ? 'Salvando...' : 'Finalizar Cadastro'}</span>
+          {!isSubmitting && <span className="material-symbols-outlined ml-2 text-sm">check_circle</span>}
         </button>
       </footer>
     </div>
