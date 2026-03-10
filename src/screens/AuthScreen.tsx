@@ -239,33 +239,7 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
             </p>
           </div>
 
-          {/* Developer Sandbox Logins (For Testing Purposes) */}
-          <div className="mt-8 p-5 bg-orange-50 dark:bg-orange-900/10 border-2 border-dashed border-orange-200 dark:border-orange-800/50 rounded-2xl flex flex-col items-center hidden">
-            <p className="text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-widest mb-4">Modo Desenvolvedor</p>
-            <div className="grid grid-cols-3 gap-2 w-full">
-              <button
-                onClick={() => handleDevLoginSimulation('client')}
-                className="px-2 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold rounded-xl text-slate-700 dark:text-slate-300 hover:border-primary hover:text-primary transition-all shadow-sm"
-              >
-                <span className="material-symbols-outlined text-lg mb-1 block">person</span>
-                Cliente
-              </button>
-              <button
-                onClick={() => handleDevLoginSimulation('provider')}
-                className="px-2 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold rounded-xl text-slate-700 dark:text-slate-300 hover:border-primary hover:text-primary transition-all shadow-sm"
-              >
-                <span className="material-symbols-outlined text-lg mb-1 block">handyman</span>
-                Prestador
-              </button>
-              <button
-                onClick={() => handleDevLoginSimulation('admin')}
-                className="px-2 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold rounded-xl text-slate-700 dark:text-slate-300 hover:border-primary hover:text-primary transition-all shadow-sm"
-              >
-                <span className="material-symbols-outlined text-lg mb-1 block">admin_panel_settings</span>
-                Dono
-              </button>
-            </div>
-          </div>
+
 
         </div>
       </main>

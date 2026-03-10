@@ -29,8 +29,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
     <div className="w-full bg-slate-50 dark:bg-[#141414] min-h-screen flex flex-col font-display text-slate-900 dark:text-slate-100 pb-20 md:pb-0 overflow-x-hidden">
       {/* Floating Modern Header */}
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 px-4 pt-6 pb-4 md:py-4 ${isScrolled
-          ? 'bg-white/90 dark:bg-[#000000]/90 backdrop-blur-md shadow-sm'
-          : 'bg-gradient-to-b from-black/80 via-black/40 to-transparent'
+        ? 'bg-white/90 dark:bg-[#000000]/90 backdrop-blur-md shadow-sm'
+        : 'bg-gradient-to-b from-black/80 via-black/40 to-transparent'
         }`}>
         <div className="flex items-center justify-between mx-auto max-w-7xl">
           <div className="flex items-center gap-2 text-white">
@@ -59,9 +59,11 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             <button onClick={() => onNavigate('userProfile')} className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-2">
               <span className="material-symbols-outlined text-[20px]">person</span> Perfil
             </button>
-            <button onClick={() => onNavigate('adminDashboard')} className="text-sm font-medium text-red-400 hover:text-red-500 transition-colors flex items-center gap-2">
-              <span className="material-symbols-outlined text-[20px]">admin_panel_settings</span> Admin
-            </button>
+            {user?.email === 'offkngpublicidade@gmail.com' && (
+              <button onClick={() => onNavigate('adminDashboard')} className="text-sm font-medium text-red-400 hover:text-red-500 transition-colors flex items-center gap-2">
+                <span className="material-symbols-outlined text-[20px]">admin_panel_settings</span> Admin
+              </button>
+            )}
           </nav>
 
           <div className="flex items-center gap-4">
@@ -207,24 +209,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             </div>
           </section>
 
-          {/* Test Mode Banner - Integrated nicely */}
-          <section className="px-4 md:px-8">
-            <div className="bg-gradient-to-r from-slate-900 to-slate-800 dark:from-slate-800 dark:to-slate-900 border border-slate-700 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between text-white shadow-xl relative overflow-hidden group cursor-pointer hover:border-slate-500 transition-colors"
-              onClick={() => onNavigate('registration')}>
-              <div className="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-l from-primary/20 to-transparent pointer-events-none group-hover:from-primary/30 transition-colors"></div>
-              <div className="relative z-10 flex-1 mb-4 md:mb-0">
-                <span className="text-[10px] font-bold bg-primary/20 text-primary border border-primary/30 px-2.5 py-1 rounded-full uppercase tracking-wider mb-3 inline-block">Modo de Teste</span>
-                <h4 className="font-bold text-xl md:text-2xl mt-1">Conheça as Novas Telas</h4>
-                <p className="text-slate-400 mt-2 max-w-lg text-sm md:text-base">Experimente o novo fluxo de Cadastro de Prestador de Serviços com a versão HTML 1 e HTML 2 incluídas.</p>
-              </div>
-              <button
-                className="relative z-10 bg-primary text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-primary/30 shrink-0 transform group-hover:scale-105 transition-transform flex items-center gap-2"
-              >
-                Testar Fluxo Agora
-                <span className="material-symbols-outlined">arrow_forward</span>
-              </button>
-            </div>
-          </section>
+
 
           {/* Featured Professionals (Netflix Style Row - "Em Alta na sua Região" / "Recomendados") */}
           <section className="px-4 md:px-8">

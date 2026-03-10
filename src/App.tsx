@@ -46,9 +46,14 @@ function AppContent() {
         setCurrentScreen('auth');
       } else if (currentScreen === 'auth' && role !== null) {
         // If logged in, role is loaded, and on auth screen, redirect based on role
-        if (role === 'admin') setCurrentScreen('adminDashboard');
-        else if (role === 'provider') setCurrentScreen('dashboard');
-        else setCurrentScreen('home');
+        // Extra security: only allow the specific email to access admin
+        if (role === 'admin' && user?.email === 'offkngpublicidade@gmail.com') {
+          setCurrentScreen('adminDashboard');
+        } else if (role === 'provider') {
+          setCurrentScreen('dashboard');
+        } else {
+          setCurrentScreen('home');
+        }
       }
     }
   }, [user, role, loading, currentScreen]);
