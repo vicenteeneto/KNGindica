@@ -30,6 +30,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
           id,
           title,
           description,
+          address,
           status,
           created_at,
           client_id,
@@ -168,7 +169,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-4 max-w-7xl mx-auto w-full">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-4 w-full">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-slate-900 dark:text-white text-lg font-bold">
               {loading ? 'Carregando...' : `${activeTab} (${requests.length})`}
@@ -177,7 +178,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
           </div>
 
           {!loading && requests.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {requests.map(req => (
                 <div key={req.id} className="flex flex-col rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden transition-all hover:shadow-md">
                   <div className="p-4 flex flex-col h-full">
@@ -195,21 +196,40 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                           {req.service_categories?.name || 'Serviço'}
                         </p>
                         <p className="text-slate-400 dark:text-slate-500 text-xs mt-1 flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[16px]">location_on</span>
+                          <span className="truncate">{req.address || 'Local não informado'}</span>
+                        </p>
+                        <p className="text-slate-400 dark:text-slate-500 text-xs mt-1 flex items-center gap-1">
                           <span className="material-symbols-outlined text-[16px]">calendar_today</span>
                           {new Date(req.created_at).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
+
+                    <div className="mt-4 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800 flex-1">
+                      <p className="text-sm text-slate-700 dark:text-slate-300 font-medium whitespace-pre-line line-clamp-3">
+                        {req.description || 'Sem descrição.'}
+                      </p>
+                    </div>
+
                     {activeTab === 'Novos' && (
-                      <div className="mt-6 flex gap-2">
+                      <div className="mt-4 flex flex-col gap-2">
                         <button
-                          onClick={() => handleAcceptRequest(req.id)}
-                          className="flex-1 cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold transition-opacity hover:opacity-90 active:scale-[0.98]">
-                          Aceitar
+                          onClick={() => handleOpenChat(req)}
+                          className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 dark:text-emerald-500 text-sm font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/20 active:scale-[0.98] transition-colors border border-emerald-200 dark:border-emerald-800/30">
+                          <span className="material-symbols-outlined text-[18px]">chat</span>
+                          Conversar e Orçar
                         </button>
-                        <button className="flex-1 cursor-pointer items-center justify-center rounded-lg h-10 px-4 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-[0.98] transition-colors">
-                          Recusar
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleAcceptRequest(req.id)}
+                            className="flex-1 cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold transition-opacity hover:opacity-90 active:scale-[0.98]">
+                            Aceitar Pedido
+                          </button>
+                          <button className="flex-1 cursor-pointer items-center justify-center rounded-lg h-10 px-4 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-[0.98] transition-colors">
+                            Recusar
+                          </button>
+                        </div>
                       </div>
                     )}
                     
