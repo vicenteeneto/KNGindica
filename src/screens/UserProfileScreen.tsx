@@ -38,6 +38,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
   // States for Modals
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showAddressModal, setShowAddressModal] = useState(false);
+  const [showProviderModal, setShowProviderModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   // Form States
@@ -48,6 +49,8 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
     cep: (profile as any)?.cep || '',
     city: (profile as any)?.city || '',
     address: (profile as any)?.address || '',
+    bio: (profile as any)?.bio || '',
+    categories: (profile as any)?.categories || [],
   });
 
   const [isFetchingCep, setIsFetchingCep] = useState(false);
@@ -62,6 +65,8 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         cep: formatCEP((profile as any).cep || ''),
         city: (profile as any).city || '',
         address: (profile as any).address || '',
+        bio: (profile as any).bio || '',
+        categories: (profile as any).categories || [],
       });
     }
   }, [profile]);
@@ -134,6 +139,28 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       setShowAddressModal(false);
     } catch (err: any) {
       alert("Erro ao salvar: " + err.message + "\n\nSe o erro persistir, verifique se as colunas cep, city e address existem no banco de dados.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSaveProviderProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          bio: formData.bio,
+          categories: formData.categories,
+        })
+        .eq('id', user?.id);
+
+      if (error) throw error;
+      await refreshProfile();
+      setShowProviderModal(false);
+    } catch (err: any) {
+      alert("Erro ao salvar: " + err.message + "\n\nSe o erro persistir, verifique se as colunas bio e categories existem no banco de dados.");
     } finally {
       setIsSaving(false);
     }
@@ -291,6 +318,24 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
               </div>
               <span className="material-symbols-outlined text-slate-400">chevron_right</span>
             </button>
+
+            {role === 'provider' && (
+              <button
+                onClick={() => setShowProviderModal(true)}
+                className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="size-10 rounded-full bg-orange-50 dark:bg-orange-900/20 text-orange-500 flex items-center justify-center group-hover:bg-orange-100 dark:group-hover:bg-orange-900/40 transition-colors">
+                    <span className="material-symbols-outlined">work</span>
+                  </div>
+                  <div className="text-left">
+                    <p className="font-semibold text-slate-900 dark:text-white">Perfil Profissional</p>
+                    <p className="text-xs text-slate-500">Sobre, Serviços</p>
+                  </div>
+                </div>
+                <span className="material-symbols-outlined text-slate-400">chevron_right</span>
+              </button>
+            )}
 
             <button
               onClick={() => alert('Gerenciar métodos de pagamento')}
@@ -557,6 +602,68 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 </button>
                 <button type="submit" disabled={isSaving} className="flex-1 py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 transition-colors disabled:opacity-50 flex justify-center items-center gap-2">
                   {isSaving ? <span className="material-symbols-outlined animate-spin text-[20px]">refresh</span> : 'Salvar Endereço'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Provider Profile Modal */}
+      {showProviderModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center shrink-0">
+              <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                <span className="material-symbols-outlined text-orange-500">work</span>
+                Perfil Profissional
+              </h3>
+              <button disabled={isSaving} onClick={() => setShowProviderModal(false)} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <form onSubmit={handleSaveProviderProfile} className="p-6 overflow-y-auto flex-1">
+              <div className="space-y-4 mb-6">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Sobre a Empresa / Profissional</label>
+                  <textarea
+                    rows={4}
+                    value={formData.bio}
+                    onChange={(e) => setFormData({...formData, bio: e.target.value})}
+                    placeholder="Conte um pouco sobre sua experiência, diferenciais e forma de trabalhar..."
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all resize-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">Serviços Prestados (Selecione um ou mais)</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {['Limpeza', 'Reformas', 'Elétrica', 'Jardim', 'Montagem', 'Encanador', 'Pintura', 'Frete'].map(cat => (
+                      <label key={cat} className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${formData.categories?.includes(cat) ? 'bg-orange-500/10 border-orange-500 text-orange-600 dark:text-orange-400' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'}`}>
+                        <input
+                          type="checkbox"
+                          className="hidden"
+                          checked={formData.categories?.includes(cat)}
+                          onChange={(e) => {
+                            const current = formData.categories || [];
+                            if (e.target.checked) {
+                              setFormData({...formData, categories: [...current, cat]});
+                            } else {
+                              setFormData({...formData, categories: current.filter((c: string) => c !== cat)});
+                            }
+                          }}
+                        />
+                        <span className="text-sm font-semibold">{cat}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-3 mt-4 shrink-0">
+                <button type="button" disabled={isSaving} onClick={() => setShowProviderModal(false)} className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                  Cancelar
+                </button>
+                <button type="submit" disabled={isSaving} className="flex-1 py-3 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition-colors disabled:opacity-50 flex justify-center items-center gap-2">
+                  {isSaving ? <span className="material-symbols-outlined animate-spin text-[20px]">refresh</span> : 'Salvar Perfil'}
                 </button>
               </div>
             </form>
