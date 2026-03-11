@@ -3,6 +3,7 @@ import { NavigationProps } from '../types';
 import { professionals } from '../data/mockData';
 import VerifiedBadge from '../components/VerifiedBadge';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../AuthContext';
 
 interface ProfessionalProfileProps extends NavigationProps {
   professionalId?: string;
@@ -14,6 +15,22 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
   const [dbReviews, setDbReviews] = useState<any[]>([]);
   const [dbProfessional, setDbProfessional] = useState<any>(null);
   const [loadingProfile, setLoadingProfile] = useState(false);
+  const { user } = useAuth(); // Import useAuth to get current client id
+
+  // Tracking de Leads
+  const trackLead = async (pId: string, type: 'whatsapp_click' | 'profile_view' | 'chat_start') => {
+    if (!user || user.id === pId) return; // Não conta lead de si mesmo
+    try {
+      await supabase.from('lead_events').insert({
+        client_id: user.id,
+        provider_id: pId,
+        type: type,
+        metadata: { source: 'profile_screen' }
+      });
+    } catch (e) {
+      console.error("Lead track error", e);
+    }
+  };
 
   useEffect(() => {
     if (professionalId?.includes('-')) {
@@ -55,9 +72,14 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
             isVerified: true,
             distance: 'A Combinar',
             description: data.bio || 'Sem descrição.',
-            isAffiliate: !!data.company_name,
+            isAffiliate: data.plan_type === 'plus',
+            plan_type: data.plan_type || 'basic',
+            whatsapp: data.whatsapp_number,
             service: data.categories?.[0] || 'Serviços',
           });
+          
+          // Registrar Lead de Visualização de Perfil
+          trackLead(data.id, 'profile_view');
         }
         setLoadingProfile(false);
       };
@@ -274,9 +296,24 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
       </main>
 
       {/* Sticky Footer Action */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 flex justify-center z-[60]">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-center gap-2 z-[60]">
+        {professional.plan_type === 'plus' && professional.whatsapp && (
+          <a
+            href={`https://wa.me/55${professional.whatsapp.replace(/\D/g, '')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackLead(professional.id, 'whatsapp_click')}
+            className="w-full max-w-2xl bg-emerald-500 hover:bg-emerald-600 text-white py-4 px-6 rounded-xl font-bold flex items-center justify-center gap-3 shadow-lg transition-transform active:scale-95"
+          >
+            <span className="material-symbols-outlined text-[24px]">chat</span>
+            Conversar no WhatsApp
+          </a>
+        )}
         <button
-          onClick={() => onNavigate('serviceRequestForm', { providerId: professional.id, providerName: professional.name })}
+          onClick={() => {
+             trackLead(professional.id, 'chat_start');
+             onNavigate('serviceRequestForm', { providerId: professional.id, providerName: professional.name });
+          }}
           className="w-full max-w-2xl bg-primary hover:bg-primary/90 text-white py-4 px-6 rounded-xl font-bold flex items-center justify-center gap-3 shadow-lg transition-transform active:scale-95"
         >
           <span className="material-symbols-outlined text-[24px]">design_services</span>

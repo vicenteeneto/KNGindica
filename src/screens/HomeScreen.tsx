@@ -28,6 +28,21 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   const [providers, setProviders] = useState<any[]>([]);
   const [loadingProviders, setLoadingProviders] = useState(true);
   const [showLocationModal, setShowLocationModal] = useState(false);
+
+  // Sistema de Rastreamento de Leads
+  const trackLead = async (providerId: string, type: 'chat_start' | 'whatsapp_click') => {
+    if (!user) return;
+    try {
+      await supabase.from('lead_events').insert({
+        client_id: user.id,
+        provider_id: providerId,
+        type: type,
+        metadata: { screen: 'home' }
+      });
+    } catch (e) {
+      console.error("Erro ao registrar lead", e);
+    }
+  };
   const [manualCityInput, setManualCityInput] = useState('');
   const isManualLocation = useRef(false);
 
@@ -56,17 +71,50 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
     }
   }, []);
 
+  // Update user's location in BD when we get it
+  useEffect(() => {
+    const updateLocation = async () => {
+      if (user && userCoords) {
+        try {
+          await supabase
+            .from('profiles')
+            .update({
+              latitude: userCoords.lat,
+              longitude: userCoords.lng
+            })
+            .eq('id', user.id);
+        } catch (e) {
+          console.error("Erro ao salvar loc", e);
+        }
+      }
+    };
+    updateLocation();
+  }, [user, userCoords]);
+
   // Fetch providers from Supabase instead of only relying on mock data
   useEffect(() => {
     const fetchProviders = async () => {
       setLoadingProviders(true);
       try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('role', 'provider');
-          // For now, ignoring status='pending' to show everyone, but in production only show 'active'
-          
+        let data, error;
+
+        if (userCoords) {
+          const res = await supabase.rpc('get_providers_within_radius', {
+            user_lat: userCoords.lat,
+            user_lon: userCoords.lng,
+            radius_km: 100 // 100 km radius limit for display
+          });
+          data = res.data;
+          error = res.error;
+        } else {
+          const res = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('role', 'provider');
+          data = res.data;
+          error = res.error;
+        }
+
         if (error) throw error;
 
         // Map them to look like our UI components expect
@@ -89,8 +137,9 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             distance: distanceStr,
             city: p.city,
             image: p.avatar_url || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
-            isAffiliate: true, // Mocking affiliate for UI
+            isAffiliate: p.plan_type === 'plus',
             isVerified: true,
+            plan_type: p.plan_type || 'basic',
             rawDistance: distanceStr === 'N/A' || distanceStr.includes('N/A') ? 999999 : parseFloat(distanceStr)
           };
         });
@@ -389,9 +438,15 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                         </div>
                       </div>
                       {/* MAIA verification badge */}
-                      <div className="absolute top-3 right-3 bg-primary/90 backdrop-blur-md rounded-full w-8 h-8 flex items-center justify-center shadow-lg transform rotate-12 group-hover:rotate-0 transition-transform z-10">
-                        <span className="material-symbols-outlined text-white text-[16px]">verified</span>
-                      </div>
+                      {professional.plan_type === 'plus' ? (
+                        <div className="absolute top-3 right-3 bg-yellow-500 rounded-full px-2 py-0.5 flex items-center justify-center shadow-lg transform rotate-12 group-hover:rotate-0 transition-transform z-10 border border-white/20">
+                          <span className="text-[10px] font-black text-black italic">PLUS</span>
+                        </div>
+                      ) : (
+                        <div className="absolute top-3 right-3 bg-primary/90 backdrop-blur-md rounded-full w-8 h-8 flex items-center justify-center shadow-lg transform rotate-12 group-hover:rotate-0 transition-transform z-10">
+                          <span className="material-symbols-outlined text-white text-[16px]">verified</span>
+                        </div>
+                      )}
 
                       {/* Bottom Info inside image */}
                       <div className="absolute bottom-4 left-4 right-4 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300 z-10">

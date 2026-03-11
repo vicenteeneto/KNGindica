@@ -64,8 +64,8 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
     fetchRooms();
   }, [user, role]);
 
-  const handleOpenChat = (roomId: string, requestTitle: string, opponentName: string, opponentAvatar: string) => {
-    onNavigate('chat', { roomId, requestTitle, opponentName, opponentAvatar });
+  const handleOpenChat = (roomId: string, requestTitle: string, opponentName: string, opponentAvatar: string, requestId?: string) => {
+    onNavigate('chat', { roomId, requestTitle, opponentName, opponentAvatar, requestId });
   };
 
   return (
@@ -112,7 +112,7 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
               return (
                 <div
                   key={room.id}
-                  onClick={() => handleOpenChat(room.id, title, profile?.full_name || 'Usuário', profile?.avatar_url)}
+                  onClick={() => handleOpenChat(room.id, title, profile?.full_name || 'Usuário', profile?.avatar_url, room.request_id)}
                   className="flex items-center gap-4 px-4 py-4 border-b border-slate-100 dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                 >
                   <div className="relative flex-shrink-0">

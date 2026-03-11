@@ -16,6 +16,12 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Estados para Proposta
+  const [showProposalModal, setShowProposalModal] = useState(false);
+  const [proposalPrice, setProposalPrice] = useState('');
+  const [isSendingProposal, setIsSendingProposal] = useState(false);
+  const [serviceRequest, setServiceRequest] = useState<any>(null);
 
   const roomId = params?.roomId;
   const opponentName = params?.opponentName || 'Usuário';
@@ -52,6 +58,18 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
     };
 
     fetchMessages();
+
+    // Buscar dados do pedido vinculado
+    const fetchRequest = async () => {
+      if (!params?.requestId) return;
+      const { data } = await supabase
+        .from('service_requests')
+        .select('*')
+        .eq('id', params.requestId)
+        .single();
+      setServiceRequest(data);
+    };
+    fetchRequest();
 
     // Fallback polling de 3 em 3 segundos para garantir delivery caso websocket falhe
     const interval = setInterval(() => fetchMessages(true), 3000);
@@ -164,6 +182,78 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
     };
     reader.readAsDataURL(file);
   };
+
+  const handleSendProposal = async () => {
+    if (!proposalPrice || !user || !params?.requestId || !roomId) return;
+    setIsSendingProposal(true);
+    try {
+      const price = parseFloat(proposalPrice.replace(',', '.'));
+      const platformFee = 10; // Fixo conforme PRD
+      
+      // 1. Atualizar o pedido com o valor e status
+      const { error: reqError } = await supabase
+        .from('service_requests')
+        .update({
+          budget_amount: price,
+          status: 'proposed',
+          platform_fee: platformFee
+        })
+        .eq('id', params.requestId);
+
+      if (reqError) throw reqError;
+
+      // 2. Enviar mensagem especial de proposta
+      const content = `[PROPOSTA]Valor: R$ ${price.toFixed(2)} | Clique para ver detalhes e aceitar.`;
+      const { error: msgError } = await supabase.from('chat_messages').insert({
+        room_id: roomId,
+        sender_id: user.id,
+        content: content,
+        metadata: { type: 'proposal', price: price }
+      });
+
+      if (msgError) throw msgError;
+
+      setShowProposalModal(false);
+      setProposalPrice('');
+      // refresh request
+      const { data } = await supabase.from('service_requests').select('*').eq('id', params.requestId).single();
+      setServiceRequest(data);
+
+    } catch (err: any) {
+      alert("Erro ao enviar proposta: " + err.message);
+    } finally {
+      setIsSendingProposal(false);
+    }
+  };
+
+  const handleAcceptProposal = async () => {
+    if (!params?.requestId || !user) return;
+    setLoading(true);
+    try {
+      // No fluxo real, aqui abriria o checkout. No mock, aprovamos direto.
+      const { error } = await supabase
+        .from('service_requests')
+        .update({ status: 'awaiting_payment' }) // Próximo passo seria o pagamento da taxa
+        .eq('id', params.requestId);
+
+      if (error) throw error;
+      
+      // Notificar no chat
+      await supabase.from('chat_messages').insert({
+        room_id: roomId,
+        sender_id: user.id,
+        content: "✅ Proposta aceita! Aguardando confirmação do pagamento da taxa de intermediação."
+      });
+
+      const { data } = await supabase.from('service_requests').select('*').eq('id', params.requestId).single();
+      setServiceRequest(data);
+      alert("Proposta aceita com sucesso! Vamos seguir para o pagamento.");
+    } catch (err: any) {
+       alert(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <>
     {selectedImage && (
@@ -250,7 +340,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
                     <img src={opponentAvatar} alt={opponentName} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex flex-col gap-1 items-start">
-                    <div className={`rounded-xl rounded-bl-none shadow-sm border border-primary/5 overflow-hidden ${msg.content.startsWith('[ANEXO]') ? 'bg-transparent border-slate-200 dark:border-slate-800' : 'bg-white dark:bg-slate-800 p-3 text-slate-800 dark:text-slate-100'}`}>
+                    <div className={`rounded-xl rounded-bl-none shadow-sm border border-primary/5 overflow-hidden ${msg.content.startsWith('[ANEXO]') ? 'bg-transparent border-slate-200 dark:border-slate-800' : msg.content.startsWith('[PROPOSTA]') ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800 p-4 text-slate-800 dark:text-slate-100' : 'bg-white dark:bg-slate-800 p-3 text-slate-800 dark:text-slate-100'}`}>
                       {msg.content.startsWith('[ANEXO]') ? (
                         <img 
                           src={msg.content.replace('[ANEXO]', '')} 
@@ -258,6 +348,28 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
                           className="max-w-full sm:max-w-[200px] max-h-[200px] object-cover cursor-pointer hover:opacity-90 transition-opacity" 
                           onClick={() => setSelectedImage(msg.content.replace('[ANEXO]', ''))}
                         />
+                      ) : msg.content.startsWith('[PROPOSTA]') ? (
+                        <div className="flex flex-col gap-3">
+                          <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400 font-bold">
+                            <span className="material-symbols-outlined">description</span>
+                            ORÇAMENTO RECEBIDO
+                          </div>
+                          <p className="text-sm font-medium">{msg.content.replace('[PROPOSTA]', '')}</p>
+                          {serviceRequest?.status === 'proposed' && (
+                            <button 
+                              onClick={handleAcceptProposal}
+                              className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg font-bold text-xs shadow-md transition-all active:scale-95"
+                            >
+                              Aceitar e Pagar Taxa (R$ 10)
+                            </button>
+                          )}
+                          {serviceRequest?.status !== 'proposed' && serviceRequest?.status !== 'open' && (
+                            <span className="text-[10px] uppercase font-bold text-emerald-500 flex items-center gap-1">
+                              <span className="material-symbols-outlined text-[14px]">check_circle</span>
+                              Status: {serviceRequest?.status}
+                            </span>
+                          )}
+                        </div>
                       ) : (
                         <p className="text-sm leading-relaxed">{msg.content}</p>
                       )}
@@ -279,6 +391,15 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
             <button onClick={() => fileInputRef.current?.click()} className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors flex items-center justify-center">
               <span className="material-symbols-outlined">add_circle</span>
             </button>
+            {user?.role === 'provider' && serviceRequest?.status === 'open' && (
+              <button 
+                onClick={() => setShowProposalModal(true)}
+                className="p-2 text-orange-500 hover:bg-orange-500/10 rounded-full transition-colors flex items-center justify-center"
+                title="Enviar Orçamento"
+              >
+                <span className="material-symbols-outlined">request_quote</span>
+              </button>
+            )}
           </div>
           <div className="flex-1 relative">
             <input
@@ -300,6 +421,59 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
         </div>
         <div className="h-1.5 w-24 bg-slate-200 dark:bg-slate-800 mx-auto mt-4 rounded-full sm:hidden"></div>
       </footer>
+      {/* Modal de Proposta */}
+      {showProposalModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-fade-in-up">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+              <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                <span className="material-symbols-outlined text-orange-500">request_quote</span>
+                Enviar Orçamento
+              </h3>
+              <button disabled={isSendingProposal} onClick={() => setShowProposalModal(false)} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="mb-4">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">Valor Total do Serviço (R$)</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">R$</span>
+                  <input
+                    type="text"
+                    required
+                    value={proposalPrice}
+                    onChange={(e) => setProposalPrice(e.target.value)}
+                    placeholder="0,00"
+                    className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                  />
+                </div>
+                <p className="text-[10px] text-slate-500 mt-2">
+                  * Será cobrada uma taxa de **R$ 10,00** de cada parte após o aceite.
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <button 
+                  type="button" 
+                  disabled={isSendingProposal} 
+                  onClick={() => setShowProposalModal(false)} 
+                  className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  onClick={handleSendProposal}
+                  disabled={isSendingProposal || !proposalPrice} 
+                  className="flex-1 py-3 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
+                >
+                  {isSendingProposal ? <span className="material-symbols-outlined animate-spin text-[20px]">refresh</span> : 'Enviar Proposta'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
     </>
   );

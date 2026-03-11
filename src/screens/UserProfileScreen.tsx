@@ -51,6 +51,8 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
     address: (profile as any)?.address || '',
     bio: (profile as any)?.bio || '',
     categories: (profile as any)?.categories || [],
+    whatsapp_number: (profile as any)?.whatsapp_number || '',
+    plan_type: (profile as any)?.plan_type || 'basic',
   });
 
   const [isFetchingCep, setIsFetchingCep] = useState(false);
@@ -67,6 +69,8 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         address: (profile as any).address || '',
         bio: (profile as any).bio || '',
         categories: (profile as any).categories || [],
+        whatsapp_number: formatPhone((profile as any).whatsapp_number || ''),
+        plan_type: (profile as any).plan_type || 'basic',
       });
     }
   }, [profile]);
@@ -153,6 +157,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         .update({
           bio: formData.bio,
           categories: formData.categories,
+          whatsapp_number: formData.whatsapp_number,
         })
         .eq('id', user?.id);
 
@@ -272,6 +277,16 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
             <span className="bg-white/50 dark:bg-slate-800/50 px-3 py-1 rounded-full text-xs font-semibold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
               {displayUser.joinDate}
             </span>
+            {formData.plan_type === 'plus' ? (
+              <span className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-500 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 border border-yellow-200 dark:border-yellow-800/50 shadow-sm animate-pulse">
+                <span className="material-symbols-outlined text-[14px]">workspace_premium</span>
+                ASSINANTE PLUS
+              </span>
+            ) : (
+              <span className="bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 px-3 py-1 rounded-full text-xs font-bold border border-slate-200 dark:border-slate-700">
+                PLANO BÁSICO
+              </span>
+            )}
             <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-500 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 border border-amber-200 dark:border-amber-800/50">
               <span className="material-symbols-outlined text-[14px]">stars</span>
               {displayUser.points} pts
@@ -633,6 +648,21 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                     placeholder="Conte um pouco sobre sua experiência, diferenciais e forma de trabalhar..."
                     className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all resize-none"
                   />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">WhatsApp para contato direto (Exclusivo PLUS)</label>
+                  <input
+                    type="tel"
+                    maxLength={15}
+                    disabled={formData.plan_type !== 'plus'}
+                    value={formData.whatsapp_number}
+                    onChange={(e) => setFormData({...formData, whatsapp_number: formatPhone(e.target.value)})}
+                    placeholder="(00) 00000-0000"
+                    className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all ${formData.plan_type === 'plus' ? 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700' : 'bg-slate-100 dark:bg-slate-850 border-transparent opacity-60 cursor-not-allowed'}`}
+                  />
+                  {formData.plan_type !== 'plus' && (
+                    <p className="text-[10px] text-amber-600 mt-1 font-medium italic">Disponível apenas para assinantes Plus.</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">Serviços Prestados (Selecione um ou mais)</label>
