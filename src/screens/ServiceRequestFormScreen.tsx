@@ -13,10 +13,39 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
   const [address, setAddress] = useState('');
   const [desiredDate, setDesiredDate] = useState('');
   const [desiredTime, setDesiredTime] = useState('09:00');
+  const [photos, setPhotos] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [categories, setCategories] = useState<{ id: string, name: string }[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+
+  // Load draft on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('draft_service_request');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.description) setDescription(parsed.description);
+        if (parsed.address) setAddress(parsed.address);
+        if (parsed.desiredDate) setDesiredDate(parsed.desiredDate);
+        if (parsed.desiredTime) setDesiredTime(parsed.desiredTime);
+        if (parsed.selectedCategoryId) setSelectedCategoryId(parsed.selectedCategoryId);
+        if (parsed.photos) setPhotos(parsed.photos);
+      }
+    } catch (e) {
+      console.error('Error loading draft', e);
+    }
+  }, []);
+
+  // Save to draft every time a relevant field changes (with a small debounce)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      localStorage.setItem('draft_service_request', JSON.stringify({
+        description, address, desiredDate, desiredTime, selectedCategoryId, photos
+      }));
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [description, address, desiredDate, desiredTime, selectedCategoryId, photos]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -69,6 +98,9 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
 
       if (error) throw error;
 
+      // Clear draft on success
+      localStorage.removeItem('draft_service_request');
+
       onNavigate('serviceConfirmation', {
         categoryName,
         providerName: params?.providerName || 'Aguardando Atribuição',
@@ -82,8 +114,35 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
     }
   };
 
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    if (photos.length + files.length > 5) {
+      alert('Máximo de 5 fotos permitidas.');
+      return;
+    }
+
+    Array.from(files).forEach((file: File) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        if (ev.target?.result) {
+           setPhotos(prev => {
+             const newPhotos = [...prev, ev.target!.result as string];
+             return newPhotos.slice(0, 5); // Ensure max 5
+           });
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removePhoto = (index: number) => {
+    setPhotos(prev => prev.filter((_, i) => i !== index));
+  };
+
   return (
-    <div className="max-w-4xl mx-auto bg-white dark:bg-slate-900 shadow-xl border-x border-slate-100 dark:border-slate-800 min-h-screen flex flex-col font-display text-slate-900 dark:text-slate-100 antialiased">
+    <div className="flex flex-col min-h-screen w-full bg-white dark:bg-slate-900 shadow-xl overflow-x-hidden font-display text-slate-900 dark:text-slate-100 antialiased">
       {/* TopAppBar */}
       <div className="flex items-center bg-white dark:bg-slate-900 p-4 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10">
         <button
@@ -198,11 +257,25 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
               <section>
                 <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight mb-4">Adicionar Fotos (Opcional)</h3>
                 <div className="flex flex-wrap gap-4">
-                  <label className="size-24 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 hover:border-primary dark:hover:border-primary cursor-pointer transition-colors group bg-slate-50 dark:bg-slate-800/50">
-                    <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">add_a_photo</span>
-                    <span className="text-[10px] font-bold text-slate-400 group-hover:text-primary mt-1 uppercase transition-colors">Enviar</span>
-                    <input type="file" className="hidden" multiple />
-                  </label>
+                  {photos.length < 5 && (
+                    <label className="size-24 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 hover:border-primary dark:hover:border-primary cursor-pointer transition-colors group bg-slate-50 dark:bg-slate-800/50">
+                      <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">add_a_photo</span>
+                      <span className="text-[10px] font-bold text-slate-400 group-hover:text-primary mt-1 uppercase transition-colors">Enviar</span>
+                      <input type="file" accept="image/png, image/jpeg" className="hidden" multiple onChange={handlePhotoUpload} />
+                    </label>
+                  )}
+
+                  {photos.map((photoUrl, idx) => (
+                    <div key={idx} className="size-24 rounded-xl overflow-hidden relative group border border-slate-200 dark:border-slate-700">
+                      <img className="w-full h-full object-cover" src={photoUrl} alt={`Photo ${idx + 1}`} />
+                      <button 
+                        onClick={() => removePhoto(idx)}
+                        className="absolute top-1 right-1 size-6 bg-black/50 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"
+                      >
+                        <span className="material-symbols-outlined text-sm">close</span>
+                      </button>
+                    </div>
+                  ))}
                 </div>
                 <p className="text-slate-400 text-xs mt-2 font-medium">Máximo de 5 fotos. Formato JPG ou PNG.</p>
               </section>

@@ -101,7 +101,7 @@ function AppContent() {
       case 'reviews':
         return <ProfessionalReviewsScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'serviceConfirmation':
-        return <ServiceConfirmationScreen onNavigate={handleNavigate} />;
+        return <ServiceConfirmationScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'providerRequests':
         return <ProviderRequestsScreen onNavigate={handleNavigate} />;
       case 'serviceStatus':

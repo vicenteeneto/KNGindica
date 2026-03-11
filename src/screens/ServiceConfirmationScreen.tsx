@@ -36,7 +36,7 @@ export default function ServiceConfirmationScreen({ onNavigate, params }: Servic
             </p>
           </div>
 
-          <div className="flex flex-col w-full gap-3">
+          <div className="flex flex-col w-full max-w-sm mx-auto gap-3">
             <button className="w-full flex h-12 cursor-pointer items-center justify-center overflow-hidden rounded-xl bg-primary text-white text-sm font-bold leading-normal tracking-wide transition-all hover:bg-primary/90 active:scale-95 shadow-sm">
               <span className="truncate">Ver Meus Pedidos</span>
             </button>
