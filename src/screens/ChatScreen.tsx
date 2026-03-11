@@ -9,7 +9,7 @@ interface ChatScreenProps extends NavigationProps {
 }
 
 export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenProps) {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
@@ -391,7 +391,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
             <button onClick={() => fileInputRef.current?.click()} className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors flex items-center justify-center">
               <span className="material-symbols-outlined">add_circle</span>
             </button>
-            {user?.role === 'provider' && serviceRequest?.status === 'open' && (
+            {role === 'provider' && (serviceRequest?.status === 'open' || !serviceRequest?.status) && (
               <button 
                 onClick={() => setShowProposalModal(true)}
                 className="p-2 text-orange-500 hover:bg-orange-500/10 rounded-full transition-colors flex items-center justify-center"
