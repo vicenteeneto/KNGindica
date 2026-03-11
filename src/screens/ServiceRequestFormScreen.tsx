@@ -3,7 +3,11 @@ import { NavigationProps } from '../types';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
 
-export default function ServiceRequestFormScreen({ onNavigate }: NavigationProps) {
+interface ServiceRequestFormScreenProps extends NavigationProps {
+  params?: any;
+}
+
+export default function ServiceRequestFormScreen({ onNavigate, params }: ServiceRequestFormScreenProps) {
   const { user } = useAuth();
   const [description, setDescription] = useState('');
   const [address, setAddress] = useState('');
@@ -44,6 +48,7 @@ export default function ServiceRequestFormScreen({ onNavigate }: NavigationProps
         .insert({
           client_id: user.id,
           category_id: selectedCategoryId,
+          provider_id: params?.providerId || null,
           title: `Orçamento para ${categoryName}`,
           description,
           address,
@@ -76,6 +81,16 @@ export default function ServiceRequestFormScreen({ onNavigate }: NavigationProps
 
       <div className="flex-1 overflow-y-auto">
         <div className="p-6 space-y-8">
+          
+          {params?.providerName && (
+            <div className="bg-primary/10 border border-primary/20 p-4 rounded-xl flex items-center gap-3">
+              <span className="material-symbols-outlined text-primary text-2xl">person</span>
+              <div>
+                <p className="text-sm text-slate-600 dark:text-slate-400">Solicitando orçamento direto para:</p>
+                <p className="font-bold text-slate-900 dark:text-slate-100">{params.providerName}</p>
+              </div>
+            </div>
+          )}
 
           {/* Section: Category */}
           <section>
