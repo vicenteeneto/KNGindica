@@ -14,6 +14,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const roomId = params?.roomId;
   const opponentName = params?.opponentName || 'Usuário';
@@ -124,6 +125,44 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
       handleSendMessage();
     }
   };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user || !roomId) return;
+    
+    if (file.size > 5 * 1024 * 1024) {
+      alert("O arquivo é muito grande. Limite de 5MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64String = reader.result as string;
+      const contentStr = `[ANEXO]${base64String}`;
+      
+      const tempMsg = {
+        id: `temp-${Date.now()}`,
+        room_id: roomId,
+        sender_id: user.id,
+        content: contentStr,
+        created_at: new Date().toISOString()
+      };
+      setMessages(prev => [...prev, tempMsg]);
+      scrollToBottom();
+
+      try {
+        const { error } = await supabase.from('chat_messages').insert({
+          room_id: roomId,
+          sender_id: user.id,
+          content: contentStr
+        });
+        if (error) throw error;
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
   return (
     <div className="flex flex-col w-full h-full md:h-[550px] md:w-[350px] bg-white dark:bg-slate-900 md:rounded-t-2xl sm:shadow-2xl md:border-t md:border-x border-slate-200 dark:border-slate-800 overflow-hidden font-display text-slate-900 dark:text-slate-100 z-50">
         {/* TopAppBar */}
@@ -144,16 +183,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => onNavigate('home')} className="p-2 text-slate-600 dark:text-slate-400 hover:bg-primary/10 rounded-lg" title="Início">
-            <span className="material-symbols-outlined">home</span>
-          </button>
-          <button onClick={() => alert('Iniciando chamada de vídeo...')} className="p-2 text-slate-600 dark:text-slate-400 hover:bg-primary/10 rounded-lg">
-            <span className="material-symbols-outlined">videocam</span>
-          </button>
-          <button onClick={() => alert('Iniciando chamada de voz...')} className="p-2 text-slate-600 dark:text-slate-400 hover:bg-primary/10 rounded-lg">
-            <span className="material-symbols-outlined">call</span>
-          </button>
-          <button onClick={() => alert('Opções do contato: Bloquear, Limpar Conversa, etc.')} className="p-2 text-slate-600 dark:text-slate-400 hover:bg-primary/10 rounded-lg hidden sm:block">
+          <button onClick={() => alert('Mais opções')} className="p-2 text-slate-600 dark:text-slate-400 hover:bg-primary/10 rounded-lg sm:hidden md:block">
             <span className="material-symbols-outlined">more_vert</span>
           </button>
         </div>
@@ -178,8 +208,12 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
             if (isMe) {
               return (
                 <div key={msg.id} className="flex flex-col items-end gap-1 ml-auto max-w-[85%]">
-                  <div className="bg-primary text-white p-3 rounded-xl rounded-br-none shadow-md">
-                    <p className="text-sm leading-relaxed">{msg.content}</p>
+                  <div className={`rounded-xl rounded-br-none shadow-md overflow-hidden ${msg.content.startsWith('[ANEXO]') ? 'bg-transparent border border-slate-200 dark:border-slate-800' : 'bg-primary text-white p-3'}`}>
+                    {msg.content.startsWith('[ANEXO]') ? (
+                      <img src={msg.content.replace('[ANEXO]', '')} alt="Anexo" className="max-w-full sm:max-w-[200px] max-h-[200px] object-cover" />
+                    ) : (
+                      <p className="text-sm leading-relaxed">{msg.content}</p>
+                    )}
                   </div>
                   <div className="flex items-center gap-1">
                     <span className="text-[10px] text-slate-400">{time}</span>
@@ -194,8 +228,12 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
                     <img src={opponentAvatar} alt={opponentName} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex flex-col gap-1 items-start">
-                    <div className="bg-white dark:bg-slate-800 p-3 rounded-xl rounded-bl-none shadow-sm border border-primary/5 text-slate-800 dark:text-slate-100">
-                      <p className="text-sm leading-relaxed">{msg.content}</p>
+                    <div className={`rounded-xl rounded-bl-none shadow-sm border border-primary/5 overflow-hidden ${msg.content.startsWith('[ANEXO]') ? 'bg-transparent border-slate-200 dark:border-slate-800' : 'bg-white dark:bg-slate-800 p-3 text-slate-800 dark:text-slate-100'}`}>
+                      {msg.content.startsWith('[ANEXO]') ? (
+                        <img src={msg.content.replace('[ANEXO]', '')} alt="Anexo" className="max-w-full sm:max-w-[200px] max-h-[200px] object-cover" />
+                      ) : (
+                        <p className="text-sm leading-relaxed">{msg.content}</p>
+                      )}
                     </div>
                     <span className="text-[10px] text-slate-400 ml-1">{time}</span>
                   </div>
@@ -209,22 +247,20 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
 
       <footer className="p-4 bg-white dark:bg-slate-900 border-t border-primary/10">
         <div className="flex items-end gap-3 max-w-5xl mx-auto">
-          <div className="flex items-center gap-1">
-            <button onClick={() => alert('Abrir opções de anexo de arquivo')} className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors">
+          <div className="flex items-center gap-1 mb-1">
+            <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
+            <button onClick={() => fileInputRef.current?.click()} className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors flex items-center justify-center">
               <span className="material-symbols-outlined">add_circle</span>
-            </button>
-            <button onClick={() => alert('Abrir galeria de imagens')} className="p-2 text-slate-500 hover:bg-primary/10 rounded-full transition-colors">
-              <span className="material-symbols-outlined">image</span>
             </button>
           </div>
           <div className="flex-1 relative">
-            <textarea
+            <input
+              type="text"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={handleKeyPress}
-              className="w-full bg-background-light dark:bg-slate-800 border-none focus:ring-2 focus:ring-primary/50 rounded-2xl py-3 px-4 text-sm resize-none max-h-32 scrollbar-hide"
+              className="w-full bg-slate-100 dark:bg-slate-800 border-none focus:ring-2 focus:ring-primary/50 outline-none rounded-2xl py-3 px-4 text-sm"
               placeholder="Escreva uma mensagem..."
-              rows={1}
             />
           </div>
           <button
