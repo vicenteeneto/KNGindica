@@ -184,7 +184,11 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
   };
 
   const handleSendProposal = async () => {
-    if (!proposalPrice || !user || !params?.requestId || !roomId) return;
+    if (!proposalPrice || !user || !params?.requestId || !roomId) {
+      if (!params?.requestId) alert("Erro: Esta conversa não está vinculada a um pedido (requestId faltando). Tente abrir o chat novamente pela lista de pedidos.");
+      if (!roomId) alert("Erro: Sala de chat não identificada.");
+      return;
+    }
     setIsSendingProposal(true);
     try {
       const price = parseFloat(proposalPrice.replace(',', '.'));

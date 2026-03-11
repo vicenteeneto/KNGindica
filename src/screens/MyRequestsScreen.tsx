@@ -72,7 +72,8 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
       onNavigate('chat', { 
         roomId: room.id, 
         opponentName: req.profiles?.full_name || 'Profissional', 
-        opponentAvatar: req.profiles?.avatar_url 
+        opponentAvatar: req.profiles?.avatar_url,
+        requestId: req.id
       });
     } catch (err) {
       console.error("Error opening chat:", err);

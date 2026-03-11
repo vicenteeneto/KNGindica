@@ -115,6 +115,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
       localStorage.removeItem('draft_service_request');
 
       onNavigate('serviceConfirmation', {
+        requestId: requestData.id,
         categoryName,
         providerName: params?.providerName || 'Aguardando Atribuição',
         date: desiredDate ? desiredDate.split('-').reverse().join('/') : 'Em breve'
