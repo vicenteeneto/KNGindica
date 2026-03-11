@@ -11,20 +11,28 @@ interface ProfessionalProfileProps extends NavigationProps {
 export default function ProfessionalProfileScreen({ onNavigate, professionalId }: ProfessionalProfileProps) {
   const [realReviewsCount, setRealReviewsCount] = useState<number | null>(null);
   const [realAverage, setRealAverage] = useState<number | null>(null);
+  const [dbReviews, setDbReviews] = useState<any[]>([]);
   const [dbProfessional, setDbProfessional] = useState<any>(null);
   const [loadingProfile, setLoadingProfile] = useState(false);
 
   useEffect(() => {
     if (professionalId?.includes('-')) {
       const fetchStats = async () => {
-        const { data } = await supabase.from('reviews').select('rating').eq('provider_id', professionalId);
+        const { data } = await supabase
+          .from('reviews')
+          .select('rating, comment, created_at, profiles!reviews_reviewer_id_fkey(full_name, avatar_url)')
+          .eq('provider_id', professionalId)
+          .order('created_at', { ascending: false });
+
         if (data && data.length > 0) {
           setRealReviewsCount(data.length);
           const sum = data.reduce((acc, r) => acc + r.rating, 0);
           setRealAverage(Number((sum / data.length).toFixed(1)));
+          setDbReviews(data);
         } else {
           setRealReviewsCount(0);
           setRealAverage(0);
+          setDbReviews([]);
         }
       };
       fetchStats();
@@ -213,39 +221,53 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
                 Avaliações
               </h3>
               <button
-                onClick={() => onNavigate('reviews')}
+                // onClick={() => onNavigate('reviews')} 
                 className="text-primary text-sm font-bold hover:underline"
               >
                 Ver Todas
               </button>
             </div>
             <div className="flex flex-col gap-4">
-              {/* Review 1 */}
-              <div className="bg-white dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-3">
-                    <div className="size-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-500 font-bold">
-                      JM
+              {dbReviews.length > 0 ? (
+                dbReviews.map((review, i) => (
+                  <div key={i} className="bg-white dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm animate-in fade-in slide-in-from-bottom-2">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-3">
+                        <div className="size-10 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden text-slate-500 font-bold border border-slate-200 dark:border-slate-700">
+                          {review.profiles?.avatar_url ? (
+                             <img src={review.profiles.avatar_url} alt="Reviewer" className="w-full h-full object-cover" />
+                          ) : (
+                             <div className="w-full h-full flex items-center justify-center">{(review.profiles?.full_name || 'U')[0].toUpperCase()}</div>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                            {review.profiles?.full_name || 'Usuário'}
+                          </p>
+                          <p className="text-xs text-slate-500">{new Date(review.created_at).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                      <div className="flex text-amber-400">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <span key={star} className={`material-symbols-outlined text-sm ${star <= review.rating ? 'text-amber-400' : 'text-slate-300 dark:text-slate-700'}`} style={{ fontVariationSettings: star <= review.rating ? "'FILL' 1" : "'FILL' 0" }}>
+                            star
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                        Juliana M.
+                    {review.comment && (
+                      <p className="text-slate-700 dark:text-slate-300 text-sm italic">
+                        "{review.comment}"
                       </p>
-                      <p className="text-xs text-slate-500">2 dias atrás</p>
-                    </div>
+                    )}
                   </div>
-                  <div className="flex text-amber-400">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <span key={i} className="material-symbols-outlined text-sm">
-                        star
-                      </span>
-                    ))}
-                  </div>
+                ))
+              ) : (
+                <div className="bg-slate-50 dark:bg-slate-900/30 p-8 rounded-xl border border-slate-200 dark:border-slate-800 text-center flex flex-col items-center">
+                   <span className="material-symbols-outlined text-4xl text-slate-400 mb-2">star_half</span>
+                   <p className="text-slate-500 text-sm">Nenhuma avaliação recebida ainda.</p>
                 </div>
-                <p className="text-slate-700 dark:text-slate-300 text-sm italic">
-                  "Excelente profissional! Entregou exatamente o que foi prometido e com muita qualidade."
-                </p>
-              </div>
+              )}
             </div>
           </div>
         </div>
