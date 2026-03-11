@@ -310,7 +310,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                           </div>
                           <div>
                             <p className="font-medium text-sm">{provider.full_name || 'Usuário Sem Nome'}</p>
-                            <p className="text-xs text-slate-500">{provider.id.substring(0, 8)}</p>
+                            <p className="text-xs text-slate-500 font-mono font-bold tracking-wider">{provider.display_id || provider.id.substring(0, 8)}</p>
                           </div>
                         </div>
                       </td>
@@ -402,7 +402,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                         <span className="material-symbols-outlined">receipt_long</span>
                       </div>
                       <div>
-                        <p className="text-sm font-semibold">#{order.id.substring(0, 8)}</p>
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white mb-0.5">{order.display_id || `#...${order.id.substring(0, 6)}`}</p>
                         <p className="text-xs text-slate-500">{order.category?.name || 'Serviço'} • {order.price ? `R$ ${order.price.toLocaleString('pt-BR', {minimumFractionDigits: 2})}` : 'Em negociação'}</p>
                       </div>
                     </div>
@@ -504,7 +504,11 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                             <p className="font-bold text-sm text-slate-900 dark:text-white">{provider.full_name || 'Usuário Sem Nome'}</p>
                             {provider.is_verified && <span className="material-symbols-outlined text-blue-500 text-[14px]" title="Identidade Verificada">verified</span>}
                           </div>
-                          <p className="text-xs text-slate-500">{provider.email || provider.id.substring(0, 12)}</p>
+                          <p className="text-xs text-slate-500 flex items-center gap-2">
+                            <span className="font-mono font-bold">{provider.display_id || `#${provider.id.substring(0, 6)}`}</span>
+                            <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+                            {provider.email || 'S/E'}
+                          </p>
                         </div>
                       </div>
                     </td>
@@ -626,7 +630,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                         <p className="font-medium text-sm text-slate-900 dark:text-white">{client.full_name || 'Usuário Sem Nome'}</p>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-xs text-slate-500">{client.id.substring(0, 12)}...</td>
+                    <td className="px-6 py-4 text-xs font-mono font-bold text-slate-500">{client.display_id || `#${client.id.substring(0, 8)}`}</td>
                     <td className="px-6 py-4">
                       <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] font-bold uppercase rounded">Ativo</span>
                     </td>
@@ -729,8 +733,13 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                 ordersList.map(order => (
                   <tr key={order.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                     <td className="px-6 py-4">
-                      <p className="font-bold text-sm text-slate-900 dark:text-white mb-1">#{order.id.substring(0, 8)}</p>
-                      <p className="text-xs text-slate-500 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">calendar_today</span> {new Date(order.created_at).toLocaleDateString()}</p>
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-bold text-sm text-slate-900 dark:text-white">{order.display_id || `#...${order.id.substring(0, 6)}`}</p>
+                        <button className="text-slate-400 hover:text-primary transition-colors" title="Copiar ID" onClick={() => navigator.clipboard.writeText(order.display_id || order.id)}>
+                          <span className="material-symbols-outlined text-[14px]">content_copy</span>
+                        </button>
+                      </div>
+                      <p className="text-xs text-slate-500 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">calendar_today</span> {new Date(order.created_at).toLocaleDateString('pt-BR')}</p>
                     </td>
                     <td className="px-6 py-4">
                       <p className="text-sm font-medium text-slate-900 dark:text-white">{order.client?.full_name || 'Cliente'}</p>
@@ -853,7 +862,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                   <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs">
                     <div><span className="text-slate-500">Autor:</span> <span className="font-semibold dark:text-white">{review.reviewer?.full_name || 'Usuário'}</span></div>
                     <div><span className="text-slate-500">Destinatário:</span> <span className="font-semibold text-primary">{review.provider?.full_name || 'Prestador'}</span></div>
-                    <div><span className="text-slate-500">Pedido:</span> <span className="font-semibold text-blue-500">#{review.request_id?.substring(0, 8)}</span></div>
+                    <div><span className="text-slate-500">Pedido:</span> <span className="font-semibold text-blue-500">{review.request_id?.display_id ? review.request_id.display_id : `#${review.request_id?.substring(0, 8) || '...'}`}</span></div>
                   </div>
                 </div>
                 <div className="flex flex-row md:flex-col gap-2 shrink-0 border-t md:border-t-0 md:border-l border-slate-100 dark:border-slate-800 pt-4 md:pt-0 md:pl-4 justify-center">
