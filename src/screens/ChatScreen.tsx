@@ -78,7 +78,7 @@ export default function ChatScreen({ onNavigate, params }: ChatScreenProps) {
         .insert({
           room_id: roomId,
           sender_id: user.id,
-          message: msgText
+          content: msgText
         });
 
       if (error) throw error;
@@ -150,7 +150,7 @@ export default function ChatScreen({ onNavigate, params }: ChatScreenProps) {
               return (
                 <div key={msg.id} className="flex flex-col items-end gap-1 ml-auto max-w-[85%]">
                   <div className="bg-primary text-white p-3 rounded-xl rounded-br-none shadow-md">
-                    <p className="text-sm leading-relaxed">{msg.message}</p>
+                    <p className="text-sm leading-relaxed">{msg.content}</p>
                   </div>
                   <div className="flex items-center gap-1">
                     <span className="text-[10px] text-slate-400">{time}</span>
@@ -166,7 +166,7 @@ export default function ChatScreen({ onNavigate, params }: ChatScreenProps) {
                   </div>
                   <div className="flex flex-col gap-1 items-start">
                     <div className="bg-white dark:bg-slate-800 p-3 rounded-xl rounded-bl-none shadow-sm border border-primary/5 text-slate-800 dark:text-slate-100">
-                      <p className="text-sm leading-relaxed">{msg.message}</p>
+                      <p className="text-sm leading-relaxed">{msg.content}</p>
                     </div>
                     <span className="text-[10px] text-slate-400 ml-1">{time}</span>
                   </div>
