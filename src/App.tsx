@@ -35,6 +35,7 @@ import { AuthProvider, useAuth } from './AuthContext';
 function AppContent() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('auth');
   const [navigationParams, setNavigationParams] = useState<any>({});
+  const [activeChat, setActiveChat] = useState<any>(null);
 
   const { user, role, loading } = useAuth();
 
@@ -60,6 +61,10 @@ function AppContent() {
   }, [user, role, loading, currentScreen]);
 
   const handleNavigate = (screen: Screen, params?: any) => {
+    if (screen === 'chat') {
+      setActiveChat(params);
+      return;
+    }
     setCurrentScreen(screen);
     if (params) {
       setNavigationParams(params);
@@ -86,8 +91,6 @@ function AppContent() {
         return <ProviderDashboardScreen onNavigate={handleNavigate} />;
       case 'chatList':
         return <ChatListScreen onNavigate={handleNavigate} />;
-      case 'chat':
-        return <ChatScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'notifications':
         return <NotificationsScreen onNavigate={handleNavigate} />;
       case 'registration':
@@ -142,6 +145,11 @@ function AppContent() {
   return (
     <>
       {renderScreen()}
+      {activeChat && (
+        <div className="fixed bottom-0 right-0 z-[100] md:bottom-4 md:right-4 w-full h-full md:w-auto md:h-auto font-display">
+          <ChatScreen onNavigate={handleNavigate} params={activeChat} onClose={() => setActiveChat(null)} />
+        </div>
+      )}
     </>
   );
 }
