@@ -358,37 +358,29 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
             <button className="text-sm font-medium text-primary hover:underline" onClick={() => setActiveTab('reviews')}>Ver Todas</button>
           </div>
           <div className="space-y-3">
-            <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm transition-shadow hover:shadow-md">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-sm">Ricardo Mendes</span>
-                  <span className="text-[10px] text-slate-400">Há 2 horas</span>
+            {reviewsList.length === 0 ? (
+              <p className="text-sm text-center text-slate-500 py-4">Nenhuma avaliação encontrada.</p>
+            ) : (
+              reviewsList.slice(0, 2).map((review: any) => (
+                <div key={review.id} className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm transition-shadow hover:shadow-md">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-sm">{review.reviewer?.full_name || 'Usuário'}</span>
+                      <span className="text-[10px] text-slate-400">{new Date(review.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex text-orange-400">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <span key={star} className="material-symbols-outlined text-sm" style={{ fontVariationSettings: `\'FILL\' ${review.rating >= star ? 1 : 0}` }}>
+                          star
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 italic">"{review.comment || 'Sem comentário'}"</p>
+                  <p className="mt-2 text-[10px] font-bold text-primary uppercase">Para: {review.provider?.full_name || 'Prestador'}</p>
                 </div>
-                <div className="flex text-orange-400">
-                  {[1, 2, 3, 4, 5].map(i => (
-                    <span key={i} className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                  ))}
-                </div>
-              </div>
-              <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 italic">"Excelente atendimento do Carlos. Chegou no horário e resolveu o problema rapidamente. Recomendo muito!"</p>
-              <p className="mt-2 text-[10px] font-bold text-primary uppercase">Para: Carlos Silva (Eletricista)</p>
-            </div>
-            <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm transition-shadow hover:shadow-md">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-sm">Juliana Lopes</span>
-                  <span className="text-[10px] text-slate-400">Há 5 horas</span>
-                </div>
-                <div className="flex text-orange-400">
-                  {[1, 2, 3, 4].map(i => (
-                    <span key={i} className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                  ))}
-                  <span className="material-symbols-outlined text-sm">star_half</span>
-                </div>
-              </div>
-              <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 italic">"O design ficou maravilhoso, exatamente como pedi. Mariana é muito talentosa."</p>
-              <p className="mt-2 text-[10px] font-bold text-primary uppercase">Para: Mariana Costa (Designer)</p>
-            </div>
+              ))
+            )}
           </div>
         </section>
 
@@ -400,42 +392,26 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
           </div>
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
             <div className="divide-y divide-slate-100 dark:divide-slate-800">
-              <div className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors cursor-pointer">
-                <div className="flex items-center gap-3">
-                  <div className="bg-primary/10 text-primary p-2 rounded-lg flex items-center justify-center">
-                    <span className="material-symbols-outlined">receipt_long</span>
+              {ordersList.length === 0 ? (
+                <p className="text-sm text-center text-slate-500 py-4">Nenhum pedido encontrado.</p>
+              ) : (
+                ordersList.slice(0, 3).map((order: any) => (
+                  <div key={order.id} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors cursor-pointer">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-primary/10 text-primary p-2 rounded-lg flex items-center justify-center">
+                        <span className="material-symbols-outlined">receipt_long</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold">#{order.id.substring(0, 8)}</p>
+                        <p className="text-xs text-slate-500">{order.category?.name || 'Serviço'} • {order.price ? `R$ ${order.price.toLocaleString('pt-BR', {minimumFractionDigits: 2})}` : 'Em negociação'}</p>
+                      </div>
+                    </div>
+                    <span className={`px-2 py-1 text-[10px] font-bold rounded uppercase ${order.status === 'completed' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : order.status === 'canceled' ? 'bg-slate-100 dark:bg-slate-800 text-slate-500' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'}`}>
+                      {order.status === 'accepted' ? 'Aceito' : order.status === 'completed' ? 'Concluído' : order.status === 'canceled' ? 'Cancelado' : order.status}
+                    </span>
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold">#ORD-2394</p>
-                    <p className="text-xs text-slate-500">Serviço de Pintura • R$ 450,00</p>
-                  </div>
-                </div>
-                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] font-bold rounded uppercase">Em Andamento</span>
-              </div>
-              <div className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors cursor-pointer">
-                <div className="flex items-center gap-3">
-                  <div className="bg-primary/10 text-primary p-2 rounded-lg flex items-center justify-center">
-                    <span className="material-symbols-outlined">receipt_long</span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold">#ORD-2393</p>
-                    <p className="text-xs text-slate-500">Consultoria Jurídica • R$ 1.200,00</p>
-                  </div>
-                </div>
-                <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[10px] font-bold rounded uppercase">Concluído</span>
-              </div>
-              <div className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors cursor-pointer">
-                <div className="flex items-center gap-3">
-                  <div className="bg-primary/10 text-primary p-2 rounded-lg flex items-center justify-center">
-                    <span className="material-symbols-outlined">receipt_long</span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold">#ORD-2392</p>
-                    <p className="text-xs text-slate-500">Reparo Ar Condicionado • R$ 180,00</p>
-                  </div>
-                </div>
-                <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-500 text-[10px] font-bold rounded uppercase">Cancelado</span>
-              </div>
+                ))
+              )}
             </div>
           </div>
         </section>
