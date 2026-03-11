@@ -340,7 +340,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
             if (isMe) {
               return (
                 <div key={msg.id} className="flex flex-col items-end gap-1 ml-auto max-w-[85%]">
-                  <div className={`rounded-xl rounded-br-none shadow-md overflow-hidden ${msg.content.startsWith('[ANEXO]') ? 'bg-transparent border border-slate-200 dark:border-slate-800' : 'bg-primary text-white p-3'}`}>
+                  <div className={`rounded-xl rounded-br-none shadow-md overflow-hidden ${msg.content.startsWith('[ANEXO]') ? 'bg-transparent border border-slate-200 dark:border-slate-800' : msg.content.startsWith('[PROPOSTA]') ? 'bg-orange-600 text-white p-4' : 'bg-primary text-white p-3'}`}>
                     {msg.content.startsWith('[ANEXO]') ? (
                       <img 
                         src={msg.content.replace('[ANEXO]', '')} 
@@ -348,6 +348,17 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
                         className="max-w-full sm:max-w-[200px] max-h-[200px] object-cover cursor-pointer hover:opacity-90 transition-opacity" 
                         onClick={() => setSelectedImage(msg.content.replace('[ANEXO]', ''))}
                       />
+                    ) : msg.content.startsWith('[PROPOSTA]') ? (
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2 font-bold text-orange-100">
+                          <span className="material-symbols-outlined">request_quote</span>
+                          ORÇAMENTO ENVIADO
+                        </div>
+                        <p className="text-sm font-medium">{msg.content.replace('[PROPOSTA]', '')}</p>
+                        <div className="mt-1 pt-2 border-t border-white/20">
+                          <span className="text-[10px] uppercase font-bold text-orange-200">Aguardando aceite do cliente</span>
+                        </div>
+                      </div>
                     ) : (
                       <p className="text-sm leading-relaxed">{msg.content}</p>
                     )}
