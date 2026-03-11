@@ -72,6 +72,18 @@ export default function ChatScreen({ onNavigate, params }: ChatScreenProps) {
     const msgText = newMessage.trim();
     setNewMessage('');
 
+    // Optimistic Update
+    const tempMsg = {
+      id: `temp-${Date.now()}`,
+      room_id: roomId,
+      sender_id: user.id,
+      content: msgText,
+      created_at: new Date().toISOString()
+    };
+    
+    setMessages(prev => [...prev, tempMsg]);
+    scrollToBottom();
+
     try {
       const { error } = await supabase
         .from('chat_messages')
@@ -96,9 +108,10 @@ export default function ChatScreen({ onNavigate, params }: ChatScreenProps) {
     }
   };
   return (
-    <div className="flex flex-col h-screen w-full bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
-      {/* TopAppBar */}
-      <nav className="sticky top-0 z-10 bg-white dark:bg-slate-900 border-b border-primary/10 px-4 py-3 flex items-center justify-between shadow-sm">
+    <div className="flex bg-slate-100 dark:bg-[#0B1120] font-display text-slate-900 dark:text-slate-100 min-h-screen items-center justify-center md:items-end md:justify-end md:p-6 sm:p-4">
+      <div className="flex flex-col w-full h-screen sm:h-[calc(100vh-2rem)] md:h-[600px] md:w-[400px] bg-white dark:bg-slate-900 sm:rounded-3xl sm:shadow-2xl sm:border border-slate-200 dark:border-slate-800 overflow-hidden relative">
+        {/* TopAppBar */}
+        <nav className="sticky top-0 z-10 bg-white dark:bg-slate-900 border-b border-primary/10 px-4 py-3 flex items-center justify-between shadow-sm shrink-0">
         <div className="flex items-center gap-3">
           <button onClick={() => onNavigate('chatList')} className="p-1 hover:bg-primary/10 rounded-full text-slate-600 dark:text-slate-400">
             <span className="material-symbols-outlined">arrow_back</span>
@@ -124,14 +137,14 @@ export default function ChatScreen({ onNavigate, params }: ChatScreenProps) {
           <button onClick={() => alert('Iniciando chamada de voz...')} className="p-2 text-slate-600 dark:text-slate-400 hover:bg-primary/10 rounded-lg">
             <span className="material-symbols-outlined">call</span>
           </button>
-          <button onClick={() => alert('Opções do contato: Bloquear, Limpar Conversa, etc.')} className="p-2 text-slate-600 dark:text-slate-400 hover:bg-primary/10 rounded-lg">
+          <button onClick={() => alert('Opções do contato: Bloquear, Limpar Conversa, etc.')} className="p-2 text-slate-600 dark:text-slate-400 hover:bg-primary/10 rounded-lg hidden sm:block">
             <span className="material-symbols-outlined">more_vert</span>
           </button>
         </div>
       </nav>
 
       {/* Chat Area */}
-      <main className="flex-1 overflow-y-auto p-4 space-y-6">
+      <main className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar bg-slate-50 dark:bg-slate-950/50 relative">
         {loading ? (
           <div className="flex justify-center p-8">
             <span className="material-symbols-outlined animate-spin text-4xl text-slate-300">progress_activity</span>
@@ -206,8 +219,9 @@ export default function ChatScreen({ onNavigate, params }: ChatScreenProps) {
             <span className="material-symbols-outlined">send</span>
           </button>
         </div>
-        <div className="h-2 w-32 bg-slate-200 dark:bg-slate-800 mx-auto mt-4 rounded-full sm:hidden"></div>
+        <div className="h-1.5 w-24 bg-slate-200 dark:bg-slate-800 mx-auto mt-4 rounded-full sm:hidden"></div>
       </footer>
+      </div>
     </div>
   );
 }
