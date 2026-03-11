@@ -7,6 +7,27 @@ import { useTheme } from '../ThemeContext';
 import { useAuth } from '../AuthContext';
 import ImageCropper from '../components/ImageCropper';
 
+const formatCPF_CNPJ = (value: string) => {
+  const v = value.replace(/\D/g, '');
+  if (v.length <= 11) {
+    return v.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})/, '$1-$2').slice(0, 14);
+  } else {
+    return v.replace(/(\d{2})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1/$2').replace(/(\d{4})(\d{1,2})/, '$1-$2').slice(0, 18);
+  }
+};
+
+const formatPhone = (value: string) => {
+  const v = value.replace(/\D/g, '');
+  if (v.length <= 10) {
+    return v.replace(/^(\d{2})(\d)/g, '($1) $2').replace(/(\d{4})(\d)/, '$1-$2').slice(0, 14);
+  }
+  return v.replace(/^(\d{2})(\d)/g, '($1) $2').replace(/(\d{5})(\d)/, '$1-$2').slice(0, 15);
+};
+
+const formatCEP = (value: string) => {
+  return value.replace(/\D/g, '').replace(/^(\d{5})(\d)/, '$1-$2').slice(0, 9);
+};
+
 export default function UserProfileScreen({ onNavigate }: NavigationProps) {
   const { user, profile, role, setDevRole, logout, refreshProfile } = useAuth();
   const { theme, toggleTheme } = useTheme();
@@ -24,22 +45,53 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
     full_name: profile?.full_name || '',
     phone: (profile as any)?.phone || '',
     cpf: (profile as any)?.cpf || '',
+    cep: (profile as any)?.cep || '',
     city: (profile as any)?.city || '',
     address: (profile as any)?.address || '',
   });
+
+  const [isFetchingCep, setIsFetchingCep] = useState(false);
 
   // Keep form data synced when profile loads
   React.useEffect(() => {
     if (profile) {
       setFormData({
         full_name: profile.full_name || '',
-        phone: (profile as any).phone || '',
-        cpf: (profile as any).cpf || '',
+        phone: formatPhone((profile as any).phone || ''),
+        cpf: formatCPF_CNPJ((profile as any).cpf || ''),
+        cep: formatCEP((profile as any).cep || ''),
         city: (profile as any).city || '',
         address: (profile as any).address || '',
       });
     }
   }, [profile]);
+
+  const handleCepChange = async (cepValue: string) => {
+    // Remove non-numeric characters and format
+    const formattedCep = formatCEP(cepValue);
+    const digits = formattedCep.replace(/\D/g, '');
+    setFormData({ ...formData, cep: formattedCep });
+
+    if (digits.length === 8) {
+      setIsFetchingCep(true);
+      try {
+        const response = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
+        const data = await response.json();
+        
+        if (!data.erro) {
+          setFormData(prev => ({
+            ...prev,
+            city: data.localidade || prev.city,
+            address: `${data.logradouro}${data.bairro ? ` - ${data.bairro}` : ''}`
+          }));
+        }
+      } catch (error) {
+        console.error("Erro ao buscar CEP:", error);
+      } finally {
+        setIsFetchingCep(false);
+      }
+    }
+  };
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,6 +123,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       const { error } = await supabase
         .from('profiles')
         .update({
+          cep: formData.cep,
           city: formData.city,
           address: formData.address,
         })
@@ -80,7 +133,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       await refreshProfile();
       setShowAddressModal(false);
     } catch (err: any) {
-      alert("Erro ao salvar: " + err.message + "\n\nSe o erro persistir, verifique se as colunas city e address existem no banco de dados.");
+      alert("Erro ao salvar: " + err.message + "\n\nSe o erro persistir, verifique se as colunas cep, city e address existem no banco de dados.");
     } finally {
       setIsSaving(false);
     }
@@ -410,8 +463,9 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   <input
                     type="text"
                     required
+                    maxLength={18}
                     value={formData.cpf}
-                    onChange={(e) => setFormData({...formData, cpf: e.target.value})}
+                    onChange={(e) => setFormData({...formData, cpf: formatCPF_CNPJ(e.target.value)})}
                     placeholder="000.000.000-00 ou 00.000.000/0000-00"
                     className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                   />
@@ -421,8 +475,9 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   <input
                     type="tel"
                     required
+                    maxLength={15}
                     value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    onChange={(e) => setFormData({...formData, phone: formatPhone(e.target.value)})}
                     placeholder="(00) 00000-0000"
                     className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                   />
@@ -455,10 +510,29 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
             </div>
             <form onSubmit={handleSaveAddress} className="p-6">
               <div className="space-y-4 mb-6">
+                 <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">CEP</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      maxLength={9}
+                      value={formData.cep}
+                      onChange={(e) => handleCepChange(e.target.value)}
+                      placeholder="00000-000"
+                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all pr-12"
+                    />
+                    {isFetchingCep && (
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-primary">
+                        <span className="material-symbols-outlined animate-spin">refresh</span>
+                      </div>
+                    )}
+                  </div>
+                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Cidade</label>
                   <input
                     type="text"
+                    required
                     value={formData.city}
                     onChange={(e) => setFormData({...formData, city: e.target.value})}
                     placeholder="Ex: Rondonópolis"
@@ -469,6 +543,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Endereço Completo</label>
                   <input
                     type="text"
+                    required
                     value={formData.address}
                     onChange={(e) => setFormData({...formData, address: e.target.value})}
                     placeholder="Rua, Número, Bairro"
