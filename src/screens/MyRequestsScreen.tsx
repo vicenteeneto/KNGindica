@@ -44,6 +44,42 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
     }
   };
 
+  const handleOpenChat = async (req: any) => {
+    if (!user) return;
+    try {
+      // Find existing room
+      let { data: room } = await supabase
+        .from('chat_rooms')
+        .select('id')
+        .eq('request_id', req.id)
+        .single();
+        
+      if (!room) {
+        // Create fallback if not exists somehow
+        const { data: newRoom, error: createError } = await supabase
+          .from('chat_rooms')
+          .insert({
+            request_id: req.id,
+            client_id: user.id,
+            provider_id: req.provider_id
+          })
+          .select('id')
+          .single();
+        if (createError) throw createError;
+        room = newRoom;
+      }
+      
+      onNavigate('chat', { 
+        roomId: room.id, 
+        opponentName: req.profiles?.full_name || 'Profissional', 
+        opponentAvatar: req.profiles?.avatar_url 
+      });
+    } catch (err) {
+      console.error("Error opening chat:", err);
+      alert("Erro ao abrir chat.");
+    }
+  };
+
   useEffect(() => {
     fetchRequests();
   }, [activeTab, user]);
@@ -137,6 +173,22 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
                     <span className="material-symbols-outlined text-[14px]">calendar_today</span>
                     {new Date(req.created_at).toLocaleDateString()}
                   </div>
+                  
+                  {(req.status === 'accepted' || req.status === 'in_progress') && (
+                    <div className="flex gap-2 mt-4">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenChat(req);
+                        }}
+                        className="flex-1 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 dark:text-emerald-500 font-bold py-2 rounded-lg text-xs hover:bg-emerald-100 dark:hover:bg-emerald-900/20 transition-colors flex justify-center items-center gap-2 border border-emerald-200 dark:border-emerald-800/30"
+                      >
+                        <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>chat</span>
+                        Conversar
+                      </button>
+                    </div>
+                  )}
+
                   {req.status === 'completed' && (
                     <div className="flex gap-2 mt-4">
                       <button

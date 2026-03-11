@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { NavigationProps, Professional, Screen } from '../types';
-import { professionals } from '../data/mockData';
+import { professionals as mockProfessionals } from '../data/mockData';
 import MobileNav from '../components/MobileNav';
 import VerifiedBadge from '../components/VerifiedBadge';
+import { supabase } from '../lib/supabase';
 
 interface ServiceListingProps extends NavigationProps {
   initialParams?: {
@@ -16,10 +17,51 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
   const [selectedCategory, setSelectedCategory] = useState(initialParams?.category || '');
   const [sortBy, setSortBy] = useState<'price' | 'rating' | 'distance' | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [filteredProfessionals, setFilteredProfessionals] = useState<Professional[]>(professionals);
+  const [dbProfessionals, setDbProfessionals] = useState<Professional[]>([]);
+  const [filteredProfessionals, setFilteredProfessionals] = useState<Professional[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let result = professionals;
+    const fetchProviders = async () => {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('role', 'provider');
+
+        if (error) throw error;
+
+        if (data) {
+          const mapped: Professional[] = data.map((p: any) => ({
+            id: p.id,
+            name: p.company_name || p.full_name || 'Profissional',
+            service: p.categories?.[0] || 'Serviços',
+            category: p.categories?.[0] || 'Serviços Gerais',
+            rating: 5.0, // Default for now
+            reviews: 0,
+            price: 50,
+            priceUnit: '/hora',
+            image: p.avatar_url || 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a',
+            isVerified: true,
+            distance: p.city ? 0 : 99, // Basic distance mock
+            description: p.bio || 'Sem descrição.',
+            isAffiliate: !!p.company_name,
+          }));
+          setDbProfessionals(mapped);
+        }
+      } catch (err) {
+        console.error("Erro ao carregar provedores:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProviders();
+  }, []);
+
+  useEffect(() => {
+    let result = dbProfessionals.length > 0 ? dbProfessionals : [];
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -49,7 +91,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
     }
 
     setFilteredProfessionals(result);
-  }, [searchQuery, selectedCategory, sortBy, sortOrder]);
+  }, [searchQuery, selectedCategory, sortBy, sortOrder, dbProfessionals]);
 
   const handleSort = (type: 'price' | 'rating' | 'distance') => {
     if (sortBy === type) {
@@ -155,8 +197,13 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
 
       {/* Main Content: Service Listing */}
       <main className="flex-1 p-4 pb-24 md:pb-8">
-        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredProfessionals.map((professional) => (
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <span className="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span>
+          </div>
+        ) : (
+          <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredProfessionals.map((professional) => (
             <div 
               key={professional.id}
               onClick={() => onNavigate('profile', { professionalId: professional.id })} 
@@ -219,6 +266,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
             </div>
           )}
         </div>
+        )}
       </main>
 
       {/* Bottom Navigation Bar (Mobile Only) */}
