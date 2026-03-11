@@ -219,17 +219,26 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
         return;
       }
 
-      // 1. Atualizar o pedido com o valor e status
-      const { error: reqError } = await supabase
+      // 1. Atualizar o pedido com o valor, status e vincular o prestador (caso ainda não esteja)
+      const { data: updateData, error: reqError } = await supabase
         .from('service_requests')
         .update({
           budget_amount: price,
           status: 'proposed',
-          platform_fee: 10
+          platform_fee: 10,
+          provider_id: user.id // Força o vínculo do prestador que está enviando a proposta
         })
-        .eq('id', params.requestId);
+        .eq('id', params.requestId)
+        .select();
 
+      console.log("Resultado do update service_request:", { updateData, reqError });
+      
       if (reqError) throw reqError;
+      if (!updateData || updateData.length === 0) {
+        alert("Erro: O pedido não foi encontrado ou você não tem permissão para alterá-lo.");
+        setIsSendingProposal(false);
+        return;
+      }
 
       // 2. Enviar mensagem especial de proposta
       const content = `[PROPOSTA]Valor: R$ ${price.toFixed(2)} | Clique para ver detalhes e aceitar.`;

@@ -18,6 +18,8 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
       if (activeTab === 'concluidos') statuses = ['completed'];
       else if (activeTab === 'cancelados') statuses = ['cancelled'];
 
+      console.log("Fetching requests for client:", user.id, "Tab:", activeTab);
+      
       const { data, error } = await supabase
         .from('service_requests')
         .select(`
@@ -36,9 +38,10 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      console.log("Requests found:", data?.length, data);
       setRequests(data || []);
     } catch (err) {
-      console.error(err);
+      console.error("Erro ao buscar pedidos:", err);
     } finally {
       setLoading(false);
     }
