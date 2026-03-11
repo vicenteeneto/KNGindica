@@ -182,11 +182,6 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
             <span className="text-xs text-primary font-medium">Online</span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button onClick={() => alert('Mais opções')} className="p-2 text-slate-600 dark:text-slate-400 hover:bg-primary/10 rounded-lg sm:hidden md:block">
-            <span className="material-symbols-outlined">more_vert</span>
-          </button>
-        </div>
       </nav>
 
       {/* Chat Area */}
