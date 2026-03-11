@@ -423,16 +423,6 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         </div>
       </main>
 
-      {/* MAIA Chatbot FAB */}
-      <button
-        onClick={() => onNavigate('maia')}
-        className="fixed bottom-20 md:bottom-8 right-4 md:right-8 z-50 bg-primary text-white p-3.5 md:p-4 rounded-full shadow-lg shadow-primary/40 hover:scale-110 active:scale-95 transition-all flex items-center justify-center animate-bounce border-2 border-white/20 dark:border-black"
-        style={{ animationDuration: '3s' }}
-        title="Falar com a MAIA Assistente"
-      >
-        <span className="material-symbols-outlined text-2xl md:text-3xl">smart_toy</span>
-      </button>
-
       {/* Bottom Navigation (Mobile Only) */}
       <MobileNav onNavigate={onNavigate} currentScreen="home" />
 

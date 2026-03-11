@@ -13,6 +13,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -164,6 +165,27 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
     reader.readAsDataURL(file);
   };
   return (
+    <>
+    {selectedImage && (
+      <div 
+        className="fixed inset-0 z-[200] bg-black/90 flex items-center justify-center p-4"
+        onClick={() => setSelectedImage(null)}
+      >
+        <button 
+          onClick={() => setSelectedImage(null)}
+          className="absolute top-4 right-4 text-white p-2 hover:bg-white/10 rounded-full transition-colors"
+        >
+          <span className="material-symbols-outlined text-3xl">close</span>
+        </button>
+        <img 
+          src={selectedImage} 
+          alt="Anexo Ampliado" 
+          className="max-w-full max-h-full object-contain select-none shadow-2xl rounded-sm"
+          onClick={(e) => e.stopPropagation()} // impede fechamento ao clicar na imagem
+        />
+      </div>
+    )}
+
     <div className="flex flex-col w-full h-full md:h-[550px] md:w-[350px] bg-white dark:bg-slate-900 md:rounded-t-2xl sm:shadow-2xl md:border-t md:border-x border-slate-200 dark:border-slate-800 overflow-hidden font-display text-slate-900 dark:text-slate-100 z-50">
         {/* TopAppBar */}
         <nav className="sticky top-0 z-10 bg-white dark:bg-slate-900 border-b border-primary/10 px-4 py-3 flex items-center justify-between shadow-sm shrink-0">
@@ -205,7 +227,12 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
                 <div key={msg.id} className="flex flex-col items-end gap-1 ml-auto max-w-[85%]">
                   <div className={`rounded-xl rounded-br-none shadow-md overflow-hidden ${msg.content.startsWith('[ANEXO]') ? 'bg-transparent border border-slate-200 dark:border-slate-800' : 'bg-primary text-white p-3'}`}>
                     {msg.content.startsWith('[ANEXO]') ? (
-                      <img src={msg.content.replace('[ANEXO]', '')} alt="Anexo" className="max-w-full sm:max-w-[200px] max-h-[200px] object-cover" />
+                      <img 
+                        src={msg.content.replace('[ANEXO]', '')} 
+                        alt="Anexo" 
+                        className="max-w-full sm:max-w-[200px] max-h-[200px] object-cover cursor-pointer hover:opacity-90 transition-opacity" 
+                        onClick={() => setSelectedImage(msg.content.replace('[ANEXO]', ''))}
+                      />
                     ) : (
                       <p className="text-sm leading-relaxed">{msg.content}</p>
                     )}
@@ -225,7 +252,12 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
                   <div className="flex flex-col gap-1 items-start">
                     <div className={`rounded-xl rounded-bl-none shadow-sm border border-primary/5 overflow-hidden ${msg.content.startsWith('[ANEXO]') ? 'bg-transparent border-slate-200 dark:border-slate-800' : 'bg-white dark:bg-slate-800 p-3 text-slate-800 dark:text-slate-100'}`}>
                       {msg.content.startsWith('[ANEXO]') ? (
-                        <img src={msg.content.replace('[ANEXO]', '')} alt="Anexo" className="max-w-full sm:max-w-[200px] max-h-[200px] object-cover" />
+                        <img 
+                          src={msg.content.replace('[ANEXO]', '')} 
+                          alt="Anexo" 
+                          className="max-w-full sm:max-w-[200px] max-h-[200px] object-cover cursor-pointer hover:opacity-90 transition-opacity" 
+                          onClick={() => setSelectedImage(msg.content.replace('[ANEXO]', ''))}
+                        />
                       ) : (
                         <p className="text-sm leading-relaxed">{msg.content}</p>
                       )}
@@ -269,5 +301,6 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
         <div className="h-1.5 w-24 bg-slate-200 dark:bg-slate-800 mx-auto mt-4 rounded-full sm:hidden"></div>
       </footer>
     </div>
+    </>
   );
 }
