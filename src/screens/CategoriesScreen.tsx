@@ -3,6 +3,14 @@ import { NavigationProps } from '../types';
 import MobileNav from '../components/MobileNav';
 
 export default function CategoriesScreen({ onNavigate }: NavigationProps) {
+  const [searchQuery, setSearchQuery] = React.useState('');
+
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      onNavigate('listing', { searchQuery });
+    }
+  };
+
   return (
     <div className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
       <div className="relative flex min-h-screen w-full flex-col max-w-7xl mx-auto bg-white dark:bg-slate-900 shadow-xl overflow-x-hidden">
@@ -27,7 +35,13 @@ export default function CategoriesScreen({ onNavigate }: NavigationProps) {
             <label className="flex flex-col w-full">
               <div className="flex w-full items-center rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/20 transition-all px-4 h-14 shadow-inner">
                 <span className="material-symbols-outlined text-slate-400 mr-2 text-[24px]">search</span>
-                <input className="w-full border-none bg-transparent focus:ring-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-base md:text-lg outline-none" placeholder="O que você precisa hoje?" />
+                <input 
+                  className="w-full border-none bg-transparent focus:ring-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-base md:text-lg outline-none" 
+                  placeholder="O que você precisa hoje?" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleSearch}
+                />
               </div>
             </label>
           </div>

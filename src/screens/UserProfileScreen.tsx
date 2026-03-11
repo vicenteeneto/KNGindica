@@ -14,6 +14,78 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
   const [selectedImageSrc, setSelectedImageSrc] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // States for Modals
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Form States
+  const [formData, setFormData] = useState({
+    full_name: profile?.full_name || '',
+    phone: (profile as any)?.phone || '',
+    cpf: (profile as any)?.cpf || '',
+    city: (profile as any)?.city || '',
+    address: (profile as any)?.address || '',
+  });
+
+  // Keep form data synced when profile loads
+  React.useEffect(() => {
+    if (profile) {
+      setFormData({
+        full_name: profile.full_name || '',
+        phone: (profile as any).phone || '',
+        cpf: (profile as any).cpf || '',
+        city: (profile as any).city || '',
+        address: (profile as any).address || '',
+      });
+    }
+  }, [profile]);
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: formData.full_name,
+          phone: formData.phone,
+          cpf: formData.cpf,
+        })
+        .eq('id', user?.id);
+
+      if (error) throw error;
+      await refreshProfile();
+      setShowProfileModal(false);
+    } catch (err: any) {
+      alert("Erro ao salvar: " + err.message + "\n\nSe o erro persistir, verifique se as colunas phone e cpf existem no banco de dados.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSaveAddress = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          city: formData.city,
+          address: formData.address,
+        })
+        .eq('id', user?.id);
+
+      if (error) throw error;
+      await refreshProfile();
+      setShowAddressModal(false);
+    } catch (err: any) {
+      alert("Erro ao salvar: " + err.message + "\n\nSe o erro persistir, verifique se as colunas city e address existem no banco de dados.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleLogout = () => {
     logout();
     onNavigate('auth');
@@ -136,7 +208,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3 px-2">Minha Conta</h2>
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
             <button
-              onClick={() => alert('Editar dados pessoais')}
+              onClick={() => setShowProfileModal(true)}
               className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
             >
               <div className="flex items-center gap-4">
@@ -152,7 +224,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
             </button>
 
             <button
-              onClick={() => alert('Gerenciar endereços')}
+              onClick={() => setShowAddressModal(true)}
               className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
             >
               <div className="flex items-center gap-4">
@@ -306,6 +378,115 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           onCropSave={uploadCroppedAvatar}
           onCropCancel={() => setSelectedImageSrc(null)}
         />
+      )}
+      {/* Modals for Editing Data */}
+      {showProfileModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-fade-in-up">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+              <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary">person</span>
+                Dados Pessoais
+              </h3>
+              <button disabled={isSaving} onClick={() => setShowProfileModal(false)} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <form onSubmit={handleSaveProfile} className="p-6">
+              <div className="space-y-4 mb-6">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Nome Completo</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.full_name}
+                    onChange={(e) => setFormData({...formData, full_name: e.target.value})}
+                    placeholder="Seu nome"
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">CPF / CNPJ</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.cpf}
+                    onChange={(e) => setFormData({...formData, cpf: e.target.value})}
+                    placeholder="000.000.000-00 ou 00.000.000/0000-00"
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Telefone</label>
+                  <input
+                    type="tel"
+                    required
+                    value={formData.phone}
+                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    placeholder="(00) 00000-0000"
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <button type="button" disabled={isSaving} onClick={() => setShowProfileModal(false)} className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                  Cancelar
+                </button>
+                <button type="submit" disabled={isSaving} className="flex-1 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors disabled:opacity-50 flex justify-center items-center gap-2">
+                  {isSaving ? <span className="material-symbols-outlined animate-spin text-[20px]">refresh</span> : 'Salvar Dados'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showAddressModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-fade-in-up">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+              <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                <span className="material-symbols-outlined text-emerald-500">location_on</span>
+                Meus Endereços
+              </h3>
+              <button disabled={isSaving} onClick={() => setShowAddressModal(false)} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <form onSubmit={handleSaveAddress} className="p-6">
+              <div className="space-y-4 mb-6">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Cidade</label>
+                  <input
+                    type="text"
+                    value={formData.city}
+                    onChange={(e) => setFormData({...formData, city: e.target.value})}
+                    placeholder="Ex: Rondonópolis"
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Endereço Completo</label>
+                  <input
+                    type="text"
+                    value={formData.address}
+                    onChange={(e) => setFormData({...formData, address: e.target.value})}
+                    placeholder="Rua, Número, Bairro"
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <button type="button" disabled={isSaving} onClick={() => setShowAddressModal(false)} className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                  Cancelar
+                </button>
+                <button type="submit" disabled={isSaving} className="flex-1 py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 transition-colors disabled:opacity-50 flex justify-center items-center gap-2">
+                  {isSaving ? <span className="material-symbols-outlined animate-spin text-[20px]">refresh</span> : 'Salvar Endereço'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

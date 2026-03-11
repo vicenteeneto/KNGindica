@@ -11,6 +11,8 @@ interface ProfessionalProfileProps extends NavigationProps {
 export default function ProfessionalProfileScreen({ onNavigate, professionalId }: ProfessionalProfileProps) {
   const [realReviewsCount, setRealReviewsCount] = useState<number | null>(null);
   const [realAverage, setRealAverage] = useState<number | null>(null);
+  const [dbProfessional, setDbProfessional] = useState<any>(null);
+  const [loadingProfile, setLoadingProfile] = useState(false);
 
   useEffect(() => {
     if (professionalId?.includes('-')) {
@@ -27,18 +29,52 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
       };
       fetchStats();
     }
+
+    if (professionalId && professionalId.length > 20) {
+      const fetchProfile = async () => {
+        setLoadingProfile(true);
+        const { data, error } = await supabase.from('profiles').select('*').eq('id', professionalId).single();
+        if (data && !error) {
+          setDbProfessional({
+            id: data.id,
+            name: data.company_name || data.full_name || 'Profissional',
+            category: data.categories?.[0] || 'Serviços Gerais',
+            rating: 5.0, 
+            reviews: 0,
+            price: '50.00',
+            priceUnit: '/hora',
+            image: data.avatar_url || 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a',
+            isVerified: true,
+            distance: 'A Combinar',
+            description: data.bio || 'Sem descrição.',
+            isAffiliate: !!data.company_name,
+            service: data.categories?.[0] || 'Serviços',
+          });
+        }
+        setLoadingProfile(false);
+      };
+      fetchProfile();
+    }
   }, [professionalId]);
 
-  const professional = professionals.find(p => p.id === professionalId) || professionals[0];
+  const professional = dbProfessional || professionals.find(p => p.id === professionalId) || professionals[0];
 
   const displayRating = realAverage !== null ? realAverage : professional?.rating;
   const displayReviewsCount = realReviewsCount !== null ? realReviewsCount : professional?.reviews;
 
+  if (loadingProfile) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white dark:bg-slate-900">
+        <span className="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span>
+      </div>
+    );
+  }
+
   if (!professional) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p>Profissional não encontrado.</p>
-        <button onClick={() => onNavigate('home')}>Voltar</button>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-white dark:bg-slate-900">
+        <p className="text-slate-500 mb-4">Profissional não encontrado.</p>
+        <button className="bg-primary text-white px-6 py-2 rounded-xl font-bold" onClick={() => onNavigate('home')}>Voltar</button>
       </div>
     );
   }
