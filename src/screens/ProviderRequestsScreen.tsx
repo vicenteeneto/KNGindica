@@ -40,10 +40,11 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
         .eq('status', statusFilter)
         .order('created_at', { ascending: false });
 
-      // If it's not "Novos" (open), we should probably only fetch ones assigned to this provider.
-      // But since we just want to show data, and open requests are visible to all providers:
       if (statusFilter !== 'open') {
         query = query.eq('provider_id', user.id);
+      } else {
+        // Para "Novos" (open), pega os globais (null) e os diretos para mim
+        query = query.or(`provider_id.is.null,provider_id.eq.${user.id}`);
       }
 
       const { data, error } = await query;

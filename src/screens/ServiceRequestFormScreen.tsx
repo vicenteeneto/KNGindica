@@ -84,7 +84,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
       const categoryName = categories.find(c => c.id === selectedCategoryId)?.name || 'Serviço';
       const fullDescription = `${description}\n\n📅 Preferência de Horário: ${desiredDate.split('-').reverse().join('/')} às ${desiredTime}`;
 
-      const { error } = await supabase
+      const { data: requestData, error } = await supabase
         .from('service_requests')
         .insert({
           client_id: user.id,
@@ -94,9 +94,22 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
           description: fullDescription,
           address,
           status: 'open'
-        });
+        })
+        .select('id')
+        .single();
 
       if (error) throw error;
+
+      // Se for pedido direto, gerar notificação para o prestador
+      if (params?.providerId) {
+        await supabase.from('notifications').insert({
+          user_id: params.providerId,
+          title: 'Novo Pedido Direto',
+          message: `Você recebeu uma solicitação de orçamento direta para ${categoryName}.`,
+          type: 'order',
+          related_entity_id: requestData.id
+        });
+      }
 
       // Clear draft on success
       localStorage.removeItem('draft_service_request');

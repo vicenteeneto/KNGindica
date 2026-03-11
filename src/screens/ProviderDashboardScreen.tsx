@@ -1,10 +1,57 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { useAuth } from '../AuthContext';
 import ProviderMobileNav from '../components/ProviderMobileNav';
+import { supabase } from '../lib/supabase';
 
 export default function ProviderDashboardScreen({ onNavigate }: NavigationProps) {
-  const { logout, profile } = useAuth();
+  const { logout, profile, user } = useAuth();
+  const [stats, setStats] = useState({ requests: 0, views: 0 });
+  const [recentRequests, setRecentRequests] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    
+    const fetchDashboardData = async () => {
+      setLoading(true);
+      try {
+        // Fetch new requests count targeting this provider specifically, or global if we want
+        const { count: reqCount } = await supabase
+          .from('service_requests')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'open')
+          .eq('provider_id', user.id);
+          
+        setStats(prev => ({ ...prev, requests: reqCount || 0 }));
+
+        // Fetch recent requests
+        const { data: recentReqs } = await supabase
+          .from('service_requests')
+          .select(`
+            id,
+            title,
+            status,
+            created_at,
+            profiles!service_requests_client_id_fkey(full_name, avatar_url),
+            service_categories(name, icon)
+          `)
+          .in('status', ['open', 'accepted', 'in_progress'])
+          .eq('provider_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(3);
+
+        if (recentReqs) setRecentRequests(recentReqs);
+
+      } catch (err) {
+        console.error("Dashboard error", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchDashboardData();
+  }, [user]);
 
   const handleLogout = () => {
     logout();
@@ -50,16 +97,16 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         <section className="grid grid-cols-3 gap-3 p-4">
           <div className="flex flex-col gap-1 rounded-xl p-4 bg-primary/10 border border-primary/20">
             <p className="text-slate-600 dark:text-slate-300 text-xs font-medium">Visitas</p>
-            <p className="text-primary tracking-tight text-xl font-bold">0</p>
+            <p className="text-primary tracking-tight text-xl font-bold">{stats.views > 0 ? stats.views : '0'}</p>
           </div>
           <div className="flex flex-col gap-1 rounded-xl p-4 bg-primary/10 border border-primary/20">
             <p className="text-slate-600 dark:text-slate-300 text-xs font-medium">Pedidos</p>
-            <p className="text-primary tracking-tight text-xl font-bold">0</p>
+            <p className="text-primary tracking-tight text-xl font-bold">{stats.requests}</p>
           </div>
           <div className="flex flex-col gap-1 rounded-xl p-4 bg-primary/10 border border-primary/20 cursor-pointer hover:bg-primary/20 transition-colors" onClick={() => onNavigate('reviews')}>
             <p className="text-slate-600 dark:text-slate-300 text-xs font-medium">Avaliação</p>
             <div className="flex items-center gap-1">
-              <p className="text-primary tracking-tight text-xl font-bold">-</p>
+              <p className="text-primary tracking-tight text-xl font-bold">{profile?.stats?.rating?.toFixed(1) || '-'}</p>
               <span className="material-symbols-outlined text-sm text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>star_half</span>
             </div>
           </div>
@@ -127,11 +174,31 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
           </div>
           <div className="space-y-3">
 
-            <div className="flex flex-col items-center justify-center p-8 text-center rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-              <span className="material-symbols-outlined text-4xl text-slate-400 mb-2">inbox</span>
-              <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Nenhum pedido ou mensagem ainda.</p>
-              <p className="text-xs text-slate-500 mt-1">Seu perfil já está visível para novos clientes.</p>
-            </div>
+            {loading ? (
+              <div className="flex flex-col items-center justify-center p-8 text-center rounded-xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+                <span className="material-symbols-outlined animate-spin text-2xl text-slate-400">progress_activity</span>
+              </div>
+            ) : recentRequests.length === 0 ? (
+              <div className="flex flex-col items-center justify-center p-8 text-center rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+                <span className="material-symbols-outlined text-4xl text-slate-400 mb-2">inbox</span>
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Nenhum pedido ou mensagem ainda.</p>
+                <p className="text-xs text-slate-500 mt-1">Seu perfil já está visível para novos clientes.</p>
+              </div>
+            ) : (
+              recentRequests.map(req => (
+                <div key={req.id} onClick={() => onNavigate('providerRequests')} className="flex items-center gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm cursor-pointer hover:border-primary transition-colors">
+                  <div className="size-12 rounded-full bg-cover bg-center shrink-0 border border-slate-100 dark:border-slate-700" style={{ backgroundImage: `url('${req.profiles?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"}')` }}></div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100 truncate">{req.profiles?.full_name || 'Cliente'}</h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5"><span className="material-symbols-outlined text-[14px]">{req.service_categories?.icon || 'work'}</span> {req.service_categories?.name || 'Serviço'}</p>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="text-[10px] uppercase font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full mb-1">{req.status === 'open' ? 'Novo!' : req.status}</span>
+                    <span className="text-xs text-slate-400">{new Date(req.created_at).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              ))
+            )}
 
           </div>
         </section>
