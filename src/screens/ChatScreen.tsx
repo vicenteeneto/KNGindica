@@ -5,9 +5,10 @@ import { useAuth } from '../AuthContext';
 
 interface ChatScreenProps extends NavigationProps {
   params?: any;
+  onClose?: () => void;
 }
 
-export default function ChatScreen({ onNavigate, params }: ChatScreenProps) {
+export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenProps) {
   const { user } = useAuth();
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -21,8 +22,8 @@ export default function ChatScreen({ onNavigate, params }: ChatScreenProps) {
   useEffect(() => {
     if (!roomId || !user) return;
 
-    const fetchMessages = async () => {
-      setLoading(true);
+    const fetchMessages = async (silent = false) => {
+      if (!silent) setLoading(true);
       try {
         const { data, error } = await supabase
           .from('chat_messages')
@@ -31,18 +32,29 @@ export default function ChatScreen({ onNavigate, params }: ChatScreenProps) {
           .order('created_at', { ascending: true });
 
         if (error) throw error;
-        setMessages(data || []);
-        scrollToBottom();
+        
+        setMessages(prev => {
+          // Só atualiza (e rola) se a quantidade de mensagens vindas do banco mudar
+          const validPrev = prev.filter(m => !m.id?.toString().startsWith('temp-'));
+          if (validPrev.length !== (data || []).length) {
+            scrollToBottom();
+            return data || [];
+          }
+          return prev;
+        });
       } catch (err) {
         console.error(err);
       } finally {
-        setLoading(false);
+        if (!silent) setLoading(false);
       }
     };
 
     fetchMessages();
 
-    // Subscribe to real-time updates
+    // Fallback polling de 3 em 3 segundos para garantir delivery caso websocket falhe
+    const interval = setInterval(() => fetchMessages(true), 3000);
+
+    // Subscribe to real-time updates as primary driver
     const messageSubscription = supabase
       .channel(`chat_room_${roomId}`)
       .on('postgres_changes', {
@@ -51,12 +63,17 @@ export default function ChatScreen({ onNavigate, params }: ChatScreenProps) {
         table: 'chat_messages',
         filter: `room_id=eq.${roomId}`
       }, (payload) => {
-        setMessages((prev) => [...prev, payload.new]);
+        setMessages((prev) => {
+          // remove temp message with same content if exists
+          const filtered = prev.filter(m => !(m.id?.toString().startsWith('temp-') && m.content === payload.new.content));
+          return [...filtered, payload.new];
+        });
         scrollToBottom();
       })
       .subscribe();
 
     return () => {
+      clearInterval(interval);
       supabase.removeChannel(messageSubscription);
     };
   }, [roomId, user]);
@@ -108,13 +125,12 @@ export default function ChatScreen({ onNavigate, params }: ChatScreenProps) {
     }
   };
   return (
-    <div className="flex bg-slate-100 dark:bg-[#0B1120] font-display text-slate-900 dark:text-slate-100 min-h-screen items-center justify-center md:items-end md:justify-end md:p-6 sm:p-4">
-      <div className="flex flex-col w-full h-screen sm:h-[calc(100vh-2rem)] md:h-[600px] md:w-[400px] bg-white dark:bg-slate-900 sm:rounded-3xl sm:shadow-2xl sm:border border-slate-200 dark:border-slate-800 overflow-hidden relative">
+    <div className="flex flex-col w-full h-full md:h-[550px] md:w-[350px] bg-white dark:bg-slate-900 md:rounded-t-2xl sm:shadow-2xl md:border-t md:border-x border-slate-200 dark:border-slate-800 overflow-hidden font-display text-slate-900 dark:text-slate-100 z-50">
         {/* TopAppBar */}
         <nav className="sticky top-0 z-10 bg-white dark:bg-slate-900 border-b border-primary/10 px-4 py-3 flex items-center justify-between shadow-sm shrink-0">
         <div className="flex items-center gap-3">
-          <button onClick={() => onNavigate('chatList')} className="p-1 hover:bg-primary/10 rounded-full text-slate-600 dark:text-slate-400">
-            <span className="material-symbols-outlined">arrow_back</span>
+          <button onClick={() => onClose ? onClose() : onNavigate('chatList')} className="p-1 hover:bg-primary/10 rounded-full text-slate-600 dark:text-slate-400">
+            <span className="material-symbols-outlined">{onClose ? 'close' : 'arrow_back'}</span>
           </button>
           <div className="relative">
             <div className="size-10 rounded-full bg-cover bg-center border border-primary/20 overflow-hidden">
@@ -221,7 +237,6 @@ export default function ChatScreen({ onNavigate, params }: ChatScreenProps) {
         </div>
         <div className="h-1.5 w-24 bg-slate-200 dark:bg-slate-800 mx-auto mt-4 rounded-full sm:hidden"></div>
       </footer>
-      </div>
     </div>
   );
 }
