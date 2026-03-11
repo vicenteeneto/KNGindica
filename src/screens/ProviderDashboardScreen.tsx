@@ -21,7 +21,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
           .from('service_requests')
           .select('*', { count: 'exact', head: true })
           .eq('status', 'open')
-          .eq('provider_id', user.id);
+          .or(`provider_id.is.null,provider_id.eq.${user.id}`);
           
         setStats(prev => ({ ...prev, requests: reqCount || 0 }));
 
@@ -37,7 +37,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
             service_categories(name, icon)
           `)
           .in('status', ['open', 'accepted', 'in_progress'])
-          .eq('provider_id', user.id)
+          .or(`provider_id.is.null,provider_id.eq.${user.id}`)
           .order('created_at', { ascending: false })
           .limit(3);
 
@@ -59,7 +59,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
   };
   return (
     <div className="bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
-      <div className="relative flex min-h-screen w-full flex-col max-w-7xl mx-auto md:px-4 bg-white dark:bg-slate-900 shadow-xl overflow-x-hidden">
+      <div className="relative flex min-h-screen w-full flex-col mx-auto bg-white dark:bg-slate-900 shadow-xl overflow-x-hidden">
 
         {/* Header */}
         <header className="flex items-center bg-white dark:bg-slate-900 p-4 border-b border-slate-100 dark:border-slate-800 justify-between sticky top-0 z-10">
@@ -141,7 +141,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         {/* Quick Actions */}
         <section className="px-4 py-2">
           <h3 className="text-slate-900 dark:text-slate-100 text-base font-bold mb-3">Ações Rápidas</h3>
-          <div className="grid grid-cols-1 gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 border-y border-slate-100 dark:border-slate-800 py-4">
             <button onClick={() => onNavigate('userProfile')} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer group">
               <div className="flex size-10 items-center justify-center rounded-lg bg-white dark:bg-slate-900 text-primary shadow-sm group-hover:scale-105 transition-transform">
                 <span className="material-symbols-outlined">edit_square</span>
