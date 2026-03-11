@@ -87,18 +87,33 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
       try {
         // 1. Fetch profiles for stats and list
         const { data: profiles } = await supabase.from('profiles').select('*');
-        const providers = profiles?.filter(p => p.role === 'provider') || [];
         const clients = profiles?.filter(p => p.role === 'client') || [];
 
         // 2. Fetch requests for stats and orders list
         const { data: requests } = await supabase.from('service_requests').select('*, client:profiles!service_requests_client_id_fkey(full_name, avatar_url), provider:profiles!service_requests_provider_id_fkey(full_name, avatar_url), category:service_categories(name)').order('created_at', { ascending: false });
         const compServ = requests?.filter(r => r.status === 'completed') || [];
 
-        // Mock revenue (e.g. 15% of mock prices)
-        const revenue = compServ.length * 25.50; // simple mock
-
         // 3. Fetch reviews
         const { data: reviews } = await supabase.from('reviews').select('*, reviewer:profiles!reviews_reviewer_id_fkey(full_name), provider:profiles!reviews_provider_id_fkey(full_name, role)').order('created_at', { ascending: false });
+
+        // Calculate dynamic platform revenue (e.g. 15% of all completed service prices)
+        const revenue = compServ.reduce((acc, curr) => acc + (curr.price || 0), 0) * 0.15;
+
+        // Enrich providers data
+        const providers = (profiles?.filter(p => p.role === 'provider') || []).map(p => {
+          const pOrders = (requests || []).filter(r => r.provider_id === p.id && r.status === 'completed');
+          const pEarn = pOrders.reduce((acc, curr) => acc + (curr.price || 0), 0) * 0.85;
+          const pReviews = (reviews || []).filter(r => r.provider_id === p.id);
+          const pRating = pReviews.length > 0 ? (pReviews.reduce((acc, curr) => acc + (curr.rating || 0), 0) / pReviews.length).toFixed(1) : '--';
+          
+          return {
+            ...p,
+            completed_services: pOrders.length,
+            earnings: pEarn,
+            rating: pRating,
+            total_reviews: pReviews.length
+          };
+        });
 
         // 4. Fetch Categories
         const { data: categories } = await supabase.from('service_categories').select('*').order('name');
@@ -306,7 +321,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-1 text-orange-400">
                           <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                          <span className="text-sm font-bold text-slate-700 dark:text-slate-300">0.0</span>
+                          <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{provider.rating}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -519,7 +534,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                     </td>
                     <td className="px-6 py-4">
                       <p className="text-sm font-medium text-slate-900 dark:text-white">{provider.service_category || 'Prestador de Serviços'}</p>
-                      <p className="text-xs text-slate-500">-- concluídos • <span className="text-green-600 font-semibold">R$ --</span></p>
+                      <p className="text-xs text-slate-500">{provider.completed_services || 0} concluídos • <span className="text-green-600 font-semibold">R$ {provider.earnings ? provider.earnings.toLocaleString('pt-BR', {minimumFractionDigits: 2}) : '0,00'}</span></p>
                     </td>
                     <td className="px-6 py-4">
                       <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold uppercase rounded-full">Básico</span>
@@ -543,9 +558,9 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                       <div className="flex flex-col">
                         <div className="flex items-center gap-1 text-orange-400">
                           <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                          <span className="text-sm font-bold text-slate-900 dark:text-white">--</span>
+                          <span className="text-sm font-bold text-slate-900 dark:text-white">{provider.rating}</span>
                         </div>
-                        <span className="text-[10px] text-slate-500">(-- reviews)</span>
+                        <span className="text-[10px] text-slate-500">({provider.total_reviews || 0} reviews)</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
@@ -749,7 +764,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                       <p className="text-xs text-slate-500">{order.category?.name || 'Serviço'}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-sm font-bold text-slate-900 dark:text-white">Em negociação</p>
+                      <p className="text-sm font-bold text-slate-900 dark:text-white">{order.price ? `R$ ${order.price.toLocaleString('pt-BR', {minimumFractionDigits: 2})}` : 'Em negociação'}</p>
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 text-[10px] font-bold uppercase rounded-full shadow-sm ${order.status === 'completed' ? 'bg-green-100 dark:bg-green-900/40 text-green-700' : 'bg-blue-100 dark:bg-blue-900/40 text-blue-700'}`}>
@@ -809,7 +824,9 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
         <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center">
           <p className="text-xs text-slate-500 font-medium mb-1">Média da Plataforma</p>
           <div className="flex items-center gap-2 text-orange-400">
-            <h3 className="text-3xl font-bold text-slate-900 dark:text-white">4.6</h3>
+            <h3 className="text-3xl font-bold text-slate-900 dark:text-white">
+              {reviewsList.length > 0 ? (reviewsList.reduce((acc, curr) => acc + (curr.rating || 0), 0) / reviewsList.length).toFixed(1) : '0.0'}
+            </h3>
             <span className="material-symbols-outlined text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
           </div>
         </div>
@@ -820,7 +837,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
         <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-red-500 cursor-pointer">
           <p className="text-xs text-slate-500 font-medium mb-1 text-red-600 dark:text-red-400">Denunciadas / Para Moderar</p>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-2xl font-bold text-red-600 dark:text-red-400">24</h3>
+            <h3 className="text-2xl font-bold text-red-600 dark:text-red-400">0</h3>
             <span className="material-symbols-outlined text-sm text-red-500">flag</span>
           </div>
         </div>
