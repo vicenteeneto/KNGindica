@@ -184,11 +184,13 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
   };
 
   const handleSendProposal = async () => {
-    if (!proposalPrice || !user || !params?.requestId || !roomId) {
-      if (!params?.requestId) alert("Erro: Esta conversa não está vinculada a um pedido (requestId faltando). Tente abrir o chat novamente pela lista de pedidos.");
-      if (!roomId) alert("Erro: Sala de chat não identificada.");
-      return;
-    }
+    console.log("Iniciando handleSendProposal", { proposalPrice, user: !!user, requestId: params?.requestId, roomId });
+    
+    if (!proposalPrice) return alert("Por favor, digite um valor para o orçamento.");
+    if (!user) return alert("Erro: Usuário não identificado.");
+    if (!params?.requestId) return alert("Erro: Esta conversa não está vinculada a um pedido (requestId faltando).");
+    if (!roomId) return alert("Erro: Sala de chat não identificada.");
+
     setIsSendingProposal(true);
     try {
       const price = parseFloat(proposalPrice.replace(',', '.'));
@@ -467,11 +469,14 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
                   Cancelar
                 </button>
                 <button 
-                  onClick={handleSendProposal}
+                  onClick={() => {
+                    alert("Botão clicado! Tentando enviar proposta...");
+                    handleSendProposal();
+                  }}
                   disabled={isSendingProposal || !proposalPrice} 
-                  className="flex-1 py-3 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
+                  className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
                 >
-                  {isSendingProposal ? <span className="material-symbols-outlined animate-spin text-[20px]">refresh</span> : 'Enviar Proposta'}
+                  {isSendingProposal ? <span className="material-symbols-outlined animate-spin text-[20px]">refresh</span> : 'Enviar Proposta (TESTE)'}
                 </button>
               </div>
             </div>
