@@ -184,49 +184,56 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
   };
 
   const handleSendProposal = async () => {
-    console.log("Iniciando handleSendProposal", { proposalPrice, user: !!user, requestId: params?.requestId, roomId });
+    alert("Função handleSendProposal iniciada!");
     
-    if (!proposalPrice) return alert("Por favor, digite um valor para o orçamento.");
-    if (!user) return alert("Erro: Usuário não identificado.");
-    if (!params?.requestId) return alert("Erro: Esta conversa não está vinculada a um pedido (requestId faltando).");
-    if (!roomId) return alert("Erro: Sala de chat não identificada.");
+    if (!proposalPrice) return alert("Erro: Preço vazio.");
+    if (!user) return alert("Erro: Usuário não logado.");
+    if (!params?.requestId) return alert("Erro: ID do Pedido (requestId) não encontrado nesta sala.");
+    if (!roomId) return alert("Erro: ID da Sala (roomId) não encontrado.");
 
     setIsSendingProposal(true);
     try {
+      alert("Passo 1: Calculando preço...");
       const price = parseFloat(proposalPrice.replace(',', '.'));
-      const platformFee = 10; // Fixo conforme PRD
-      
-      // 1. Atualizar o pedido com o valor e status
+      if (isNaN(price)) return alert("Erro: Valor inválido.");
+
+      alert("Passo 2: Atualizando service_requests...");
       const { error: reqError } = await supabase
         .from('service_requests')
         .update({
           budget_amount: price,
           status: 'proposed',
-          platform_fee: platformFee
+          platform_fee: 10
         })
         .eq('id', params.requestId);
 
-      if (reqError) throw reqError;
+      if (reqError) {
+        alert("Erro Supabase (Request): " + reqError.message);
+        throw reqError;
+      }
 
-      // 2. Enviar mensagem especial de proposta
+      alert("Passo 3: Inserindo mensagem no chat...");
       const content = `[PROPOSTA]Valor: R$ ${price.toFixed(2)} | Clique para ver detalhes e aceitar.`;
       const { error: msgError } = await supabase.from('chat_messages').insert({
         room_id: roomId,
         sender_id: user.id,
-        content: content,
-        metadata: { type: 'proposal', price: price }
+        content: content
       });
 
-      if (msgError) throw msgError;
+      if (msgError) {
+        alert("Erro Supabase (Message): " + msgError.message);
+        throw msgError;
+      }
 
+      alert("Sucesso final! Fechando modal...");
       setShowProposalModal(false);
       setProposalPrice('');
-      // refresh request
-      const { data } = await supabase.from('service_requests').select('*').eq('id', params.requestId).single();
-      setServiceRequest(data);
+      
+      const { data: updatedReq } = await supabase.from('service_requests').select('*').eq('id', params.requestId).single();
+      setServiceRequest(updatedReq);
 
     } catch (err: any) {
-      alert("Erro ao enviar proposta: " + err.message);
+      alert("CATCH GLOBAL: " + (err.message || JSON.stringify(err)));
     } finally {
       setIsSendingProposal(false);
     }
