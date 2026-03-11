@@ -1,7 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
+import { supabase } from '../lib/supabase';
 
-export default function ServiceStatusScreen({ onNavigate }: NavigationProps) {
+export default function ServiceStatusScreen({ onNavigate, params }: NavigationProps) {
+  const [request, setRequest] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRequest = async () => {
+      if (!params?.requestId) return;
+      const { data, error } = await supabase
+        .from('service_requests')
+        .select('*, profiles!service_requests_provider_id_fkey(full_name, avatar_url, rating, reviews), service_categories(name, icon)')
+        .eq('id', params.requestId)
+        .single();
+      
+      if (!error) setRequest(data);
+      setLoading(false);
+    };
+    fetchRequest();
+  }, [params?.requestId]);
+
+  if (loading && params?.requestId) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-900">
+        <span className="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span>
+      </div>
+    );
+  }
+
+  const displayData = request || {
+    title: 'Carregando...',
+    service_categories: { name: 'Serviço', icon: 'work' },
+    profiles: { full_name: 'Aguardando Atribuição', avatar_url: '' },
+    budget_amount: 0,
+    created_at: new Date().toISOString(),
+    status: 'open'
+  };
   return (
     <div className="bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
       {/* Floating Action Buttons */}
@@ -55,23 +90,36 @@ export default function ServiceStatusScreen({ onNavigate }: NavigationProps) {
               <p className="text-slate-600 dark:text-slate-400 text-sm max-w-[280px]">O profissional aceitou sua solicitação e já está se preparando para o atendimento.</p>
             </div>
             
-            <div className="w-full bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm cursor-pointer hover:border-primary/50 transition-colors" onClick={() => onNavigate('profile', { professionalId: 'p1' })}>
+            <div className="w-full bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm cursor-pointer hover:border-primary/50 transition-colors" onClick={() => displayData.provider_id && onNavigate('profile', { professionalId: displayData.provider_id })}>
               <div className="flex items-center gap-4">
                 <div className="size-14 rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden shrink-0">
-                  <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZtE89SiSEg9xGbgHmE75NNg2HoZmR3gUhNBNCYEwoBeWmHSlXb5hbosTVApCHZQViJRxLT3QojR2tE9GelPQA8oiwPkKJUJNcFhkzvgufiFEd-IJioV3q5uBuEuPUmvdKxpr5fOtYo6iWyG7R6QDWg8I0xVEvmkDv9NJrO1n1PstMoxIPhXnT1JE6pNzI1ll2qYfmIobIU4QIxcj9bXKURTfOjoGaknFHQwm6yewuGR1EIEnH5IjB3vVDpuKtvPWh7PgD435FUA8" alt="Profile photo" />
+                  <img className="w-full h-full object-cover" src={displayData.profiles?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} alt="Profile photo" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-bold text-slate-900 dark:text-slate-100">Ricardo Oliveira</h4>
+                  <h4 className="font-bold text-slate-900 dark:text-slate-100">{displayData.profiles?.full_name || 'Profissional'}</h4>
                   <div className="flex items-center gap-1 text-amber-500">
                     <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                    <span className="text-xs font-semibold">4.9 (128 avaliações)</span>
+                    <span className="text-xs font-semibold">{displayData.profiles?.rating || 'Novo'} ({displayData.profiles?.reviews || 0} avaliações)</span>
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <button className="size-10 flex items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors" onClick={(e) => { e.stopPropagation(); alert('Calling...'); }}>
+                  <button className="size-10 flex items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors" onClick={(e) => { e.stopPropagation(); alert('Iniciando chamada...'); }}>
                     <span className="material-symbols-outlined">call</span>
                   </button>
-                  <button className="size-10 flex items-center justify-center rounded-full bg-primary text-white hover:bg-primary/90 transition-colors" onClick={(e) => { e.stopPropagation(); onNavigate('chat'); }}>
+                  <button className="size-10 flex items-center justify-center rounded-full bg-primary text-white hover:bg-primary/90 transition-colors" onClick={async (e) => { 
+                    e.stopPropagation(); 
+                    if (!displayData.provider_id) return;
+                    // Encontrar ou criar sala
+                    const { data: room } = await supabase.from('chat_rooms').select('id').eq('request_id', params?.requestId).single();
+                    if (room) {
+                      onNavigate('chat', { 
+                        roomId: room.id, 
+                        opponentName: displayData.profiles?.full_name, 
+                        opponentAvatar: displayData.profiles?.avatar_url,
+                        requestId: params?.requestId
+                      });
+                    }
+                  }}>
                     <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>chat</span>
                   </button>
                 </div>

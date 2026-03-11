@@ -108,9 +108,9 @@ function AppContent() {
       case 'providerRequests':
         return <ProviderRequestsScreen onNavigate={handleNavigate} />;
       case 'serviceStatus':
-        return <ServiceStatusScreen onNavigate={handleNavigate} />;
+        return <ServiceStatusScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'serviceRequestForm':
-        return <ServiceRequestFormScreen onNavigate={handleNavigate} />;
+        return <ServiceRequestFormScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'writeReview':
         return <WriteReviewScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'auth':
@@ -136,7 +136,7 @@ function AppContent() {
       case 'myRequests':
         return <MyRequestsScreen onNavigate={handleNavigate} />;
       case 'categories':
-        return <CategoriesScreen onNavigate={handleNavigate} />;
+        return <CategoriesScreen onNavigate={handleNavigate} params={navigationParams} />;
       default:
         return <HomeScreen onNavigate={handleNavigate} />;
     }

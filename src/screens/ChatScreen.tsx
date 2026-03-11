@@ -61,13 +61,31 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
 
     // Buscar dados do pedido vinculado
     const fetchRequest = async () => {
-      if (!params?.requestId) return;
+      let finalRequestId = params?.requestId;
+      
+      // Fallback: se não veio por parâmetro, busca da sala de chat
+      if (!finalRequestId && roomId) {
+        const { data: roomData } = await supabase
+          .from('chat_rooms')
+          .select('request_id')
+          .eq('id', roomId)
+          .single();
+        if (roomData?.request_id) finalRequestId = roomData.request_id;
+      }
+
+      if (!finalRequestId) return;
+
       const { data } = await supabase
         .from('service_requests')
         .select('*')
-        .eq('id', params.requestId)
+        .eq('id', finalRequestId)
         .single();
-      setServiceRequest(data);
+      
+      if (data) {
+        setServiceRequest(data);
+        // Atualiza o parâmetro internamente para outras funções
+        params.requestId = finalRequestId;
+      }
     };
     fetchRequest();
 
@@ -184,20 +202,21 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
   };
 
   const handleSendProposal = async () => {
-    alert("Função handleSendProposal iniciada!");
-    
-    if (!proposalPrice) return alert("Erro: Preço vazio.");
-    if (!user) return alert("Erro: Usuário não logado.");
-    if (!params?.requestId) return alert("Erro: ID do Pedido (requestId) não encontrado nesta sala.");
-    if (!roomId) return alert("Erro: ID da Sala (roomId) não encontrado.");
+    if (!proposalPrice || !user || !params?.requestId || !roomId) {
+       console.error("Missing data for proposal", { proposalPrice, user: !!user, requestId: params?.requestId, roomId });
+       return;
+    }
 
     setIsSendingProposal(true);
     try {
-      alert("Passo 1: Calculando preço...");
       const price = parseFloat(proposalPrice.replace(',', '.'));
-      if (isNaN(price)) return alert("Erro: Valor inválido.");
+      if (isNaN(price)) {
+        alert("Por favor, insira um valor válido.");
+        setIsSendingProposal(false);
+        return;
+      }
 
-      alert("Passo 2: Atualizando service_requests...");
+      // 1. Atualizar o pedido com o valor e status
       const { error: reqError } = await supabase
         .from('service_requests')
         .update({
@@ -207,12 +226,9 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
         })
         .eq('id', params.requestId);
 
-      if (reqError) {
-        alert("Erro Supabase (Request): " + reqError.message);
-        throw reqError;
-      }
+      if (reqError) throw reqError;
 
-      alert("Passo 3: Inserindo mensagem no chat...");
+      // 2. Enviar mensagem especial de proposta
       const content = `[PROPOSTA]Valor: R$ ${price.toFixed(2)} | Clique para ver detalhes e aceitar.`;
       const { error: msgError } = await supabase.from('chat_messages').insert({
         room_id: roomId,
@@ -220,12 +236,8 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
         content: content
       });
 
-      if (msgError) {
-        alert("Erro Supabase (Message): " + msgError.message);
-        throw msgError;
-      }
+      if (msgError) throw msgError;
 
-      alert("Sucesso final! Fechando modal...");
       setShowProposalModal(false);
       setProposalPrice('');
       
@@ -233,7 +245,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
       setServiceRequest(updatedReq);
 
     } catch (err: any) {
-      alert("CATCH GLOBAL: " + (err.message || JSON.stringify(err)));
+      alert("Erro ao enviar proposta: " + err.message);
     } finally {
       setIsSendingProposal(false);
     }
@@ -476,14 +488,11 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
                   Cancelar
                 </button>
                 <button 
-                  onClick={() => {
-                    alert("Botão clicado! Tentando enviar proposta...");
-                    handleSendProposal();
-                  }}
+                  onClick={handleSendProposal}
                   disabled={isSendingProposal || !proposalPrice} 
-                  className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
+                  className="flex-1 py-3 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
                 >
-                  {isSendingProposal ? <span className="material-symbols-outlined animate-spin text-[20px]">refresh</span> : 'Enviar Proposta (TESTE)'}
+                  {isSendingProposal ? <span className="material-symbols-outlined animate-spin text-[20px]">refresh</span> : 'Enviar Proposta'}
                 </button>
               </div>
             </div>

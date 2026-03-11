@@ -2,6 +2,7 @@ export type Screen = 'home' | 'listing' | 'profile' | 'dashboard' | 'chatList' |
 
 export interface NavigationProps {
   onNavigate: (screen: Screen, params?: any) => void;
+  params?: any;
 }
 
 export interface Professional {
