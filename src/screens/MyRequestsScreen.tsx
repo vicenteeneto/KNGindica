@@ -14,7 +14,7 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
     if (!user) return;
     setLoading(true);
     try {
-      let statuses = ['open', 'accepted', 'in_progress'];
+      let statuses = ['open', 'proposed', 'accepted', 'in_progress', 'awaiting_payment', 'paid'];
       if (activeTab === 'concluidos') statuses = ['completed'];
       else if (activeTab === 'cancelados') statuses = ['cancelled'];
 

@@ -15,7 +15,11 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
         .eq('id', params.requestId)
         .single();
       
-      if (!error) setRequest(data);
+      if (!error) {
+        setRequest(data);
+        console.log("ServiceStatusScreen carregado:", data);
+        alert(`DEBUG: Pedido Carregado!\nID: ${params.requestId}\nStatus: ${data.status}\nProfissional: ${data.profiles?.full_name || 'Nenhum'}`);
+      }
       setLoading(false);
     };
     fetchRequest();
@@ -86,8 +90,18 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
             </div>
             
             <div className="flex flex-col items-center gap-2 text-center">
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Serviço Confirmado</h1>
-              <p className="text-slate-600 dark:text-slate-400 text-sm max-w-[280px]">O profissional aceitou sua solicitação e já está se preparando para o atendimento.</p>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                {displayData.status === 'open' ? 'Solicitação Aberta' : 
+                 displayData.status === 'proposed' ? 'Orçamento Recebido' :
+                 displayData.status === 'awaiting_payment' ? 'Aguardando Pagamento' :
+                 displayData.status === 'paid' ? 'Pedido Pago' :
+                 displayData.status === 'completed' ? 'Serviço Concluído' : 'Serviço em Andamento'}
+              </h1>
+              <p className="text-slate-600 dark:text-slate-400 text-sm max-w-[280px]">
+                {displayData.status === 'open' ? 'Estamos aguardando um profissional aceitar sua solicitação.' : 
+                 displayData.status === 'proposed' ? 'Você recebeu uma proposta. Confira os detalhes abaixo.' :
+                 'O profissional está pronto para realizar o seu atendimento.'}
+              </p>
             </div>
             
             <div className="w-full bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm cursor-pointer hover:border-primary/50 transition-colors" onClick={() => displayData.provider_id && onNavigate('profile', { professionalId: displayData.provider_id })}>
@@ -96,7 +110,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                   <img className="w-full h-full object-cover" src={displayData.profiles?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} alt="Profile photo" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-bold text-slate-900 dark:text-slate-100">{displayData.profiles?.full_name || 'Profissional'}</h4>
+                  <h4 className="font-bold text-slate-900 dark:text-slate-100">{displayData.profiles?.full_name || 'Aguardando Profissional'}</h4>
                   <div className="flex items-center gap-1 text-amber-500">
                     <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
                     <span className="text-xs font-semibold">{displayData.profiles?.rating || 'Novo'} ({displayData.profiles?.reviews || 0} avaliações)</span>
@@ -108,7 +122,10 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                   </button>
                   <button className="size-10 flex items-center justify-center rounded-full bg-primary text-white hover:bg-primary/90 transition-colors" onClick={async (e) => { 
                     e.stopPropagation(); 
-                    if (!displayData.provider_id) return;
+                    if (!displayData.provider_id) {
+                      alert("Aguarde um profissional aceitar seu pedido para iniciar o chat.");
+                      return;
+                    }
                     // Encontrar ou criar sala
                     const { data: room } = await supabase.from('chat_rooms').select('id').eq('request_id', params?.requestId).single();
                     if (room) {
@@ -136,11 +153,11 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
             {/* Service Info */}
             <div className="flex items-center gap-4 p-4">
               <div className="size-10 flex items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <span className="material-symbols-outlined">cleaning_services</span>
+                <span className="material-symbols-outlined">{displayData.service_categories?.icon || 'cleaning_services'}</span>
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Serviço</p>
-                <p className="text-slate-900 dark:text-slate-100 font-semibold">Limpeza Residencial Premium</p>
+                <p className="text-slate-900 dark:text-slate-100 font-semibold">{displayData.title || displayData.service_categories?.name}</p>
               </div>
             </div>
             
@@ -151,7 +168,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Data e Horário</p>
-                <p className="text-slate-900 dark:text-slate-100 font-semibold">15 de Outubro, 14:00</p>
+                <p className="text-slate-900 dark:text-slate-100 font-semibold">{new Date(displayData.created_at).toLocaleDateString([], { day: 'numeric', month: 'long' })}, {new Date(displayData.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
               </div>
             </div>
             
@@ -162,7 +179,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Localização</p>
-                <p className="text-slate-900 dark:text-slate-100 font-semibold line-clamp-1">Av. Paulista, 1000 - Bela Vista</p>
+                <p className="text-slate-900 dark:text-slate-100 font-semibold line-clamp-1">{displayData.address || 'Localização não informada'}</p>
               </div>
             </div>
             
@@ -173,19 +190,24 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Valor Total</p>
-                <p className="text-slate-900 dark:text-slate-100 font-bold">R$ 150,00</p>
+                <p className="text-slate-900 dark:text-slate-100 font-bold">R$ {displayData.budget_amount ? displayData.budget_amount.toFixed(2) : 'A definir'}</p>
               </div>
-              <div className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-1 rounded text-xs font-bold uppercase">
-                Pago
+              <div className={`px-2 py-1 rounded text-xs font-bold uppercase ${displayData.status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                {displayData.status === 'paid' ? 'Pago' : 'Pendente'}
               </div>
             </div>
           </div>
           
           {/* Action Buttons */}
           <div className="pt-4 flex flex-col gap-3">
-            <button className="w-full h-12 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
-              Acompanhar Profissional
-            </button>
+            {(displayData.status === 'proposed' || displayData.status === 'awaiting_payment') && (
+              <button 
+                onClick={() => onNavigate('chat', { requestId: params?.requestId })}
+                className="w-full h-12 bg-orange-500 text-white font-bold rounded-xl hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20"
+              >
+                Aceitar Orçamento no Chat
+              </button>
+            )}
             <button 
               onClick={() => onNavigate('home')}
               className="w-full h-12 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700"

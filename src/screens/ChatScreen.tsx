@@ -101,6 +101,9 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
         table: 'chat_messages',
         filter: `room_id=eq.${roomId}`
       }, (payload) => {
+        if (payload.new.content.startsWith('[PROPOSTA]')) {
+          fetchRequest();
+        }
         setMessages((prev) => {
           // remove temp message with same content if exists
           const filtered = prev.filter(m => !(m.id?.toString().startsWith('temp-') && m.content === payload.new.content));
@@ -391,10 +394,13 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
                             ORÇAMENTO RECEBIDO
                           </div>
                           <p className="text-sm font-medium">{msg.content.replace('[PROPOSTA]', '')}</p>
-                          {serviceRequest?.status === 'proposed' && (
+                          <div className="bg-slate-200 dark:bg-slate-700 p-1 rounded text-[9px] text-center text-slate-500 mb-1">
+                            DEBUG: Status do Pedido = "{serviceRequest?.status || 'desconhecido'}"
+                          </div>
+                          {(serviceRequest?.status === 'proposed' || serviceRequest?.status === 'open') && (
                             <button 
                               onClick={handleAcceptProposal}
-                              className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg font-bold text-xs shadow-md transition-all active:scale-95"
+                              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-bold text-xs shadow-md transition-all active:scale-95"
                             >
                               Aceitar e Pagar Taxa (R$ 10)
                             </button>
