@@ -1,9 +1,13 @@
 import React from 'react';
 import { NavigationProps } from '../types';
 
-export default function ServiceConfirmationScreen({ onNavigate }: NavigationProps) {
+interface ServiceConfirmationScreenProps extends NavigationProps {
+  params?: any;
+}
+
+export default function ServiceConfirmationScreen({ onNavigate, params }: ServiceConfirmationScreenProps) {
   return (
-    <div className="relative flex min-h-screen w-full flex-col max-w-4xl mx-auto border-x border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-x-hidden font-display text-slate-900 dark:text-slate-100 antialiased">
+    <div className="flex flex-col min-h-screen w-full bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 antialiased">
       {/* Header */}
       <div className="flex items-center bg-white dark:bg-slate-900 p-4 border-b border-slate-100 dark:border-slate-800 justify-between sticky top-0 z-10">
         <button 
@@ -46,39 +50,39 @@ export default function ServiceConfirmationScreen({ onNavigate }: NavigationProp
         </div>
 
         {/* Request Summary Card */}
-        <div className="px-6 mb-8">
-          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-100 dark:border-slate-800">
-            <h3 className="text-slate-900 dark:text-slate-100 text-base font-bold leading-tight mb-4">Resumo da Solicitação</h3>
+        <div className="px-6 mb-8 max-w-2xl mx-auto w-full">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
+            <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight mb-6">Resumo da Solicitação</h3>
             
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <span className="material-symbols-outlined text-primary text-xl">cleaning_services</span>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm">Serviço</p>
+                  <p className="text-slate-500 dark:text-slate-400 font-medium">Serviço</p>
                 </div>
-                <p className="text-slate-900 dark:text-slate-100 text-sm font-semibold">Limpeza Residencial</p>
+                <p className="text-slate-900 dark:text-slate-100 font-bold">{params?.categoryName || 'Serviço sob Medida'}</p>
               </div>
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <span className="material-symbols-outlined text-primary text-xl">person</span>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm">Profissional</p>
+                  <p className="text-slate-500 dark:text-slate-400 font-medium">Profissional</p>
                 </div>
-                <p className="text-slate-900 dark:text-slate-100 text-sm font-semibold text-right">Carlos Silva</p>
+                <p className="text-slate-900 dark:text-slate-100 font-bold text-right">{params?.providerName || 'Aguardando Atribuição'}</p>
               </div>
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <span className="material-symbols-outlined text-primary text-xl">calendar_today</span>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm">Data</p>
+                  <p className="text-slate-500 dark:text-slate-400 font-medium">Data</p>
                 </div>
-                <p className="text-slate-900 dark:text-slate-100 text-sm font-semibold text-right">15 de Outubro, 2023</p>
+                <p className="text-slate-900 dark:text-slate-100 font-bold text-right">{params?.date || 'Não específicada'}</p>
               </div>
 
               <div className="pt-4 mt-4 border-t border-slate-200 dark:border-slate-700">
                 <div className="flex items-center justify-between">
-                  <p className="text-slate-500 dark:text-slate-400 text-sm">Valor Estimado</p>
-                  <p className="text-primary text-lg font-bold">R$ 180,00</p>
+                  <p className="text-slate-500 dark:text-slate-400 font-medium">Status do Valor</p>
+                  <p className="text-emerald-600 dark:text-emerald-400 text-base font-bold">A Combinar (Orçamento)</p>
                 </div>
               </div>
             </div>

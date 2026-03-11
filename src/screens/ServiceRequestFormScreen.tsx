@@ -69,7 +69,11 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
 
       if (error) throw error;
 
-      onNavigate('serviceConfirmation');
+      onNavigate('serviceConfirmation', {
+        categoryName,
+        providerName: params?.providerName || 'Aguardando Atribuição',
+        date: desiredDate ? desiredDate.split('-').reverse().join('/') : 'Em breve'
+      });
     } catch (err) {
       console.error(err);
       alert('Erro ao criar solicitação.');
