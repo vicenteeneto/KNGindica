@@ -30,7 +30,7 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
           created_at,
           category_id,
           provider_id,
-          profiles!service_requests_provider_id_fkey(full_name, avatar_url),
+          profiles:provider_id(full_name, avatar_url),
           service_categories(name, icon)
         `)
         .eq('client_id', user.id)

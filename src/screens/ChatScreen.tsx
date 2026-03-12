@@ -233,7 +233,12 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
 
       console.log("Resultado do update service_request:", { updateData, reqError });
       
-      if (reqError) throw reqError;
+      if (reqError) {
+        if (reqError.message.includes('invalid input value for enum request_status')) {
+          alert("ERRO DE BANCO: O status 'proposed' não existe no banco de dados. Você PRECISA rodar o script SQL de correção (sql_v6_enum_fix.sql) no editor do Supabase.");
+        }
+        throw reqError;
+      }
       if (!updateData || updateData.length === 0) {
         alert("Erro: O pedido não foi encontrado ou você não tem permissão para alterá-lo.");
         setIsSendingProposal(false);
@@ -273,7 +278,12 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
         .update({ status: 'awaiting_payment' }) // Próximo passo seria o pagamento da taxa
         .eq('id', params.requestId);
 
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes('enum')) {
+          alert("ERRO DE BANCO: O status 'awaiting_payment' não existe no banco de dados. Você PRECISA rodar o script SQL de correção (sql_v6_enum_fix.sql) no editor do Supabase.");
+        }
+        throw error;
+      }
       
       // Notificar no chat
       await supabase.from('chat_messages').insert({
