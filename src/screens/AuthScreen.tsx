@@ -45,7 +45,11 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
         // Alertar o usuário aqui se necessário, dependendo da config do seu Supabase.
       }
     } catch (err: any) {
-      setErrorMsg(err.message || 'Ocorreu um erro.');
+      let msg = err.message || 'Ocorreu um erro.';
+      if (msg === 'Invalid login credentials') {
+        msg = 'E-mail ou senha incorretos. Se você se cadastrou pelo Google, continue usando o botão do Google ou use "Esqueci minha senha" para criar uma senha.';
+      }
+      setErrorMsg(msg);
     } finally {
       setIsLoading(false);
     }

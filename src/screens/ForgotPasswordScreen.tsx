@@ -1,12 +1,28 @@
 import React, { useState } from 'react';
 import { NavigationProps } from '../types';
+import { supabase } from '../lib/supabase';
 
 export default function ForgotPasswordScreen({ onNavigate }: NavigationProps) {
+  const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setIsLoading(true);
+    setErrorMsg('');
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/reset-password', // Opcional, dependendo da config do Supabase
+      });
+      if (error) throw error;
+      setSubmitted(true);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Erro ao enviar e-mail de recuperação.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -36,6 +52,12 @@ export default function ForgotPasswordScreen({ onNavigate }: NavigationProps) {
               Informe o e-mail associado à sua conta e enviaremos um link com instruções para redefinir sua senha.
             </p>
 
+            {errorMsg && (
+              <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+                {errorMsg}
+              </div>
+            )}
+
             {/* Form */}
             <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-full">
               <div className="flex flex-col gap-1.5">
@@ -45,6 +67,8 @@ export default function ForgotPasswordScreen({ onNavigate }: NavigationProps) {
                   <input 
                     type="email" 
                     required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all dark:text-white shadow-sm"
                     placeholder="seu@email.com"
                   />
@@ -53,9 +77,10 @@ export default function ForgotPasswordScreen({ onNavigate }: NavigationProps) {
 
               <button 
                 type="submit" 
-                className="mt-2 w-full bg-primary text-white font-bold py-3.5 rounded-xl shadow-lg shadow-primary/30 hover:bg-primary/90 hover:-translate-y-0.5 active:translate-y-0 transition-all focus:ring-4 focus:ring-primary/20"
+                disabled={isLoading}
+                className="mt-2 w-full bg-primary text-white font-bold py-3.5 rounded-xl shadow-lg shadow-primary/30 hover:bg-primary/90 hover:-translate-y-0.5 active:translate-y-0 transition-all focus:ring-4 focus:ring-primary/20 disabled:opacity-50"
               >
-                Enviar link de recuperação
+                {isLoading ? 'Enviando...' : 'Enviar link de recuperação'}
               </button>
             </form>
           </>
