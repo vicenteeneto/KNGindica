@@ -34,30 +34,50 @@ import { AuthProvider, useAuth } from './AuthContext';
 import { NotificationProvider } from './NotificationContext';
 
 // ThemeToggle foi movido para o UserProfileScreen
-function AppContent() {
-  const [currentScreen, setCurrentScreen] = useState<Screen>('auth');
-  const [navigationParams, setNavigationParams] = useState<any>({});
-  const [activeChat, setActiveChat] = useState<any>(null);
+const STORAGE_KEY = 'iService_currentScreen';
+const STORAGE_PARAMS_KEY = 'iService_navParams';
 
+// Telas que nunca devem ser persistidas (sensíveis ou de sessão)
+const NON_PERSISTENT_SCREENS = ['auth', 'forgotPassword', 'chat'];
+
+function AppContent() {
   const { user, role, loading } = useAuth();
+
+  // Recuperar tela salva antes de criar o estado
+  const getSavedScreen = (): Screen => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved && !NON_PERSISTENT_SCREENS.includes(saved)) return saved as Screen;
+    } catch {}
+    return 'auth';
+  };
+
+  const getSavedParams = () => {
+    try {
+      const saved = localStorage.getItem(STORAGE_PARAMS_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return {};
+  };
+
+  const [currentScreen, setCurrentScreen] = useState<Screen>(getSavedScreen());
+  const [navigationParams, setNavigationParams] = useState<any>(getSavedParams());
+  const [activeChat, setActiveChat] = useState<any>(null);
 
   useEffect(() => {
     if (!loading) {
       if (!user) {
-        // If not authenticated, always show auth screen
-        // In a real app we might allow guest flows, but for now we require auth
         setCurrentScreen('auth');
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(STORAGE_PARAMS_KEY);
       } else if (currentScreen === 'auth' && role !== null) {
-        // If logged in, role is loaded, and on auth screen, redirect based on role
-        // Extra security: only allow the specific email to access admin
         const isAdmin = user?.email === 'offkngpublicidade@gmail.com' || user?.email === 'netu.araujo@gmail.com' || role === 'admin';
-        if (isAdmin) {
-          setCurrentScreen('adminDashboard');
-        } else if (role === 'provider') {
-          setCurrentScreen('dashboard');
-        } else {
-          setCurrentScreen('home');
-        }
+        let dest: Screen;
+        if (isAdmin) dest = 'adminDashboard';
+        else if (role === 'provider') dest = 'dashboard';
+        else dest = 'home';
+        setCurrentScreen(dest);
+        localStorage.setItem(STORAGE_KEY, dest);
       }
     }
   }, [user, role, loading, currentScreen]);
@@ -70,6 +90,12 @@ function AppContent() {
     setCurrentScreen(screen);
     if (params) {
       setNavigationParams(params);
+      if (!NON_PERSISTENT_SCREENS.includes(screen)) {
+        localStorage.setItem(STORAGE_PARAMS_KEY, JSON.stringify(params));
+      }
+    }
+    if (!NON_PERSISTENT_SCREENS.includes(screen)) {
+      localStorage.setItem(STORAGE_KEY, screen);
     }
   };
 

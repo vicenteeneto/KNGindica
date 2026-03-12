@@ -6,7 +6,7 @@ import { supabase } from '../lib/supabase';
 import { useTheme } from '../ThemeContext';
 import { useAuth } from '../AuthContext';
 import ImageCropper from '../components/ImageCropper';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
@@ -20,6 +20,15 @@ function LocationPicker({ onPick }: { onPick: (lat: number, lng: number) => void
   useMapEvents({
     click(e) { onPick(e.latlng.lat, e.latlng.lng); }
   });
+  return null;
+}
+
+// Força o mapa a voar para o centro correto quando ele mudar
+function MapMover({ center }: { center: [number, number] }) {
+  const map = useMap();
+  React.useEffect(() => {
+    map.flyTo(center, map.getZoom(), { duration: 0.8 });
+  }, [center[0], center[1]]);
   return null;
 }
 
@@ -820,71 +829,72 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         </div>
       )}
 
-      {/* Modal: Marcar Localização no Mapa (apenas para prestadores) */}
+      {/* Modal: Marcar Localização no Mapa (popup compacto) */}
       {showLocationPickerModal && (
-        <div className="fixed inset-0 z-[200] flex flex-col bg-slate-900">
-          <div className="flex items-center justify-between p-4 bg-slate-900/95 backdrop-blur-md border-b border-slate-800">
-            <div>
-              <h3 className="font-bold text-lg text-white flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary">pin_drop</span>
-                Marcar Minha Localização
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-fade-in-up">
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 text-sm">
+                <span className="material-symbols-outlined text-primary text-[18px]">pin_drop</span>
+                Marcar minha localização
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
-                {pickedLocation ? `📍 ${pickedLocation.lat.toFixed(5)}, ${pickedLocation.lng.toFixed(5)}` : 'Clique no mapa para marcar seu endereço exato'}
-              </p>
+              <button onClick={() => setShowLocationPickerModal(false)} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
             </div>
-            <button onClick={() => setShowLocationPickerModal(false)} className="text-slate-400 hover:text-white p-2">
-              <span className="material-symbols-outlined">close</span>
-            </button>
-          </div>
 
-          <div className="flex-1 relative">
-            <MapContainer
-              center={mapCenterForPicker}
-              zoom={15}
-              style={{ height: '100%', width: '100%' }}
-              className="z-0"
-            >
-              <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-              />
-              <LocationPicker onPick={(lat, lng) => setPickedLocation({ lat, lng })} />
-              {pickedLocation && (
-                <Marker position={[pickedLocation.lat, pickedLocation.lng]} />
-              )}
-            </MapContainer>
+            {/* Instrução */}
+            <p className="text-xs text-slate-500 dark:text-slate-400 px-4 pt-2 pb-1">
+              {pickedLocation
+                ? `📍 ${pickedLocation.lat.toFixed(5)}, ${pickedLocation.lng.toFixed(5)} — clique para reposicionar`
+                : '👆 Toque no mapa para marcar seu ponto exato'}
+            </p>
 
-            {/* Crosshair hint */}
-            {!pickedLocation && (
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[1000]">
-                <div className="bg-black/70 text-white text-sm font-bold px-4 py-2 rounded-full backdrop-blur-md">
-                  👆 Clique no mapa para marcar sua localização
-                </div>
-              </div>
-            )}
-          </div>
+            {/* Mapa */}
+            <div className="w-full h-[280px] relative z-0">
+              <MapContainer
+                center={mapCenterForPicker}
+                zoom={15}
+                style={{ height: '100%', width: '100%' }}
+                className="z-0"
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                />
+                {/* Força o mapa a ir para o centro correto sempre que abrir */}
+                <MapMover center={mapCenterForPicker} />
+                <LocationPicker onPick={(lat, lng) => setPickedLocation({ lat, lng })} />
+                {pickedLocation && (
+                  <Marker position={[pickedLocation.lat, pickedLocation.lng]} />
+                )}
+              </MapContainer>
+            </div>
 
-          <div className="p-4 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 flex gap-3">
-            <button
-              onClick={() => setShowLocationPickerModal(false)}
-              className="flex-1 py-3 bg-slate-800 text-slate-300 rounded-xl font-bold hover:bg-slate-700 transition-colors"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={handleSavePickedLocation}
-              disabled={!pickedLocation || isSavingLocation}
-              className="flex-1 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
-            >
-              {isSavingLocation
-                ? <span className="material-symbols-outlined animate-spin text-[20px]">refresh</span>
-                : <><span className="material-symbols-outlined text-[18px]">check</span> Confirmar Localização</>
-              }
-            </button>
+            {/* Botões */}
+            <div className="p-3 flex gap-2 border-t border-slate-100 dark:border-slate-800">
+              <button
+                onClick={() => setShowLocationPickerModal(false)}
+                className="flex-1 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSavePickedLocation}
+                disabled={!pickedLocation || isSavingLocation}
+                className="flex-1 py-2.5 bg-primary text-white rounded-xl font-bold text-sm hover:bg-primary/90 transition-colors disabled:opacity-50 flex justify-center items-center gap-1.5"
+              >
+                {isSavingLocation
+                  ? <span className="material-symbols-outlined animate-spin text-[18px]">refresh</span>
+                  : <><span className="material-symbols-outlined text-[16px]">check</span> Confirmar</>
+                }
+              </button>
+            </div>
           </div>
         </div>
       )}
+
     </div>
   );
 }
