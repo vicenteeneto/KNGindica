@@ -60,6 +60,13 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
   const [selectedImageSrc, setSelectedImageSrc] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Toast notification state
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
+
   // States for Modals
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showAddressModal, setShowAddressModal] = useState(false);
@@ -249,9 +256,9 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       if (error) throw error;
       await refreshProfile();
       setShowLocationPickerModal(false);
-      alert('Localização salva com sucesso! Você aparecerá no mapa dos clientes.');
+      showToast('Localização salva! Você já aparece no mapa dos clientes.', 'success');
     } catch (err: any) {
-      alert('Erro ao salvar localização: ' + err.message);
+      showToast('Erro ao salvar localização: ' + err.message, 'error');
     } finally {
       setIsSavingLocation(false);
     }
@@ -617,6 +624,36 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           onCropCancel={() => setSelectedImageSrc(null)}
         />
       )}
+      {/* ── Toast de Notificação ─────────────────────────────────── */}
+      {toast && (
+        <div
+          className={`fixed top-5 left-1/2 -translate-x-1/2 z-[500] flex items-start gap-3 w-[90vw] max-w-sm px-4 py-3.5 rounded-2xl shadow-2xl border backdrop-blur-md
+            animate-[slideInDown_0.35s_ease-out]
+            ${toast.type === 'success'
+              ? 'bg-gradient-to-br from-emerald-500/90 to-emerald-700/90 border-emerald-400/30 text-white'
+              : 'bg-gradient-to-br from-red-500/90 to-red-700/90 border-red-400/30 text-white'
+            }
+          `}
+        >
+          <span className="material-symbols-outlined text-2xl mt-0.5 shrink-0">
+            {toast.type === 'success' ? 'check_circle' : 'error'}
+          </span>
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-sm leading-tight">
+              {toast.type === 'success' ? 'Sucesso!' : 'Algo deu errado'}
+            </p>
+            <p className="text-xs text-white/85 mt-0.5 leading-snug">{toast.message}</p>
+          </div>
+          <button onClick={() => setToast(null)} className="text-white/70 hover:text-white shrink-0 mt-0.5">
+            <span className="material-symbols-outlined text-[18px]">close</span>
+          </button>
+          {/* Barra de progresso */}
+          <div className="absolute bottom-0 left-0 h-1 rounded-b-2xl bg-white/30 w-full">
+            <div className="h-full rounded-b-2xl bg-white/70 animate-[shrinkWidth_4s_linear_forwards]" />
+          </div>
+        </div>
+      )}
+
       {/* Modals for Editing Data */}
       {showProfileModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
