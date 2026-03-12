@@ -18,11 +18,11 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
     if (!user) return;
     setLoading(true);
     try {
-      // Map tabs to DB statuses
-      let statusFilter = 'open';
-      if (activeTab === 'Aceitos') statusFilter = 'accepted';
-      else if (activeTab === 'Em Andamento') statusFilter = 'in_progress';
-      else if (activeTab === 'Finalizados') statusFilter = 'completed';
+      let statuses: string[] = ['open'];
+      if (activeTab === 'Novos') statuses = ['open', 'proposed'];
+      else if (activeTab === 'Aceitos') statuses = ['accepted', 'awaiting_payment'];
+      else if (activeTab === 'Em Andamento') statuses = ['paid', 'in_service'];
+      else if (activeTab === 'Finalizados') statuses = ['completed'];
 
       let query = supabase
         .from('service_requests')
@@ -38,13 +38,13 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
           profiles!service_requests_client_id_fkey(full_name, avatar_url),
           service_categories(name, icon)
         `)
-        .eq('status', statusFilter)
+        .in('status', statuses)
         .order('created_at', { ascending: false });
 
-      if (statusFilter !== 'open') {
+      if (activeTab !== 'Novos') {
         query = query.eq('provider_id', user.id);
       } else {
-        // Para "Novos" (open), pega os globais (null) e os diretos para mim
+        // Para "Novos", pega os globais (null) e os diretos para mim
         query = query.or(`provider_id.is.null,provider_id.eq.${user.id}`);
       }
 

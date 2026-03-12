@@ -16,16 +16,33 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
     const fetchDashboardData = async () => {
       setLoading(true);
       try {
-        // Fetch new requests count targeting this provider specifically, or global if we want
+        // 1. Fetch leads count (whatsapp_click or chat_start) from lead_events
+        const { count: leadCount } = await supabase
+          .from('lead_events')
+          .select('*', { count: 'exact', head: true })
+          .eq('provider_id', user.id);
+          
+        // 2. Fetch active requests count (open, accepted, in_service)
         const { count: reqCount } = await supabase
           .from('service_requests')
           .select('*', { count: 'exact', head: true })
-          .eq('status', 'open')
-          .or(`provider_id.is.null,provider_id.eq.${user.id}`);
+          .eq('provider_id', user.id)
+          .in('status', ['open', 'proposed', 'accepted', 'awaiting_payment', 'paid', 'in_service']);
           
-        setStats(prev => ({ ...prev, requests: reqCount || 0 }));
+        // 3. Fetch earnings from wallet summary view
+        const { data: walletData } = await supabase
+          .from('provider_wallet_summary')
+          .select('total_earnings')
+          .eq('provider_id', user.id)
+          .single();
 
-        // Fetch recent requests
+        setStats({ 
+          requests: reqCount || 0, 
+          views: leadCount || 0,
+          earnings: walletData?.total_earnings || 0
+        });
+
+        // 4. Fetch recent requests
         const { data: recentReqs } = await supabase
           .from('service_requests')
           .select(`
@@ -36,7 +53,6 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
             profiles!service_requests_client_id_fkey(full_name, avatar_url),
             service_categories(name, icon)
           `)
-          .in('status', ['open', 'accepted', 'in_progress'])
           .or(`provider_id.is.null,provider_id.eq.${user.id}`)
           .order('created_at', { ascending: false })
           .limit(3);
@@ -96,8 +112,8 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         {/* Stats Cards */}
         <section className="grid grid-cols-3 gap-3 p-4">
           <div className="flex flex-col gap-1 rounded-xl p-4 bg-primary/10 border border-primary/20">
-            <p className="text-slate-600 dark:text-slate-300 text-xs font-medium">Visitas</p>
-            <p className="text-primary tracking-tight text-xl font-bold">{stats.views > 0 ? stats.views : '0'}</p>
+            <p className="text-slate-600 dark:text-slate-300 text-xs font-medium">Contatos</p>
+            <p className="text-primary tracking-tight text-xl font-bold">{stats.views}</p>
           </div>
           <div className="flex flex-col gap-1 rounded-xl p-4 bg-primary/10 border border-primary/20">
             <p className="text-slate-600 dark:text-slate-300 text-xs font-medium">Pedidos</p>
@@ -212,7 +228,9 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
             <div>
               <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1 group-hover:text-primary transition-colors">Minha Carteira</p>
               <div className="flex items-end gap-2">
-                <span className="text-2xl font-black leading-none group-hover:text-primary transition-colors">R$ 0,00</span>
+                <span className="text-2xl font-black leading-none group-hover:text-primary transition-colors">
+                  R$ {(stats as any).earnings?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </span>
                 <span className="text-xs text-emerald-500 font-bold mb-0.5">Disponível</span>
               </div>
             </div>

@@ -1,8 +1,62 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import ProviderMobileNav from '../components/ProviderMobileNav';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../AuthContext';
 
 export default function ProviderWalletScreen({ onNavigate }: NavigationProps) {
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [balance, setBalance] = useState({ available: 0, pending: 0, monthTotal: 0 });
+  const [transactions, setTransactions] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchWalletData = async () => {
+      setLoading(true);
+      try {
+        // 1. Fetch available balance from summary view
+        const { data: summary } = await supabase
+          .from('provider_wallet_summary')
+          .select('total_earnings')
+          .eq('provider_id', user.id)
+          .single();
+
+        // 2. Fetch pending balance (where status is 'paid' or 'in_service')
+        const { data: pendingReqs } = await supabase
+          .from('service_requests')
+          .select('budget_amount, platform_fee')
+          .eq('provider_id', user.id)
+          .in('status', ['paid', 'in_service']);
+
+        const pendingBalance = pendingReqs?.reduce((acc, req) => acc + (Number(req.budget_amount) - Number(req.platform_fee)), 0) || 0;
+
+        // 3. Fetch recent transactions
+        const { data: txs } = await supabase
+          .from('transactions')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(10);
+
+        setBalance({
+          available: Number(summary?.total_earnings) || 0,
+          pending: pendingBalance,
+          monthTotal: (Number(summary?.total_earnings) || 0) + pendingBalance // Simplificado para o MVP
+        });
+        setTransactions(txs || []);
+
+      } catch (err) {
+        console.error("Wallet error", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWalletData();
+  }, [user]);
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
       
@@ -30,7 +84,9 @@ export default function ProviderWalletScreen({ onNavigate }: NavigationProps) {
             <p className="text-white/80 text-sm font-medium mb-1 uppercase tracking-wider">Saldo Disponível</p>
             <div className="flex items-start gap-1">
               <span className="text-white/80 font-bold text-xl mt-1">R$</span>
-              <h2 className="text-5xl font-black text-white tracking-tighter">1.450,00</h2>
+              <h2 className="text-5xl font-black text-white tracking-tighter">
+                {balance.available.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </h2>
             </div>
             
             <div className="flex gap-4 mt-6 w-full max-w-sm">
@@ -55,11 +111,15 @@ export default function ProviderWalletScreen({ onNavigate }: NavigationProps) {
           <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex divide-x divide-slate-100 dark:divide-slate-700">
             <div className="flex-1 flex flex-col items-center justify-center py-2 px-1">
               <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1 text-center">A Receber</p>
-              <p className="text-lg font-bold text-slate-900 dark:text-white">R$ 380,00</p>
+              <p className="text-lg font-bold text-slate-900 dark:text-white">
+                R$ {balance.pending.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </p>
             </div>
             <div className="flex-1 flex flex-col items-center justify-center py-2 px-1">
               <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1 text-center">Total (Mês)</p>
-              <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">R$ 2.150,00</p>
+              <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                R$ {balance.monthTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </p>
             </div>
             <div className="flex-1 flex flex-col items-center justify-center py-2 px-1">
               <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1 text-center">Comissão</p>
@@ -76,73 +136,40 @@ export default function ProviderWalletScreen({ onNavigate }: NavigationProps) {
 
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden divide-y divide-slate-100 dark:divide-slate-700">
               
-              {/* Transaction 1 */}
-              <div className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer">
-                <div className="flex items-center gap-4">
-                  <div className="size-12 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500 flex items-center justify-center">
-                    <span className="material-symbols-outlined">payments</span>
-                  </div>
-                  <div>
-                    <p className="font-bold text-slate-900 dark:text-white">Serviço Concluído</p>
-                    <p className="text-xs text-slate-500">Reparo de Ar Condicionado • Hoje</p>
-                  </div>
+              {loading ? (
+                <div className="p-8 text-center text-slate-400">
+                  <span className="material-symbols-outlined animate-spin">progress_activity</span>
                 </div>
-                <div className="text-right">
-                  <p className="font-bold text-emerald-600 dark:text-emerald-400">+ R$ 225,00</p>
-                  <p className="text-[10px] text-slate-400 border border-slate-200 dark:border-slate-600 px-1.5 py-0.5 rounded ml-auto mt-1 w-max">Líquido</p>
+              ) : transactions.length === 0 ? (
+                <div className="p-12 text-center text-slate-400">
+                  <span className="material-symbols-outlined text-4xl mb-2">history</span>
+                  <p className="text-sm">Nenhuma transação ainda.</p>
                 </div>
-              </div>
-
-              {/* Transaction 2 */}
-              <div className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer">
-                <div className="flex items-center gap-4">
-                  <div className="size-12 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-500 flex items-center justify-center">
-                    <span className="material-symbols-outlined">electric_bolt</span>
+              ) : (
+                transactions.map(tx => (
+                  <div key={tx.id} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer">
+                    <div className="flex items-center gap-4">
+                      <div className={`size-12 rounded-full flex items-center justify-center ${tx.type === 'fee_deduction' ? 'bg-rose-50 text-rose-500' : 'bg-emerald-50 text-emerald-500'}`}>
+                        <span className="material-symbols-outlined">
+                          {tx.type === 'fee_deduction' ? 'account_balance_wallet' : 'payments'}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-900 dark:text-white">
+                          {tx.type === 'fee_deduction' ? 'Taxa da Plataforma' : 'Serviço Concluído'}
+                        </p>
+                        <p className="text-xs text-slate-500">{new Date(tx.created_at).toLocaleDateString()} • {new Date(tx.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className={`font-bold ${tx.type === 'fee_deduction' ? 'text-rose-600' : 'text-emerald-600'}`}>
+                        {tx.type === 'fee_deduction' ? '-' : '+'} R$ {Number(tx.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </p>
+                      <p className="text-[10px] text-slate-400 border border-slate-200 dark:border-slate-600 px-1.5 py-0.5 rounded ml-auto mt-1 w-max capitalize">{tx.status}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-bold text-slate-900 dark:text-white">Serviço Concluído</p>
-                    <p className="text-xs text-slate-500">Instalação Elétrica • Ontem</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-emerald-600 dark:text-emerald-400">+ R$ 180,00</p>
-                  <p className="text-[10px] text-slate-400 border border-slate-200 dark:border-slate-600 px-1.5 py-0.5 rounded ml-auto mt-1 w-max">Líquido</p>
-                </div>
-              </div>
-
-              {/* Transaction 3: Withdrawal */}
-              <div className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer">
-                <div className="flex items-center gap-4">
-                  <div className="size-12 rounded-full bg-rose-50 dark:bg-rose-900/20 text-rose-500 flex items-center justify-center">
-                    <span className="material-symbols-outlined">account_balance</span>
-                  </div>
-                  <div>
-                    <p className="font-bold text-slate-900 dark:text-white">Saque Solicitado</p>
-                    <p className="text-xs text-slate-500">Itaú Unibanco • 02 Mar</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-rose-600 dark:text-rose-400">- R$ 500,00</p>
-                  <p className="text-[10px] text-amber-500 border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-900/20 px-1.5 py-0.5 rounded ml-auto mt-1 w-max">Processando</p>
-                </div>
-              </div>
-
-              {/* Transaction 4 */}
-              <div className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer">
-                <div className="flex items-center gap-4">
-                  <div className="size-12 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500 flex items-center justify-center">
-                    <span className="material-symbols-outlined">payments</span>
-                  </div>
-                  <div>
-                    <p className="font-bold text-slate-900 dark:text-white">Serviço Concluído</p>
-                    <p className="text-xs text-slate-500">Limpeza Pós-Obra • 28 Fev</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-emerald-600 dark:text-emerald-400">+ R$ 350,00</p>
-                  <p className="text-[10px] text-slate-400 border border-slate-200 dark:border-slate-600 px-1.5 py-0.5 rounded ml-auto mt-1 w-max">Líquido</p>
-                </div>
-              </div>
+                ))
+              )}
 
             </div>
           </section>
