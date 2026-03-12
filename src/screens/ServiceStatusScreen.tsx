@@ -11,14 +11,17 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
       if (!params?.requestId) return;
       const { data, error } = await supabase
         .from('service_requests')
-        .select('*, profiles!service_requests_provider_id_fkey(full_name, avatar_url, rating, reviews), service_categories(name, icon)')
+        .select(`
+          *,
+          profiles:provider_id(full_name, avatar_url, rating, reviews),
+          service_categories(name, icon)
+        `)
         .eq('id', params.requestId)
         .single();
       
       if (!error) {
         setRequest(data);
         console.log("ServiceStatusScreen carregado:", data);
-        alert(`DEBUG: Pedido Carregado!\nID: ${params.requestId}\nStatus: ${data.status}\nProfissional: ${data.profiles?.full_name || 'Nenhum'}`);
       }
       setLoading(false);
     };
@@ -46,18 +49,24 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
       {/* Floating Action Buttons */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-10 flex flex-col gap-3 max-w-4xl mx-auto">
         <button 
-          onClick={() => onNavigate('checkout')}
+          onClick={() => onNavigate('checkout', { requestId: params?.requestId })}
           className="w-full bg-emerald-500 hover:bg-emerald-600 active:translate-y-0 hover:-translate-y-0.5 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-emerald-500/30 transition-all flex justify-center items-center gap-2"
         >
           <span className="material-symbols-outlined">payments</span>
-          Efetuar Pagamento
+          Efetuar Pagamento (Taxa R$ 10)
         </button>
         <div className="flex gap-3">
-          <button className="flex-1 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300 font-bold py-3.5 px-6 rounded-xl transition-all flex justify-center items-center gap-2">
+          <button 
+            onClick={() => displayData.provider_id && onNavigate('chat', { requestId: params?.requestId })}
+            className="flex-1 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300 font-bold py-3.5 px-6 rounded-xl transition-all flex justify-center items-center gap-2"
+          >
             <span className="material-symbols-outlined">chat</span>
             Chat
           </button>
-          <button className="flex-1 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300 font-bold py-3.5 px-6 rounded-xl transition-all flex justify-center items-center gap-2">
+          <button 
+            onClick={() => alert(`Ligando para o profissional...`)}
+            className="flex-1 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300 font-bold py-3.5 px-6 rounded-xl transition-all flex justify-center items-center gap-2"
+          >
             <span className="material-symbols-outlined">call</span>
             Ligar
           </button>
@@ -100,6 +109,8 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
               <p className="text-slate-600 dark:text-slate-400 text-sm max-w-[280px]">
                 {displayData.status === 'open' ? 'Estamos aguardando um profissional aceitar sua solicitação.' : 
                  displayData.status === 'proposed' ? 'Você recebeu uma proposta. Confira os detalhes abaixo.' :
+                 displayData.status === 'awaiting_payment' ? 'Sua proposta foi aceita! Realize o pagamento da taxa de intermediação para liberar o contato direto.' :
+                 displayData.status === 'paid' ? 'Pagamento confirmado! O profissional entrará em contato em breve.' :
                  'O profissional está pronto para realizar o seu atendimento.'}
               </p>
             </div>
@@ -190,10 +201,10 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Valor Total</p>
-                <p className="text-slate-900 dark:text-slate-100 font-bold">R$ {displayData.budget_amount ? displayData.budget_amount.toFixed(2) : 'A definir'}</p>
+                <p className="text-slate-900 dark:text-slate-100 font-bold">R$ {displayData.budget_amount && displayData.budget_amount > 0 ? displayData.budget_amount.toFixed(2) : 'A definir'}</p>
               </div>
               <div className={`px-2 py-1 rounded text-xs font-bold uppercase ${displayData.status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
-                {displayData.status === 'paid' ? 'Pago' : 'Pendente'}
+                {displayData.status === 'paid' ? 'Pago' : displayData.status === 'awaiting_payment' ? 'Aguardando Pagamento' : 'Pendente'}
               </div>
             </div>
           </div>

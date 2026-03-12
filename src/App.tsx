@@ -122,7 +122,7 @@ function AppContent() {
       case 'adminDashboard':
         return <AdminDashboardScreen onNavigate={handleNavigate} />;
       case 'checkout':
-        return <CheckoutScreen onNavigate={handleNavigate} />;
+        return <CheckoutScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'providerWallet':
         return <ProviderWalletScreen onNavigate={handleNavigate} />;
       case 'providerVerification':
