@@ -9,8 +9,8 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
   const [stats, setStats] = useState({
     providers: 0,
     clients: 0,
-    completedServices: 0,
-    platformRevenue: 0,
+    servicesCompleted: 0,
+    revenue: 0,
   });
   const [providersList, setProvidersList] = useState<any[]>([]);
   const [clientsList, setClientsList] = useState<any[]>([]);
@@ -80,6 +80,18 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
     document.body.removeChild(link);
   };
 
+  const statusMap: Record<string, string> = {
+    'open': 'Aberto',
+    'proposed': 'Proposta',
+    'accepted': 'Aceito',
+    'awaiting_payment': 'Aguard. Pagamento',
+    'paid': 'Pago',
+    'in_service': 'Em Execução',
+    'completed': 'Concluído',
+    'cancelled': 'Cancelado',
+    'disputed': 'Em Disputa'
+  };
+
   useEffect(() => {
     // Only fetch for admin if needed, but for now fetch all to simulate dashboard
     const fetchAdminData = async () => {
@@ -121,8 +133,8 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
         setStats({
           providers: providers.length,
           clients: clients.length,
-          completedServices: compServ.length,
-          platformRevenue: revenue
+          servicesCompleted: compServ.length,
+          revenue: revenue
         });
 
         setProvidersList(providers);
@@ -259,7 +271,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
               <span className="material-symbols-outlined text-slate-300 group-hover:text-orange-500 transition-colors">arrow_forward_ios</span>
             </div>
             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Receita Estimada</p>
-            <p className="text-2xl font-bold">R$ {stats.platformRevenue.toFixed(2)}</p>
+            <p className="text-2xl font-bold">R$ {stats.revenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
           </div>
         </div>
       </section>
@@ -540,7 +552,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                           <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
                           <span className="text-sm font-bold text-slate-900 dark:text-white">{provider.rating}</span>
                         </div>
-                        <span className="text-[10px] text-slate-500">({provider.total_reviews || 0} reviews)</span>
+                        <span className="text-[10px] text-slate-500">({provider.total_reviews || 0} avaliações)</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
@@ -753,7 +765,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 text-[10px] font-bold uppercase rounded-full shadow-sm ${order.status === 'completed' ? 'bg-green-100 dark:bg-green-900/40 text-green-700' : 'bg-blue-100 dark:bg-blue-900/40 text-blue-700'}`}>
-                        {order.status}
+                        {statusMap[order.status] || order.status}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">

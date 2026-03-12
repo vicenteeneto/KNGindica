@@ -36,10 +36,20 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
           .eq('provider_id', user.id)
           .single();
 
+        // 3b. Fetch pending earnings (paid or in_service)
+        const { data: pendingReqs } = await supabase
+          .from('service_requests')
+          .select('budget_amount, platform_fee')
+          .eq('provider_id', user.id)
+          .in('status', ['paid', 'in_service']);
+
+        const pendingBalance = pendingReqs?.reduce((acc, req) => acc + (Number(req.budget_amount) - Number(req.platform_fee)), 0) || 0;
+
         setStats({ 
           requests: reqCount || 0, 
           views: leadCount || 0,
-          earnings: walletData?.total_earnings || 0
+          earnings: walletData?.total_earnings || 0,
+          pending: pendingBalance
         });
 
         // 4. Fetch recent requests
@@ -73,6 +83,18 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
     logout();
     onNavigate('auth');
   };
+
+  const statusMap: Record<string, string> = {
+    'open': 'Novo!',
+    'proposed': 'Proposta Enviada',
+    'accepted': 'Aceito',
+    'awaiting_payment': 'Pagamento Pendente',
+    'paid': 'Pago',
+    'in_service': 'Em Execução',
+    'completed': 'Finalizado',
+    'cancelled': 'Cancelado'
+  };
+
   return (
     <div className="bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
       <div className="relative flex min-h-screen w-full flex-col mx-auto bg-white dark:bg-slate-900 shadow-xl overflow-x-hidden">
@@ -209,7 +231,9 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
                     <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5"><span className="material-symbols-outlined text-[14px]">{req.service_categories?.icon || 'work'}</span> {req.service_categories?.name || 'Serviço'}</p>
                   </div>
                   <div className="flex flex-col items-end">
-                    <span className="text-[10px] uppercase font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full mb-1">{req.status === 'open' ? 'Novo!' : req.status}</span>
+                    <span className="text-[10px] uppercase font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full mb-1">
+                      {statusMap[req.status] || req.status}
+                    </span>
                     <span className="text-xs text-slate-400">{new Date(req.created_at).toLocaleDateString()}</span>
                   </div>
                 </div>
@@ -227,11 +251,21 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
           >
             <div>
               <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1 group-hover:text-primary transition-colors">Minha Carteira</p>
-              <div className="flex items-end gap-2">
-                <span className="text-2xl font-black leading-none group-hover:text-primary transition-colors">
-                  R$ {(stats as any).earnings?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </span>
-                <span className="text-xs text-emerald-500 font-bold mb-0.5">Disponível</span>
+              <div className="flex flex-col gap-0.5">
+                <div className="flex items-end gap-2">
+                  <span className="text-2xl font-black leading-none group-hover:text-primary transition-colors">
+                    R$ {(stats as any).earnings?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </span>
+                  <span className="text-[10px] text-emerald-500 font-bold mb-0.5 border border-emerald-500/20 px-1.5 rounded bg-emerald-50 dark:bg-emerald-900/10">Disponível</span>
+                </div>
+                {(stats as any).pending > 0 && (
+                  <div className="flex items-center gap-1.5 mt-1 opacity-80">
+                    <span className="text-sm font-bold text-slate-600 dark:text-slate-400">
+                      + R$ {(stats as any).pending?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </span>
+                    <span className="text-[9px] text-slate-500 font-bold uppercase tracking-tighter">A Receber</span>
+                  </div>
+                )}
               </div>
             </div>
             <div className="size-10 rounded-full bg-slate-50 dark:bg-slate-900 group-hover:bg-primary/10 flex items-center justify-center transition-colors">

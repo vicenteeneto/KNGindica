@@ -132,8 +132,18 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
       fetchRequests(); // Refresh list
     } catch (err) {
       console.error(err);
-      alert('Erro ao aceitar pedido');
     }
+  };
+
+  const statusMap: Record<string, string> = {
+    'open': 'Novo!',
+    'proposed': 'Proposta Enviada',
+    'accepted': 'Aceito',
+    'awaiting_payment': 'Pagamento Pendente',
+    'paid': 'Pago',
+    'in_service': 'Em Execução',
+    'completed': 'Finalizado',
+    'cancelled': 'Cancelado'
   };
 
   return (
@@ -189,7 +199,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                         <div className="flex justify-between items-start">
                           <p className="text-slate-900 dark:text-white text-base font-bold truncate">{req.profiles?.full_name || 'Cliente'}</p>
                           <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                            {req.status === 'open' ? 'Novo' : req.status}
+                            {statusMap[req.status] || req.status}
                           </span>
                         </div>
                         <p className="text-slate-500 dark:text-slate-400 text-sm flex items-center gap-1 mt-0.5" title={req.description}>

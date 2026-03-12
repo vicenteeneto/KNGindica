@@ -136,17 +136,13 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
           ) : requests.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center text-slate-500">
               <span className="material-symbols-outlined text-6xl mb-4 opacity-50">shopping_bag</span>
-              <p className="text-lg">Você não possui pedidos nesta categoria.</p>
-              <div className="mt-4 p-4 border border-dashed border-slate-300 dark:border-slate-700 rounded-lg text-[10px] opacity-70">
-                <p>DEBUG INFO:</p>
-                <p>Usuário ID: {user?.id}</p>
-                <p>Papel: {role}</p>
-                {role === 'provider' && (
-                  <p className="text-amber-500 font-bold mt-2 underline cursor-pointer" onClick={() => onNavigate('dashboard')}>
-                    Você está logado como PRESTADOR. <br/> Clique aqui para ver seus serviços.
-                  </p>
-                )}
-              </div>
+              <p className="text-lg font-medium">Você ainda não possui pedidos nesta categoria.</p>
+              <button 
+                onClick={() => onNavigate('home')}
+                className="mt-6 px-6 py-2 bg-primary text-white rounded-full font-bold text-sm hover:opacity-90 transition-opacity"
+              >
+                Explorar Serviços
+              </button>
             </div>
           ) : (
             <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">

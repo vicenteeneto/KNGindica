@@ -22,6 +22,16 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
   const [proposalPrice, setProposalPrice] = useState('');
   const [isSendingProposal, setIsSendingProposal] = useState(false);
   const [serviceRequest, setServiceRequest] = useState<any>(null);
+  const statusMap: Record<string, string> = {
+    'open': 'Aberto',
+    'proposed': 'Proposta Enviada',
+    'accepted': 'Aceite de Proposta',
+    'awaiting_payment': 'Aguardando Pagamento',
+    'paid': 'Pago / Confirmado',
+    'in_service': 'Em Andamento',
+    'completed': 'Finalizado',
+    'cancelled': 'Cancelado'
+  };
 
   const roomId = params?.roomId;
   const opponentName = params?.opponentName || 'Usuário';
@@ -423,9 +433,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
                             ORÇAMENTO RECEBIDO
                           </div>
                           <p className="text-sm font-medium">{msg.content.replace('[PROPOSTA]', '')}</p>
-                          <div className="bg-slate-200 dark:bg-slate-700 p-1 rounded text-[9px] text-center text-slate-500 mb-1">
-                            DEBUG: Status do Pedido = "{serviceRequest?.status || 'desconhecido'}"
-                          </div>
+                          
                           {(serviceRequest?.status === 'proposed' || serviceRequest?.status === 'open') && (
                             <button 
                               onClick={handleAcceptProposal}
@@ -435,9 +443,9 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
                             </button>
                           )}
                           {serviceRequest?.status !== 'proposed' && serviceRequest?.status !== 'open' && (
-                            <span className="text-[10px] uppercase font-bold text-emerald-500 flex items-center gap-1">
+                            <span className="text-[10px] uppercase font-bold text-emerald-500 flex items-center gap-1 mt-2">
                               <span className="material-symbols-outlined text-[14px]">check_circle</span>
-                              Status: {serviceRequest?.status}
+                              Status: {statusMap[serviceRequest?.status] || serviceRequest?.status}
                             </span>
                           )}
                         </div>
