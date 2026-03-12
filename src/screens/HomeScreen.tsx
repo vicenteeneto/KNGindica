@@ -55,12 +55,30 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [mapCenter, setMapCenter] = useState<[number, number]>([-15.7801, -47.9292]); // Brasília como fallback neutro
   
   const [locationName, setLocationName] = useState('Brasil (Sem GPS)');
   const [userCoords, setUserCoords] = useState<{lat: number, lng: number} | null>(null);
   const [providers, setProviders] = useState<any[]>([]);
   const [loadingProviders, setLoadingProviders] = useState(true);
   const [showLocationModal, setShowLocationModal] = useState(false);
+
+  // Geocodifica uma string de cidade para [lat, lng]
+  const geocodeCidade = async (cidade: string): Promise<[number, number] | null> => {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(cidade)}&country=Brazil&format=json&limit=1`,
+        { headers: { 'Accept-Language': 'pt-BR' } }
+      );
+      const data = await res.json();
+      if (data.length > 0) {
+        return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+      }
+    } catch (e) {
+      console.warn('Geocoding falhou:', e);
+    }
+    return null;
+  };
 
   // Sistema de Rastreamento de Leads
   const trackLead = async (providerId: string, type: 'chat_start' | 'whatsapp_click') => {
@@ -79,18 +97,25 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   const [manualCityInput, setManualCityInput] = useState('');
   const isManualLocation = useRef(false);
 
-  // Ask for location on mount (or you can trigger this with a UI button)
+  // Ask for location on mount
   useEffect(() => {
     const savedLocation = localStorage.getItem('iService_manualCity');
     if (savedLocation) {
       isManualLocation.current = true;
       setLocationName(savedLocation);
       setManualCityInput(savedLocation);
+      // Geocodifica a cidade salva para centrar o mapa
+      geocodeCidade(savedLocation).then(coords => {
+        if (coords) setMapCenter(coords);
+      });
     } else if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           if (!isManualLocation.current) {
-            setUserCoords({ lat: position.coords.latitude, lng: position.coords.longitude });
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            setUserCoords({ lat, lng });
+            setMapCenter([lat, lng]);
             setLocationName("Sua Localização Atual");
           }
         },
@@ -135,11 +160,12 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
           const res = await supabase.rpc('get_providers_within_radius', {
             user_lat: userCoords.lat,
             user_lon: userCoords.lng,
-            radius_km: 100 // 100 km radius limit for display
+            radius_km: 150
           });
           data = res.data;
           error = res.error;
         } else {
+          // Sem GPS: busca todos os providers, mas prioriza pela cidade digitada
           const res = await supabase
             .from('profiles')
             .select('*')
@@ -169,6 +195,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             priceUnit: 'hora',
             distance: distanceStr,
             city: p.city,
+            latitude: p.latitude,
+            longitude: p.longitude,
             image: p.avatar_url || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
             isAffiliate: p.plan_type === 'plus',
             isVerified: true,
@@ -183,7 +211,6 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
            if (userCoords) {
              return a.rawDistance - b.rawDistance;
            } else if (locationName && locationName !== 'Brasil (Sem GPS)' && locationName !== 'Localização Indisponível (GPS Negado)') {
-             // Basic text match priority if no GPS
              const aMatch = a.city?.toLowerCase().includes(locationName.toLowerCase()) ? -1 : 1;
              const bMatch = b.city?.toLowerCase().includes(locationName.toLowerCase()) ? -1 : 1;
              return aMatch - bMatch;
@@ -214,7 +241,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
     fetchProviders();
   }, [userCoords, locationName]);
 
-  const handleManualLocationSubmit = (e: React.FormEvent) => {
+  const handleManualLocationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if(manualCityInput.trim() !== '') {
       isManualLocation.current = true;
@@ -223,6 +250,10 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
       setUserCoords(null); // Clear GPS since we are using explicit city
       localStorage.setItem('iService_manualCity', city);
       setShowLocationModal(false);
+      
+      // Geocodificar a cidade e centrar o mapa
+      const coords = await geocodeCidade(city);
+      if (coords) setMapCenter(coords);
     }
   };
 
@@ -466,8 +497,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             {viewMode === 'map' ? (
               <div className="w-full h-[500px] rounded-2xl overflow-hidden shadow-2xl border-4 border-white dark:border-slate-800 relative z-0">
                 <MapContainer 
-                  center={userCoords ? [userCoords.lat, userCoords.lng] : [-23.5505, -46.6333]} 
-                  zoom={13} 
+                  center={mapCenter} 
+                  zoom={userCoords ? 13 : 12} 
                   style={{ height: '100%', width: '100%' }}
                   className="z-0"
                 >
@@ -475,30 +506,32 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                   />
+                  {/* Sempre reage ao mapCenter */}
+                  <MapUpdater center={mapCenter} />
+
+                  {/* Marcador "Você está aqui" com GPS */}
                   {userCoords && (
                     <Marker position={[userCoords.lat, userCoords.lng]}>
-                      <Popup>Você está aqui</Popup>
+                      <Popup>📍 Você está aqui</Popup>
                     </Marker>
                   )}
-                  {userCoords && <MapUpdater center={[userCoords.lat, userCoords.lng]} />}
                   
+                  {/* Pins dos prestadores com lat/lng reais */}
                   {providers.map(p => {
-                    const lat = p.latitude || (userCoords?.lat ? userCoords.lat + (Math.random() - 0.5) * 0.05 : null);
-                    const lng = p.longitude || (userCoords?.lng ? userCoords.lng + (Math.random() - 0.5) * 0.05 : null);
-                    
-                    if (!lat || !lng) return null;
+                    if (!p.latitude || !p.longitude) return null;
                     
                     return (
                       <Marker 
                         key={p.id} 
-                        position={[lat, lng]} 
+                        position={[p.latitude, p.longitude]} 
                         icon={createProviderIcon(p.image)}
                       >
                         <Popup className="provider-popup">
                           <div className="p-2 w-48 font-display">
-                            <img src={p.image} className="w-full h-24 object-cover rounded-lg mb-2" />
+                            <img src={p.image} className="w-full h-24 object-cover rounded-lg mb-2" alt={p.name} />
                             <h4 className="font-bold text-slate-900">{p.name}</h4>
-                            <p className="text-xs text-primary font-bold mb-2">{p.service}</p>
+                            <p className="text-xs text-primary font-bold mb-1">{p.service}</p>
+                            {p.city && <p className="text-[10px] text-slate-500 mb-2 flex items-center gap-1">📍 {p.city}</p>}
                             <button 
                               onClick={() => onNavigate('profile', { professionalId: p.id })}
                               className="w-full bg-slate-900 text-white text-[10px] py-1.5 rounded font-bold"
@@ -511,7 +544,20 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                     );
                   })}
                 </MapContainer>
+                
+                {/* Info Banner quando não há prestadores no mapa */}
+                {providers.filter(p => p.latitude && p.longitude).length === 0 && (
+                  <div className="absolute bottom-4 left-4 right-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-xl p-3 shadow-lg text-center z-[1000]">
+                    <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                      Nenhum prestador com localização definida por aqui
+                    </p>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Os prestadores precisam definir sua localização no perfil para aparecerem no mapa
+                    </p>
+                  </div>
+                )}
               </div>
+
             ) : (
               /* Horizontal Scroll Area (Original List View) */
               <div className="flex gap-4 md:gap-6 overflow-x-auto pb-8 pt-4 snap-x snap-mandatory hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 scroll-smooth">

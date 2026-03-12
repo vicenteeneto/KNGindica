@@ -6,6 +6,22 @@ import { supabase } from '../lib/supabase';
 import { useTheme } from '../ThemeContext';
 import { useAuth } from '../AuthContext';
 import ImageCropper from '../components/ImageCropper';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+L.Icon.Default.prototype.options.iconUrl = markerIcon;
+L.Icon.Default.prototype.options.shadowUrl = markerShadow;
+L.Icon.Default.imagePath = '';
+
+// Click handler inside the map
+function LocationPicker({ onPick }: { onPick: (lat: number, lng: number) => void }) {
+  useMapEvents({
+    click(e) { onPick(e.latlng.lat, e.latlng.lng); }
+  });
+  return null;
+}
 
 const formatCPF_CNPJ = (value: string) => {
   const v = value.replace(/\D/g, '');
@@ -39,7 +55,15 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [showProviderModal, setShowProviderModal] = useState(false);
+  const [showLocationPickerModal, setShowLocationPickerModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSavingLocation, setIsSavingLocation] = useState(false);
+  const [pickedLocation, setPickedLocation] = useState<{lat: number, lng: number} | null>(
+    (profile as any)?.latitude && (profile as any)?.longitude 
+      ? { lat: (profile as any).latitude, lng: (profile as any).longitude } 
+      : null
+  );
+  const [mapCenterForPicker, setMapCenterForPicker] = useState<[number, number]>([-15.7801, -47.9292]);
 
   // Form States
   const [formData, setFormData] = useState({
@@ -129,22 +153,67 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
     e.preventDefault();
     setIsSaving(true);
     try {
+      // Geocodifica a cidade para salvar lat/lng automaticamente
+      let lat: number | null = null;
+      let lng: number | null = null;
+      const cityToGeocode = formData.city.trim();
+      if (cityToGeocode) {
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityToGeocode)}&country=Brazil&format=json&limit=1`,
+            { headers: { 'Accept-Language': 'pt-BR' } }
+          );
+          const geoData = await res.json();
+          if (geoData.length > 0) {
+            lat = parseFloat(geoData[0].lat);
+            lng = parseFloat(geoData[0].lon);
+            setMapCenterForPicker([lat, lng]);
+          }
+        } catch {}
+      }
+
+      const updatePayload: any = {
+        cep: formData.cep,
+        city: formData.city,
+        address: formData.address,
+      };
+      // Só salva coords do geocoding se o prestador não tiver uma localização manual mais precisa
+      if (lat && lng && !(pickedLocation)) {
+        updatePayload.latitude = lat;
+        updatePayload.longitude = lng;
+      }
+
       const { error } = await supabase
         .from('profiles')
-        .update({
-          cep: formData.cep,
-          city: formData.city,
-          address: formData.address,
-        })
+        .update(updatePayload)
         .eq('id', user?.id);
 
       if (error) throw error;
       await refreshProfile();
       setShowAddressModal(false);
     } catch (err: any) {
-      alert("Erro ao salvar: " + err.message + "\n\nSe o erro persistir, verifique se as colunas cep, city e address existem no banco de dados.");
+      alert("Erro ao salvar: " + err.message);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleSavePickedLocation = async () => {
+    if (!pickedLocation || !user) return;
+    setIsSavingLocation(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ latitude: pickedLocation.lat, longitude: pickedLocation.lng })
+        .eq('id', user.id);
+      if (error) throw error;
+      await refreshProfile();
+      setShowLocationPickerModal(false);
+      alert('Localização salva com sucesso! Você aparecerá no mapa dos clientes.');
+    } catch (err: any) {
+      alert('Erro ao salvar localização: ' + err.message);
+    } finally {
+      setIsSavingLocation(false);
     }
   };
 
@@ -346,6 +415,39 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   <div className="text-left">
                     <p className="font-semibold text-slate-900 dark:text-white">Perfil Profissional</p>
                     <p className="text-xs text-slate-500">Sobre, Serviços</p>
+                  </div>
+                </div>
+                <span className="material-symbols-outlined text-slate-400">chevron_right</span>
+              </button>
+            )}
+
+            {role === 'provider' && (
+              <button
+                onClick={async () => {
+                  // Pré-carrega o centro do mapa com a localização atual salva ou geocodifica a cidade
+                  if ((profile as any)?.latitude && (profile as any)?.longitude) {
+                    setMapCenterForPicker([(profile as any).latitude, (profile as any).longitude]);
+                    setPickedLocation({ lat: (profile as any).latitude, lng: (profile as any).longitude });
+                  } else if ((profile as any)?.city) {
+                    try {
+                      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent((profile as any).city)}&country=Brazil&format=json&limit=1`, { headers: { 'Accept-Language': 'pt-BR' } });
+                      const geoData = await res.json();
+                      if (geoData.length > 0) setMapCenterForPicker([parseFloat(geoData[0].lat), parseFloat(geoData[0].lon)]);
+                    } catch {}
+                  }
+                  setShowLocationPickerModal(true);
+                }}
+                className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="size-10 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <span className="material-symbols-outlined">pin_drop</span>
+                  </div>
+                  <div className="text-left">
+                    <p className="font-semibold text-slate-900 dark:text-white">Marcar no Mapa</p>
+                    <p className="text-xs text-slate-500">
+                      {(profile as any)?.latitude ? '✅ Localização definida' : '⚠️ Defina sua localização para aparecer no mapa'}
+                    </p>
                   </div>
                 </div>
                 <span className="material-symbols-outlined text-slate-400">chevron_right</span>
@@ -713,6 +815,72 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Marcar Localização no Mapa (apenas para prestadores) */}
+      {showLocationPickerModal && (
+        <div className="fixed inset-0 z-[200] flex flex-col bg-slate-900">
+          <div className="flex items-center justify-between p-4 bg-slate-900/95 backdrop-blur-md border-b border-slate-800">
+            <div>
+              <h3 className="font-bold text-lg text-white flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary">pin_drop</span>
+                Marcar Minha Localização
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">
+                {pickedLocation ? `📍 ${pickedLocation.lat.toFixed(5)}, ${pickedLocation.lng.toFixed(5)}` : 'Clique no mapa para marcar seu endereço exato'}
+              </p>
+            </div>
+            <button onClick={() => setShowLocationPickerModal(false)} className="text-slate-400 hover:text-white p-2">
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <div className="flex-1 relative">
+            <MapContainer
+              center={mapCenterForPicker}
+              zoom={15}
+              style={{ height: '100%', width: '100%' }}
+              className="z-0"
+            >
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+              />
+              <LocationPicker onPick={(lat, lng) => setPickedLocation({ lat, lng })} />
+              {pickedLocation && (
+                <Marker position={[pickedLocation.lat, pickedLocation.lng]} />
+              )}
+            </MapContainer>
+
+            {/* Crosshair hint */}
+            {!pickedLocation && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[1000]">
+                <div className="bg-black/70 text-white text-sm font-bold px-4 py-2 rounded-full backdrop-blur-md">
+                  👆 Clique no mapa para marcar sua localização
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="p-4 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 flex gap-3">
+            <button
+              onClick={() => setShowLocationPickerModal(false)}
+              className="flex-1 py-3 bg-slate-800 text-slate-300 rounded-xl font-bold hover:bg-slate-700 transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleSavePickedLocation}
+              disabled={!pickedLocation || isSavingLocation}
+              className="flex-1 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
+            >
+              {isSavingLocation
+                ? <span className="material-symbols-outlined animate-spin text-[20px]">refresh</span>
+                : <><span className="material-symbols-outlined text-[18px]">check</span> Confirmar Localização</>
+              }
+            </button>
           </div>
         </div>
       )}
