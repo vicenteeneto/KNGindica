@@ -19,11 +19,15 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
   const [loading, setLoading] = useState(true);
   const [selectedProviderForKYC, setSelectedProviderForKYC] = useState<any>(null);
   const [selectedDispute, setSelectedDispute] = useState<any>(null);
+  const [chatRoomsList, setChatRoomsList] = useState<any[]>([]);
+  const [selectedChatRoom, setSelectedChatRoom] = useState<any>(null);
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
 
   const [categoriesList, setCategoriesList] = useState<any[]>([]);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<any>(null);
   const [categoryForm, setCategoryForm] = useState({ name: '', description: '', icon_name: '', base_price: '' });
+  const [conversionMetrics, setConversionMetrics] = useState<any[]>([]);
 
   const AVAILABLE_ICONS = [
     'handyman', 'bolt', 'plumbing', 'cleaning_services', 'yard', 'local_shipping', 'ac_unit', 'format_paint', 
@@ -130,6 +134,10 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
         // 4. Fetch Categories
         const { data: categories } = await supabase.from('service_categories').select('*').order('name');
 
+        // 5. Fetch Conversion Metrics from the view
+        const { data: metrics } = await supabase.from('admin_conversion_metrics').select('*');
+        setConversionMetrics(metrics || []);
+
         setStats({
           providers: providers.length,
           clients: clients.length,
@@ -151,6 +159,32 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
 
     fetchAdminData();
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'chat_audit') {
+      const fetchChatRooms = async () => {
+        const { data } = await supabase
+          .from('chat_rooms')
+          .select('*, client:profiles!chat_rooms_client_id_fkey(full_name), provider:profiles!chat_rooms_provider_id_fkey(full_name), request:service_requests(title, status)');
+        setChatRoomsList(data || []);
+      };
+      fetchChatRooms();
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (selectedChatRoom) {
+      const fetchMessages = async () => {
+        const { data } = await supabase
+          .from('chat_messages')
+          .select('*')
+          .eq('room_id', selectedChatRoom.id)
+          .order('created_at', { ascending: true });
+        setChatMessages(data || []);
+      };
+      fetchMessages();
+    }
+  }, [selectedChatRoom]);
 
   const handleSaveCategory = async () => {
     try {
@@ -256,7 +290,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
               <span className="material-symbols-outlined text-slate-300 group-hover:text-green-500 transition-colors">arrow_forward_ios</span>
             </div>
             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Serviços Concluídos</p>
-            <p className="text-2xl font-bold">{stats.completedServices}</p>
+            <p className="text-2xl font-bold">{stats.servicesCompleted}</p>
           </div>
 
           {/* Card: Revenue - Clickable */}
@@ -904,7 +938,42 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Taxas do Sistema */}
+        {/* Modal de Auditoria de Chat */}
+        {selectedChatRoom && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[85vh]">
+              <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
+                <div>
+                  <h3 className="font-bold text-slate-900 dark:text-white">Auditoria de Chat</h3>
+                  <p className="text-[10px] text-slate-500">{selectedChatRoom.client?.full_name} vs {selectedChatRoom.provider?.full_name}</p>
+                </div>
+                <button onClick={() => setSelectedChatRoom(null)} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors">
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50 dark:bg-slate-950/20">
+                {chatMessages.length === 0 ? (
+                  <p className="text-center text-slate-400 text-sm py-10">Nenhuma mensagem trocada ainda.</p>
+                ) : (
+                  chatMessages.map(msg => (
+                    <div key={msg.id} className={`flex flex-col ${msg.sender_id === selectedChatRoom.client_id ? 'items-start' : 'items-end'}`}>
+                      <span className="text-[9px] font-bold text-slate-400 mb-0.5 uppercase">
+                        {msg.sender_id === selectedChatRoom.client_id ? 'CLIENTE' : 'PRESTADOR'}
+                      </span>
+                      <div className={`max-w-[85%] p-3 rounded-xl text-sm ${msg.sender_id === selectedChatRoom.client_id ? 'bg-white dark:bg-slate-800' : 'bg-primary text-white'} shadow-sm border border-slate-100 dark:border-slate-700/50`}>
+                        {msg.content}
+                      </div>
+                      <span className="text-[9px] text-slate-400 mt-0.5">{new Date(msg.created_at).toLocaleTimeString()}</span>
+                    </div>
+                  ))
+                )}
+              </div>
+              <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+                <p className="text-[10px] text-slate-500 italic text-center">Modo de Visualização do Administrador (Somente Leitura)</p>
+              </div>
+            </div>
+          </div>
+        )}
         <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm p-6 overflow-hidden relative">
           <div className="flex items-center gap-3 mb-6">
             <div className="bg-primary/10 text-primary p-2 rounded-lg flex items-center justify-center">
@@ -1150,7 +1219,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
              </div>
              <h3 className="font-bold text-lg mb-2">Exportar Relatório</h3>
              <p className="text-sm text-slate-500 mb-6">
-               Baixe a planilha contendo os dados brutos de todos os pedidos finalizados com sucesso para realizar seus fechamentos de mês.
+                Baixe a planilha contendo os dados brutos de todos os pedidos finalizados com sucesso para realizar seus fechamentos de mês.
              </p>
              <button onClick={exportToCSV} className="w-full px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2">
                <span className="material-symbols-outlined text-[18px]">table_chart</span>
@@ -1158,6 +1227,47 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
              </button>
           </div>
         </div>
+
+        {/* Conversion Metrics Section */}
+        <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 p-2 rounded-lg">
+              <span className="material-symbols-outlined">trending_up</span>
+            </div>
+            <h3 className="text-lg font-bold">Conversão de Leads por Prestador</h3>
+          </div>
+          <div className="overflow-x-auto">
+             <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="text-slate-500 border-b border-slate-100 dark:border-slate-800">
+                    <th className="py-2">Prestador</th>
+                    <th className="py-2">Plano</th>
+                    <th className="py-2 text-center">Leads (Cliques)</th>
+                    <th className="py-2 text-center">Pedidos Pagos</th>
+                    <th className="py-2 text-right">Taxa de Conversão</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
+                  {conversionMetrics.map((m, i) => (
+                    <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                      <td className="py-3 font-medium">{m.provider_name}</td>
+                      <td className="py-3">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${m.plan_type === 'plus' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>
+                          {m.plan_type}
+                        </span>
+                      </td>
+                      <td className="py-3 text-center">{m.total_leads}</td>
+                      <td className="py-3 text-center">{m.total_orders_paid}</td>
+                      <td className="py-3 text-right font-bold text-primary">{m.conversion_rate}%</td>
+                    </tr>
+                  ))}
+                  {conversionMetrics.length === 0 && (
+                    <tr><td colSpan={5} className="py-8 text-center text-slate-400 italic">Nenhum dado de conversão disponível ainda.</td></tr>
+                  )}
+                </tbody>
+             </table>
+          </div>
+        </section>
 
       </div>
     );
@@ -1249,6 +1359,13 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
+            <button 
+              onClick={() => setActiveTab('chat_audit')}
+              className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${activeTab === 'chat_audit' ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'}`}
+            >
+              <span className="material-symbols-outlined text-[18px]">forum</span>
+              <span>Auditoria de Chat</span>
+            </button>
             <button
               onClick={handleLogout}
               className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-sm font-semibold transition-colors"
@@ -1278,6 +1395,52 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
         {activeTab === 'orders' && renderOrdersTab()}
         {activeTab === 'reviews' && renderReviewsTab()}
         {activeTab === 'categories' && renderCategoriesTab()}
+        {activeTab === 'chat_audit' && (
+          <div className="animate-in fade-in duration-500 space-y-6">
+            <h2 className="text-xl font-bold">Auditoria de Conversas</h2>
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Sala de Chat / Pedido</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Participantes</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase text-right">Ação</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                  {chatRoomsList.length === 0 ? (
+                    <tr><td colSpan={3} className="p-6 text-center text-slate-500">Nenhuma sala de chat ativa encontrada.</td></tr>
+                  ) : (
+                    chatRoomsList.map(room => (
+                      <tr key={room.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                        <td className="px-6 py-4">
+                          <p className="font-bold text-sm">{room.request?.title || 'Conversa Direta'}</p>
+                          <span className={`text-[10px] font-bold uppercase rounded px-1.5 py-0.5 ${room.request?.status === 'disputed' ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-500'}`}>
+                            {room.request?.status === 'disputed' ? 'EM DISPUTA' : room.request?.status || 'ATIVO'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-xs font-medium">Cli: {room.client?.full_name}</span>
+                            <span className="text-xs font-medium">Pre: {room.provider?.full_name}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <button 
+                            onClick={() => setSelectedChatRoom(room)}
+                            className="text-primary hover:bg-primary/10 px-4 py-2 rounded-lg text-sm font-bold transition-all"
+                          >
+                            Auditar Conversa
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
         {activeTab === 'disputes' && renderDisputesTab()}
         {activeTab === 'finance' && renderFinanceTab()}
         {activeTab === 'settings' && renderSettingsTab()}

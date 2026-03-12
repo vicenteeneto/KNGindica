@@ -111,8 +111,25 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                  displayData.status === 'proposed' ? 'Você recebeu uma proposta. Confira os detalhes abaixo.' :
                  displayData.status === 'awaiting_payment' ? 'Sua proposta foi aceita! Realize o pagamento da taxa de intermediação para liberar o contato direto.' :
                  displayData.status === 'paid' ? 'Pagamento confirmado! O profissional entrará em contato em breve.' :
+                 displayData.status === 'completed' ? 'Obrigado por utilizar o iService! Por favor, avalie o atendimento do profissional.' :
                  'O profissional está pronto para realizar o seu atendimento.'}
               </p>
+              
+              {displayData.status === 'completed' && (
+                <button 
+                  onClick={() => onNavigate('writeReview', {
+                    requestId: displayData.id,
+                    providerId: displayData.provider_id,
+                    providerName: displayData.profiles?.full_name,
+                    providerAvatar: displayData.profiles?.avatar_url,
+                    serviceTitle: displayData.title || displayData.service_categories?.name || 'Serviço'
+                  })}
+                  className="mt-4 px-8 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-lg shadow-amber-500/30 transition-all flex items-center gap-2 animate-bounce"
+                >
+                  <span className="material-symbols-outlined">star</span>
+                  Avaliar Profissional
+                </button>
+              )}
             </div>
             
             <div className="w-full bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm cursor-pointer hover:border-primary/50 transition-colors" onClick={() => displayData.provider_id && onNavigate('profile', { professionalId: displayData.provider_id })}>
@@ -226,7 +243,20 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
               Ver Meus Agendamentos
             </button>
             <button 
-              onClick={() => onNavigate('helpCenter')}
+              onClick={async () => {
+                if (!window.confirm("Deseja abrir uma disputa para este pedido? Um administrador analisará o caso.")) return;
+                try {
+                  const { error } = await supabase
+                    .from('service_requests')
+                    .update({ status: 'disputed' })
+                    .eq('id', params?.requestId);
+                  if (error) throw error;
+                  alert("Disputa aberta com sucesso. Aguarde o contato da nossa equipe.");
+                  onNavigate('myRequests');
+                } catch (err: any) {
+                  alert("Erro ao abrir disputa: " + err.message);
+                }
+              }}
               className="w-full h-12 bg-transparent text-slate-500 hover:text-red-500 font-bold rounded-xl transition-colors text-sm"
             >
               Tive um problema / Abrir Disputa
