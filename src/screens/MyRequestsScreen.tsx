@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
 
 export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const [activeTab, setActiveTab] = useState<'ativos' | 'concluidos' | 'cancelados'>('ativos');
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,8 +40,13 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
       if (error) throw error;
       console.log("Requests found:", data?.length, data);
       setRequests(data || []);
-    } catch (err) {
-      console.error("Erro ao buscar pedidos:", err);
+    } catch (err: any) {
+      console.error("Erro no envio de proposta:", err);
+      if (err.message.includes('permission denied') || err.message.includes('RLS')) {
+         alert("ERRO DE PERMISSÃO: O banco de dados não permitiu gravar sua proposta. Você PRECISA rodar o SCRIPT SQL UNIFICADO (sql_v7_final_fix.sql) no editor do Supabase.");
+      } else {
+         alert("Erro ao enviar proposta: " + err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -132,6 +137,16 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
             <div className="flex flex-col items-center justify-center py-20 text-center text-slate-500">
               <span className="material-symbols-outlined text-6xl mb-4 opacity-50">shopping_bag</span>
               <p className="text-lg">Você não possui pedidos nesta categoria.</p>
+              <div className="mt-4 p-4 border border-dashed border-slate-300 dark:border-slate-700 rounded-lg text-[10px] opacity-70">
+                <p>DEBUG INFO:</p>
+                <p>Usuário ID: {user?.id}</p>
+                <p>Papel: {role}</p>
+                {role === 'provider' && (
+                  <p className="text-amber-500 font-bold mt-2 underline cursor-pointer" onClick={() => onNavigate('dashboard')}>
+                    Você está logado como PRESTADOR. <br/> Clique aqui para ver seus serviços.
+                  </p>
+                )}
+              </div>
             </div>
           ) : (
             <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">

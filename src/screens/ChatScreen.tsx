@@ -262,7 +262,12 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
       setServiceRequest(updatedReq);
 
     } catch (err: any) {
-      alert("Erro ao enviar proposta: " + err.message);
+      console.error("Erro no envio de proposta:", err);
+      if (err.message.includes('permission denied') || err.message.includes('RLS')) {
+         alert("ERRO DE PERMISSÃO: O banco de dados não permitiu gravar sua proposta. Você PRECISA rodar o SCRIPT SQL UNIFICADO (sql_v7_final_fix.sql) no editor do Supabase.");
+      } else {
+         alert("Erro ao enviar proposta: " + err.message);
+      }
     } finally {
       setIsSendingProposal(false);
     }
@@ -296,7 +301,12 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
       setServiceRequest(data);
       alert("Proposta aceita com sucesso! Vamos seguir para o pagamento.");
     } catch (err: any) {
-       alert(err.message);
+       console.error("Erro no aceite de proposta:", err);
+       if (err.message.includes('permission denied') || err.message.includes('RLS')) {
+          alert("ERRO DE PERMISSÃO: O banco de dados não permitiu aceitar a proposta. Você PRECISA rodar o SCRIPT SQL UNIFICADO (sql_v7_final_fix.sql) no editor do Supabase.");
+       } else {
+          alert(err.message);
+       }
     } finally {
       setLoading(false);
     }
