@@ -72,7 +72,12 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       ? { lat: (profile as any).latitude, lng: (profile as any).longitude } 
       : null
   );
-  const [mapCenterForPicker, setMapCenterForPicker] = useState<[number, number]>([-15.7801, -47.9292]);
+  // Inicializa com as coords salvas, ou com Brasília como fallback temporário
+  const [mapCenterForPicker, setMapCenterForPicker] = useState<[number, number]>(
+    (profile as any)?.latitude && (profile as any)?.longitude
+      ? [(profile as any).latitude, (profile as any).longitude]
+      : [-15.7801, -47.9292]
+  );
 
   // Form States
   const [formData, setFormData] = useState({
@@ -105,6 +110,25 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         whatsapp_number: formatPhone((profile as any).whatsapp_number || ''),
         plan_type: (profile as any).plan_type || 'basic',
       });
+      // Sincroniza o centro do mapa e pickedLocation ao carregar o perfil
+      if ((profile as any).latitude && (profile as any).longitude) {
+        setMapCenterForPicker([(profile as any).latitude, (profile as any).longitude]);
+        setPickedLocation({ lat: (profile as any).latitude, lng: (profile as any).longitude });
+      } else if ((profile as any).city) {
+        // Pré-geocodifica a cidade para que o mapa abra no lugar certo
+        const city = (profile as any).city;
+        fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(city)}&country=Brazil&format=json&limit=1`,
+          { headers: { 'Accept-Language': 'pt-BR' } }
+        )
+          .then(r => r.json())
+          .then(data => {
+            if (data && data.length > 0) {
+              setMapCenterForPicker([parseFloat(data[0].lat), parseFloat(data[0].lon)]);
+            }
+          })
+          .catch(() => {});
+      }
     }
   }, [profile]);
 
@@ -708,22 +732,8 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   <div className="mb-2">
                     <button
                       type="button"
-                      onClick={async () => {
+                      onClick={() => {
                         setShowAddressModal(false);
-                        // Usa coords já salvas ou geocodifica a cidade preenchida
-                        if ((profile as any)?.latitude && (profile as any)?.longitude) {
-                          setMapCenterForPicker([(profile as any).latitude, (profile as any).longitude]);
-                          setPickedLocation({ lat: (profile as any).latitude, lng: (profile as any).longitude });
-                        } else {
-                          const cityToSearch = formData.city || (profile as any)?.city;
-                          if (cityToSearch) {
-                            try {
-                              const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityToSearch)}&country=Brazil&format=json&limit=1`, { headers: { 'Accept-Language': 'pt-BR' } });
-                              const geoData = await res.json();
-                              if (geoData.length > 0) setMapCenterForPicker([parseFloat(geoData[0].lat), parseFloat(geoData[0].lon)]);
-                            } catch {}
-                          }
-                        }
                         setShowLocationPickerModal(true);
                       }}
                       className="w-full flex items-center justify-center gap-3 py-4 px-4 rounded-2xl bg-gradient-to-r from-primary to-blue-600 text-white font-bold text-base shadow-lg shadow-primary/30 hover:opacity-90 active:scale-[0.98] transition-all"
