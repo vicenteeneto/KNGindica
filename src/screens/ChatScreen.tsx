@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
+import { useNotifications } from '../NotificationContext';
 
 interface ChatScreenProps extends NavigationProps {
   params?: any;
@@ -10,6 +11,7 @@ interface ChatScreenProps extends NavigationProps {
 
 export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenProps) {
   const { user, role } = useAuth();
+  const { refreshCounts } = useNotifications();
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
@@ -37,6 +39,20 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
   const opponentName = params?.opponentName || 'Usuário';
   const opponentAvatar = params?.opponentAvatar || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png";
 
+  const markMessagesAsRead = async () => {
+    if (!roomId || !user) return;
+    const { error } = await supabase
+      .from('chat_messages')
+      .update({ is_read: true })
+      .eq('room_id', roomId)
+      .neq('sender_id', user.id)
+      .eq('is_read', false);
+    
+    if (!error) {
+      refreshCounts();
+    }
+  };
+
   useEffect(() => {
     if (!roomId || !user) return;
 
@@ -60,6 +76,9 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
           }
           return prev;
         });
+        
+        // Marca como lidas ao carregar
+        markMessagesAsRead();
       } catch (err) {
         console.error(err);
       } finally {
@@ -120,6 +139,11 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
           return [...filtered, payload.new];
         });
         scrollToBottom();
+        
+        // Se a mensagem for do oponente, marca como lida
+        if (payload.new.sender_id !== user.id) {
+          markMessagesAsRead();
+        }
       })
       .subscribe();
 

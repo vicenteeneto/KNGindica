@@ -353,6 +353,22 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
             )}
 
             <button
+              onClick={() => onNavigate('favorites')}
+              className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
+            >
+              <div className="flex items-center gap-4">
+                <div className="size-10 rounded-full bg-red-50 dark:bg-red-900/20 text-red-500 flex items-center justify-center group-hover:bg-red-100 dark:group-hover:bg-red-900/40 transition-colors">
+                  <span className="material-symbols-outlined">favorite</span>
+                </div>
+                <div className="text-left">
+                  <p className="font-semibold text-slate-900 dark:text-white">Meus Favoritos</p>
+                  <p className="text-xs text-slate-500">Profissionais salvos</p>
+                </div>
+              </div>
+              <span className="material-symbols-outlined text-slate-400">chevron_right</span>
+            </button>
+
+            <button
               onClick={() => alert('Gerenciar métodos de pagamento')}
               className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
             >

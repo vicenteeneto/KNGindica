@@ -113,8 +113,12 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
                 <div
                   key={room.id}
                   onClick={() => handleOpenChat(room.id, title, profile?.full_name || 'Usuário', profile?.avatar_url, room.request_id)}
-                  className="flex items-center gap-4 px-4 py-4 border-b border-slate-100 dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                  className="flex items-center gap-4 px-4 py-4 border-b border-slate-100 dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors relative"
                 >
+                  {room.latestMessage && room.latestMessage.sender_id !== user?.id && !room.latestMessage.is_read && (
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+                  )}
+                  
                   <div className="relative flex-shrink-0">
                     <div className="w-14 h-14 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden border border-slate-200 dark:border-slate-700">
                       <img className="w-full h-full object-cover" alt={profile?.full_name || 'Usuário'} src={profile?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} />
@@ -122,12 +126,15 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-baseline mb-0.5">
-                      <h3 className="font-semibold text-slate-800 dark:text-slate-200 truncate">{profile?.full_name || 'Usuário'}</h3>
+                      <h3 className={`font-semibold transition-colors ${room.latestMessage && room.latestMessage.sender_id !== user?.id && !room.latestMessage.is_read ? 'text-primary' : 'text-slate-800 dark:text-slate-200'} truncate`}>{profile?.full_name || 'Usuário'}</h3>
                       <span className="text-xs text-slate-400">{time}</span>
                     </div>
                     <p className="text-xs font-bold text-primary mb-0.5 truncate">{title}</p>
                     <div className="flex justify-between items-center">
-                      <p className="text-sm text-slate-500 dark:text-slate-400 truncate">{latestMessage}</p>
+                      <p className={`text-sm truncate ${room.latestMessage && room.latestMessage.sender_id !== user?.id && !room.latestMessage.is_read ? 'text-slate-900 dark:text-white font-bold' : 'text-slate-500 dark:text-slate-400'}`}>{latestMessage}</p>
+                      {room.latestMessage && room.latestMessage.sender_id !== user?.id && !room.latestMessage.is_read && (
+                        <div className="size-2 bg-primary rounded-full"></div>
+                      )}
                     </div>
                   </div>
                 </div>

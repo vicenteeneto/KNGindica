@@ -1,11 +1,14 @@
 import React from 'react';
 import { NavigationProps, Screen } from '../types';
+import { useNotifications } from '../NotificationContext';
 
 interface MobileNavProps extends NavigationProps {
   currentScreen: Screen;
 }
 
 export default function MobileNav({ onNavigate, currentScreen }: MobileNavProps) {
+  const { unreadNotifications, unreadMessages } = useNotifications();
+
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-slate-100 dark:border-slate-800 px-4 py-2 flex items-center justify-around z-50">
       <button 
@@ -17,11 +20,16 @@ export default function MobileNav({ onNavigate, currentScreen }: MobileNavProps)
       </button>
       
       <button
-        onClick={() => onNavigate('categories')}
-        className={`flex flex-1 flex-col items-center justify-end gap-1 group transition-colors ${currentScreen === 'categories' ? 'text-primary' : 'text-slate-400 hover:text-primary'}`}
+        onClick={() => onNavigate('chatList')}
+        className={`flex flex-1 flex-col items-center justify-end gap-1 group transition-colors ${currentScreen === 'chatList' ? 'text-primary' : 'text-slate-400 hover:text-primary'} relative`}
       >
-        <span className="material-symbols-outlined text-[24px]" style={currentScreen === 'categories' ? { fontVariationSettings: "'FILL' 1" } : {}}>category</span>
-        <span className="text-[10px] font-medium leading-normal">Categorias</span>
+        <span className="material-symbols-outlined text-[24px]" style={currentScreen === 'chatList' ? { fontVariationSettings: "'FILL' 1" } : {}}>chat</span>
+        {unreadMessages > 0 && (
+          <span className="absolute top-0 right-1/4 size-4 bg-red-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900">
+            {unreadMessages > 9 ? '9+' : unreadMessages}
+          </span>
+        )}
+        <span className="text-[10px] font-medium leading-normal">Chat</span>
       </button>
       
       <button
@@ -30,6 +38,19 @@ export default function MobileNav({ onNavigate, currentScreen }: MobileNavProps)
       >
         <span className="material-symbols-outlined text-[24px]" style={currentScreen === 'myRequests' ? { fontVariationSettings: "'FILL' 1" } : {}}>assignment</span>
         <span className="text-[10px] font-medium leading-normal">Pedidos</span>
+      </button>
+      
+      <button
+        onClick={() => onNavigate('notifications')}
+        className={`flex flex-1 flex-col items-center justify-end gap-1 group transition-colors ${currentScreen === 'notifications' ? 'text-primary' : 'text-slate-400 hover:text-primary'} relative`}
+      >
+        <span className="material-symbols-outlined text-[24px]" style={currentScreen === 'notifications' ? { fontVariationSettings: "'FILL' 1" } : {}}>notifications</span>
+        {unreadNotifications > 0 && (
+          <span className="absolute top-0 right-1/4 size-4 bg-primary text-white text-[8px] font-bold rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900">
+            {unreadNotifications > 9 ? '9+' : unreadNotifications}
+          </span>
+        )}
+        <span className="text-[10px] font-medium leading-normal">Avisos</span>
       </button>
       
       {/* Profile for final user */}

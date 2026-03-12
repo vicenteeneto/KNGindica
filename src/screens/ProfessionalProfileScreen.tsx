@@ -15,7 +15,9 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
   const [dbReviews, setDbReviews] = useState<any[]>([]);
   const [dbProfessional, setDbProfessional] = useState<any>(null);
   const [loadingProfile, setLoadingProfile] = useState(false);
-  const { user } = useAuth(); // Import useAuth to get current client id
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [portfolioImages, setPortfolioImages] = useState<any[]>([]);
+  const { user } = useAuth();
 
   // Tracking de Leads
   const trackLead = async (pId: string, type: 'whatsapp_click' | 'profile_view' | 'chat_start') => {
@@ -84,8 +86,51 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
         setLoadingProfile(false);
       };
       fetchProfile();
+
+      // Buscar status de favorito
+      if (user) {
+        const fetchFav = async () => {
+          const { data } = await supabase
+            .from('user_favorites')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('provider_id', professionalId)
+            .single();
+          setIsFavorite(!!data);
+        };
+        fetchFav();
+      }
+
+      // Buscar portfólio
+      const fetchPortfolio = async () => {
+        const { data } = await supabase
+          .from('provider_portfolio')
+          .select('*')
+          .eq('provider_id', professionalId)
+          .order('created_at', { ascending: false });
+        setPortfolioImages(data || []);
+      };
+      fetchPortfolio();
     }
-  }, [professionalId]);
+  }, [professionalId, user]);
+
+  const toggleFavorite = async () => {
+    if (!user) {
+      alert("Faça login para favoritar profissionais.");
+      return;
+    }
+    try {
+      if (isFavorite) {
+        await supabase.from('user_favorites').delete().eq('user_id', user.id).eq('provider_id', professionalId);
+        setIsFavorite(false);
+      } else {
+        await supabase.from('user_favorites').insert({ user_id: user.id, provider_id: professionalId });
+        setIsFavorite(true);
+      }
+    } catch (e) {
+      console.error("Fav toggle error", e);
+    }
+  };
 
   const professional = dbProfessional || professionals.find(p => p.id === professionalId) || professionals[0];
 
@@ -121,6 +166,15 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
             Perfil do Profissional
           </h2>
           <div className="flex items-center justify-end gap-2">
+            <button 
+              onClick={toggleFavorite}
+              className={`flex items-center justify-center rounded-lg h-10 w-10 bg-transparent p-0 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${isFavorite ? 'text-red-500' : 'text-slate-900 dark:text-slate-100'}`}
+              title={isFavorite ? "Remover dos Favoritos" : "Adicionar aos Favoritos"}
+            >
+              <span className="material-symbols-outlined" style={{ fontVariationSettings: isFavorite ? "'FILL' 1" : "'FILL' 0" }}>
+                favorite
+              </span>
+            </button>
             <button className="flex items-center justify-center rounded-lg h-10 w-10 bg-transparent text-slate-900 dark:text-slate-100 p-0 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
               <span className="material-symbols-outlined">share</span>
             </button>
@@ -142,12 +196,14 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
               }}
             >
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-              <div className="absolute bottom-4 right-4 bg-white/20 backdrop-blur-md text-white px-3 py-1 rounded-full text-sm flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm">
-                  photo_library
-                </span>
-                1/4 Fotos
-              </div>
+              {portfolioImages.length > 0 && (
+                <div className="absolute bottom-4 right-4 bg-white/20 backdrop-blur-md text-white px-3 py-1 rounded-full text-sm flex items-center gap-2">
+                  <span className="material-symbols-outlined text-sm">
+                    photo_library
+                  </span>
+                  1/{portfolioImages.length + 1} Fotos
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -235,6 +291,26 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
               </p>
             </div>
           </div>
+
+          {/* Portfolio Gallery */}
+          {portfolioImages.length > 0 && (
+            <div className="px-4 py-4">
+              <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-[-0.015em] mb-3">
+                Portfólio de Trabalhos
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {portfolioImages.map((img, idx) => (
+                  <div key={img.id} className="aspect-square rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 group cursor-pointer">
+                    <img 
+                      src={img.image_url} 
+                      alt={`Trabalho ${idx + 1}`} 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Reviews Section */}
           <div className="px-4 py-4 mb-24">

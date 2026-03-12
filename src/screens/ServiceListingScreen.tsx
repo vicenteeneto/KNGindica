@@ -9,6 +9,7 @@ interface ServiceListingProps extends NavigationProps {
   initialParams?: {
     category?: string;
     searchQuery?: string;
+    filters?: any;
   };
 }
 
@@ -62,6 +63,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
 
   useEffect(() => {
     let result = dbProfessionals.length > 0 ? dbProfessionals : [];
+    const filters = initialParams?.filters;
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -73,8 +75,22 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
       );
     }
 
-    if (selectedCategory) {
-      result = result.filter((p) => p.category === selectedCategory);
+    const categoryToFilter = filters?.category || selectedCategory;
+    if (categoryToFilter) {
+      result = result.filter((p) => p.category === categoryToFilter);
+    }
+
+    if (filters) {
+      if (filters.maxPrice) {
+        result = result.filter(p => p.price <= filters.maxPrice);
+      }
+      if (filters.minRating) {
+        result = result.filter(p => p.rating >= filters.minRating);
+      }
+      if (filters.maxDistance) {
+        result = result.filter(p => p.distance <= filters.maxDistance);
+      }
+      // Availability logic would go here if we had the data
     }
 
     if (sortBy) {
@@ -91,7 +107,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
     }
 
     setFilteredProfessionals(result);
-  }, [searchQuery, selectedCategory, sortBy, sortOrder, dbProfessionals]);
+  }, [searchQuery, selectedCategory, sortBy, sortOrder, dbProfessionals, initialParams]);
 
   const handleSort = (type: 'price' | 'rating' | 'distance') => {
     if (sortBy === type) {
@@ -131,14 +147,40 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
               <span className="material-symbols-outlined">search</span>
             </button>
             <button 
-              onClick={() => onNavigate('filters')} 
+              onClick={() => onNavigate('filters', { filters: initialParams?.filters })} 
               className="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors relative"
             >
               <span className="material-symbols-outlined">tune</span>
-              <span className="absolute top-2 right-2 size-2 bg-primary rounded-full border-2 border-white dark:border-slate-900"></span>
+              {initialParams?.filters && (
+                <span className="absolute top-2 right-2 size-2 bg-primary rounded-full border-2 border-white dark:border-slate-900"></span>
+              )}
             </button>
           </div>
         </div>
+
+        {/* Filters Summary / Clear Button */}
+        {initialParams?.filters && (
+          <div className="px-4 pb-2 flex items-center justify-between">
+            <div className="flex gap-2 items-center overflow-x-auto hide-scrollbar">
+              <span className="text-[10px] font-bold uppercase text-slate-400 whitespace-nowrap">Filtros Ativos:</span>
+              {initialParams.filters.category && (
+                <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] font-medium">{initialParams.filters.category}</span>
+              )}
+              {initialParams.filters.maxPrice < 500 && (
+                <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] font-medium">Até R${initialParams.filters.maxPrice}</span>
+              )}
+              {initialParams.filters.minRating > 0 && (
+                <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] font-medium">{initialParams.filters.minRating}+ ⭐</span>
+              )}
+            </div>
+            <button 
+              onClick={() => onNavigate('listing', { ...initialParams, filters: null })}
+              className="text-[10px] font-bold text-primary hover:underline ml-2"
+            >
+              Limpar
+            </button>
+          </div>
+        )}
         
         {/* Mobile Search Input (Visible always on mobile below the header) */}
         <div className="md:hidden px-4 pb-3">

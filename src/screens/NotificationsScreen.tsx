@@ -4,6 +4,7 @@ import MobileNav from '../components/MobileNav';
 import ProviderMobileNav from '../components/ProviderMobileNav';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
+import { useNotifications } from '../NotificationContext';
 
 interface Notification {
   id: string;
@@ -17,6 +18,7 @@ interface Notification {
 
 export default function NotificationsScreen({ onNavigate }: NavigationProps) {
   const { role, user } = useAuth();
+  const { refreshCounts } = useNotifications();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'unread'>('all');
@@ -40,7 +42,7 @@ export default function NotificationsScreen({ onNavigate }: NavigationProps) {
 
     fetchNotifications();
 
-    const subs = supabase.channel('notif_channel')
+    const subs = supabase.channel('notif_channel_local')
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
@@ -48,6 +50,7 @@ export default function NotificationsScreen({ onNavigate }: NavigationProps) {
         filter: `user_id=eq.${user.id}`
       }, (payload) => {
         setNotifications(prev => [payload.new as Notification, ...prev]);
+        refreshCounts();
       })
       .subscribe();
 
@@ -65,6 +68,7 @@ export default function NotificationsScreen({ onNavigate }: NavigationProps) {
 
     if (!error) {
       setNotifications([]);
+      refreshCounts();
     }
   };
 
@@ -75,6 +79,7 @@ export default function NotificationsScreen({ onNavigate }: NavigationProps) {
       .eq('id', id);
     if (!error) {
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+      refreshCounts();
     }
   };
 

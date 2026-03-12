@@ -1,7 +1,40 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavigationProps } from '../types';
 
-export default function FilterServicesScreen({ onNavigate }: NavigationProps) {
+export default function FilterServicesScreen({ onNavigate, params }: NavigationProps) {
+  const initialFilters = params?.filters || {};
+  
+  const [tempCategory, setTempCategory] = useState<string>(initialFilters.category || '');
+  const [tempMinPrice, setTempMinPrice] = useState<number>(initialFilters.minPrice || 0);
+  const [tempMaxPrice, setTempMaxPrice] = useState<number>(initialFilters.maxPrice || 500);
+  const [tempRating, setTempRating] = useState<number>(initialFilters.minRating || 0);
+  const [tempDistance, setTempDistance] = useState<number>(initialFilters.maxDistance || 50);
+  const [tempAvailability, setTempAvailability] = useState<string | null>(initialFilters.availability || null);
+
+  const categories = ['Limpeza', 'Reformas', 'Elétrica', 'Jardim', 'Pintura', 'Montagem', 'Encanador', 'Frete'];
+
+  const handleApply = () => {
+    onNavigate('listing', { 
+      filters: {
+        category: tempCategory,
+        minPrice: tempMinPrice,
+        maxPrice: tempMaxPrice,
+        minRating: tempRating,
+        maxDistance: tempDistance,
+        availability: tempAvailability
+      }
+    });
+  };
+
+  const handleClear = () => {
+    setTempCategory('');
+    setTempMinPrice(0);
+    setTempMaxPrice(500);
+    setTempRating(0);
+    setTempDistance(50);
+    setTempAvailability(null);
+  };
+
   return (
     <div className="relative flex h-screen w-full flex-col bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 overflow-hidden antialiased">
       {/* Top Bar */}
@@ -14,7 +47,7 @@ export default function FilterServicesScreen({ onNavigate }: NavigationProps) {
         </div>
         <h2 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight flex-1 text-center">Filtrar Serviços</h2>
         <div className="flex items-center justify-end gap-3">
-          <button className="text-primary text-sm font-bold leading-normal hover:opacity-80 transition-opacity">Limpar</button>
+          <button onClick={handleClear} className="text-primary text-sm font-bold leading-normal hover:opacity-80 transition-opacity">Limpar</button>
           <button onClick={() => onNavigate('home')} className="text-slate-700 dark:text-slate-300 hover:text-primary transition-colors flex items-center justify-center p-1" title="Início">
             <span className="material-symbols-outlined">home</span>
           </button>
@@ -23,114 +56,95 @@ export default function FilterServicesScreen({ onNavigate }: NavigationProps) {
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto pb-32">
-        {/* Search Bar */}
-        <div className="px-4 py-4 bg-white dark:bg-slate-900 mb-2 shadow-sm">
-          <label className="flex flex-col min-w-40 h-12 w-full">
-            <div className="flex w-full flex-1 items-stretch rounded-lg h-full bg-slate-100 dark:bg-slate-800 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-              <div className="text-slate-500 dark:text-slate-400 flex items-center justify-center pl-4">
-                <span className="material-symbols-outlined">search</span>
-              </div>
-              <input 
-                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-slate-900 dark:text-slate-100 focus:outline-0 focus:ring-0 border-none bg-transparent h-full placeholder:text-slate-500 px-4 pl-2 text-base font-normal leading-normal" 
-                placeholder="Search for services (e.g. Plumbing)"
-              />
-            </div>
-          </label>
-        </div>
-
-        <div className="px-4 space-y-8 py-4">
+        <div className="px-4 space-y-8 py-6">
           {/* Categories Section */}
           <section>
             <h3 className="text-slate-900 dark:text-slate-100 text-base font-bold mb-3">Categorias</h3>
             <div className="flex gap-2 flex-wrap">
-              <div className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-primary text-white px-4 cursor-pointer hover:bg-primary/90 transition-colors">
-                <span className="material-symbols-outlined text-lg">check</span>
-                <p className="text-sm font-medium">Encanamento</p>
-              </div>
-              <div className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                <p className="text-sm font-medium">Limpeza</p>
-              </div>
-              <div className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                <p className="text-sm font-medium">Elétrica</p>
-              </div>
-              <div className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                <p className="text-sm font-medium">Jardinagem</p>
-              </div>
-              <div className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                <p className="text-sm font-medium">Pintura</p>
-              </div>
-              <div className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                <p className="text-sm font-medium">Climatização</p>
-              </div>
+              {categories.map(cat => (
+                <div 
+                  key={cat}
+                  onClick={() => setTempCategory(tempCategory === cat ? '' : cat)}
+                  className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 cursor-pointer transition-all border ${tempCategory === cat ? 'bg-primary border-primary text-white' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+                >
+                  {tempCategory === cat && <span className="material-symbols-outlined text-lg">check</span>}
+                  <p className="text-sm font-medium">{cat}</p>
+                </div>
+              ))}
             </div>
           </section>
 
           {/* Price Range */}
           <section>
             <div className="flex justify-between items-end mb-4">
-              <h3 className="text-slate-900 dark:text-slate-100 text-base font-bold">Faixa de Preço</h3>
-              <p className="text-primary font-semibold text-sm">R$20 - R$150</p>
+              <h3 className="text-slate-900 dark:text-slate-100 text-base font-bold">Faixa de Preço (Base)</h3>
+              <p className="text-primary font-semibold text-sm">R${tempMinPrice} - R${tempMaxPrice === 500 ? '500+' : tempMaxPrice}</p>
             </div>
-            <div className="relative w-full h-6 flex items-center">
-              <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full">
-                <div className="absolute left-1/4 right-1/4 h-1.5 bg-primary rounded-full"></div>
+            <div className="px-2">
+              <input 
+                type="range" 
+                min="0" 
+                max="500" 
+                step="10"
+                value={tempMaxPrice}
+                onChange={(e) => setTempMaxPrice(Number(e.target.value))}
+                className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary"
+              />
+              <div className="flex justify-between mt-2 text-xs text-slate-500 font-medium">
+                <span>R$0</span>
+                <span>R$500+</span>
               </div>
-              <div className="absolute left-1/4 top-1/2 -translate-y-1/2 size-5 bg-white border-2 border-primary rounded-full shadow-sm cursor-pointer hover:scale-110 transition-transform"></div>
-              <div className="absolute right-1/4 top-1/2 -translate-y-1/2 size-5 bg-white border-2 border-primary rounded-full shadow-sm cursor-pointer hover:scale-110 transition-transform"></div>
-            </div>
-            <div className="flex justify-between mt-2 text-xs text-slate-500 font-medium">
-              <span>R$0</span>
-              <span>R$500+</span>
             </div>
           </section>
 
           {/* Rating Section */}
           <section>
-            <h3 className="text-slate-900 dark:text-slate-100 text-base font-bold mb-3">Avaliação</h3>
+            <h3 className="text-slate-900 dark:text-slate-100 text-base font-bold mb-3">Avaliação Mínima</h3>
             <div className="flex flex-col gap-2">
-              <label className="flex items-center justify-between p-3 rounded-xl border-2 border-primary bg-primary/5 cursor-pointer transition-colors group">
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-yellow-500 fill-current">star</span>
-                  <span className="text-sm font-medium text-slate-900 dark:text-slate-100">4.0 estrelas ou mais</span>
-                </div>
-                <input defaultChecked className="text-primary focus:ring-primary h-5 w-5 border-slate-300 rounded-full transition-shadow" name="rating" type="radio" />
-              </label>
-              <label className="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group">
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-yellow-500">star</span>
-                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">3.0 estrelas ou mais</span>
-                </div>
-                <input className="text-primary focus:ring-primary h-5 w-5 border-slate-300 rounded-full transition-shadow" name="rating" type="radio" />
-              </label>
+              {[4, 3, 0].map(rating => (
+                <label 
+                  key={rating}
+                  onClick={() => setTempRating(rating)}
+                  className={`flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all ${tempRating === rating ? 'border-primary bg-primary/5' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className={`material-symbols-outlined text-yellow-500 ${tempRating === rating ? 'fill-current' : ''}`}>star</span>
+                    <span className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                      {rating === 0 ? 'Qualquer avaliação' : `${rating}.0 estrelas ou mais`}
+                    </span>
+                  </div>
+                  <input 
+                    name="rating" 
+                    type="radio" 
+                    checked={tempRating === rating}
+                    onChange={() => {}} // Controlled via parent label
+                    className="text-primary focus:ring-primary h-5 w-5 border-slate-300 rounded-full" 
+                  />
+                </label>
+              ))}
             </div>
           </section>
 
           {/* Distance Section */}
           <section>
             <div className="flex justify-between items-end mb-3">
-              <h3 className="text-slate-900 dark:text-slate-100 text-base font-bold">Distância de Rondonópolis</h3>
-              <p className="text-primary font-semibold text-sm">Até 15 km</p>
+              <h3 className="text-slate-900 dark:text-slate-100 text-base font-bold">Distância Máxima</h3>
+              <p className="text-primary font-semibold text-sm">Até {tempDistance} km</p>
             </div>
             <div className="flex flex-col gap-4">
-              <div className="w-full h-32 rounded-xl bg-slate-200 dark:bg-slate-800 overflow-hidden relative shadow-sm">
-                <img 
-                  className="w-full h-full object-cover" 
-                  alt="Map view of Rondonópolis area" 
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgZ5jQO20fTuG70ZxabiAWbMNsElcOF4jB4wMGhkWJSqqDuSsVkSqwmKIgTqeae5bq_QF71jNEdnOUYov8KtrGtPHVHHvMon1OP8Qfz2Xbyp96tcgyLq5GWqKkZx0kexocgXXn2PU5aB5D9cXSB8gbj9Wk9H1qPxVO026dRLMAdeJpI6qeFvpQp85CL_drqCiLdesMJYJEDUFy1DtXP56aeuJoQvxzPfmHNyFp1uOXZno9U-jW0EMf940VPUvuwNSCjxX_7WssxUc"
-                />
-                <div className="absolute inset-0 bg-black/10 flex items-center justify-center">
-                  <div className="size-24 bg-primary/20 border-2 border-primary rounded-full flex items-center justify-center">
-                    <div className="size-4 bg-primary rounded-full shadow-lg border border-white"></div>
-                  </div>
-                </div>
-              </div>
               <input 
                 className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary" 
-                max="50" 
-                min="1" 
+                max="100" 
+                min="5" 
+                step="5"
                 type="range" 
-                defaultValue="15" 
+                value={tempDistance}
+                onChange={(e) => setTempDistance(Number(e.target.value))}
               />
+              <div className="flex justify-between text-xs text-slate-500 font-medium">
+                <span>5 km</span>
+                <span>100 km+</span>
+              </div>
             </div>
           </section>
 
@@ -138,11 +152,17 @@ export default function FilterServicesScreen({ onNavigate }: NavigationProps) {
           <section>
             <h3 className="text-slate-900 dark:text-slate-100 text-base font-bold mb-3">Disponibilidade</h3>
             <div className="grid grid-cols-2 gap-3">
-              <button className="flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-primary bg-primary/5 text-primary font-semibold active:scale-95 transition-transform">
+              <button 
+                onClick={() => setTempAvailability(tempAvailability === 'now' ? null : 'now')}
+                className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all active:scale-95 ${tempAvailability === 'now' ? 'border-primary bg-primary/5 text-primary font-semibold' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-medium'}`}
+              >
                 <span className="material-symbols-outlined text-sm">bolt</span>
                 Disponível Agora
               </button>
-              <button className="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-95 transition-all">
+              <button 
+                onClick={() => setTempAvailability(tempAvailability === 'thisWeek' ? null : 'thisWeek')}
+                className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all active:scale-95 ${tempAvailability === 'thisWeek' ? 'border-primary bg-primary/5 text-primary font-semibold' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-medium'}`}
+              >
                 <span className="material-symbols-outlined text-sm">calendar_month</span>
                 Esta Semana
               </button>
@@ -152,13 +172,10 @@ export default function FilterServicesScreen({ onNavigate }: NavigationProps) {
       </div>
 
       {/* Bottom Action Button */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex gap-4 md:static">
+      <div className="absolute bottom-0 left-0 right-0 p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shadow-lg md:static">
         <button 
-          onClick={() => {
-            alert('Filtros Aplicados!');
-            onNavigate('listing');
-          }}
-          className="flex-1 bg-primary text-white text-base font-bold py-4 rounded-xl shadow-lg shadow-primary/25 hover:bg-primary/95 active:scale-[0.98] transition-all"
+          onClick={handleApply}
+          className="w-full bg-primary text-white text-base font-bold py-4 rounded-xl shadow-lg shadow-primary/25 hover:bg-primary/95 active:scale-[0.98] transition-all"
         >
           Aplicar Filtros
         </button>

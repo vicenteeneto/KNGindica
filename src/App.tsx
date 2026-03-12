@@ -27,9 +27,11 @@ import ProviderVerificationScreen from './screens/ProviderVerificationScreen';
 import HelpCenterScreen from './screens/HelpCenterScreen';
 import ProviderScheduleScreen from './screens/ProviderScheduleScreen';
 import WriteReviewScreen from './screens/WriteReviewScreen';
+import FavoritesScreen from './screens/FavoritesScreen';
 import { Screen } from './types';
 import { ThemeProvider, useTheme } from './ThemeContext';
 import { AuthProvider, useAuth } from './AuthContext';
+import { NotificationProvider } from './NotificationContext';
 
 // ThemeToggle foi movido para o UserProfileScreen
 function AppContent() {
@@ -137,6 +139,8 @@ function AppContent() {
         return <MyRequestsScreen onNavigate={handleNavigate} />;
       case 'categories':
         return <CategoriesScreen onNavigate={handleNavigate} params={navigationParams} />;
+      case 'favorites':
+        return <FavoritesScreen onNavigate={handleNavigate} />;
       default:
         return <HomeScreen onNavigate={handleNavigate} />;
     }
@@ -158,7 +162,9 @@ export default function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <AppContent />
+        <NotificationProvider>
+          <AppContent />
+        </NotificationProvider>
       </ThemeProvider>
     </AuthProvider>
   );
