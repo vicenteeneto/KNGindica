@@ -4,6 +4,38 @@ import { professionals as mockProfessionals } from '../data/mockData';
 import MobileNav from '../components/MobileNav';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+// Fix Leaflet Default Icon issue in React
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+let DefaultIcon = L.icon({
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41]
+});
+L.Marker.prototype.options.icon = DefaultIcon;
+
+// Custom Marker for Providers
+const createProviderIcon = (imageUrl: string) => L.divIcon({
+  className: 'custom-provider-marker',
+  html: `<div class="size-10 rounded-full border-2 border-primary bg-white overflow-hidden shadow-lg transform -translate-x-1/2 -translate-y-1/2"><img src="${imageUrl}" class="w-full h-full object-cover" /></div>`,
+  iconSize: [40, 40],
+  iconAnchor: [20, 20]
+});
+
+// Helper component to update map view
+function MapUpdater({ center }: { center: [number, number] }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center, 13);
+  }, [center, map]);
+  return null;
+}
 
 // Helper for calculating distance in km (Haversine Formula)
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
@@ -22,6 +54,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   
   const [locationName, setLocationName] = useState('Brasil (Sem GPS)');
   const [userCoords, setUserCoords] = useState<{lat: number, lng: number} | null>(null);
@@ -276,6 +309,15 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
               <span className="material-symbols-outlined">notifications</span>
               <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-transparent"></span>
             </button>
+            <button 
+              onClick={() => setViewMode(prev => prev === 'list' ? 'map' : 'list')} 
+              className={`p-2 rounded-full transition-colors flex items-center justify-center ${isScrolled ? 'bg-primary/10 text-primary hover:bg-primary/20' : 'bg-white/20 text-white hover:bg-white/30'}`}
+              title={viewMode === 'list' ? 'Ver no Mapa' : 'Ver em Lista'}
+            >
+              <span className="material-symbols-outlined">
+                {viewMode === 'list' ? 'map' : 'view_list'}
+              </span>
+            </button>
           </div>
         </div>
       </header>
@@ -399,81 +441,145 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
           {/* Featured Professionals (Netflix Style Row - "Em Alta na sua Região" / "Recomendados") */}
           <section className="px-4 md:px-8">
-            <div className="flex items-center gap-3 mb-4">
-              <h3 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-                Profissionais em Alta
-              </h3>
-              <span className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm hidden md:inline-block">
-                VIP
-              </span>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <h3 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+                  {viewMode === 'map' ? 'Mapa de Profissionais' : 'Profissionais em Alta'}
+                </h3>
+                {viewMode === 'list' && (
+                  <span className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm hidden md:inline-block">
+                    VIP
+                  </span>
+                )}
+              </div>
+              
+              {/* Mobile View Toggle */}
+              <button 
+                onClick={() => setViewMode(prev => prev === 'list' ? 'map' : 'list')}
+                className="md:hidden flex items-center gap-1.5 bg-primary text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg"
+              >
+                <span className="material-symbols-outlined text-sm">{viewMode === 'list' ? 'map' : 'format_list_bulleted'}</span>
+                {viewMode === 'list' ? 'Mapa' : 'Lista'}
+              </button>
             </div>
 
-            {/* Horizontal Scroll Area */}
-            <div className="flex gap-4 md:gap-6 overflow-x-auto pb-8 pt-4 snap-x snap-mandatory hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 scroll-smooth">
-              {loadingProviders ? (
-                <div className="py-10 text-slate-500 flex items-center gap-2">
-                   <span className="material-symbols-outlined animate-spin">refresh</span>
-                   Buscando os mais próximos...
-                </div>
-              ) : (
-                providers.map((professional) => (
-                  <div
-                    key={professional.id}
-                    onClick={() => onNavigate('profile', { professionalId: professional.id })}
-                    className="snap-start shrink-0 w-[240px] md:w-[280px] group cursor-pointer"
-                  >
-                    <div className="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-lg bg-slate-200 dark:bg-slate-800 mb-3">
-                      <img
-                        className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
-                        src={professional.image}
-                        alt={professional.name}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/20 to-transparent opacity-80 transition-opacity duration-300"></div>
+            {viewMode === 'map' ? (
+              <div className="w-full h-[500px] rounded-2xl overflow-hidden shadow-2xl border-4 border-white dark:border-slate-800 relative z-0">
+                <MapContainer 
+                  center={userCoords ? [userCoords.lat, userCoords.lng] : [-23.5505, -46.6333]} 
+                  zoom={13} 
+                  style={{ height: '100%', width: '100%' }}
+                  className="z-0"
+                >
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                  />
+                  {userCoords && (
+                    <Marker position={[userCoords.lat, userCoords.lng]}>
+                      <Popup>Você está aqui</Popup>
+                    </Marker>
+                  )}
+                  {userCoords && <MapUpdater center={[userCoords.lat, userCoords.lng]} />}
+                  
+                  {providers.map(p => {
+                    const lat = p.latitude || (userCoords?.lat ? userCoords.lat + (Math.random() - 0.5) * 0.05 : null);
+                    const lng = p.longitude || (userCoords?.lng ? userCoords.lng + (Math.random() - 0.5) * 0.05 : null);
+                    
+                    if (!lat || !lng) return null;
+                    
+                    return (
+                      <Marker 
+                        key={p.id} 
+                        position={[lat, lng]} 
+                        icon={createProviderIcon(p.image)}
+                      >
+                        <Popup className="provider-popup">
+                          <div className="p-2 w-48 font-display">
+                            <img src={p.image} className="w-full h-24 object-cover rounded-lg mb-2" />
+                            <h4 className="font-bold text-slate-900">{p.name}</h4>
+                            <p className="text-xs text-primary font-bold mb-2">{p.service}</p>
+                            <button 
+                              onClick={() => onNavigate('profile', { professionalId: p.id })}
+                              className="w-full bg-slate-900 text-white text-[10px] py-1.5 rounded font-bold"
+                            >
+                              Ver Perfil
+                            </button>
+                          </div>
+                        </Popup>
+                      </Marker>
+                    );
+                  })}
+                </MapContainer>
+              </div>
+            ) : (
+              /* Horizontal Scroll Area (Original List View) */
+              <div className="flex gap-4 md:gap-6 overflow-x-auto pb-8 pt-4 snap-x snap-mandatory hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 scroll-smooth">
+                {loadingProviders ? (
+                  <div className="py-10 text-slate-500 flex items-center gap-2">
+                     <span className="material-symbols-outlined animate-spin">refresh</span>
+                     Buscando os mais próximos...
+                  </div>
+                ) : (
+                  providers.map((professional) => (
+                    <div
+                      key={professional.id}
+                      onClick={() => onNavigate('profile', { professionalId: professional.id })}
+                      className="snap-start shrink-0 w-[240px] md:w-[280px] group cursor-pointer"
+                    >
+                      <div className="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-lg bg-slate-200 dark:bg-slate-800 mb-3">
+                        <img
+                          className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
+                          src={professional.image}
+                          alt={professional.name}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/20 to-transparent opacity-80 transition-opacity duration-300"></div>
 
-                      {/* Top Badges */}
-                      <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
-                        <div className="bg-black/60 backdrop-blur-md border border-white/10 px-2 py-1 rounded text-[10px] flex items-center gap-1 font-bold text-white shadow-sm w-max">
-                          <span className="material-symbols-outlined text-[12px] text-yellow-500">star</span>
-                          {professional.rating}
+                        {/* Top Badges */}
+                        <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
+                          <div className="bg-black/60 backdrop-blur-md border border-white/10 px-2 py-1 rounded text-[10px] flex items-center gap-1 font-bold text-white shadow-sm w-max">
+                            <span className="material-symbols-outlined text-[12px] text-yellow-500">star</span>
+                            {professional.rating}
+                          </div>
                         </div>
-                      </div>
-                      {/* MAIA verification badge */}
-                      {professional.plan_type === 'plus' ? (
-                        <div className="absolute top-3 right-3 bg-yellow-500 rounded-full px-2 py-0.5 flex items-center justify-center shadow-lg transform rotate-12 group-hover:rotate-0 transition-transform z-10 border border-white/20">
-                          <span className="text-[10px] font-black text-black italic">PLUS</span>
-                        </div>
-                      ) : (
-                        <div className="absolute top-3 right-3 bg-primary/90 backdrop-blur-md rounded-full w-8 h-8 flex items-center justify-center shadow-lg transform rotate-12 group-hover:rotate-0 transition-transform z-10">
-                          <span className="material-symbols-outlined text-white text-[16px]">verified</span>
-                        </div>
-                      )}
+                        {/* MAIA verification badge */}
+                        {professional.plan_type === 'plus' ? (
+                          <div className="absolute top-3 right-3 bg-yellow-500 rounded-full px-2 py-0.5 flex items-center justify-center shadow-lg transform rotate-12 group-hover:rotate-0 transition-transform z-10 border border-white/20">
+                            <span className="text-[10px] font-black text-black italic">PLUS</span>
+                          </div>
+                        ) : (
+                          <div className="absolute top-3 right-3 bg-primary/90 backdrop-blur-md rounded-full w-8 h-8 flex items-center justify-center shadow-lg transform rotate-12 group-hover:rotate-0 transition-transform z-10">
+                            <span className="material-symbols-outlined text-white text-[16px]">verified</span>
+                          </div>
+                        )}
 
-                      {/* Bottom Info inside image */}
-                      <div className="absolute bottom-4 left-4 right-4 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300 z-10">
-                        <div className="flex items-center justify-between mb-1">
-                          <h4 className="font-bold text-lg md:text-xl leading-tight truncate drop-shadow-md">
-                            {professional.name}
-                          </h4>
-                        </div>
-                        <p className="text-xs text-white/80 drop-shadow-md text-primary font-semibold mb-2">
-                          {professional.service}
-                        </p>
-
-                        <div className="flex items-center justify-between pt-2 border-t border-white/20">
-                          <span className="text-sm font-bold text-white">
-                            A Combinar
-                          </span>
-                          <p className="text-[10px] text-white/70 flex items-center gap-1">
-                            <span className="material-symbols-outlined text-[12px]">location_on</span>
-                            {professional.distance === 999999 ? 'Longe' : `${professional.distance} km`}
+                        {/* Bottom Info inside image */}
+                        <div className="absolute bottom-4 left-4 right-4 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300 z-10">
+                          <div className="flex items-center justify-between mb-1">
+                            <h4 className="font-bold text-lg md:text-xl leading-tight truncate drop-shadow-md">
+                              {professional.name}
+                            </h4>
+                          </div>
+                          <p className="text-xs text-white/80 drop-shadow-md text-primary font-semibold mb-2">
+                            {professional.service}
                           </p>
+
+                          <div className="flex items-center justify-between pt-2 border-t border-white/20">
+                            <span className="text-sm font-bold text-white">
+                              A Combinar
+                            </span>
+                            <p className="text-[10px] text-white/70 flex items-center gap-1">
+                              <span className="material-symbols-outlined text-[12px]">location_on</span>
+                              {professional.distance === 999999 ? 'Longe' : `${professional.distance} km`}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))
-              )}
-            </div>
+                  ))
+                )}
+              </div>
+            )}
           </section>
         </div>
       </main>
