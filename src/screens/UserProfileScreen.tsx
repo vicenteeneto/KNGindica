@@ -72,12 +72,19 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       ? { lat: (profile as any).latitude, lng: (profile as any).longitude } 
       : null
   );
-  // Inicializa com as coords salvas, ou com Brasília como fallback temporário
-  const [mapCenterForPicker, setMapCenterForPicker] = useState<[number, number]>(
+  // Ref para o centro do mapa — atualiza sincronicamente (sem batching do React)
+  const mapCenterRef = useRef<[number, number]>(
     (profile as any)?.latitude && (profile as any)?.longitude
       ? [(profile as any).latitude, (profile as any).longitude]
       : [-15.7801, -47.9292]
   );
+  // State derivado apenas para forçar re-render quando o centro muda
+  const [mapCenterKey, setMapCenterKey] = useState(0);
+
+  const updateMapCenter = (lat: number, lng: number) => {
+    mapCenterRef.current = [lat, lng];
+    setMapCenterKey(k => k + 1); // força re-render para que o MapContainer use o novo center
+  };
 
   // Form States
   const [formData, setFormData] = useState({
@@ -110,21 +117,21 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         whatsapp_number: formatPhone((profile as any).whatsapp_number || ''),
         plan_type: (profile as any).plan_type || 'basic',
       });
-      // Sincroniza o centro do mapa e pickedLocation ao carregar o perfil
+      // Sincroniza coords/cidade ao carregar o perfil
       if ((profile as any).latitude && (profile as any).longitude) {
-        setMapCenterForPicker([(profile as any).latitude, (profile as any).longitude]);
+        updateMapCenter((profile as any).latitude, (profile as any).longitude);
         setPickedLocation({ lat: (profile as any).latitude, lng: (profile as any).longitude });
       } else if ((profile as any).city) {
-        // Pré-geocodifica a cidade para que o mapa abra no lugar certo
+        // Pré-geocodifica em background para ter o centro pronto
         const city = (profile as any).city;
         fetch(
-          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(city)}&country=Brazil&format=json&limit=1`,
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(city)},Brazil&format=json&limit=1`,
           { headers: { 'Accept-Language': 'pt-BR' } }
         )
           .then(r => r.json())
           .then(data => {
             if (data && data.length > 0) {
-              setMapCenterForPicker([parseFloat(data[0].lat), parseFloat(data[0].lon)]);
+              updateMapCenter(parseFloat(data[0].lat), parseFloat(data[0].lon));
             }
           })
           .catch(() => {});
@@ -200,7 +207,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           if (geoData.length > 0) {
             lat = parseFloat(geoData[0].lat);
             lng = parseFloat(geoData[0].lon);
-            setMapCenterForPicker([lat, lng]);
+            updateMapCenter(lat, lng);
           }
         } catch {}
       }
@@ -861,10 +868,11 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 : '👆 Toque no mapa para marcar seu ponto exato'}
             </p>
 
-            {/* Mapa */}
+            {/* Mapa — key força remontagem quando o centro muda, garantindo posição correta */}
             <div className="w-full h-[280px] relative z-0">
               <MapContainer
-                center={mapCenterForPicker}
+                key={`map-${mapCenterKey}-${mapCenterRef.current[0].toFixed(4)}`}
+                center={mapCenterRef.current}
                 zoom={15}
                 style={{ height: '100%', width: '100%' }}
                 className="z-0"
@@ -873,8 +881,6 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                 />
-                {/* Força o mapa a ir para o centro correto sempre que abrir */}
-                <MapMover center={mapCenterForPicker} />
                 <LocationPicker onPick={(lat, lng) => setPickedLocation({ lat, lng })} />
                 {pickedLocation && (
                   <Marker position={[pickedLocation.lat, pickedLocation.lng]} />
