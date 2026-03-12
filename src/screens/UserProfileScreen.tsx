@@ -421,39 +421,6 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
               </button>
             )}
 
-            {role === 'provider' && (
-              <button
-                onClick={async () => {
-                  // Pré-carrega o centro do mapa com a localização atual salva ou geocodifica a cidade
-                  if ((profile as any)?.latitude && (profile as any)?.longitude) {
-                    setMapCenterForPicker([(profile as any).latitude, (profile as any).longitude]);
-                    setPickedLocation({ lat: (profile as any).latitude, lng: (profile as any).longitude });
-                  } else if ((profile as any)?.city) {
-                    try {
-                      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent((profile as any).city)}&country=Brazil&format=json&limit=1`, { headers: { 'Accept-Language': 'pt-BR' } });
-                      const geoData = await res.json();
-                      if (geoData.length > 0) setMapCenterForPicker([parseFloat(geoData[0].lat), parseFloat(geoData[0].lon)]);
-                    } catch {}
-                  }
-                  setShowLocationPickerModal(true);
-                }}
-                className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="size-10 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <span className="material-symbols-outlined">pin_drop</span>
-                  </div>
-                  <div className="text-left">
-                    <p className="font-semibold text-slate-900 dark:text-white">Marcar no Mapa</p>
-                    <p className="text-xs text-slate-500">
-                      {(profile as any)?.latitude ? '✅ Localização definida' : '⚠️ Defina sua localização para aparecer no mapa'}
-                    </p>
-                  </div>
-                </div>
-                <span className="material-symbols-outlined text-slate-400">chevron_right</span>
-              </button>
-            )}
-
             <button
               onClick={() => onNavigate('favorites')}
               className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
@@ -728,6 +695,40 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                     className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                   />
                 </div>
+                {role === 'provider' && (
+                  <div className="mb-2">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setShowAddressModal(false);
+                        // Usa coords já salvas ou geocodifica a cidade preenchida
+                        if ((profile as any)?.latitude && (profile as any)?.longitude) {
+                          setMapCenterForPicker([(profile as any).latitude, (profile as any).longitude]);
+                          setPickedLocation({ lat: (profile as any).latitude, lng: (profile as any).longitude });
+                        } else {
+                          const cityToSearch = formData.city || (profile as any)?.city;
+                          if (cityToSearch) {
+                            try {
+                              const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityToSearch)}&country=Brazil&format=json&limit=1`, { headers: { 'Accept-Language': 'pt-BR' } });
+                              const geoData = await res.json();
+                              if (geoData.length > 0) setMapCenterForPicker([parseFloat(geoData[0].lat), parseFloat(geoData[0].lon)]);
+                            } catch {}
+                          }
+                        }
+                        setShowLocationPickerModal(true);
+                      }}
+                      className="w-full flex items-center justify-center gap-3 py-4 px-4 rounded-2xl bg-gradient-to-r from-primary to-blue-600 text-white font-bold text-base shadow-lg shadow-primary/30 hover:opacity-90 active:scale-[0.98] transition-all"
+                    >
+                      <span className="material-symbols-outlined text-2xl">pin_drop</span>
+                      <div className="text-left">
+                        <p className="font-bold text-base leading-tight">Marcar Meu Local no Mapa</p>
+                        <p className="text-xs text-white/80 font-normal">
+                          {(profile as any)?.latitude ? '✅ Localização já definida — clique para ajustar' : 'Aparecer para clientes perto de você'}
+                        </p>
+                      </div>
+                    </button>
+                  </div>
+                )}
               </div>
               <div className="flex gap-3">
                 <button type="button" disabled={isSaving} onClick={() => setShowAddressModal(false)} className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
