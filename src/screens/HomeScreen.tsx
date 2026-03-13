@@ -275,9 +275,22 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
   // Group professionals for rows
   const plusProviders = providers.filter(p => p.plan_type === 'plus');
-  const cleaningProviders = providers.filter(p => p.service === 'Limpeza');
-  const constructionProviders = providers.filter(p => p.service === 'Reformas');
-  const electricProviders = providers.filter(p => p.service === 'Elétrica');
+  const cleaningProviders = providers.filter(p => 
+    p.service.toLowerCase().includes('limpeza') || 
+    p.category?.toLowerCase().includes('limpeza')
+  );
+  const constructionProviders = providers.filter(p => 
+    p.service.toLowerCase().includes('reforma') || 
+    p.service.toLowerCase().includes('obra') ||
+    p.category?.toLowerCase().includes('reforma')
+  );
+  const electricProviders = providers.filter(p => 
+    p.service.toLowerCase().includes('eletri') || 
+    p.category?.toLowerCase().includes('eletri')
+  );
+  
+  // Fallback for Hero if no Plus providers
+  const heroProviders = plusProviders.length > 0 ? plusProviders : providers.slice(0, 5);
 
   const categories = [
     { name: 'Todos', icon: 'apps' },
@@ -381,9 +394,9 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
       <main className="flex-1 w-full relative">
         {/* Prime-Style Hero Carousel */}
         <section className="relative w-full h-[70vh] md:h-[85vh] overflow-hidden bg-black">
-          {plusProviders.length > 0 ? (
+          {heroProviders.length > 0 ? (
             <div className="absolute inset-0 w-full h-full">
-              {plusProviders.slice(0, 5).map((p, idx) => (
+              {heroProviders.slice(0, 5).map((p, idx) => (
                 <div 
                   key={p.id}
                   className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${idx === currentHeroIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
@@ -401,7 +414,11 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                   <div className="absolute bottom-16 md:bottom-24 left-0 w-full px-4 md:px-12 max-w-7xl mx-auto left-1/2 -translate-x-1/2">
                     <div className="max-w-2xl animate-fade-in-up">
                       <div className="flex items-center gap-2 mb-3">
-                        <span className="bg-primary px-2 py-0.5 rounded text-[10px] font-black tracking-tighter italic shadow-lg">PLUS</span>
+                        {p.plan_type === 'plus' ? (
+                          <span className="bg-primary px-2 py-0.5 rounded text-[10px] font-black tracking-tighter italic shadow-lg">PLUS</span>
+                        ) : (
+                          <span className="bg-slate-700 px-2 py-0.5 rounded text-[10px] font-black tracking-tighter italic shadow-lg">DESTAQUE</span>
+                        )}
                         <span className="text-sm font-bold text-blue-400">Verificado iService</span>
                       </div>
                       <h1 className="text-4xl md:text-7xl font-black text-white leading-[0.9] mb-4 drop-shadow-2xl">
@@ -440,7 +457,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
               
               {/* Carousel Indicators */}
               <div className="absolute bottom-8 right-8 z-30 flex gap-2">
-                {plusProviders.slice(0, 5).map((_, idx) => (
+                {heroProviders.slice(0, 5).map((_, idx) => (
                   <button 
                     key={idx}
                     onClick={() => setCurrentHeroIndex(idx)}
@@ -568,6 +585,14 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                 title="Eletricistas e Instalações" 
                 subtitle="Segurança e rapidez para resolver pane ou instalar aparelhos."
                 providers={electricProviders} 
+                onNavigate={onNavigate}
+              />
+
+              {/* Row: All Providers (Fallback/Discovery) */}
+              <CollectionRow 
+                title="Descobrir Profissionais" 
+                subtitle="Explore todos os prestadores em Rondonópolis e região."
+                providers={providers} 
                 onNavigate={onNavigate}
               />
             </>
