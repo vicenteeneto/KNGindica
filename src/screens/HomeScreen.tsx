@@ -189,7 +189,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
           return {
             id: p.id,
             name: p.full_name || 'Profissional Sem Nome',
-            service: p.category || 'Serviços Gerais',
+            service: (p.categories && p.categories.length > 0) ? p.categories[0] : 'Serviços Gerais',
             rating: p.rating || (4.5 + Math.random() * 0.5).toFixed(1),
             price: (Math.random() * 100 + 50).toFixed(2),
             priceUnit: 'hora',
@@ -701,16 +701,21 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight }: Co
                 {p.rating}
               </div>
 
-              {/* Info Overlay */}
-              <div className="absolute bottom-3 left-3 right-3">
-                <h4 className="font-black text-xs md:text-sm truncate drop-shadow-lg text-white group-hover:text-primary transition-colors italic uppercase tracking-tighter">
-                  {p.name}
-                </h4>
-                <div className="flex items-center justify-between mt-1">
-                  <span className="text-[9px] font-bold text-slate-300 truncate uppercase">{p.service}</span>
-                  <span className="text-[9px] font-black text-white bg-white/10 px-1 rounded">{p.distance} km</span>
-                </div>
+              {/* Info Overlay - Clean version with Category only */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80"></div>
+              <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+                <span className="text-[10px] font-black text-white px-2 py-0.5 bg-primary/20 backdrop-blur-md rounded border border-primary/30 uppercase tracking-tighter italic">
+                  {p.service}
+                </span>
+                <span className="text-[9px] font-black text-white/50">{p.distance} km</span>
               </div>
+            </div>
+            
+            {/* Name Below Card for cleaner look */}
+            <div className="mt-2 text-center">
+              <h4 className="font-bold text-[11px] md:text-xs truncate text-slate-200 group-hover:text-primary transition-colors uppercase tracking-tight">
+                {p.name}
+              </h4>
             </div>
           </div>
         ))}
