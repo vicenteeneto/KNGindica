@@ -60,6 +60,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   const [locationName, setLocationName] = useState('Brasil (Sem GPS)');
   const [userCoords, setUserCoords] = useState<{lat: number, lng: number} | null>(null);
   const [providers, setProviders] = useState<any[]>([]);
+  const [featuredProviders, setFeaturedProviders] = useState<any[]>([]);
   const [loadingProviders, setLoadingProviders] = useState(true);
   const [showLocationModal, setShowLocationModal] = useState(false);
 
@@ -241,6 +242,20 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
     fetchProviders();
   }, [userCoords, locationName]);
 
+  // Handle shuffling featured providers for the Hero spotlight
+  useEffect(() => {
+    if (providers.length > 0) {
+      const plusOnes = providers.filter(p => p.plan_type === 'plus');
+      // Fisher-Yates shuffle
+      const shuffled = [...plusOnes];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      setFeaturedProviders(shuffled);
+    }
+  }, [providers]);
+
   const handleManualLocationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if(manualCityInput.trim() !== '') {
@@ -289,8 +304,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
     p.category?.toLowerCase().includes('eletri')
   );
   
-  // Fallback for Hero if no Plus providers
-  const heroProviders = plusProviders.length > 0 ? plusProviders : providers.slice(0, 5);
+  // High-priority featured list for Hero
+  const heroProviders = featuredProviders.length > 0 ? featuredProviders : providers.slice(0, 5);
 
   const categories = [
     { name: 'Todos', icon: 'apps' },
@@ -304,12 +319,12 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
   // Auto-scroll hero
   useEffect(() => {
-    if (plusProviders.length <= 1) return;
+    if (heroProviders.length <= 1) return;
     const interval = setInterval(() => {
-      setCurrentHeroIndex(prev => (prev + 1) % Math.min(plusProviders.length, 5));
+      setCurrentHeroIndex(prev => (prev + 1) % Math.min(heroProviders.length, 5));
     }, 8000);
     return () => clearInterval(interval);
-  }, [plusProviders.length]);
+  }, [heroProviders.length]);
 
   return (
     <div className="w-full bg-[#0f171e] min-h-screen flex flex-col font-display text-white pb-20 md:pb-0 overflow-x-hidden transition-colors duration-500">
@@ -559,7 +574,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
               <CollectionRow 
                 title="Destaques iService PLUS" 
                 subtitle="Os profissionais mais bem avaliados e recomendados."
-                providers={plusProviders.slice(0, 10)} 
+                providers={featuredProviders.length > 0 ? featuredProviders : plusProviders.slice(0, 10)} 
                 onNavigate={onNavigate}
                 highlight
               />
