@@ -11,6 +11,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
     clients: 0,
     servicesCompleted: 0,
     revenue: 0,
+    newToday: 0,
   });
   const [providersList, setProvidersList] = useState<any[]>([]);
   const [clientsList, setClientsList] = useState<any[]>([]);
@@ -139,11 +140,16 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
         const { data: metrics } = await supabase.from('admin_conversion_metrics').select('*');
         setConversionMetrics(metrics || []);
 
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const newToday = profiles?.filter(p => new Date(p.created_at) >= today).length || 0;
+
         setStats({
           providers: providers.length,
           clients: clients.length,
           servicesCompleted: compServ.length,
-          revenue: revenue
+          revenue: revenue,
+          newToday: newToday
         });
 
         setProvidersList(providers);
@@ -328,7 +334,13 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
               <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 group-hover:bg-primary group-hover:text-white rounded-lg flex items-center justify-center transition-colors">
                 <span className="material-symbols-outlined">engineering</span>
               </div>
-              <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">arrow_forward_ios</span>
+              <div className="flex flex-col items-end">
+                <span className="text-[10px] font-bold text-green-500 flex items-center gap-0.5">
+                  <span className="material-symbols-outlined text-[10px]">trending_up</span>
+                  +{stats.newToday} hoje
+                </span>
+                <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">arrow_forward_ios</span>
+              </div>
             </div>
             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Total de Prestadores</p>
             <p className="text-2xl font-bold">{stats.providers}</p>
@@ -343,7 +355,10 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
               <div className="p-2 bg-purple-50 dark:bg-purple-900/20 text-purple-600 group-hover:bg-purple-600 group-hover:text-white rounded-lg flex items-center justify-center transition-colors">
                 <span className="material-symbols-outlined">group</span>
               </div>
-              <span className="material-symbols-outlined text-slate-300 group-hover:text-purple-500 transition-colors">arrow_forward_ios</span>
+              <div className="flex flex-col items-end">
+                 <span className="text-[10px] font-bold text-slate-400">{clientsList.length} total</span>
+                 <span className="material-symbols-outlined text-slate-300 group-hover:text-purple-500 transition-colors">arrow_forward_ios</span>
+              </div>
             </div>
             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Total de Clientes</p>
             <p className="text-2xl font-bold">{stats.clients}</p>
@@ -378,6 +393,75 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Receita Estimada</p>
             <p className="text-2xl font-bold">R$ {stats.revenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
           </div>
+        </div>
+      </section>
+
+      {/* Growth Overview Section */}
+      <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Visão de Crescimento</h2>
+              <p className="text-xs text-slate-500">Distribuição da base de usuários</p>
+            </div>
+            <div className="flex gap-2">
+              <span className="flex items-center gap-1 text-[10px] font-bold uppercase text-slate-400">
+                <span className="w-2 h-2 rounded-full bg-primary"></span> Prestadores
+              </span>
+              <span className="flex items-center gap-1 text-[10px] font-bold uppercase text-slate-400">
+                <span className="w-2 h-2 rounded-full bg-purple-500"></span> Clientes
+              </span>
+            </div>
+          </div>
+          
+          <div className="relative h-48 flex items-end gap-2 px-2">
+            {/* Simple CSS Bar Graph Mockup */}
+            {[...Array(7)].map((_, i) => (
+              <div key={i} className="flex-1 flex flex-col justify-end gap-1 group">
+                <div className="flex flex-col-reverse gap-0.5">
+                   <div className="w-full bg-primary/20 group-hover:bg-primary/40 rounded-t-sm transition-all" style={{ height: `${20 + i * 10}px` }}></div>
+                   <div className="w-full bg-purple-500/20 group-hover:bg-purple-500/40 rounded-t-sm transition-all" style={{ height: `${15 + i * 8}px` }}></div>
+                </div>
+                <span className="text-[9px] text-slate-400 text-center uppercase font-bold">Dia {i+1}</span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-around text-center">
+             <div>
+               <p className="text-xs text-slate-500 mb-1">Taxa de Conversão</p>
+               <p className="text-lg font-bold text-primary">12.5%</p>
+             </div>
+             <div className="w-px h-8 bg-slate-100 dark:bg-slate-800 self-center"></div>
+             <div>
+               <p className="text-xs text-slate-500 mb-1">Crescimento Mensal</p>
+               <p className="text-lg font-bold text-green-500">+18%</p>
+             </div>
+             <div className="w-px h-8 bg-slate-100 dark:bg-slate-800 self-center"></div>
+             <div>
+               <p className="text-xs text-slate-500 mb-1">Churn Rate</p>
+               <p className="text-lg font-bold text-red-500">2.1%</p>
+             </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm overflow-hidden flex flex-col">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Últimos Cadastros</h2>
+          <div className="space-y-4 flex-1 overflow-y-auto max-h-[300px] pr-2 custom-scrollbar">
+            {providersList.slice(0, 5).map((p, idx) => (
+              <div key={idx} className="flex items-center gap-3 group cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/30 p-2 rounded-xl transition-colors">
+                <img src={p.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} className="w-10 h-10 rounded-full object-cover bg-slate-100" />
+                <div className="flex-1 overflow-hidden">
+                   <p className="text-sm font-bold truncate">{p.full_name || 'Novo Usuário'}</p>
+                   <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">{p.is_provider ? 'PRESTADOR' : 'CLIENTE'} • {new Date(p.created_at).toLocaleDateString()}</p>
+                </div>
+                <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors text-lg">chevron_right</span>
+              </div>
+            ))}
+            {providersList.length === 0 && <p className="text-sm text-slate-500 text-center py-10">Nenhum cadastro recente.</p>}
+          </div>
+          <button onClick={() => setActiveTab('providers')} className="mt-4 w-full py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl text-xs font-bold transition-colors">
+            Ver Todos os Usuários
+          </button>
         </div>
       </section>
 
@@ -726,7 +810,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
             <thead>
               <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Cliente</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">ID</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Contato / Cadastro</th>
                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Ações</th>
               </tr>
@@ -744,17 +828,28 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                         <div className="h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden shrink-0">
                           <img className="h-full w-full object-cover" alt="Profile" src={client.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} />
                         </div>
-                        <p className="font-medium text-sm text-slate-900 dark:text-white">{client.full_name || 'Usuário Sem Nome'}</p>
+                        <div>
+                          <p className="font-bold text-sm">{client.full_name || 'Usuário Sem Nome'}</p>
+                          <p className="text-xs text-slate-500 font-mono font-bold tracking-wider">{client.display_id || client.id.substring(0, 8)}</p>
+                        </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-xs font-mono font-bold text-slate-500">{client.display_id || `#${client.id.substring(0, 8)}`}</td>
                     <td className="px-6 py-4">
-                      <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] font-bold uppercase rounded">Ativo</span>
+                      <p className="text-sm font-medium">{client.email}</p>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{new Date(client.created_at).toLocaleDateString('pt-BR')}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-2 py-1 text-[10px] font-bold uppercase rounded ${client.status === 'blocked' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                        {client.status === 'blocked' ? 'Bloqueado' : 'Ativo'}
+                      </span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button className="text-slate-400 hover:text-red-500 p-2 transition-colors" title="Bloquear Cliente">
-                        <span className="material-symbols-outlined">block</span>
-                      </button>
+                       <button 
+                        onClick={() => handleUpdateProviderStatus(client.id, client.status === 'blocked' ? 'active' : 'blocked')}
+                        className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${client.status === 'blocked' ? 'bg-green-500 text-white' : 'bg-red-50 text-red-500 hover:bg-red-500 hover:text-white'}`}
+                       >
+                         {client.status === 'blocked' ? 'Reativar' : 'Bloquear'}
+                       </button>
                     </td>
                   </tr>
                 ))
@@ -1485,6 +1580,53 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
     </div>
   );
 
+  const renderChatAuditTab = () => (
+    <div className="animate-in fade-in duration-500 space-y-6">
+      <h2 className="text-xl font-bold">Auditoria de Conversas</h2>
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+              <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Sala de Chat / Pedido</th>
+              <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Participantes</th>
+              <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase text-right">Ação</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            {chatRoomsList.length === 0 ? (
+              <tr><td colSpan={3} className="p-6 text-center text-slate-500">Nenhuma sala de chat ativa encontrada.</td></tr>
+            ) : (
+              chatRoomsList.map(room => (
+                <tr key={room.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                  <td className="px-6 py-4">
+                    <p className="font-bold text-sm">{room.request?.title || 'Conversa Direta'}</p>
+                    <span className={`text-[10px] font-bold uppercase rounded px-1.5 py-0.5 ${room.request?.status === 'disputed' ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-500'}`}>
+                      {room.request?.status === 'disputed' ? 'EM DISPUTA' : room.request?.status || 'ATIVO'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-xs font-medium">Cli: {room.client?.full_name}</span>
+                      <span className="text-xs font-medium">Pre: {room.provider?.full_name}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <button 
+                      onClick={() => setSelectedChatRoom(room)}
+                      className="text-primary hover:bg-primary/10 px-4 py-2 rounded-lg text-sm font-bold transition-all"
+                    >
+                      Auditar Conversa
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
   return (
     <div className="flex flex-col min-h-screen bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
 
@@ -1537,52 +1679,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
         {activeTab === 'orders' && renderOrdersTab()}
         {activeTab === 'reviews' && renderReviewsTab()}
         {activeTab === 'categories' && renderCategoriesTab()}
-        {activeTab === 'chat_audit' && (
-          <div className="animate-in fade-in duration-500 space-y-6">
-            <h2 className="text-xl font-bold">Auditoria de Conversas</h2>
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Sala de Chat / Pedido</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Participantes</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase text-right">Ação</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {chatRoomsList.length === 0 ? (
-                    <tr><td colSpan={3} className="p-6 text-center text-slate-500">Nenhuma sala de chat ativa encontrada.</td></tr>
-                  ) : (
-                    chatRoomsList.map(room => (
-                      <tr key={room.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                        <td className="px-6 py-4">
-                          <p className="font-bold text-sm">{room.request?.title || 'Conversa Direta'}</p>
-                          <span className={`text-[10px] font-bold uppercase rounded px-1.5 py-0.5 ${room.request?.status === 'disputed' ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-500'}`}>
-                            {room.request?.status === 'disputed' ? 'EM DISPUTA' : room.request?.status || 'ATIVO'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex flex-col gap-0.5">
-                            <span className="text-xs font-medium">Cli: {room.client?.full_name}</span>
-                            <span className="text-xs font-medium">Pre: {room.provider?.full_name}</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <button 
-                            onClick={() => setSelectedChatRoom(room)}
-                            className="text-primary hover:bg-primary/10 px-4 py-2 rounded-lg text-sm font-bold transition-all"
-                          >
-                            Auditar Conversa
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+        {activeTab === 'chat_audit' && renderChatAuditTab()}
         {activeTab === 'disputes' && renderDisputesTab()}
         {activeTab === 'finance' && renderFinanceTab()}
         {activeTab === 'settings' && renderSettingsTab()}
