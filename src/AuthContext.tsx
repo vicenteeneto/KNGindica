@@ -97,19 +97,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             id: userId,
             full_name: user?.user_metadata?.full_name || user?.user_metadata?.name || 'Novo Usuário',
             email: userEmail,
-            role: 'client',
+            role: user?.user_metadata?.role || 'client',
             plan_type: 'basic'
           })
           .select()
           .single();
         
         if (!createError && newProfile) {
-          setRole('client');
+          setRole(newProfile.role as UserRole);
           setProfile(newProfile as UserProfile);
         } else {
           console.error('Falha ao criar perfil de fallback:', createError);
-          // Se falhar mesmo assim (ex: RLS), tenta pelo menos setar o role para não travar a UI
-          setRole('client');
+          setRole(user?.user_metadata?.role || 'client');
         }
       }
     } catch (error) {

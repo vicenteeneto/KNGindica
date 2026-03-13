@@ -1404,6 +1404,77 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
           </table>
         </div>
       </div>
+
+      {/* Category Requests Section */}
+      <div className="mt-12 bg-slate-50/50 dark:bg-slate-800/20 p-6 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-bold flex items-center gap-2 text-slate-900 dark:text-white">
+            <span className="material-symbols-outlined text-primary">pending_actions</span>
+            Solicitações de Novas Categorias
+          </h2>
+          <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-xs font-bold">
+            {categoryRequests.filter(r => r.status === 'pending').length} pendentes
+          </span>
+        </div>
+        
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse whitespace-nowrap">
+              <thead>
+                <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Categoria Sugerida</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Prestador</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {categoryRequests.length === 0 ? (
+                  <tr><td colSpan={4} className="p-8 text-center text-slate-500 italic">Nenhuma solicitação encontrada por enquanto.</td></tr>
+                ) : (
+                  categoryRequests.map(req => (
+                    <tr key={req.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                      <td className="px-6 py-4 font-black text-sm text-primary uppercase italic tracking-tighter">
+                        {req.category_name}
+                      </td>
+                      <td className="px-6 py-4">
+                        <p className="text-sm font-medium">{req.provider?.full_name || 'Desconhecido'}</p>
+                        <p className="text-xs text-slate-500">{req.provider?.email}</p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2 py-1 text-[10px] font-bold rounded uppercase ${
+                          req.status === 'approved' ? 'bg-green-100 text-green-700' : 
+                          req.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
+                        }`}>
+                          {req.status === 'approved' ? 'Aprovada' : req.status === 'rejected' ? 'Rejeitada' : 'Pendente'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        {req.status === 'pending' && (
+                          <div className="flex gap-2 justify-end">
+                            <button 
+                              onClick={() => handleApproveCategoryRequest(req)}
+                              className="px-3 py-1.5 bg-green-500 text-white text-xs font-bold rounded-lg hover:bg-green-600 transition-colors flex items-center gap-1"
+                            >
+                              <span className="material-symbols-outlined text-[16px]">check</span> Aprovar
+                            </button>
+                            <button 
+                              onClick={() => handleRejectCategoryRequest(req.id)}
+                              className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-lg hover:bg-red-50 hover:text-red-500 transition-colors flex items-center gap-1"
+                            >
+                              <span className="material-symbols-outlined text-[16px]">close</span> Rejeitar
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   );
 
