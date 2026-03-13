@@ -695,9 +695,9 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight }: Co
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
               
-              {/* Rating Mini - Micro version with tiny star */}
+              {/* Rating Mini - Ultra micro version with 5px star */}
               <div className="absolute top-1 right-1 bg-black/60 backdrop-blur-md px-1 py-0 rounded text-[7px] font-black flex items-center gap-0.5">
-                <span className="material-symbols-outlined text-[7px] text-yellow-500 filled">star</span>
+                <span className="material-symbols-outlined text-[5px] text-yellow-500 filled">star</span>
                 {p.rating}
               </div>
 
