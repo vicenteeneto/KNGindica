@@ -695,19 +695,19 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight }: Co
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
               
-              {/* Rating Mini */}
-              <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded text-[10px] font-black flex items-center gap-1">
-                <span className="material-symbols-outlined text-[12px] text-yellow-500 filled">star</span>
+              {/* Rating Mini - Even smaller */}
+              <div className="absolute top-1.5 right-1.5 bg-black/60 backdrop-blur-md px-1 py-0 rounded text-[8px] font-black flex items-center gap-0.5">
+                <span className="material-symbols-outlined text-[10px] text-yellow-500 filled">star</span>
                 {p.rating}
               </div>
 
-              {/* Info Overlay - Clean version with Category only */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80"></div>
-              <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
-                <span className="text-[10px] font-black text-white px-2 py-0.5 bg-primary/20 backdrop-blur-md rounded border border-primary/30 uppercase tracking-tighter italic">
+              {/* Info Overlay - Cleaner version with even smaller text */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"></div>
+              <div className="absolute bottom-1.5 left-1.5 right-1.5 flex items-center justify-between">
+                <span className="text-[7px] font-black text-white px-1 py-0 bg-primary/20 backdrop-blur-md rounded border border-primary/30 uppercase tracking-tighter italic">
                   {p.service}
                 </span>
-                <span className="text-[9px] font-black text-white/50">{p.distance} km</span>
+                <span className="text-[7px] font-black text-white/40">{p.distance} km</span>
               </div>
             </div>
             
