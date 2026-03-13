@@ -695,9 +695,9 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight }: Co
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
               
-              {/* Rating Mini - Even smaller */}
-              <div className="absolute top-1.5 right-1.5 bg-black/60 backdrop-blur-md px-1 py-0 rounded text-[8px] font-black flex items-center gap-0.5">
-                <span className="material-symbols-outlined text-[10px] text-yellow-500 filled">star</span>
+              {/* Rating Mini - Micro version to match category */}
+              <div className="absolute top-1.5 right-1.5 bg-black/60 backdrop-blur-md px-1 py-0 rounded text-[7px] font-black flex items-center gap-0.5">
+                <span className="material-symbols-outlined text-[8px] text-yellow-500 filled">star</span>
                 {p.rating}
               </div>
 
