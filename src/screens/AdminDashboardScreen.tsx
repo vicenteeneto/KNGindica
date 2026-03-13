@@ -30,6 +30,10 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
   const [editingCategory, setEditingCategory] = useState<any>(null);
   const [categoryForm, setCategoryForm] = useState({ name: '', description: '', icon_name: '', base_price: '' });
   const [conversionMetrics, setConversionMetrics] = useState<any[]>([]);
+  const [recentUsersList, setRecentUsersList] = useState<any[]>([]);
+  const [providerSearch, setProviderSearch] = useState('');
+  const [clientSearch, setClientSearch] = useState('');
+  const [growthData, setGrowthData] = useState<{ clients: number[], providers: number[] }>({ clients: [0,0,0,0,0,0,0], providers: [0,0,0,0,0,0,0] });
 
   const AVAILABLE_ICONS = [
     'handyman', 'bolt', 'plumbing', 'cleaning_services', 'yard', 'local_shipping', 'ac_unit', 'format_paint', 
@@ -157,6 +161,32 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
         setOrdersList(requests || []);
         setReviewsList(reviews || []);
         setCategoriesList(categories || []);
+
+        // Unified Recent Users (mix of both)
+        const allUsers = (profiles || []).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        setRecentUsersList(allUsers);
+
+        // Calculate Growth Data for the last 7 days
+        const gClients = [0,0,0,0,0,0,0];
+        const gProviders = [0,0,0,0,0,0,0];
+        const now = new Date();
+        
+        for (let i = 0; i < 7; i++) {
+          const d = new Date();
+          d.setDate(now.getDate() - (6 - i));
+          d.setHours(0,0,0,0);
+          const nextD = new Date(d);
+          nextD.setDate(d.getDate() + 1);
+
+          const dayProfiles = profiles?.filter(p => {
+             const created = new Date(p.created_at);
+             return created >= d && created < nextD;
+          }) || [];
+
+          gClients[i] = dayProfiles.filter(p => p.role === 'client').length;
+          gProviders[i] = dayProfiles.filter(p => p.role === 'provider').length;
+        }
+        setGrowthData({ clients: gClients, providers: gProviders });
 
         // 6. Fetch Category Requests
         const { data: requests_cats } = await supabase
@@ -356,7 +386,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                 <span className="material-symbols-outlined">group</span>
               </div>
               <div className="flex flex-col items-end">
-                 <span className="text-[10px] font-bold text-slate-400">{clientsList.length} total</span>
+                 <span className="text-[10px] font-bold text-slate-400">{stats.clients} total</span>
                  <span className="material-symbols-outlined text-slate-300 group-hover:text-purple-500 transition-colors">arrow_forward_ios</span>
               </div>
             </div>
@@ -415,16 +445,32 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
           </div>
           
           <div className="relative h-48 flex items-end gap-2 px-2">
-            {/* Simple CSS Bar Graph Mockup */}
-            {[...Array(7)].map((_, i) => (
-              <div key={i} className="flex-1 flex flex-col justify-end gap-1 group">
-                <div className="flex flex-col-reverse gap-0.5">
-                   <div className="w-full bg-primary/20 group-hover:bg-primary/40 rounded-t-sm transition-all" style={{ height: `${20 + i * 10}px` }}></div>
-                   <div className="w-full bg-purple-500/20 group-hover:bg-purple-500/40 rounded-t-sm transition-all" style={{ height: `${15 + i * 8}px` }}></div>
+            {/* Real Dynamic Bar Graph */}
+            {growthData.providers.map((pCount, i) => {
+              const cCount = growthData.clients[i];
+              const totalOnDay = Math.max(pCount + cCount, 1);
+              const maxVal = Math.max(...growthData.providers, ...growthData.clients, 5);
+              
+              return (
+                <div key={i} className="flex-1 flex flex-col justify-end gap-1 group">
+                  <div className="flex flex-col-reverse gap-0.5">
+                     <div 
+                        className="w-full bg-primary/40 group-hover:bg-primary/60 rounded-t-sm transition-all" 
+                        style={{ height: `${(pCount / maxVal) * 120}px`, minHeight: pCount > 0 ? '4px' : '0px' }}
+                        title={`${pCount} Prestadores`}
+                     ></div>
+                     <div 
+                        className="w-full bg-purple-500/40 group-hover:bg-purple-500/60 rounded-t-sm transition-all" 
+                        style={{ height: `${(cCount / maxVal) * 120}px`, minHeight: cCount > 0 ? '4px' : '0px' }}
+                        title={`${cCount} Clientes`}
+                     ></div>
+                  </div>
+                  <span className="text-[9px] text-slate-400 text-center uppercase font-bold">
+                    {new Date(new Date().setDate(new Date().getDate() - (6 - i))).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })}
+                  </span>
                 </div>
-                <span className="text-[9px] text-slate-400 text-center uppercase font-bold">Dia {i+1}</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-around text-center">
              <div>
@@ -447,17 +493,23 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm overflow-hidden flex flex-col">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Últimos Cadastros</h2>
           <div className="space-y-4 flex-1 overflow-y-auto max-h-[300px] pr-2 custom-scrollbar">
-            {providersList.slice(0, 5).map((p, idx) => (
+            {recentUsersList.slice(0, 8).map((p, idx) => (
               <div key={idx} className="flex items-center gap-3 group cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/30 p-2 rounded-xl transition-colors">
                 <img src={p.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} className="w-10 h-10 rounded-full object-cover bg-slate-100" />
                 <div className="flex-1 overflow-hidden">
                    <p className="text-sm font-bold truncate">{p.full_name || 'Novo Usuário'}</p>
-                   <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">{p.is_provider ? 'PRESTADOR' : 'CLIENTE'} • {new Date(p.created_at).toLocaleDateString()}</p>
+                   <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">
+                      {p.role === 'provider' ? (
+                         <span className="text-blue-500">PRESTADOR</span>
+                      ) : (
+                         <span className="text-purple-500">CLIENTE</span>
+                      )} • {new Date(p.created_at).toLocaleDateString('pt-BR')}
+                   </p>
                 </div>
                 <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors text-lg">chevron_right</span>
               </div>
             ))}
-            {providersList.length === 0 && <p className="text-sm text-slate-500 text-center py-10">Nenhum cadastro recente.</p>}
+            {recentUsersList.length === 0 && <p className="text-sm text-slate-500 text-center py-10">Nenhum cadastro recente.</p>}
           </div>
           <button onClick={() => setActiveTab('providers')} className="mt-4 w-full py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl text-xs font-bold transition-colors">
             Ver Todos os Usuários
@@ -637,6 +689,8 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
               className="pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all w-full md:w-64"
               placeholder="Buscar prestador por nome, email ou serviço..."
               type="text"
+              value={providerSearch}
+              onChange={(e) => setProviderSearch(e.target.value)}
             />
           </div>
           <button className="flex items-center justify-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
@@ -689,10 +743,20 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {loading ? (
                 <tr><td colSpan={6} className="p-6 text-center text-slate-500">Carregando prestadores...</td></tr>
-              ) : providersList.length === 0 ? (
+              ) : providersList.filter(p => 
+                  p.full_name?.toLowerCase().includes(providerSearch.toLowerCase()) || 
+                  p.email?.toLowerCase().includes(providerSearch.toLowerCase()) ||
+                  p.service_category?.toLowerCase().includes(providerSearch.toLowerCase())
+                ).length === 0 ? (
                 <tr><td colSpan={6} className="p-6 text-center text-slate-500">Nenhum prestador encontrado.</td></tr>
               ) : (
-                providersList.map(provider => (
+                providersList
+                  .filter(p => 
+                    p.full_name?.toLowerCase().includes(providerSearch.toLowerCase()) || 
+                    p.email?.toLowerCase().includes(providerSearch.toLowerCase()) ||
+                    p.service_category?.toLowerCase().includes(providerSearch.toLowerCase())
+                  )
+                  .map(provider => (
                   <tr key={provider.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -799,6 +863,8 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
               className="pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all w-full md:w-64"
               placeholder="Buscar cliente por nome ou email..."
               type="text"
+              value={clientSearch}
+              onChange={(e) => setClientSearch(e.target.value)}
             />
           </div>
         </div>
@@ -818,10 +884,18 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {loading ? (
                 <tr><td colSpan={4} className="p-6 text-center text-slate-500">Carregando...</td></tr>
-              ) : clientsList.length === 0 ? (
+              ) : clientsList.filter(c => 
+                  c.full_name?.toLowerCase().includes(clientSearch.toLowerCase()) || 
+                  c.email?.toLowerCase().includes(clientSearch.toLowerCase())
+                ).length === 0 ? (
                 <tr><td colSpan={4} className="p-6 text-center text-slate-500">Nenhum cliente encontrado.</td></tr>
               ) : (
-                clientsList.map(client => (
+                clientsList
+                  .filter(c => 
+                    c.full_name?.toLowerCase().includes(clientSearch.toLowerCase()) || 
+                    c.email?.toLowerCase().includes(clientSearch.toLowerCase())
+                  )
+                  .map(client => (
                   <tr key={client.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
