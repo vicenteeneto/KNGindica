@@ -61,6 +61,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   const [userCoords, setUserCoords] = useState<{lat: number, lng: number} | null>(null);
   const [providers, setProviders] = useState<any[]>([]);
   const [featuredProviders, setFeaturedProviders] = useState<any[]>([]);
+  const [dynamicCategories, setDynamicCategories] = useState<{ name: string, icon: string }[]>([]);
   const [loadingProviders, setLoadingProviders] = useState(true);
   const [showLocationModal, setShowLocationModal] = useState(false);
 
@@ -253,6 +254,33 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
       }
       setFeaturedProviders(shuffled);
+
+      // Extract dynamic categories from actual providers
+      const catsWithProviders = Array.from(new Set(providers.map(p => p.service))).filter(c => c !== 'Serviços Gerais');
+      
+      const categoryIconMap: Record<string, string> = {
+        'Limpeza': 'cleaning_services',
+        'Reformas': 'construction',
+        'Elétrica': 'bolt',
+        'Jardim': 'yard',
+        'Montagem': 'handyman',
+        'Encanador': 'plumbing',
+        'Pintura': 'imagesearch_roller',
+        'Eletricista': 'bolt'
+      };
+
+      let derivedCats = catsWithProviders.map((name: string) => ({
+        name,
+        icon: (categoryIconMap as Record<string, string>)[name] || 'handyman'
+      }));
+
+      // Shuffle derived categories (Fisher-Yates)
+      for (let i = derivedCats.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [derivedCats[i], derivedCats[j]] = [derivedCats[j], derivedCats[i]];
+      }
+
+      setDynamicCategories([{ name: 'Todos', icon: 'apps' }, ...derivedCats]);
     }
   }, [providers]);
 
@@ -306,16 +334,6 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   
   // High-priority featured list for Hero
   const heroProviders = featuredProviders.length > 0 ? featuredProviders : providers.slice(0, 5);
-
-  const categories = [
-    { name: 'Todos', icon: 'apps' },
-    { name: 'Limpeza', icon: 'cleaning_services' },
-    { name: 'Reformas', icon: 'construction' },
-    { name: 'Elétrica', icon: 'bolt' },
-    { name: 'Jardim', icon: 'yard' },
-    { name: 'Montagem', icon: 'handyman' },
-    { name: 'Encanador', icon: 'plumbing' },
-  ];
 
   // Auto-scroll hero
   useEffect(() => {
@@ -394,10 +412,10 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
         {/* Category Chips - Prime Style */}
         <div className="max-w-7xl mx-auto mt-4 overflow-x-auto hide-scrollbar flex items-center gap-2 pb-2">
-          {categories.map((cat) => (
+          {dynamicCategories.map((cat) => (
             <button
               key={cat.name}
-              onClick={() => cat.name === 'Todos' ? onNavigate('listing') : onNavigate('listing', { category: cat.name })}
+              onClick={() => cat.name === 'Todos' ? onNavigate('listing', { searchQuery: '' }) : onNavigate('listing', { category: cat.name })}
               className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold tracking-wide transition-all border border-slate-700 bg-slate-800/40 hover:bg-white hover:text-black hover:border-white"
             >
               {cat.name}
@@ -449,19 +467,19 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                         <span className="text-sm font-bold text-slate-300 drop-shadow-md">• {p.city}</span>
                       </div>
                       
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 md:gap-3">
                         <button
                           onClick={() => onNavigate('profile', { professionalId: p.id })}
-                          className="flex items-center gap-2 bg-white text-black px-8 py-3.5 rounded-lg font-black text-sm uppercase tracking-widest hover:bg-white/80 transition-all active:scale-95"
+                          className="flex items-center gap-2 bg-white text-black px-4 md:px-8 py-2.5 md:py-3.5 rounded-lg font-black text-[11px] md:text-sm uppercase tracking-widest hover:bg-white/80 transition-all active:scale-95"
                         >
-                          <span className="material-symbols-outlined">play_arrow</span>
+                          <span className="material-symbols-outlined text-[18px] md:text-[24px]">play_arrow</span>
                           Ver Perfil
                         </button>
                         <button
                           onClick={() => onNavigate('listing', { category: p.service })}
-                          className="flex items-center gap-2 bg-slate-500/30 backdrop-blur-md text-white px-8 py-3.5 rounded-lg font-bold text-sm uppercase tracking-widest hover:bg-slate-500/50 transition-all"
+                          className="flex items-center gap-2 bg-slate-500/30 backdrop-blur-md text-white px-4 md:px-8 py-2.5 md:py-3.5 rounded-lg font-bold text-[11px] md:text-sm uppercase tracking-widest hover:bg-slate-500/50 transition-all"
                         >
-                          <span className="material-symbols-outlined">info</span>
+                          <span className="material-symbols-outlined text-[18px] md:text-[24px]">info</span>
                           Detalhes
                         </button>
                       </div>
