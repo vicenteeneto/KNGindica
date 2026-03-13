@@ -125,6 +125,8 @@ function AppContent() {
         return <ProviderRegistrationScreen onNavigate={handleNavigate} />;
       case 'plan':
         return <ProviderPlanScreen onNavigate={handleNavigate} />;
+      case 'providerPlan':
+        return <ProviderPlanScreen onNavigate={handleNavigate} />;
       case 'filters':
         return <FilterServicesScreen onNavigate={handleNavigate} />;
       case 'maia':

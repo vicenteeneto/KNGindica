@@ -4,6 +4,7 @@ import { professionals } from '../data/mockData';
 import VerifiedBadge from '../components/VerifiedBadge';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
+import { useSEO } from '../hooks/useSEO';
 
 interface ProfessionalProfileProps extends NavigationProps {
   professionalId?: string;
@@ -18,6 +19,20 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
   const [isFavorite, setIsFavorite] = useState(false);
   const [portfolioImages, setPortfolioImages] = useState<any[]>([]);
   const { user } = useAuth();
+
+  // SEO dinâmico baseado nos dados do profissional
+  const seoTitle = dbProfessional
+    ? `${dbProfessional.name} — ${dbProfessional.category} em ${dbProfessional.city || 'Rondonópolis'}`
+    : undefined;
+  const seoDescription = dbProfessional?.description
+    ? dbProfessional.description.slice(0, 160)
+    : undefined;
+  useSEO({
+    title: seoTitle,
+    description: seoDescription,
+    image: dbProfessional?.image,
+    type: 'profile',
+  });
 
   // Tracking de Leads
   const trackLead = async (pId: string, type: 'whatsapp_click' | 'profile_view' | 'chat_start') => {

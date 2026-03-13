@@ -174,6 +174,32 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         <p className="text-slate-500 dark:text-slate-400 text-sm font-normal mt-1">Confira o desempenho do seu perfil hoje.</p>
       </section>
 
+      {/* Banner de upgrade para prestadores Free */}
+      {(profile as any)?.plan_type !== 'plus' && (
+        <section className="px-4 pt-3">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-400 p-4 shadow-lg shadow-amber-300/30">
+            <div className="absolute -right-4 -top-4 size-24 rounded-full bg-white/20" />
+            <div className="absolute -right-2 bottom-0 size-16 rounded-full bg-white/10" />
+            <div className="relative flex items-center justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-1.5 mb-1">
+                  <span className="material-symbols-outlined text-white text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                  <span className="text-[11px] font-black text-white/90 uppercase tracking-wider">Prestador Plus</span>
+                </div>
+                <p className="text-white font-bold text-sm leading-tight">Receba 2× mais clientes</p>
+                <p className="text-white/80 text-xs mt-0.5">0% comissão · WhatsApp direto · Destaque</p>
+              </div>
+              <button
+                onClick={() => onNavigate('providerPlan')}
+                className="shrink-0 bg-white text-amber-600 font-black text-xs px-4 py-2.5 rounded-xl shadow-sm hover:bg-amber-50 active:scale-95 transition-all whitespace-nowrap"
+              >
+                Ver Planos →
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
+
       <section className="grid grid-cols-3 gap-3 p-4">
         <div className="flex flex-col gap-1 rounded-xl p-4 bg-primary/10 border border-primary/20">
           <p className="text-slate-600 dark:text-slate-300 text-xs font-medium">Contatos</p>
