@@ -20,6 +20,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   setDevRole: (role: UserRole) => void;
+  upgradeToProvider: () => Promise<boolean>;
   refreshProfile: () => Promise<void>;
 }
 
@@ -120,7 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshProfile = async () => {
     if (user?.id) {
-      await fetchUserProfile(user.id);
+      await fetchUserProfile(user.id, user.email);
     }
   };
 
@@ -143,8 +144,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setRole(newRole);
   };
 
+  const upgradeToProvider = async (): Promise<boolean> => {
+    if (!user) return false;
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role: 'provider' })
+        .eq('id', user.id);
+      
+      if (error) throw error;
+      
+      await refreshProfile();
+      return true;
+    } catch (e) {
+      console.error("Erro no upgrade de role:", e);
+      return false;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, role, profile, loading, logout, signInWithGoogle, setDevRole, refreshProfile }}>
+    <AuthContext.Provider value={{ user, session, role, profile, loading, logout, signInWithGoogle, setDevRole, upgradeToProvider, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

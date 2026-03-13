@@ -269,10 +269,17 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
       // Update UI
       setCategoriesList(prev => [...prev, newCat]);
       setCategoryRequests(prev => prev.map(r => r.id === request.id ? { ...r, status: 'approved' } : r));
-      alert("Categoria aprovada e criada com sucesso!");
+      
+      // Notify the provider
+      await supabase.from('notifications').insert({
+        user_id: request.provider_id,
+        title: 'Categoria Aprovada! 🎉',
+        message: `Sua sugestão "${request.category_name}" foi aprovada e já está no seu perfil.`,
+        type: 'notification'
+      });
+
     } catch (e: any) {
       console.error("Erro ao aprovar categoria", e);
-      alert("Erro ao aprovar: " + e.message);
     }
   };
 

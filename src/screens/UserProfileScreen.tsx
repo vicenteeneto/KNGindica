@@ -54,7 +54,7 @@ const formatCEP = (value: string) => {
 };
 
 export default function UserProfileScreen({ onNavigate }: NavigationProps) {
-  const { user, profile, role, setDevRole, logout, refreshProfile } = useAuth();
+  const { user, profile, role, setDevRole, upgradeToProvider, logout, refreshProfile } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [isUploading, setIsUploading] = useState(false);
   const [selectedImageSrc, setSelectedImageSrc] = useState<string | null>(null);
@@ -72,6 +72,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [showProviderModal, setShowProviderModal] = useState(false);
   const [showLocationPickerModal, setShowLocationPickerModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isSavingLocation, setIsSavingLocation] = useState(false);
   const [pickedLocation, setPickedLocation] = useState<{lat: number, lng: number} | null>(
@@ -621,8 +622,8 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   setDevRole('client');
                   onNavigate('home');
                 } else {
-                  setDevRole('provider');
-                  onNavigate('dashboard');
+                  // Se for cliente, mostra o modal de "Tornar-se Prestador" em vez de apenas mudar visualmente
+                  setShowUpgradeModal(true);
                 }
               }}
               className="relative z-10 bg-primary hover:bg-primary/90 text-white font-bold px-6 py-3 rounded-xl shadow-sm hover:scale-105 active:scale-95 transition-all w-full flex justify-center items-center gap-2"
@@ -926,48 +927,50 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   </div>
 
                   {/* Sugestão de Categoria */}
-                  <div className="border-t border-slate-100 dark:border-slate-800 pt-4">
-                    {!showSuggestionInput ? (
-                      <button
-                        type="button"
-                        onClick={() => setShowSuggestionInput(true)}
-                        className="flex items-center gap-2 text-primary font-bold text-xs hover:underline"
-                      >
-                        <span className="material-symbols-outlined text-[16px]">add_circle</span>
-                        Sugerir nova categoria
-                      </button>
-                    ) : (
-                      <div className="space-y-2">
-                        <input
-                          type="text"
-                          value={newCategorySuggestion}
-                          onChange={(e) => setNewCategorySuggestion(e.target.value)}
-                          placeholder="Ex: Passeador de Cães"
-                          className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary"
-                        />
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={handleSuggestCategory}
-                            disabled={isSubmittingSuggestion || !newCategorySuggestion.trim()}
-                            className="bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-primary/90 disabled:opacity-50"
-                          >
-                            {isSubmittingSuggestion ? 'Enviando...' : 'Enviar Sugestão'}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setShowSuggestionInput(false);
-                              setNewCategorySuggestion('');
-                            }}
-                            className="text-slate-500 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800"
-                          >
-                            Cancelar
-                          </button>
+                  {role !== 'admin' && (
+                    <div className="border-t border-slate-100 dark:border-slate-800 pt-4">
+                      {!showSuggestionInput ? (
+                        <button
+                          type="button"
+                          onClick={() => setShowSuggestionInput(true)}
+                          className="flex items-center gap-2 text-primary font-bold text-xs hover:underline"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">add_circle</span>
+                          Sugerir nova categoria
+                        </button>
+                      ) : (
+                        <div className="space-y-2">
+                          <input
+                            type="text"
+                            value={newCategorySuggestion}
+                            onChange={(e) => setNewCategorySuggestion(e.target.value)}
+                            placeholder="Ex: Passeador de Cães"
+                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary"
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={handleSuggestCategory}
+                              disabled={isSubmittingSuggestion || !newCategorySuggestion.trim()}
+                              className="bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-primary/90 disabled:opacity-50"
+                            >
+                              {isSubmittingSuggestion ? 'Enviando...' : 'Enviar Sugestão'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setShowSuggestionInput(false);
+                                setNewCategorySuggestion('');
+                              }}
+                              className="text-slate-500 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800"
+                            >
+                              Cancelar
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="flex gap-3 mt-4 shrink-0">
@@ -1048,6 +1051,59 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         </div>
       )}
 
+       {/* Modal: Tornar-se Prestador (Upgrade) */}
+      {showUpgradeModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden animate-fade-in-up">
+            <div className="p-8 text-center">
+              <div className="size-20 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="material-symbols-outlined text-4xl">handyman</span>
+              </div>
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-3 tracking-tighter uppercase italic">
+                Seja um <span className="text-primary">Prestador!</span>
+              </h3>
+              <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-8">
+                Você está prestes a transformar seu perfil. Como prestador, você poderá oferecer seus serviços, receber pedidos e aumentar sua renda.
+              </p>
+              
+              <div className="space-y-3">
+                <button
+                  onClick={async () => {
+                    setIsSaving(true);
+                    const success = await upgradeToProvider();
+                    setIsSaving(false);
+                    if (success) {
+                      setShowUpgradeModal(false);
+                      setShowProviderModal(true); // Abre o form profissional automaticamente
+                      showToast("Perfil atualizado! Agora complete seus dados.", "success");
+                    } else {
+                      showToast("Erro ao atualizar perfil.", "error");
+                    }
+                  }}
+                  disabled={isSaving}
+                  className="w-full py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest hover:bg-primary/90 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {isSaving ? (
+                    <span className="material-symbols-outlined animate-spin">refresh</span>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined">rocket_launch</span>
+                      COMEÇAR AGORA
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => setShowUpgradeModal(false)}
+                  disabled={isSaving}
+                  className="w-full py-4 bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+                >
+                  Talvez mais tarde
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
