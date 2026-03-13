@@ -124,7 +124,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
   };
 
   return (
-    <div className="w-full bg-white dark:bg-slate-900 min-h-screen shadow-xl flex flex-col font-display text-slate-900 dark:text-slate-100 antialiased">
+    <div className="w-full bg-[#0f171e] min-h-screen shadow-xl flex flex-col font-display text-slate-900 dark:text-slate-100 antialiased">
       {/* Header / Navigation */}
       <header className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-center p-4 justify-between max-w-7xl mx-auto w-full">

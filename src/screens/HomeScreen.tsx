@@ -61,6 +61,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   const [userCoords, setUserCoords] = useState<{lat: number, lng: number} | null>(null);
   const [providers, setProviders] = useState<any[]>([]);
   const [featuredProviders, setFeaturedProviders] = useState<any[]>([]);
+  const [previousProviders, setPreviousProviders] = useState<any[]>([]);
   const [dynamicCategories, setDynamicCategories] = useState<{ name: string, icon: string }[]>([]);
   const [loadingProviders, setLoadingProviders] = useState(true);
   const [activeRequest, setActiveRequest] = useState<any>(null);
@@ -265,6 +266,50 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
       }
     };
     fetchActiveRequest();
+  }, [user]);
+
+  // Fetch previously hired providers ("Hire Again" section)
+  useEffect(() => {
+    const fetchPreviousProviders = async () => {
+      if (!user) return;
+      try {
+        // 1. Get distinct provider IDs from completed requests
+        const { data: requests, error: reqError } = await supabase
+          .from('service_requests')
+          .select('provider_id')
+          .eq('client_id', user.id)
+          .eq('status', 'completed')
+          .order('created_at', { ascending: false });
+
+        if (reqError) throw reqError;
+        if (!requests || requests.length === 0) return;
+
+        const distinctIds = Array.from(new Set(requests.map(r => r.provider_id)));
+
+        // 2. Fetch profiles for these IDs
+        const { data: profilesData, error: profError } = await supabase
+          .from('profiles')
+          .select('*')
+          .in('id', distinctIds);
+
+        if (profError) throw profError;
+
+        if (profilesData) {
+          const mapped = profilesData.map((p: any) => ({
+            id: p.id,
+            name: p.company_name || p.full_name || 'Profissional',
+            service: p.categories?.[0] || 'Serviços Gerais',
+            rating: p.rating || 5.0,
+            distance: p.city ? 'Distância N/A' : '99+', // Basic mock for now
+            image: p.avatar_url || 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a'
+          }));
+          setPreviousProviders(mapped);
+        }
+      } catch (e) {
+        console.error("Error fetching previous providers:", e);
+      }
+    };
+    fetchPreviousProviders();
   }, [user]);
 
   // Handle shuffling featured providers for the Hero spotlight
@@ -652,6 +697,16 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                 </>
               ) : (
                 <>
+                  {/* Row: Hire Again (Prioritizing loyal customers) */}
+                  {previousProviders.length > 0 && (
+                    <CollectionRow 
+                      title="Contratar Novamente" 
+                      subtitle="Profissionais que já prestaram serviços para você."
+                      providers={previousProviders} 
+                      onNavigate={onNavigate}
+                    />
+                  )}
+
                   {/* Row: iService PLUS Recommendations */}
                   <CollectionRow 
                     title="Destaques iService PLUS" 
