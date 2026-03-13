@@ -20,6 +20,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [dbProfessionals, setDbProfessionals] = useState<Professional[]>([]);
   const [filteredProfessionals, setFilteredProfessionals] = useState<Professional[]>([]);
+  const [dynamicCategories, setDynamicCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -50,6 +51,10 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
             isAffiliate: !!p.company_name,
           }));
           setDbProfessionals(mapped);
+
+          // Extract dynamic categories
+          const cats = Array.from(new Set(mapped.map(p => p.category))).filter(c => c && c !== 'Serviços Gerais');
+          setDynamicCategories(cats);
         }
       } catch (err) {
         console.error("Erro ao carregar provedores:", err);
@@ -219,12 +224,16 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
 
             {/* Category Buttons */}
             <button 
-              onClick={() => { setSelectedCategory(''); setSearchQuery(''); }}
-              className={`flex items-center gap-1 px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${!selectedCategory ? 'bg-primary text-white' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+              onClick={() => { 
+                setSelectedCategory(''); 
+                setSearchQuery('');
+                // Reset initialParams via state if needed, but clearing these is enough for the effect
+              }}
+              className={`flex items-center gap-1 px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${!selectedCategory && !searchQuery ? 'bg-primary text-white' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
             >
               Todos
             </button>
-            {['Limpeza', 'Reformas', 'Elétrica', 'Jardim'].map((cat) => (
+            {dynamicCategories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(selectedCategory === cat ? '' : cat)}
@@ -240,8 +249,8 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
       {/* Main Content: Service Listing */}
       <main className="flex-1 p-4 pb-24 md:pb-8">
         {loading ? (
-          <div className="flex justify-center py-12">
-            <span className="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span>
+          <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3, 4, 5, 6].map(i => <SkeletonCard key={i} />)}
           </div>
         ) : (
           <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -313,6 +322,20 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
 
       {/* Bottom Navigation Bar (Mobile Only) */}
       <MobileNav onNavigate={onNavigate} currentScreen="listing" />
+    </div>
+  );
+}
+
+function SkeletonCard() {
+  return (
+    <div className="bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border border-slate-100 dark:border-slate-800 flex gap-4 animate-pulse">
+      <div className="w-24 h-24 rounded-lg bg-slate-200 dark:bg-slate-800 shrink-0"></div>
+      <div className="flex-1 space-y-3">
+        <div className="h-3 w-16 bg-slate-200 dark:bg-slate-800 rounded"></div>
+        <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded"></div>
+        <div className="h-3 w-24 bg-slate-200 dark:bg-slate-800 rounded"></div>
+        <div className="h-8 w-full bg-slate-200 dark:bg-slate-800 rounded-lg mt-2"></div>
+      </div>
     </div>
   );
 }

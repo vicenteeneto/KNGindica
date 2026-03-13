@@ -63,6 +63,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   const [featuredProviders, setFeaturedProviders] = useState<any[]>([]);
   const [dynamicCategories, setDynamicCategories] = useState<{ name: string, icon: string }[]>([]);
   const [loadingProviders, setLoadingProviders] = useState(true);
+  const [activeRequest, setActiveRequest] = useState<any>(null);
   const [showLocationModal, setShowLocationModal] = useState(false);
 
   // Geocodifica uma string de cidade para [lat, lng]
@@ -242,6 +243,29 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
     };
     fetchProviders();
   }, [userCoords, locationName]);
+
+  // Fetch active service request for "Life Activity" tracking
+  useEffect(() => {
+    const fetchActiveRequest = async () => {
+      if (!user) return;
+      try {
+        const { data, error } = await supabase
+          .from('service_requests')
+          .select('*, profiles:provider_id(full_name, avatar_url)')
+          .or('status.eq.paid,status.eq.in_service')
+          .eq('client_id', user.id)
+          .order('updated_at', { ascending: false })
+          .limit(1);
+        
+        if (data && data.length > 0) {
+          setActiveRequest(data[0]);
+        }
+      } catch (e) {
+        console.error("Error fetching active request:", e);
+      }
+    };
+    fetchActiveRequest();
+  }, [user]);
 
   // Handle shuffling featured providers for the Hero spotlight
   useEffect(() => {
@@ -470,16 +494,16 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                       <div className="flex items-center gap-2 md:gap-3">
                         <button
                           onClick={() => onNavigate('profile', { professionalId: p.id })}
-                          className="flex items-center gap-2 bg-white text-black px-4 md:px-8 py-2.5 md:py-3.5 rounded-lg font-black text-[11px] md:text-sm uppercase tracking-widest hover:bg-white/80 transition-all active:scale-95"
+                          className="flex items-center gap-1.5 bg-white text-black px-3 md:px-8 py-2 md:py-3.5 rounded-lg font-black text-[10px] md:text-sm uppercase tracking-widest hover:bg-white/80 transition-all active:scale-95"
                         >
-                          <span className="material-symbols-outlined text-[18px] md:text-[24px]">play_arrow</span>
+                          <span className="material-symbols-outlined text-[16px] md:text-[24px]">play_arrow</span>
                           Ver Perfil
                         </button>
                         <button
                           onClick={() => onNavigate('listing', { category: p.service })}
-                          className="flex items-center gap-2 bg-slate-500/30 backdrop-blur-md text-white px-4 md:px-8 py-2.5 md:py-3.5 rounded-lg font-bold text-[11px] md:text-sm uppercase tracking-widest hover:bg-slate-500/50 transition-all"
+                          className="flex items-center gap-1.5 bg-slate-500/30 backdrop-blur-md text-white px-3 md:px-8 py-2 md:py-3.5 rounded-lg font-bold text-[10px] md:text-sm uppercase tracking-widest hover:bg-slate-500/50 transition-all"
                         >
-                          <span className="material-symbols-outlined text-[18px] md:text-[24px]">info</span>
+                          <span className="material-symbols-outlined text-[16px] md:text-[24px]">info</span>
                           Detalhes
                         </button>
                       </div>
@@ -512,8 +536,40 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
           )}
         </section>
 
+        {/* Active Service Tracker (Live Activity Style) */}
+        {activeRequest && (
+          <div className="max-w-7xl mx-auto px-4 -mt-12 md:-mt-16 mb-8 relative z-30">
+            <div 
+              onClick={() => onNavigate('myRequests')}
+              className="bg-primary/95 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl flex items-center justify-between cursor-pointer hover:scale-[1.02] transition-transform animate-pulse-subtle"
+            >
+              <div className="flex items-center gap-3">
+                <div className="size-12 rounded-full overflow-hidden border-2 border-white/20 shadow-lg">
+                  <img 
+                    src={activeRequest.profiles?.avatar_url || `https://ui-avatars.com/api/?name=${activeRequest.profiles?.full_name}&background=random`} 
+                    className="w-full h-full object-cover" 
+                  />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="size-2 bg-white rounded-full animate-ping"></span>
+                    <span className="text-[10px] font-black text-white/80 uppercase tracking-widest italic">Serviço Ativo</span>
+                  </div>
+                  <h4 className="text-sm font-black text-white leading-tight">
+                    {activeRequest.status === 'paid' ? 'Aguardando Início' : 'Trabalho em Andamento'}
+                  </h4>
+                  <p className="text-[10px] text-white/70 font-bold">{activeRequest.profiles?.full_name}</p>
+                </div>
+              </div>
+              <button className="bg-white/20 hover:bg-white/30 p-2 rounded-full transition-colors">
+                <span className="material-symbols-outlined text-white">chevron_right</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Collection Rows */}
-        <div className="w-full max-w-7xl mx-auto -mt-8 relative z-20 pb-20">
+        <div className={`w-full max-w-7xl mx-auto relative z-20 pb-20 ${!activeRequest ? '-mt-8' : ''}`}>
           
           {/* Action Row - Search & View Toggle */}
           <div className="px-4 md:px-8 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
@@ -588,46 +644,56 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
              </div>
           ) : (
             <>
-              {/* Row: iService PLUS Recommendations */}
-              <CollectionRow 
-                title="Destaques iService PLUS" 
-                subtitle="Os profissionais mais bem avaliados e recomendados."
-                providers={featuredProviders.length > 0 ? featuredProviders : plusProviders.slice(0, 10)} 
-                onNavigate={onNavigate}
-                highlight
-              />
+              {loadingProviders ? (
+                <>
+                  <SkeletonRow />
+                  <SkeletonRow />
+                  <SkeletonRow />
+                </>
+              ) : (
+                <>
+                  {/* Row: iService PLUS Recommendations */}
+                  <CollectionRow 
+                    title="Destaques iService PLUS" 
+                    subtitle="Os profissionais mais bem avaliados e recomendados."
+                    providers={featuredProviders.length > 0 ? featuredProviders : plusProviders.slice(0, 10)} 
+                    onNavigate={onNavigate}
+                    highlight
+                  />
 
-              {/* Row: Cleaning Services */}
-              <CollectionRow 
-                title="Mestres da Limpeza" 
-                subtitle="Deixe sua casa brilhando com especialistas."
-                providers={cleaningProviders} 
-                onNavigate={onNavigate}
-              />
+                  {/* Row: Cleaning Services */}
+                  <CollectionRow 
+                    title="Mestres da Limpeza" 
+                    subtitle="Deixe sua casa brilhando com especialistas."
+                    providers={cleaningProviders} 
+                    onNavigate={onNavigate}
+                  />
 
-              {/* Row: Construction & Renovation */}
-              <CollectionRow 
-                title="Reformas e Manutenção" 
-                subtitle="Sua casa nova, do jeito que você sonhou."
-                providers={constructionProviders} 
-                onNavigate={onNavigate}
-              />
+                  {/* Row: Construction & Renovation */}
+                  <CollectionRow 
+                    title="Reformas e Manutenção" 
+                    subtitle="Sua casa nova, do jeito que você sonhou."
+                    providers={constructionProviders} 
+                    onNavigate={onNavigate}
+                  />
 
-              {/* Row: Electrical */}
-              <CollectionRow 
-                title="Eletricistas e Instalações" 
-                subtitle="Segurança e rapidez para resolver pane ou instalar aparelhos."
-                providers={electricProviders} 
-                onNavigate={onNavigate}
-              />
+                  {/* Row: Electrical */}
+                  <CollectionRow 
+                    title="Eletricistas e Instalações" 
+                    subtitle="Segurança e rapidez para resolver pane ou instalar aparelhos."
+                    providers={electricProviders} 
+                    onNavigate={onNavigate}
+                  />
 
-              {/* Row: All Providers (Fallback/Discovery) */}
-              <CollectionRow 
-                title="Descobrir Profissionais" 
-                subtitle="Explore todos os prestadores em Rondonópolis e região."
-                providers={providers} 
-                onNavigate={onNavigate}
-              />
+                  {/* Row: All Providers (Fallback/Discovery) */}
+                  <CollectionRow 
+                    title="Descobrir Profissionais" 
+                    subtitle="Explore todos os prestadores em Rondonópolis e região."
+                    providers={providers} 
+                    onNavigate={onNavigate}
+                  />
+                </>
+              )}
             </>
           )}
         </div>
@@ -687,7 +753,29 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48; }
         .dark-map-filter { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
+        @keyframes pulse-subtle {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.95; transform: scale(0.99); }
+        }
+        .animate-pulse-subtle { animation: pulse-subtle 4s infinite ease-in-out; }
       `}} />
+    </div>
+  );
+}
+
+function SkeletonRow() {
+  return (
+    <div className="px-4 md:px-8 mb-12 animate-pulse">
+      <div className="h-6 w-48 bg-slate-800 rounded-md mb-2"></div>
+      <div className="h-4 w-64 bg-slate-800/50 rounded-md mb-5"></div>
+      <div className="flex gap-4 overflow-x-hidden">
+        {[1, 2, 3, 4].map(i => (
+          <div key={i} className="shrink-0 w-[160px] md:w-[260px]">
+            <div className="aspect-[16/9] md:aspect-video bg-slate-800 rounded-xl mb-2"></div>
+            <div className="h-3 w-24 bg-slate-800/50 rounded-md mx-auto"></div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
