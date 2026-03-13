@@ -107,6 +107,11 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
     plan_type: (profile as any)?.plan_type || 'basic',
   });
 
+  const [dbCategories, setDbCategories] = useState<any[]>([]);
+  const [showSuggestionInput, setShowSuggestionInput] = useState(false);
+  const [newCategorySuggestion, setNewCategorySuggestion] = useState('');
+  const [isSubmittingSuggestion, setIsSubmittingSuggestion] = useState(false);
+
   const [isFetchingCep, setIsFetchingCep] = useState(false);
 
   // Keep form data synced when profile loads
@@ -145,6 +150,15 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       }
     }
   }, [profile]);
+
+  // Fetch global categories from DB
+  React.useEffect(() => {
+    const fetchCategories = async () => {
+      const { data } = await supabase.from('service_categories').select('*').order('name');
+      if (data) setDbCategories(data);
+    };
+    fetchCategories();
+  }, []);
 
   const handleCepChange = async (cepValue: string) => {
     // Remove non-numeric characters and format
@@ -284,6 +298,27 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       alert("Erro ao salvar: " + err.message + "\n\nSe o erro persistir, verifique se as colunas bio e categories existem no banco de dados.");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleSuggestCategory = async () => {
+    if (!newCategorySuggestion.trim() || !user) return;
+    setIsSubmittingSuggestion(true);
+    try {
+      const { error } = await supabase.from('category_requests').insert({
+        provider_id: user.id,
+        category_name: newCategorySuggestion.trim(),
+        status: 'pending'
+      });
+
+      if (error) throw error;
+      showToast('Sugestão enviada com sucesso! Analisaremos em breve.', 'success');
+      setNewCategorySuggestion('');
+      setShowSuggestionInput(false);
+    } catch (err: any) {
+      showToast('Erro ao enviar sugestão: ' + err.message, 'error');
+    } finally {
+      setIsSubmittingSuggestion(false);
     }
   };
 
@@ -848,25 +883,90 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">Serviços Prestados (Selecione um ou mais)</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {['Limpeza', 'Reformas', 'Elétrica', 'Jardim', 'Montagem', 'Encanador', 'Pintura', 'Frete'].map(cat => (
-                      <label key={cat} className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${formData.categories?.includes(cat) ? 'bg-orange-500/10 border-orange-500 text-orange-600 dark:text-orange-400' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'}`}>
+                  <div className="grid grid-cols-2 gap-2 mb-4">
+                    {dbCategories.length > 0 ? (
+                      dbCategories.map(cat => (
+                        <label key={cat.id || cat.name} className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${formData.categories?.includes(cat.name) ? 'bg-orange-500/10 border-orange-500 text-orange-600 dark:text-orange-400' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'}`}>
+                          <input
+                            type="checkbox"
+                            className="hidden"
+                            checked={formData.categories?.includes(cat.name)}
+                            onChange={(e) => {
+                              const current = formData.categories || [];
+                              if (e.target.checked) {
+                                setFormData({...formData, categories: [...current, cat.name]});
+                              } else {
+                                setFormData({...formData, categories: current.filter((c: string) => c !== cat.name)});
+                              }
+                            }}
+                          />
+                          <span className="text-sm font-semibold">{cat.name}</span>
+                        </label>
+                      ))
+                    ) : (
+                      ['Limpeza', 'Reformas', 'Elétrica', 'Jardim', 'Montagem', 'Encanador', 'Pintura', 'Frete'].map(cat => (
+                        <label key={cat} className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${formData.categories?.includes(cat) ? 'bg-orange-500/10 border-orange-500 text-orange-600 dark:text-orange-400' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'}`}>
+                          <input
+                            type="checkbox"
+                            className="hidden"
+                            checked={formData.categories?.includes(cat)}
+                            onChange={(e) => {
+                              const current = formData.categories || [];
+                              if (e.target.checked) {
+                                setFormData({...formData, categories: [...current, cat]});
+                              } else {
+                                setFormData({...formData, categories: current.filter((c: string) => c !== cat)});
+                              }
+                            }}
+                          />
+                          <span className="text-sm font-semibold">{cat}</span>
+                        </label>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Sugestão de Categoria */}
+                  <div className="border-t border-slate-100 dark:border-slate-800 pt-4">
+                    {!showSuggestionInput ? (
+                      <button
+                        type="button"
+                        onClick={() => setShowSuggestionInput(true)}
+                        className="flex items-center gap-2 text-primary font-bold text-xs hover:underline"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">add_circle</span>
+                        Sugerir nova categoria
+                      </button>
+                    ) : (
+                      <div className="space-y-2">
                         <input
-                          type="checkbox"
-                          className="hidden"
-                          checked={formData.categories?.includes(cat)}
-                          onChange={(e) => {
-                            const current = formData.categories || [];
-                            if (e.target.checked) {
-                              setFormData({...formData, categories: [...current, cat]});
-                            } else {
-                              setFormData({...formData, categories: current.filter((c: string) => c !== cat)});
-                            }
-                          }}
+                          type="text"
+                          value={newCategorySuggestion}
+                          onChange={(e) => setNewCategorySuggestion(e.target.value)}
+                          placeholder="Ex: Passeador de Cães"
+                          className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary"
                         />
-                        <span className="text-sm font-semibold">{cat}</span>
-                      </label>
-                    ))}
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={handleSuggestCategory}
+                            disabled={isSubmittingSuggestion || !newCategorySuggestion.trim()}
+                            className="bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-primary/90 disabled:opacity-50"
+                          >
+                            {isSubmittingSuggestion ? 'Enviando...' : 'Enviar Sugestão'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowSuggestionInput(false);
+                              setNewCategorySuggestion('');
+                            }}
+                            className="text-slate-500 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800"
+                          >
+                            Cancelar
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

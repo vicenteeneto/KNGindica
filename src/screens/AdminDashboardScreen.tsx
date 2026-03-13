@@ -24,6 +24,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
   const [chatMessages, setChatMessages] = useState<any[]>([]);
 
   const [categoriesList, setCategoriesList] = useState<any[]>([]);
+  const [categoryRequests, setCategoryRequests] = useState<any[]>([]);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<any>(null);
   const [categoryForm, setCategoryForm] = useState({ name: '', description: '', icon_name: '', base_price: '' });
@@ -150,6 +151,13 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
         setOrdersList(requests || []);
         setReviewsList(reviews || []);
         setCategoriesList(categories || []);
+
+        // 6. Fetch Category Requests
+        const { data: requests_cats } = await supabase
+          .from('category_requests')
+          .select('*, provider:profiles(full_name, email)')
+          .order('created_at', { ascending: false });
+        setCategoryRequests(requests_cats || []);
       } catch (e) {
         console.error("Error fetching admin data", e);
       } finally {
@@ -220,6 +228,62 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
     } catch (e) {
       console.error("Erro ao excluir categoria", e);
       alert("Erro ao excluir. Pode haver serviços vinculados a ela.");
+    }
+  };
+
+  const handleApproveCategoryRequest = async (request: any) => {
+    try {
+      // 1. Create the global category
+      const { data: newCat, error: catError } = await supabase
+        .from('service_categories')
+        .insert({
+          name: request.category_name,
+          icon: 'handyman', // Default icon
+          description: `Categoria sugerida por ${request.provider?.full_name}`
+        })
+        .select()
+        .single();
+      
+      if (catError) throw catError;
+
+      // 2. Update request status
+      const { error: reqError } = await supabase
+        .from('category_requests')
+        .update({ status: 'approved' })
+        .eq('id', request.id);
+      
+      if (reqError) throw reqError;
+
+      // 3. Proactively add this category to the provider's profiles.categories if possible
+      // This is a nice-to-have, but let's try
+      const { data: profile } = await supabase.from('profiles').select('categories').eq('id', request.provider_id).single();
+      if (profile) {
+        const currentCats = profile.categories || [];
+        if (!currentCats.includes(request.category_name)) {
+          await supabase.from('profiles').update({
+            categories: [...currentCats, request.category_name]
+          }).eq('id', request.provider_id);
+        }
+      }
+
+      // Update UI
+      setCategoriesList(prev => [...prev, newCat]);
+      setCategoryRequests(prev => prev.map(r => r.id === request.id ? { ...r, status: 'approved' } : r));
+      alert("Categoria aprovada e criada com sucesso!");
+    } catch (e: any) {
+      console.error("Erro ao aprovar categoria", e);
+      alert("Erro ao aprovar: " + e.message);
+    }
+  };
+
+  const handleRejectCategoryRequest = async (requestId: string) => {
+    if (!window.confirm('Tem certeza que deseja rejeitar esta solicitação?')) return;
+    try {
+      const { error } = await supabase.from('category_requests').update({ status: 'rejected' }).eq('id', requestId);
+      if (error) throw error;
+      setCategoryRequests(prev => prev.map(r => r.id === requestId ? { ...r, status: 'rejected' } : r));
+    } catch (e) {
+      console.error("Erro ao rejeitar categoria", e);
     }
   };
 
