@@ -6,7 +6,7 @@ import { supabase } from '../lib/supabase';
 
 export default function ProviderDashboardScreen({ onNavigate }: NavigationProps) {
   const { logout, profile, user } = useAuth();
-  const [stats, setStats] = useState({ requests: 0, views: 0, earnings: 0, pending: 0 });
+  const [stats, setStats] = useState({ requests: 0, visits: 0, leads: 0, earnings: 0, pending: 0 });
   const [recentRequests, setRecentRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -30,12 +30,15 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
     const fetchDashboardData = async () => {
       setLoading(true);
       try {
-        // 1. Fetch leads count
-        const { count: leadCount } = await supabase
+        // 1. Fetch distinct lead event counts
+        const { data: leadData } = await supabase
           .from('lead_events')
-          .select('*', { count: 'exact', head: true })
+          .select('type')
           .eq('provider_id', user.id);
           
+        const visits = leadData?.filter(l => l.type === 'profile_view').length || 0;
+        const leads = leadData?.filter(l => l.type === 'whatsapp_click' || l.type === 'chat_start').length || 0;
+
         // 2. Fetch active requests count
         const { count: reqCount } = await supabase
           .from('service_requests')
@@ -61,7 +64,8 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
 
         setStats({ 
           requests: reqCount || 0, 
-          views: leadCount || 0,
+          visits: visits,
+          leads: leads,
           earnings: walletData?.total_earnings || 0,
           pending: pendingBalance
         });
@@ -233,177 +237,214 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
     </header>
   );
 
+  const generateInsights = () => {
+    const insights = [];
+    const convRate = stats.visits > 0 ? (stats.leads / stats.visits) * 100 : 0;
+
+    if (portfolio.length < 3) {
+      insights.push({
+        title: "Complete seu Portfólio",
+        desc: "Perfis com pelo menos 3 fotos passam 50% mais confiança para os clientes.",
+        icon: "add_a_photo",
+        action: () => setActiveTab('portfolio')
+      });
+    }
+
+    if (convRate < 5 && stats.visits > 10) {
+      insights.push({
+        title: "Sua conversão está baixa",
+        desc: "Muitas pessoas visitam seu perfil mas poucas entram em contato. Tente melhorar sua Bio ou baixar um pouco o preço médio.",
+        icon: "trending_down",
+        action: () => setActiveTab('settings')
+      });
+    }
+
+    if (!businessInfo.address) {
+      insights.push({
+        title: "Adicione seu Endereço",
+        desc: "Clientes preferem profissionais que mostram um endereço físico ou base de atendimento.",
+        icon: "location_on",
+        action: () => setActiveTab('settings')
+      });
+    }
+
+    if (!businessInfo.loyalty_enabled) {
+      insights.push({
+        title: "Ative a Fidelidade",
+        desc: "Profissionais que oferecem prêmios de fidelidade têm mais chances de serem re-contratados.",
+        icon: "card_membership",
+        action: () => setActiveTab('settings')
+      });
+    }
+
+    if (insights.length === 0) {
+      insights.push({
+        title: "Perfil Campeão! ✨",
+        desc: "Seu perfil está completo e otimizado. Continue prestando um ótimo serviço para manter sua nota alta.",
+        icon: "verified_user",
+        action: null
+      });
+    }
+
+    return insights;
+  };
+
   const renderDashboardTab = () => (
     <>
-      <section className="px-4 pt-6 pb-2">
-        <h1 className="text-slate-900 dark:text-slate-100 text-2xl font-bold leading-tight">Olá, {profile?.full_name || 'Profissional'}</h1>
-        <p className="text-slate-500 dark:text-slate-400 text-sm font-normal mt-1">Confira o desempenho do seu perfil hoje.</p>
+      <section className="px-4 pt-6 pb-2 text-center sm:text-left">
+        <h1 className="text-slate-900 dark:text-slate-100 text-2xl font-black leading-tight">Olá, {profile?.full_name?.split(' ')[0] || 'Profissional'}! 👋</h1>
+        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">Veja como o <strong>Alvus Clube</strong> está impulsionando seu negócio.</p>
       </section>
 
-      {/* Banner de upgrade para prestadores Free */}
-      {(profile as any)?.plan_type === 'basic' && (
-        <section className="px-4 pt-3">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-400 p-4 shadow-lg shadow-amber-300/30">
-            <div className="absolute -right-4 -top-4 size-24 rounded-full bg-white/20" />
-            <div className="absolute -right-2 bottom-0 size-16 rounded-full bg-white/10" />
-            <div className="relative flex items-center justify-between gap-3">
-              <div>
-                <div className="flex items-center gap-1.5 mb-1">
-                  <span className="material-symbols-outlined text-white text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-                  <span className="text-[11px] font-black text-white/90 uppercase tracking-wider">Prestador Plus</span>
-                </div>
-                <p className="text-white font-bold text-sm leading-tight">Receba 2× mais clientes</p>
-                <p className="text-white/80 text-xs mt-0.5">0% comissão · WhatsApp direto · Destaque</p>
-              </div>
-              <button
-                onClick={() => onNavigate('providerPlan')}
-                className="shrink-0 bg-white text-amber-600 font-black text-xs px-4 py-2.5 rounded-xl shadow-sm hover:bg-amber-50 active:scale-95 transition-all whitespace-nowrap"
-              >
-                Ver Planos →
-              </button>
-            </div>
-          </div>
-        </section>
-      )}
-
-      <section className="grid grid-cols-3 gap-3 p-4">
-        <div className="flex flex-col gap-1 rounded-xl p-4 bg-primary/10 border border-primary/20">
-          <p className="text-slate-600 dark:text-slate-300 text-xs font-medium">Contatos</p>
-          <p className="text-primary tracking-tight text-xl font-bold">{stats.views}</p>
-        </div>
-        <div className="flex flex-col gap-1 rounded-xl p-4 bg-primary/10 border border-primary/20">
-          <p className="text-slate-600 dark:text-slate-300 text-xs font-medium">Pedidos</p>
-          <p className="text-primary tracking-tight text-xl font-bold">{stats.requests}</p>
-        </div>
-        <div className="flex flex-col gap-1 rounded-xl p-4 bg-primary/10 border border-primary/20 cursor-pointer hover:bg-primary/20 transition-colors" onClick={() => onNavigate('reviews')}>
-          <p className="text-slate-600 dark:text-slate-300 text-xs font-medium">Avaliação</p>
-          <div className="flex items-center gap-1">
-            <p className="text-primary tracking-tight text-xl font-bold">{profile?.stats?.rating?.toFixed(1) || '-'}</p>
-            <span className="material-symbols-outlined text-sm text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>star_half</span>
+      {/* Alvus Insights - Performance Central */}
+      <section className="px-4 py-4">
+        <div className="flex items-center justify-between mb-4 px-1">
+          <h3 className="font-black text-slate-900 dark:text-slate-100 flex items-center gap-2 text-sm uppercase tracking-tight">
+            <span className="material-symbols-outlined text-primary text-[20px]">insights</span>
+            Alvus Insights
+          </h3>
+          <div className="flex items-center gap-1.5">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+            </span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tempo Real</span>
           </div>
         </div>
-      </section>
 
-      <section className="px-4 mt-2">
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-5 shadow-lg shadow-blue-500/20 text-white relative overflow-hidden">
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex gap-4 items-start md:items-center">
-              <div className="size-10 bg-white/20 rounded-full flex items-center justify-center shrink-0">
-                <span className="material-symbols-outlined text-white">shield_person</span>
-              </div>
-              <div>
-                <h3 className="font-bold text-lg leading-tight">Ganhe o Selo de Verificado</h3>
-                <p className="text-sm text-blue-100 mt-1 max-w-sm">
-                  Envie seus documentos para aprovação e transmita mais confiança para novos clientes.
-                </p>
-              </div>
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Visitas</p>
+            <div className="flex items-baseline gap-1">
+              <span className="text-3xl font-black text-slate-900 dark:text-slate-100 leading-none">{stats.visits}</span>
+              <span className="text-[10px] font-bold text-slate-400">visualizações</span>
             </div>
-            <button
-              onClick={() => onNavigate('providerVerification')}
-              className="bg-white text-blue-700 font-bold py-2.5 px-5 rounded-xl text-sm hover:bg-blue-50 transition-colors shadow-sm whitespace-nowrap"
-            >
-              Verificar Agora
-            </button>
+            <div className="absolute -right-2 -bottom-2 opacity-5">
+              <span className="material-symbols-outlined text-6xl">visibility</span>
+            </div>
           </div>
-          <span className="material-symbols-outlined absolute -bottom-8 -right-4 text-[120px] text-white opacity-5 rotate-12 pointer-events-none">verified</span>
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Leads</p>
+            <div className="flex items-baseline gap-1">
+              <span className="text-3xl font-black text-emerald-500 leading-none">{stats.leads}</span>
+              <span className="text-[10px] font-bold text-emerald-500/60 font-black tracking-tighter uppercase">Interessados</span>
+            </div>
+            <div className="absolute -right-2 -bottom-2 opacity-5 text-emerald-500">
+              <span className="material-symbols-outlined text-6xl">chat</span>
+            </div>
+          </div>
         </div>
-      </section>
 
-      <section className="px-4 py-2">
-        <h3 className="text-slate-900 dark:text-slate-100 text-base font-bold mb-3">Ações Rápidas</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 border-y border-slate-100 dark:border-slate-800 py-4">
-          <button onClick={() => onNavigate('userProfile')} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer group">
-            <div className="flex size-10 items-center justify-center rounded-lg bg-white dark:bg-slate-900 text-primary shadow-sm group-hover:scale-105 transition-transform">
-              <span className="material-symbols-outlined">edit_square</span>
-            </div>
-            <span className="flex-1 text-left font-medium text-slate-700 dark:text-slate-200">Editar Perfil</span>
-            <span className="material-symbols-outlined text-slate-400">chevron_right</span>
-          </button>
-          <button onClick={() => setActiveTab('portfolio')} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer group">
-            <div className="flex size-10 items-center justify-center rounded-lg bg-white dark:bg-slate-900 text-primary shadow-sm group-hover:scale-105 transition-transform">
-              <span className="material-symbols-outlined">photo_library</span>
-            </div>
-            <span className="flex-1 text-left font-medium text-slate-700 dark:text-slate-200">Gerenciar Portfólio</span>
-            <span className="material-symbols-outlined text-slate-400">chevron_right</span>
-          </button>
-          <button onClick={() => setActiveTab('settings')} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer group">
-            <div className="flex size-10 items-center justify-center rounded-lg bg-orange-500 text-white shadow-sm group-hover:scale-105 transition-transform">
-              <span className="material-symbols-outlined">settings</span>
-            </div>
-            <span className="flex-1 text-left font-medium text-slate-700 dark:text-slate-200">Configurações & Fidelidade</span>
-            <span className="material-symbols-outlined text-slate-400">chevron_right</span>
-          </button>
+        {/* Funil de Conversão */}
+        <div className="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-xl mb-6 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-5 rotate-12 group-hover:rotate-45 transition-transform duration-700">
+            <span className="material-symbols-outlined text-8xl text-white">analytics</span>
+          </div>
           
-          {/* Só mostra Assinatura Afiliado se NÃO for Admin/Plus ou se for especificamente Afiliado */}
-          <button onClick={() => onNavigate('plan')} className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 dark:bg-primary/10 border border-primary/20 hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors cursor-pointer group">
-            <div className="flex size-10 items-center justify-center rounded-lg bg-primary text-white shadow-sm group-hover:scale-105 transition-transform">
-              <span className="material-symbols-outlined">workspace_premium</span>
+          <div className="flex justify-between items-start mb-6">
+            <div>
+              <h4 className="text-white font-black text-xs uppercase tracking-widest flex items-center gap-2">
+                Taxa de Conversão
+                <span className="bg-primary/20 text-primary border border-primary/30 px-1.5 py-0.5 rounded text-[8px]">SMART METRIC</span>
+              </h4>
+              <p className="text-slate-400 text-[10px] mt-1 font-medium italic">Visitas convertidas em contatos reais</p>
             </div>
-            <span className="flex-1 text-left font-medium text-primary">Assinatura Afiliado / Plus</span>
-            <span className="material-symbols-outlined text-primary">chevron_right</span>
-          </button>
-        </div>
-      </section>
-
-      <section className="px-4 py-6">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-slate-900 dark:text-slate-100 text-base font-bold">Novos Pedidos & Mensagens</h3>
-          <button onClick={() => onNavigate('providerRequests')} className="text-xs font-semibold text-primary hover:underline">Ver todos</button>
-        </div>
-        <div className="space-y-3">
-          {loading ? (
-            <div className="flex flex-col items-center justify-center p-8 text-center rounded-xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
-              <span className="material-symbols-outlined animate-spin text-2xl text-slate-400">progress_activity</span>
-            </div>
-          ) : recentRequests.length === 0 ? (
-            <div className="flex flex-col items-center justify-center p-8 text-center rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-              <span className="material-symbols-outlined text-4xl text-slate-400 mb-2">inbox</span>
-              <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Nenhum pedido ou mensagem ainda.</p>
-              <p className="text-xs text-slate-500 mt-1">Seu perfil já está visível para novos clientes.</p>
-            </div>
-          ) : (
-            recentRequests.map(req => (
-              <div key={req.id} onClick={() => onNavigate('providerRequests')} className="flex items-center gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm cursor-pointer hover:border-primary transition-colors">
-                <div className="size-12 rounded-full bg-cover bg-center shrink-0 border border-slate-100 dark:border-slate-700" style={{ backgroundImage: `url('${req.profiles?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"}')` }}></div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100 truncate">{req.profiles?.full_name || 'Cliente'}</h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5"><span className="material-symbols-outlined text-[14px]">{req.service_categories?.icon || 'work'}</span> {req.service_categories?.name || 'Serviço'}</p>
-                </div>
-                <div className="flex flex-col items-end">
-                  <span className="text-[10px] uppercase font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full mb-1">
-                    {statusMap[req.status] || req.status}
-                  </span>
-                  <span className="text-xs text-slate-400">{new Date(req.created_at).toLocaleDateString()}</span>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </section>
-
-      <section className="px-4 pb-6">
-        <div onClick={() => onNavigate('providerWallet')} className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-200 dark:border-slate-800 flex justify-between items-center cursor-pointer hover:border-primary dark:hover:border-primary transition-colors group">
-          <div>
-            <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1 group-hover:text-primary transition-colors">Minha Carteira</p>
-            <div className="flex flex-col gap-0.5">
-              <div className="flex items-end gap-2">
-                <span className="text-2xl font-black leading-none group-hover:text-primary transition-colors">
-                  R$ {stats.earnings?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </span>
-                <span className="text-[10px] text-emerald-500 font-bold mb-0.5 border border-emerald-500/20 px-1.5 rounded bg-emerald-50 dark:bg-emerald-900/10">Disponível</span>
-              </div>
-              {stats.pending > 0 && (
-                <div className="flex items-center gap-1.5 mt-1 opacity-80">
-                  <span className="text-sm font-bold text-slate-600 dark:text-slate-400">
-                    + R$ {stats.pending?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </span>
-                  <span className="text-[9px] text-slate-500 font-bold uppercase tracking-tighter">A Receber</span>
-                </div>
-              )}
+            <div className="text-right">
+              <p className="text-2xl font-black text-white leading-none">
+                {stats.visits > 0 ? ((stats.leads / stats.visits) * 100).toFixed(1) : '0.0'}%
+              </p>
             </div>
           </div>
-          <div className="size-10 rounded-full bg-slate-50 dark:bg-slate-900 group-hover:bg-primary/10 flex items-center justify-center transition-colors">
-            <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">account_balance_wallet</span>
+
+          <div className="space-y-4">
+            <div className="h-3 bg-white/5 rounded-full overflow-hidden flex shadow-inner">
+              <div 
+                className="h-full bg-gradient-to-r from-primary to-blue-400 shadow-[0_0_20px_rgba(37,99,235,0.6)] transition-all duration-1000 ease-out flex items-center justify-end px-1" 
+                style={{ width: `${stats.visits > 0 ? Math.max(5, (stats.leads / stats.visits) * 100) : 0}%` }}
+              >
+                 <div className="size-1 rounded-full bg-white animate-pulse" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Dica Estratégica */}
+        {generateInsights().slice(0, 1).map((insight, idx) => (
+          <div 
+            key={idx} 
+            onClick={() => insight.action?.()}
+            className={`p-5 rounded-2xl border-2 border-primary/20 bg-primary/5 dark:bg-primary/10 flex items-center gap-4 transition-all group ${insight.action ? 'cursor-pointer hover:border-primary active:scale-[0.98]' : ''}`}
+          >
+            <div className="size-12 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/30 shrink-0 group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined">{insight.icon}</span>
+            </div>
+            <div className="flex-1">
+              <h5 className="font-bold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-1.5">
+                {insight.title}
+                {insight.action && <span className="text-[10px] bg-primary text-white px-1 rounded">RELEVANTE</span>}
+              </h5>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 leading-relaxed font-medium">
+                {insight.desc}
+              </p>
+            </div>
+            {insight.action && (
+              <span className="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform">chevron_right</span>
+            )}
+          </div>
+        ))}
+      </section>
+
+      {/* Cards Auxiliares */}
+      <section className="px-4 pb-4">
+         <div className="grid grid-cols-2 gap-3">
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center gap-3">
+               <div className="size-8 bg-blue-500/10 rounded-lg flex items-center justify-center text-blue-500">
+                  <span className="material-symbols-outlined text-sm">assignment</span>
+               </div>
+               <div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ativos</p>
+                  <p className="text-lg font-black text-slate-900 dark:text-slate-100">{stats.requests}</p>
+               </div>
+            </div>
+            <div onClick={() => onNavigate('reviews')} className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center gap-3 cursor-pointer hover:border-primary transition-colors">
+               <div className="size-8 bg-amber-500/10 rounded-lg flex items-center justify-center text-amber-500">
+                  <span className="material-symbols-outlined text-sm">star</span>
+               </div>
+               <div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Média</p>
+                  <p className="text-lg font-black text-slate-900 dark:text-slate-100">{profile?.stats?.rating?.toFixed(1) || '0.0'}</p>
+               </div>
+            </div>
+         </div>
+      </section>
+
+      {/* Carteira e Saldo */}
+      <section className="px-4 pb-8">
+        <h3 className="font-black text-slate-900 dark:text-slate-100 mb-4 ml-1 flex items-center gap-2 text-sm uppercase tracking-tight">
+          <span className="material-symbols-outlined text-slate-400 text-[20px]">payments</span>
+          Carteira Financeira
+        </h3>
+        <div onClick={() => onNavigate('providerWallet')} className="group flex items-center justify-between p-6 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-primary transition-all cursor-pointer overflow-hidden relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/0 to-primary/[0.02] pointer-events-none" />
+          <div className="flex flex-col gap-0.5 relative z-10">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 group-hover:text-primary transition-colors">Saldo Atualizado</p>
+            <div className="flex items-end gap-2">
+              <span className="text-3xl font-black leading-none group-hover:text-primary transition-colors">
+                R$ {stats.earnings?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </span>
+              <span className="text-[10px] text-emerald-500 font-bold mb-0.5 border border-emerald-500/20 px-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/10 tracking-widest uppercase">Líquido</span>
+            </div>
+            {stats.pending > 0 && (
+              <div className="flex items-center gap-1.5 mt-2 opacity-80 decoration-dotted underline-offset-4 underline decoration-slate-300">
+                <span className="text-sm font-bold text-slate-500">
+                  + R$ {stats.pending?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </span>
+                <span className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Em Trânsito</span>
+              </div>
+            )}
+          </div>
+          <div className="size-14 rounded-2xl bg-slate-50 dark:bg-slate-800 group-hover:bg-primary text-slate-400 group-hover:text-white flex items-center justify-center transition-all duration-300 shadow-inner group-hover:shadow-lg group-hover:shadow-primary/30">
+            <span className="material-symbols-outlined text-3xl">account_balance_wallet</span>
           </div>
         </div>
       </section>
