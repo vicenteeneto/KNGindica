@@ -56,7 +56,11 @@ export default function ProviderVerificationScreen({ onNavigate }: NavigationPro
 
       setSubmitted(true);
     } catch (err: any) {
-      alert("Erro ao enviar documentos: " + err.message);
+      if (err.message?.includes('Bucket not found')) {
+        alert("Erro: O bucket 'verifications' não foi encontrado. Certifique-se de criá-lo no painel do Supabase Storage.");
+      } else {
+        alert("Erro ao enviar documentos: " + err.message);
+      }
     } finally {
       setIsSubmitting(false);
     }

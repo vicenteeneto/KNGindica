@@ -165,7 +165,11 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
       setPortfolio([data, ...portfolio]);
       alert("Imagem enviada com sucesso!");
     } catch (err: any) {
-      alert("Erro ao enviar imagem: " + err.message);
+      if (err.message?.includes('Bucket not found')) {
+        alert("Erro: O bucket 'portfolio' não foi encontrado. Certifique-se de criá-lo no painel do Supabase Storage.");
+      } else {
+        alert("Erro ao enviar imagem: " + err.message);
+      }
     } finally {
       setIsAddingImage(false);
       // Reset input
