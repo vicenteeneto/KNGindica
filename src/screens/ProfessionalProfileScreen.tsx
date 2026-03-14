@@ -248,18 +248,21 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
         <div className="@container">
           <div className="@[480px]:px-4 @[480px]:py-3 md:px-0">
             <div
-              className="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden bg-slate-200 dark:bg-slate-800 @[480px]:rounded-xl md:rounded-none min-h-32 md:min-h-[250px] relative group"
+              className="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden bg-slate-200 dark:bg-slate-800 @[480px]:rounded-xl md:rounded-none min-h-36 md:min-h-[280px] relative group"
               style={{
                 backgroundImage: `url("${professional.image}")`,
               }}
             >
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+              {/* Fade to background gradient */}
+              <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white dark:from-slate-900 to-transparent"></div>
+              
               {portfolioImages.length > 0 && (
-                <div className="absolute bottom-4 right-4 bg-white/20 backdrop-blur-md text-white px-3 py-1 rounded-full text-sm flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm">
+                <div className="absolute bottom-16 right-4 bg-white/20 backdrop-blur-md text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 border border-white/20 z-10">
+                  <span className="material-symbols-outlined text-xs">
                     photo_library
                   </span>
-                  1/{portfolioImages.length + 1} Fotos
+                  {portfolioImages.length} Fotos
                 </div>
               )}
             </div>
@@ -337,12 +340,12 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
                 <span className="material-symbols-outlined text-primary text-base">photo_library</span>
                 Portfólio de Trabalhos
               </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div className="flex overflow-x-auto gap-3 pb-4 snap-x snap-mandatory hide-scrollbar">
                 {portfolioImages.map((img, idx) => (
                   <div 
                     key={img.id} 
                     onClick={() => setSelectedImageIndex(idx)}
-                    className="aspect-square rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 group cursor-pointer shadow-sm active:scale-95 transition-transform"
+                    className="flex-shrink-0 w-44 aspect-[4/5] rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 group cursor-pointer shadow-sm active:scale-95 transition-transform snap-start"
                   >
                     <img 
                       src={img.image_url} 
