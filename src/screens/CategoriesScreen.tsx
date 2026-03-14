@@ -54,12 +54,14 @@ export default function CategoriesScreen({ onNavigate }: NavigationProps) {
             
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
               {[
-                { icon: 'cleaning_services', title: 'Limpeza', desc: 'Faxina e organização' },
+                { icon: 'cleaning_services', title: 'Limpeza', desc: 'Residencial e pós-obra' },
                 { icon: 'bolt', title: 'Elétrica', desc: 'Reparos e instalações' },
                 { icon: 'water_drop', title: 'Hidráulica', desc: 'Vazamentos e canos' },
                 { icon: 'format_paint', title: 'Pintura', desc: 'Paredes e acabamento' },
-                { icon: 'potted_plant', title: 'Jardinagem', desc: 'Cuidado com jardim' },
-                { icon: 'weekend', title: 'Móveis', desc: 'Planejados e reparos' },
+                { icon: 'handyman', title: 'Montagem', desc: 'Móveis e reparos' },
+                { icon: 'computer', title: 'Tecnologia', desc: 'PC e Celulares' },
+                { icon: 'content_cut', title: 'Beleza', desc: 'Cabelo e Estética' },
+                { icon: 'local_shipping', title: 'Fretes', desc: 'Mudanças e carreto' },
               ].map((cat, idx) => (
                 <div onClick={() => onNavigate('listing')} key={idx} className="group flex flex-col gap-3 rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-800/50 p-5 hover:border-primary/50 hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer">
                   <div className="flex size-14 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">

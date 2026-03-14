@@ -905,7 +905,16 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                         </label>
                       ))
                     ) : (
-                      ['Limpeza', 'Reformas', 'Elétrica', 'Jardim', 'Montagem', 'Encanador', 'Pintura', 'Frete'].map(cat => (
+                      [
+                        'Limpeza Residencial', 'Limpeza Pós-Obra', 'Diarista', 'Passadeira',
+                        'Pedreiro', 'Pintor', 'Eletricista', 'Encanador', 'Marceneiro', 'Montador de Móveis',
+                        'Técnico de Informática', 'Conserto de Celular', 'Ar-condicionado',
+                        'Cabeleireiro', 'Barbeiro', 'Manicure', 'Maquiadora', 'Massagista',
+                        'Babá', 'Cuidador de Idosos', 'Passeador de Cães', 'Adestrador',
+                        'Fotógrafo', 'Cinegrafista', 'DJ', 'Segurança', 'Garçom',
+                        'Frete e Carreto', 'Mudanças', 'Guincho',
+                        'Professor Particular', 'Personal Trainer'
+                      ].map(cat => (
                         <label key={cat} className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${formData.categories?.includes(cat) ? 'bg-orange-500/10 border-orange-500 text-orange-600 dark:text-orange-400' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'}`}>
                           <input
                             type="checkbox"
