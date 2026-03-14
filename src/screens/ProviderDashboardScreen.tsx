@@ -394,6 +394,48 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         ))}
       </section>
 
+      {/* Ações Rápidas */}
+      <section className="px-4 pb-6">
+        <h3 className="font-black text-slate-900 dark:text-slate-100 mb-4 ml-1 flex items-center gap-2 text-sm uppercase tracking-tight">
+          <span className="material-symbols-outlined text-slate-400 text-[20px]">bolt</span>
+          Ações Rápidas
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <button onClick={() => onNavigate('userProfile')} className="flex items-center gap-3 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 hover:border-primary transition-all cursor-pointer group shadow-sm">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-orange-500/10 text-orange-500 group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined">edit_square</span>
+            </div>
+            <div className="flex-1 text-left">
+              <p className="font-bold text-slate-700 dark:text-slate-200 text-sm">Editar Perfil</p>
+              <p className="text-[10px] text-slate-500">Foto, bio e contato</p>
+            </div>
+            <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">chevron_right</span>
+          </button>
+          
+          <button onClick={() => setActiveTab('portfolio')} className="flex items-center gap-3 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 hover:border-primary transition-all cursor-pointer group shadow-sm">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-500 group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined">photo_library</span>
+            </div>
+            <div className="flex-1 text-left">
+              <p className="font-bold text-slate-700 dark:text-slate-200 text-sm">Meus Trabalhos</p>
+              <p className="text-[10px] text-slate-500">Galeria e fotos</p>
+            </div>
+            <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">chevron_right</span>
+          </button>
+
+          <button onClick={() => setActiveTab('settings')} className="flex items-center gap-3 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 hover:border-primary transition-all cursor-pointer group shadow-sm">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-purple-500/10 text-purple-500 group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined">settings_heart</span>
+            </div>
+            <div className="flex-1 text-left">
+              <p className="font-bold text-slate-700 dark:text-slate-200 text-sm">Configurações</p>
+              <p className="text-[10px] text-slate-500">Fidelidade e horários</p>
+            </div>
+            <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">chevron_right</span>
+          </button>
+        </div>
+      </section>
+
       {/* Cards Auxiliares */}
       <section className="px-4 pb-4">
          <div className="grid grid-cols-2 gap-3">

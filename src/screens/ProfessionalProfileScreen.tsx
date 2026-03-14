@@ -197,6 +197,15 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
                 favorite
               </span>
             </button>
+            {user?.id === professionalId && (
+              <button 
+                onClick={() => onNavigate('userProfile')}
+                className="flex items-center gap-2 bg-primary text-white px-3 py-1.5 rounded-lg font-bold text-xs hover:brightness-110 active:scale-95 transition-all shadow-sm"
+              >
+                <span className="material-symbols-outlined text-[18px]">edit</span>
+                <span className="hidden sm:inline">Editar Perfil</span>
+              </button>
+            )}
             <button className="flex items-center justify-center rounded-lg h-10 w-10 bg-transparent text-slate-900 dark:text-slate-100 p-0 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
               <span className="material-symbols-outlined">share</span>
             </button>
