@@ -211,7 +211,7 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
           <button onClick={() => onNavigate('listing')} className="text-slate-900 dark:text-slate-100 flex size-12 shrink-0 items-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full justify-center transition-colors">
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
-          <h2 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">
+          <h2 className="text-slate-900 dark:text-slate-100 text-base font-bold leading-tight tracking-[-0.015em] flex-1 text-center">
             Perfil do Profissional
           </h2>
           <div className="flex items-center justify-end gap-2">
@@ -248,7 +248,7 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
         <div className="@container">
           <div className="@[480px]:px-4 @[480px]:py-3 md:px-0">
             <div
-              className="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden bg-slate-200 dark:bg-slate-800 @[480px]:rounded-xl md:rounded-none min-h-64 md:min-h-[400px] relative group"
+              className="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden bg-slate-200 dark:bg-slate-800 @[480px]:rounded-xl md:rounded-none min-h-32 md:min-h-[250px] relative group"
               style={{
                 backgroundImage: `url("${professional.image}")`,
               }}
@@ -268,83 +268,61 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
 
         {/* Profile Info */}
         <div className="flex p-4 @container -mt-16 relative z-10 justify-center">
-          <div className="flex w-full max-w-3xl flex-col gap-4 items-center">
-            <div className="flex gap-4 flex-col items-center">
-              <div
-                className="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-32 w-32 border-4 border-white dark:border-slate-900 shadow-xl"
-                style={{
-                  backgroundImage: `url("${professional.image}")`,
-                }}
-              ></div>
-              <div className="flex flex-col items-center justify-center">
-                <div className="flex items-center gap-2">
-                  <p className="text-slate-900 dark:text-slate-100 text-2xl font-bold leading-tight tracking-[-0.015em] text-center">
-                    {professional.name}
-                  </p>
-                  {professional.isVerified && (
-                    <VerifiedBadge className="scale-125 ml-1" />
-                  )}
+          {/* Instagram Style Profile Row */}
+          <div className="flex px-4 pt-4 pb-2 items-center gap-6">
+            <div
+              className="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-20 w-20 border-2 border-slate-100 dark:border-slate-800 shadow-sm shrink-0"
+              style={{
+                backgroundImage: `url("${professional.image}")`,
+              }}
+            ></div>
+            <div className="flex-1 flex justify-around items-center">
+              <div className="flex flex-col items-center">
+                <p className="text-slate-900 dark:text-slate-100 text-sm font-black italic tracking-tight">{displayReviewsCount}</p>
+                <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mt-0.5">Serviços</p>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="flex items-center gap-0.5">
+                  <p className="text-slate-900 dark:text-slate-100 text-sm font-black italic tracking-tight">{displayRating}</p>
+                  <span className="material-symbols-outlined text-amber-400 text-[12px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
                 </div>
-                <div className="flex items-center gap-2 mt-1">
-                  {professional.isAffiliate && (
-                    <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider">
-                      Afiliado Verificado
-                    </span>
-                  )}
-                </div>
-                <p className="text-slate-600 dark:text-slate-400 text-base font-normal leading-normal text-center mt-1 flex items-center gap-1">
-                  <span className="material-symbols-outlined text-sm">
-                    location_on
-                  </span>
-                  {professional.city ? `${professional.city}, ${professional.state || ''}` : 'Localização a combinar'}
-                </p>
+                <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mt-0.5">Avaliação</p>
+              </div>
+              <div className="flex flex-col items-center">
+                <p className="text-slate-900 dark:text-slate-100 text-sm font-black italic tracking-tight">R$ {parseInt(professional.price)}</p>
+                <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mt-0.5">{professional.priceUnit}</p>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="max-w-3xl mx-auto w-full">
-          {/* Stats */}
-          <div className="flex flex-wrap gap-3 p-4">
-            <div className="flex min-w-[100px] flex-1 flex-col gap-1 rounded-xl p-4 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 shadow-sm text-center">
-              <p className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase tracking-wider">
-                Serviços
+          <div className="px-5 pt-1 pb-3 flex flex-col gap-0.5">
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <p className="text-slate-900 dark:text-slate-100 text-base font-black leading-none tracking-tight">
+                {professional.name}
               </p>
-              <p className="text-slate-900 dark:text-slate-100 tracking-tight text-xl font-bold">
-                {displayReviewsCount}
-              </p>
+              {professional.isVerified && (
+                <VerifiedBadge className="scale-100" />
+              )}
             </div>
-            <div className="flex min-w-[100px] flex-1 flex-col gap-1 rounded-xl p-4 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 shadow-sm text-center">
-              <p className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase tracking-wider">
-                Avaliação
-              </p>
-              <div className="flex items-center justify-center gap-1">
-                <p className="text-slate-900 dark:text-slate-100 tracking-tight text-xl font-bold">
-                  {displayRating}
-                </p>
-                <span className="material-symbols-outlined text-amber-400 text-sm">
-                  star
-                </span>
-              </div>
-            </div>
-            <div className="flex min-w-[100px] flex-1 flex-col gap-1 rounded-xl p-4 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 shadow-sm text-center">
-              <p className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase tracking-wider">
-                Preço
-              </p>
-              <p className="text-slate-900 dark:text-slate-100 tracking-tight text-xl font-bold">
-                R$ {professional.price}
-                <span className="text-sm font-normal text-slate-500">{professional.priceUnit}</span>
-              </p>
-            </div>
+            
+            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">
+              {professional.category} • {professional.isAffiliate ? 'Afiliado Verificado' : 'Profissional'}
+            </p>
+
+            <p className="text-slate-500 dark:text-slate-400 text-[11px] font-bold leading-normal flex items-center gap-1 mb-1">
+              <span className="material-symbols-outlined text-xs">location_on</span>
+              {professional.city ? `${professional.city}, ${professional.state || ''}` : 'Localização a combinar'}
+            </p>
           </div>
 
           {/* Bio Section */}
-          <div className="px-4 py-4">
-            <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-[-0.015em] mb-3">
+          <div className="px-4 py-2">
+            <h3 className="text-slate-900 dark:text-slate-100 text-xs font-black uppercase tracking-widest mb-2 flex items-center gap-2">
+              <span className="size-1 w-1 rounded-full bg-primary/40" />
               Sobre
             </h3>
-            <div className="bg-white dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
-              <p className="text-slate-700 dark:text-slate-300 text-base leading-relaxed">
+            <div className="bg-slate-50 dark:bg-slate-900/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/50">
+              <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed font-medium">
                 {professional.description}
               </p>
             </div>
@@ -353,8 +331,8 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
           {/* Portfolio Gallery */}
           {portfolioImages.length > 0 && (
             <div className="px-4 py-4">
-              <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-[-0.015em] mb-4 flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary">photo_library</span>
+              <h3 className="text-slate-900 dark:text-slate-100 text-xs font-black uppercase tracking-widest mb-3 flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary text-base">photo_library</span>
                 Portfólio de Trabalhos
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -377,8 +355,8 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
 
           {/* Business Data - Google Style Info */}
           <div className="px-4 py-4">
-            <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-[-0.015em] mb-4 flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary">info</span>
+            <h3 className="text-slate-900 dark:text-slate-100 text-xs font-black uppercase tracking-widest mb-3 flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary text-base">info</span>
               Informações do Prestador
             </h3>
             <div className="bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
@@ -426,8 +404,8 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
 
           {/* Reviews Section */}
           <div className="px-4 py-4 mb-24">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-[-0.015em]">
+            <div className="flex items-center justify-between mb-3 px-1">
+              <h3 className="text-slate-900 dark:text-slate-100 text-xs font-black uppercase tracking-widest">
                 Avaliações
               </h3>
               <button

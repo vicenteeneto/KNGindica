@@ -417,9 +417,9 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
     <div className="w-full bg-[#0f171e] min-h-screen flex flex-col font-display text-white pb-20 md:pb-0 overflow-x-hidden transition-colors duration-500">
       
       {/* Floating Header */}
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 px-4 pt-4 pb-2 ${isScrolled
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 px-4 pt-3 pb-1.5 ${isScrolled
         ? 'bg-[#1a242f]/95 backdrop-blur-md shadow-2xl'
-        : 'bg-gradient-to-b from-black/90 via-black/40 to-transparent'
+        : 'bg-gradient-to-b from-black/90 via-black/30 to-transparent'
         }`}>
         <div className="flex items-center justify-between mx-auto max-w-7xl">
           <div className="flex items-center gap-3">
@@ -485,7 +485,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             <button
               key={cat.name}
               onClick={() => cat.name === 'Todos' ? onNavigate('listing', { searchQuery: '' }) : onNavigate('listing', { category: cat.name })}
-              className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold tracking-wide transition-all border border-slate-700 bg-slate-800/40 hover:bg-white hover:text-black hover:border-white"
+              className="flex-shrink-0 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all border border-slate-700 bg-slate-800/40 hover:bg-white hover:text-black hover:border-white"
             >
               {cat.name}
             </button>
@@ -495,7 +495,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
       <main className="flex-1 w-full relative">
         {/* Prime-Style Hero Carousel */}
-        <section className="relative w-full h-[70vh] md:h-[85vh] overflow-hidden bg-black">
+        <section className="relative w-full h-[60vh] md:h-[75vh] overflow-hidden bg-black">
           {heroProviders.length > 0 ? (
             <div className="absolute inset-0 w-full h-full">
               {heroProviders.slice(0, 5).map((p, idx) => (
@@ -523,7 +523,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                         )}
                         <span className="text-sm font-bold text-blue-400">Verificado Alvus</span>
                       </div>
-                      <h1 className="text-4xl md:text-7xl font-black text-white leading-[0.9] mb-4 drop-shadow-2xl">
+                      <h1 className="text-3xl md:text-6xl font-black text-white leading-[0.9] mb-3 drop-shadow-2xl">
                         {p.name.split(' ')[0]} <br />
                         <span className="text-primary">{p.name.split(' ').slice(1).join(' ')}</span>
                       </h1>
@@ -623,7 +623,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
               <input 
                 type="text"
                 placeholder="O que você precisa?"
-                className="w-full pl-12 pr-4 py-3 bg-[#1a242f] border border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm font-medium"
+                className="w-full pl-10 pr-4 py-2.5 bg-[#1a242f] border border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm font-medium"
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={handleSearch}
               />

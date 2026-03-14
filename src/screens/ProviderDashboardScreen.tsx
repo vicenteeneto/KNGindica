@@ -256,27 +256,26 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
   };
 
   const renderHeader = () => (
-    <header className="flex items-center bg-white dark:bg-slate-900 p-4 border-b border-slate-100 dark:border-slate-800 justify-between sticky top-0 z-10">
-      <div className="flex size-10 shrink-0 items-center overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" onClick={() => onNavigate('profile', { professionalId: user?.id })}>
+    <header className="flex items-center bg-white dark:bg-slate-900 p-3 border-b border-slate-100 dark:border-slate-800 justify-between sticky top-0 z-10 transition-all">
+      <div className="flex size-9 shrink-0 items-center overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" onClick={() => onNavigate('profile', { professionalId: user?.id })}>
         <div className="bg-center bg-no-repeat aspect-square bg-cover size-full cursor-pointer" style={{ backgroundImage: `url('${profile?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"}')` }}></div>
       </div>
-      <h2 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight flex-1 ml-3 cursor-pointer" onClick={() => setActiveTab('dashboard')}>Dashboard</h2>
-      <div className="flex gap-2">
-        <button onClick={() => onNavigate('chatList')} className="flex size-10 items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 relative hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" title="Mensagens">
-          <span className="material-symbols-outlined">chat</span>
-          <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-primary"></span>
+      <h2 className="text-slate-900 dark:text-slate-100 text-base font-black leading-tight tracking-tight flex-1 ml-3 cursor-pointer" onClick={() => setActiveTab('dashboard')}>Dashboard</h2>
+      <div className="flex gap-1.5">
+        <button onClick={() => onNavigate('chatList')} className="flex size-9 items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 relative hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" title="Mensagens">
+          <span className="material-symbols-outlined text-[20px]">chat</span>
+          <span className="absolute top-1.5 right-1.5 flex h-1.5 w-1.5 rounded-full bg-primary"></span>
         </button>
-        <button onClick={() => onNavigate('notifications')} className="flex size-10 items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 relative hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" title="Notificações">
-          <span className="material-symbols-outlined">notifications</span>
-          <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-red-500"></span>
+        <button onClick={() => onNavigate('notifications')} className="flex size-9 items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 relative hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" title="Notificações">
+          <span className="material-symbols-outlined text-[20px]">notifications</span>
+          <span className="absolute top-1.5 right-1.5 flex h-1.5 w-1.5 rounded-full bg-red-500"></span>
         </button>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 p-2 text-slate-600 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors font-bold"
+          className="flex items-center gap-1.5 p-1.5 text-slate-500 hover:text-red-500 transition-colors"
           title="Sair"
         >
-          <span className="material-symbols-outlined">logout</span>
-          <span className="hidden sm:inline text-sm">Sair</span>
+          <span className="material-symbols-outlined text-[20px]">logout</span>
         </button>
       </div>
     </header>
@@ -336,21 +335,20 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
 
   const renderDashboardTab = () => (
     <>
-      <section className="px-4 pt-6 pb-2 text-center sm:text-left">
-        <h1 className="text-slate-900 dark:text-slate-100 text-2xl font-black leading-tight">Olá, {profile?.full_name?.split(' ')[0] || 'Profissional'}! 👋</h1>
-        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">Veja como o <strong>Alvus Clube</strong> está impulsionando seu negócio.</p>
+      <section className="px-4 pt-4 pb-1 text-center sm:text-left">
+        <h1 className="text-slate-900 dark:text-slate-100 text-xl font-black leading-tight italic tracking-tighter">Olá, {profile?.full_name?.split(' ')[0] || 'Profissional'}! 👋</h1>
+        <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-0.5">Visão Geral do seu Negócio</p>
       </section>
 
       {/* Profile Completion Tracker */}
       {completePercent < 100 && (
         <section className="px-4 py-2">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm relative overflow-hidden group">
-            <div className="flex justify-between items-center mb-3">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-3 shadow-sm relative overflow-hidden group">
+            <div className="flex justify-between items-center mb-2">
               <div>
-                <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight">Completude do Perfil</h3>
-                <p className="text-[10px] text-slate-500 font-medium">Complete seu perfil para atrair mais clientes</p>
+                <h3 className="text-[10px] font-black text-slate-900 dark:text-slate-100 uppercase tracking-widest">Estado do Perfil</h3>
               </div>
-              <span className="text-lg font-black text-primary">{completePercent}%</span>
+              <span className="text-sm font-black text-primary">{completePercent}%</span>
             </div>
             
             <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -364,19 +362,19 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
               {!profile?.is_verified && (
                 <button 
                   onClick={() => onNavigate('providerVerification')}
-                  className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-primary/10 transition-colors text-left"
+                  className="flex items-center gap-2 p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-primary/10 transition-colors text-left"
                 >
-                  <span className="material-symbols-outlined text-sm text-primary">verified_user</span>
-                  <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400">Verificar Identidade (+30%)</span>
+                  <span className="material-symbols-outlined text-xs text-primary">verified_user</span>
+                  <span className="text-[9px] font-bold text-slate-600 dark:text-slate-400">Verificar (+30%)</span>
                 </button>
               )}
               {portfolio.length < 3 && (
                 <button 
                   onClick={() => setActiveTab('portfolio')}
-                  className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-primary/10 transition-colors text-left"
+                  className="flex items-center gap-2 p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-primary/10 transition-colors text-left"
                 >
-                  <span className="material-symbols-outlined text-sm text-primary">add_a_photo</span>
-                  <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400">Add 3+ Fotos (+20%)</span>
+                  <span className="material-symbols-outlined text-xs text-primary">add_a_photo</span>
+                  <span className="text-[9px] font-bold text-slate-600 dark:text-slate-400">Portfolio (+20%)</span>
                 </button>
               )}
             </div>
@@ -400,25 +398,25 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Visitas</p>
+        <div className="grid grid-cols-2 gap-2 mb-3">
+          <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Visitas</p>
             <div className="flex items-baseline gap-1">
-              <span className="text-3xl font-black text-slate-900 dark:text-slate-100 leading-none">{stats.visits}</span>
-              <span className="text-[10px] font-bold text-slate-400">visualizações</span>
+              <span className="text-2xl font-black text-slate-900 dark:text-slate-100 leading-none">{stats.visits}</span>
+              <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Views</span>
             </div>
-            <div className="absolute -right-2 -bottom-2 opacity-5">
-              <span className="material-symbols-outlined text-6xl">visibility</span>
+            <div className="absolute -right-1 -bottom-1 opacity-5">
+              <span className="material-symbols-outlined text-4xl">visibility</span>
             </div>
           </div>
-          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Leads</p>
+          <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Leads</p>
             <div className="flex items-baseline gap-1">
-              <span className="text-3xl font-black text-emerald-500 leading-none">{stats.leads}</span>
-              <span className="text-[10px] font-bold text-emerald-500/60 font-black tracking-tighter uppercase">Interessados</span>
+              <span className="text-2xl font-black text-emerald-500 leading-none">{stats.leads}</span>
+              <span className="text-[8px] font-bold text-emerald-500/60 font-black tracking-tighter uppercase">Contatos</span>
             </div>
-            <div className="absolute -right-2 -bottom-2 opacity-5 text-emerald-500">
-              <span className="material-symbols-outlined text-6xl">chat</span>
+            <div className="absolute -right-1 -bottom-1 opacity-5 text-emerald-500">
+              <span className="material-symbols-outlined text-4xl">chat</span>
             </div>
           </div>
         </div>
@@ -461,22 +459,21 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
           <div 
             key={idx} 
             onClick={() => insight.action?.()}
-            className={`p-5 rounded-2xl border-2 border-primary/20 bg-primary/5 dark:bg-primary/10 flex items-center gap-4 transition-all group ${insight.action ? 'cursor-pointer hover:border-primary active:scale-[0.98]' : ''}`}
+            className={`p-3.5 rounded-xl border-2 border-primary/20 bg-primary/5 dark:bg-primary/10 flex items-center gap-3 transition-all group ${insight.action ? 'cursor-pointer hover:border-primary active:scale-[0.98]' : ''}`}
           >
-            <div className="size-12 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/30 shrink-0 group-hover:scale-110 transition-transform">
-              <span className="material-symbols-outlined">{insight.icon}</span>
+            <div className="size-10 rounded-lg bg-primary text-white flex items-center justify-center shadow-md shadow-primary/30 shrink-0 group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined text-[20px]">{insight.icon}</span>
             </div>
             <div className="flex-1">
-              <h5 className="font-bold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-1.5">
+              <h5 className="font-bold text-slate-900 dark:text-slate-100 text-xs flex items-center gap-1.5 leading-none">
                 {insight.title}
-                {insight.action && <span className="text-[10px] bg-primary text-white px-1 rounded">RELEVANTE</span>}
               </h5>
-              <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 leading-relaxed font-medium">
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 leading-tight font-medium">
                 {insight.desc}
               </p>
             </div>
             {insight.action && (
-              <span className="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform">chevron_right</span>
+              <span className="material-symbols-outlined text-primary text-base group-hover:translate-x-1 transition-transform">chevron_right</span>
             )}
           </div>
         ))}
@@ -550,31 +547,31 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
 
       {/* Carteira e Saldo */}
       <section className="px-4 pb-8">
-        <h3 className="font-black text-slate-900 dark:text-slate-100 mb-4 ml-1 flex items-center gap-2 text-sm uppercase tracking-tight">
-          <span className="material-symbols-outlined text-slate-400 text-[20px]">payments</span>
+        <h3 className="font-black text-slate-900 dark:text-slate-100 mb-3 ml-1 flex items-center gap-2 text-[10px] uppercase tracking-widest">
+          <span className="material-symbols-outlined text-slate-400 text-[18px]">payments</span>
           Carteira Financeira
         </h3>
-        <div onClick={() => onNavigate('providerWallet')} className="group flex items-center justify-between p-6 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-primary transition-all cursor-pointer overflow-hidden relative">
+        <div onClick={() => onNavigate('providerWallet')} className="group flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-primary transition-all cursor-pointer overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/0 to-primary/[0.02] pointer-events-none" />
           <div className="flex flex-col gap-0.5 relative z-10">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 group-hover:text-primary transition-colors">Saldo Atualizado</p>
-            <div className="flex items-end gap-2">
-              <span className="text-3xl font-black leading-none group-hover:text-primary transition-colors">
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5 group-hover:text-primary transition-colors">Saldo Atualizado</p>
+            <div className="flex items-end gap-1.5">
+              <span className="text-2xl font-black leading-none group-hover:text-primary transition-colors">
                 R$ {stats.earnings?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </span>
-              <span className="text-[10px] text-emerald-500 font-bold mb-0.5 border border-emerald-500/20 px-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/10 tracking-widest uppercase">Líquido</span>
+              <span className="text-[8px] text-emerald-500 font-bold mb-0.5 border border-emerald-500/20 px-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/10 tracking-widest uppercase">Líquido</span>
             </div>
             {stats.pending > 0 && (
-              <div className="flex items-center gap-1.5 mt-2 opacity-80 decoration-dotted underline-offset-4 underline decoration-slate-300">
-                <span className="text-sm font-bold text-slate-500">
+              <div className="flex items-center gap-1 mt-1 opacity-80 underline-offset-2 underline decoration-slate-300">
+                <span className="text-[10px] font-bold text-slate-500">
                   + R$ {stats.pending?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </span>
-                <span className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Em Trânsito</span>
+                <span className="text-[8px] text-slate-400 font-black uppercase tracking-widest ml-1">Em Trânsito</span>
               </div>
             )}
           </div>
-          <div className="size-14 rounded-2xl bg-slate-50 dark:bg-slate-800 group-hover:bg-primary text-slate-400 group-hover:text-white flex items-center justify-center transition-all duration-300 shadow-inner group-hover:shadow-lg group-hover:shadow-primary/30">
-            <span className="material-symbols-outlined text-3xl">account_balance_wallet</span>
+          <div className="size-11 rounded-xl bg-slate-50 dark:bg-slate-800 group-hover:bg-primary text-slate-400 group-hover:text-white flex items-center justify-center transition-all duration-300 shadow-inner group-hover:shadow-lg group-hover:shadow-primary/30">
+            <span className="material-symbols-outlined text-2xl">account_balance_wallet</span>
           </div>
         </div>
       </section>
