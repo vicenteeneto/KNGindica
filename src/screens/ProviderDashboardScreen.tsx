@@ -15,6 +15,32 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
   const [newImageUrl, setNewImageUrl] = useState('');
   const [isAddingImage, setIsAddingImage] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const minSwipeDistance = 50;
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isLeftSwipe && portfolio.length > 1) {
+      setSelectedImageIndex((prev) => (prev! + 1) % portfolio.length);
+    } else if (isRightSwipe && portfolio.length > 1) {
+      setSelectedImageIndex((prev) => (prev! - 1 + portfolio.length) % portfolio.length);
+    }
+  };
   
   // Settings State
   const [businessInfo, setBusinessInfo] = useState({
@@ -753,8 +779,11 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
       {/* Image Modal Lightbox with Navigation */}
       {selectedImageIndex !== null && (
         <div 
-          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300"
+          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300 select-none touch-none"
           onClick={() => setSelectedImageIndex(null)}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           {/* Close Button */}
           <button 

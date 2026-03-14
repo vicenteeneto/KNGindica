@@ -19,7 +19,33 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
   const [isFavorite, setIsFavorite] = useState(false);
   const [portfolioImages, setPortfolioImages] = useState<any[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const { user } = useAuth();
+
+  const minSwipeDistance = 50;
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isLeftSwipe && portfolioImages.length > 1) {
+      setSelectedImageIndex((prev) => (prev! + 1) % portfolioImages.length);
+    } else if (isRightSwipe && portfolioImages.length > 1) {
+      setSelectedImageIndex((prev) => (prev! - 1 + portfolioImages.length) % portfolioImages.length);
+    }
+  };
 
   // SEO dinâmico baseado nos dados do profissional
   const seoTitle = dbProfessional
@@ -486,8 +512,11 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
       {/* Image Modal Lightbox with Navigation */}
       {selectedImageIndex !== null && (
         <div 
-          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300"
+          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300 select-none touch-none"
           onClick={() => setSelectedImageIndex(null)}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           {/* Close Button */}
           <button 
