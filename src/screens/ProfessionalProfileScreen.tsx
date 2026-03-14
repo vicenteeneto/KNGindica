@@ -47,6 +47,23 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
     }
   };
 
+  // Teclado para o viewer
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (selectedImageIndex === null) return;
+      if (e.key === 'ArrowRight') {
+        setSelectedImageIndex((prev) => (prev! + 1) % portfolioImages.length);
+      } else if (e.key === 'ArrowLeft') {
+        setSelectedImageIndex((prev) => (prev! - 1 + portfolioImages.length) % portfolioImages.length);
+      } else if (e.key === 'Escape') {
+        setSelectedImageIndex(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedImageIndex, portfolioImages.length]);
+
   // SEO dinâmico baseado nos dados do profissional
   const seoTitle = dbProfessional
     ? `${dbProfessional.name} — ${dbProfessional.category} em ${dbProfessional.city || 'Sua Região'}`
@@ -487,55 +504,57 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
-          {/* Close Button */}
+          {/* Close Button - More Desktop Friendly */}
           <button 
-            className="absolute top-6 right-6 text-white size-12 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors z-[110]"
+            className="absolute top-6 right-6 text-white size-14 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors z-[110] active:scale-95"
             onClick={() => setSelectedImageIndex(null)}
           >
             <span className="material-symbols-outlined text-4xl">close</span>
           </button>
 
-          {/* Navigation Buttons */}
-          {portfolioImages.length > 1 && (
-            <>
-              <button 
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-white size-14 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors active:scale-90"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedImageIndex((selectedImageIndex - 1 + portfolioImages.length) % portfolioImages.length);
-                }}
-              >
-                <span className="material-symbols-outlined text-5xl">chevron_left</span>
-              </button>
-              <button 
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-white size-14 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors active:scale-90"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedImageIndex((selectedImageIndex + 1) % portfolioImages.length);
-                }}
-              >
-                <span className="material-symbols-outlined text-5xl">chevron_right</span>
-              </button>
-            </>
-          )}
-          
-          <div className="relative max-w-full max-h-[80vh] flex flex-col items-center">
+          {/* Viewer Container */}
+          <div className="relative w-full max-w-5xl max-h-[85vh] flex flex-col items-center justify-center">
+            
+            {/* Navigation Controls (Closer to image on Desktop) */}
+            {portfolioImages.length > 1 && (
+              <>
+                <button 
+                  className="absolute left-0 md:-left-20 top-1/2 -translate-y-1/2 text-white size-16 flex items-center justify-center hover:bg-white/10 rounded-full transition-all active:scale-90 z-[110]"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedImageIndex((selectedImageIndex - 1 + portfolioImages.length) % portfolioImages.length);
+                  }}
+                >
+                  <span className="material-symbols-outlined text-5xl md:text-6xl">chevron_left</span>
+                </button>
+                <button 
+                  className="absolute right-0 md:-right-20 top-1/2 -translate-y-1/2 text-white size-16 flex items-center justify-center hover:bg-white/10 rounded-full transition-all active:scale-90 z-[110]"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedImageIndex((selectedImageIndex + 1) % portfolioImages.length);
+                  }}
+                >
+                  <span className="material-symbols-outlined text-5xl md:text-6xl">chevron_right</span>
+                </button>
+              </>
+            )}
+
             <img 
               src={portfolioImages[selectedImageIndex].image_url} 
               alt="Foto do Portfólio" 
-              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-300"
+              className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-[0_0_50px_rgba(0,0,0,0.5)] animate-in zoom-in-95 duration-300 ring-1 ring-white/10"
               onClick={(e) => e.stopPropagation()}
             />
             
-            <div className="absolute -bottom-10 left-0 right-0 text-center">
-              <p className="text-white font-bold tracking-widest text-sm bg-black/40 px-4 py-1 rounded-full inline-block">
+            {/* Info Section */}
+            <div className="mt-8 flex flex-col items-center gap-2">
+              <p className="text-white font-bold tracking-widest text-xs bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20">
                 {selectedImageIndex + 1} / {portfolioImages.length}
               </p>
+              <p className="text-white/40 text-[10px] font-black uppercase tracking-widest hidden md:block">
+                ← Seta Esquerda • Seta Direita → • ESC para sair
+              </p>
             </div>
-          </div>
-
-          <div className="absolute bottom-8 left-0 right-0 text-center hidden md:block">
-             <p className="text-white/40 text-[10px] font-black uppercase tracking-widest">Use setas ou clique fora para fechar</p>
           </div>
         </div>
       )}
