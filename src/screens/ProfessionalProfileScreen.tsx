@@ -254,17 +254,8 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
               }}
             >
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-              {/* Fade to background gradient */}
-              <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white dark:from-slate-900 to-transparent"></div>
-              
-              {portfolioImages.length > 0 && (
-                <div className="absolute bottom-16 right-4 bg-white/20 backdrop-blur-md text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 border border-white/20 z-10">
-                  <span className="material-symbols-outlined text-xs">
-                    photo_library
-                  </span>
-                  {portfolioImages.length} Fotos
-                </div>
-              )}
+              {/* Deeper, more fluid fade to background gradient */}
+              <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white dark:from-slate-900 via-white/80 dark:via-slate-900/80 to-transparent"></div>
             </div>
           </div>
         </div>
