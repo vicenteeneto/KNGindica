@@ -248,14 +248,14 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
         <div className="@container">
           <div className="@[480px]:px-4 @[480px]:py-3 md:px-0">
             <div
-              className="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden bg-slate-200 dark:bg-slate-800 @[480px]:rounded-xl md:rounded-none min-h-36 md:min-h-[280px] relative group"
+              className="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden bg-slate-200 dark:bg-slate-800 @[480px]:rounded-xl md:rounded-none min-h-40 md:min-h-[320px] relative group"
               style={{
                 backgroundImage: `url("${professional.image}")`,
               }}
             >
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-              {/* Deeper, more fluid fade to background gradient */}
-              <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white dark:from-slate-900 via-white/80 dark:via-slate-900/80 to-transparent"></div>
+              {/* Complex multi-stop transition for maximum fluidity */}
+              <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-white dark:from-slate-900 via-white/60 dark:via-slate-900/60 to-transparent"></div>
+              <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-white dark:from-slate-900 to-transparent"></div>
             </div>
           </div>
         </div>
