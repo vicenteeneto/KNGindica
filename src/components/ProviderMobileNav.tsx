@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavigationProps, Screen } from '../types';
 import { useNotifications } from '../NotificationContext';
+import { useAuth } from '../AuthContext';
 
 interface ProviderMobileNavProps extends NavigationProps {
   currentScreen: Screen;
@@ -8,6 +9,7 @@ interface ProviderMobileNavProps extends NavigationProps {
 
 export default function ProviderMobileNav({ onNavigate, currentScreen }: ProviderMobileNavProps) {
   const { unreadNotifications, unreadMessages } = useNotifications();
+  const { user } = useAuth();
 
   const getButtonClass = (isActive: boolean) =>
     `flex flex-1 flex-col items-center justify-end gap-1 relative ${
@@ -65,7 +67,7 @@ export default function ProviderMobileNav({ onNavigate, currentScreen }: Provide
         </button>
         
         <button
-          onClick={() => onNavigate('profile')}
+          onClick={() => onNavigate('profile', { professionalId: user?.id })}
           className={getButtonClass(currentScreen === 'profile')}
         >
           <span className={getIconClass(currentScreen === 'profile')} style={currentScreen === 'profile' ? { fontVariationSettings: "'FILL' 1" } : {}}>person</span>

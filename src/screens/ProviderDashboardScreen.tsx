@@ -13,6 +13,16 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
   const [portfolio, setPortfolio] = useState<any[]>([]);
   const [newImageUrl, setNewImageUrl] = useState('');
   const [isAddingImage, setIsAddingImage] = useState(false);
+  
+  // Settings State
+  const [businessInfo, setBusinessInfo] = useState({
+    address: profile?.address || '',
+    opening_hours: profile?.opening_hours || 'Seg à Sex: 08:00 - 18:00',
+    loyalty_enabled: (profile as any)?.loyalty_enabled || false,
+    loyalty_benefit_description: (profile as any)?.loyalty_benefit_description || '11º serviço com 50% de desconto',
+    loyalty_required_services: (profile as any)?.loyalty_required_services || 10
+  });
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -124,6 +134,24 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
     }
   };
 
+  const handleSaveSettings = async () => {
+    if (!user) return;
+    setIsSavingSettings(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update(businessInfo)
+        .eq('id', user.id);
+      
+      if (error) throw error;
+      alert("Configurações salvas com sucesso!");
+    } catch (err: any) {
+      alert("Erro ao salvar: " + err.message);
+    } finally {
+      setIsSavingSettings(false);
+    }
+  };
+
   const handleLogout = () => {
     logout();
     onNavigate('auth');
@@ -142,10 +170,10 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
 
   const renderHeader = () => (
     <header className="flex items-center bg-white dark:bg-slate-900 p-4 border-b border-slate-100 dark:border-slate-800 justify-between sticky top-0 z-10">
-      <div className="flex size-10 shrink-0 items-center overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" onClick={() => onNavigate('profile')}>
+      <div className="flex size-10 shrink-0 items-center overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" onClick={() => onNavigate('profile', { professionalId: user?.id })}>
         <div className="bg-center bg-no-repeat aspect-square bg-cover size-full cursor-pointer" style={{ backgroundImage: `url('${profile?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"}')` }}></div>
       </div>
-      <h2 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight flex-1 ml-3 cursor-pointer" onClick={() => onNavigate('home')}>Dashboard</h2>
+      <h2 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight flex-1 ml-3 cursor-pointer" onClick={() => setActiveTab('dashboard')}>Dashboard</h2>
       <div className="flex gap-2">
         <button onClick={() => onNavigate('chatList')} className="flex size-10 items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 relative hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" title="Mensagens">
           <span className="material-symbols-outlined">chat</span>
@@ -175,7 +203,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
       </section>
 
       {/* Banner de upgrade para prestadores Free */}
-      {(profile as any)?.plan_type !== 'plus' && (
+      {(profile as any)?.plan_type === 'basic' && (
         <section className="px-4 pt-3">
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-400 p-4 shadow-lg shadow-amber-300/30">
             <div className="absolute -right-4 -top-4 size-24 rounded-full bg-white/20" />
@@ -260,11 +288,20 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
             <span className="flex-1 text-left font-medium text-slate-700 dark:text-slate-200">Gerenciar Portfólio</span>
             <span className="material-symbols-outlined text-slate-400">chevron_right</span>
           </button>
+          <button onClick={() => setActiveTab('settings')} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer group">
+            <div className="flex size-10 items-center justify-center rounded-lg bg-orange-500 text-white shadow-sm group-hover:scale-105 transition-transform">
+              <span className="material-symbols-outlined">settings</span>
+            </div>
+            <span className="flex-1 text-left font-medium text-slate-700 dark:text-slate-200">Configurações & Fidelidade</span>
+            <span className="material-symbols-outlined text-slate-400">chevron_right</span>
+          </button>
+          
+          {/* Só mostra Assinatura Afiliado se NÃO for Admin/Plus ou se for especificamente Afiliado */}
           <button onClick={() => onNavigate('plan')} className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 dark:bg-primary/10 border border-primary/20 hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors cursor-pointer group">
             <div className="flex size-10 items-center justify-center rounded-lg bg-primary text-white shadow-sm group-hover:scale-105 transition-transform">
               <span className="material-symbols-outlined">workspace_premium</span>
             </div>
-            <span className="flex-1 text-left font-medium text-primary">Assinatura Afiliado</span>
+            <span className="flex-1 text-left font-medium text-primary">Assinatura Afiliado / Plus</span>
             <span className="material-symbols-outlined text-primary">chevron_right</span>
           </button>
         </div>
@@ -389,12 +426,114 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
     </div>
   );
 
+  const renderSettingsTab = () => (
+    <div className="animate-in fade-in duration-500 pb-20">
+      <div className="px-4 py-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div>
+          <button onClick={() => setActiveTab('dashboard')} className="flex items-center gap-1 text-slate-500 hover:text-primary transition-colors text-sm mb-1 font-medium">
+            <span className="material-symbols-outlined text-[16px]">arrow_back</span> Voltar
+          </button>
+          <h2 className="text-xl font-bold">Configurações do Negócio</h2>
+        </div>
+      </div>
+      
+      <div className="p-4 space-y-6">
+        {/* Google Style Info */}
+        <section className="space-y-4">
+          <h3 className="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary">info</span>
+            Informações Públicas
+          </h3>
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
+            <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Endereço de Atendimento (Opcional)</label>
+              <textarea 
+                value={businessInfo.address}
+                onChange={e => setBusinessInfo({...businessInfo, address: e.target.value})}
+                placeholder="Rua Exemplo, 123 - Centro..."
+                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent focus:border-primary outline-none transition-all text-sm min-h-[80px]"
+              />
+              <p className="text-[10px] text-slate-400 mt-1">Deixe vazio para "Atendimento em domicílio".</p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Horário de Funcionamento</label>
+              <input 
+                type="text"
+                value={businessInfo.opening_hours}
+                onChange={e => setBusinessInfo({...businessInfo, opening_hours: e.target.value})}
+                placeholder="Ex: Seg a Sex: 08h às 18h"
+                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent focus:border-primary outline-none transition-all text-sm"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Loyalty Program */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <span className="material-symbols-outlined text-orange-500">loyalty</span>
+              Programa de Fidelidade
+            </h3>
+            <button 
+              onClick={() => setBusinessInfo({...businessInfo, loyalty_enabled: !businessInfo.loyalty_enabled})}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${businessInfo.loyalty_enabled ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-700'}`}
+            >
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${businessInfo.loyalty_enabled ? 'translate-x-6' : 'translate-x-1'}`} />
+            </button>
+          </div>
+
+          <div className={`bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-all ${!businessInfo.loyalty_enabled && 'opacity-50 pointer-events-none'}`}>
+            <div className="space-y-5">
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Benefício do Programa</label>
+                <input 
+                  type="text"
+                  value={businessInfo.loyalty_benefit_description}
+                  onChange={e => setBusinessInfo({...businessInfo, loyalty_benefit_description: e.target.value})}
+                  placeholder="Ex: 50% de desconto no 11º serviço"
+                  className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent focus:border-primary outline-none transition-all text-sm font-bold text-primary"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Serviços Necessários para ganhar</label>
+                <div className="flex items-center gap-4">
+                   <input 
+                    type="range"
+                    min="3"
+                    max="20"
+                    value={businessInfo.loyalty_required_services}
+                    onChange={e => setBusinessInfo({...businessInfo, loyalty_required_services: parseInt(e.target.value)})}
+                    className="flex-1 accent-primary"
+                  />
+                  <span className="size-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center font-bold">{businessInfo.loyalty_required_services}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <button 
+          onClick={handleSaveSettings}
+          disabled={isSavingSettings}
+          className="w-full bg-primary text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-primary/20"
+        >
+          {isSavingSettings ? 'Salvando...' : 'Salvar Alterações'}
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
       <div className="relative flex min-h-screen w-full flex-col mx-auto bg-white dark:bg-slate-900 shadow-xl overflow-x-hidden">
         {renderHeader()}
         <main className="flex-1 overflow-y-auto">
-          {activeTab === 'dashboard' ? renderDashboardTab() : renderPortfolioTab()}
+          {activeTab === 'dashboard' ? renderDashboardTab() : 
+           activeTab === 'portfolio' ? renderPortfolioTab() : 
+           renderSettingsTab()}
         </main>
         <div className="h-20"></div>
         <ProviderMobileNav onNavigate={onNavigate} currentScreen="dashboard" />

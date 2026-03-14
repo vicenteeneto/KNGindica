@@ -64,6 +64,31 @@ function AppContent() {
   const [navigationParams, setNavigationParams] = useState<any>(getSavedParams());
   const [activeChat, setActiveChat] = useState<any>(null);
 
+  // Sync state with browser history (back/forward buttons)
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      const state = event.state;
+      if (state && state.screen) {
+        setCurrentScreen(state.screen);
+        if (state.params) setNavigationParams(state.params);
+      } else {
+        // Fallback to role-specific home
+        if (role === 'provider') setCurrentScreen('dashboard');
+        else if (role === 'admin') setCurrentScreen('adminDashboard');
+        else setCurrentScreen('home');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    
+    // Initial state push for the first load
+    if (!window.history.state) {
+      window.history.replaceState({ screen: currentScreen, params: navigationParams }, '', '');
+    }
+
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   useEffect(() => {
     if (!loading) {
       if (!user) {
@@ -87,6 +112,10 @@ function AppContent() {
       setActiveChat(params);
       return;
     }
+
+    // Push state to browser history
+    window.history.pushState({ screen, params }, '', '');
+
     setCurrentScreen(screen);
     if (params) {
       setNavigationParams(params);
@@ -114,7 +143,10 @@ function AppContent() {
       case 'listing':
         return <ServiceListingScreen onNavigate={handleNavigate} initialParams={navigationParams} />;
       case 'profile':
-        return <ProfessionalProfileScreen onNavigate={handleNavigate} professionalId={navigationParams?.professionalId} />;
+        return <ProfessionalProfileScreen 
+          onNavigate={handleNavigate} 
+          professionalId={navigationParams?.professionalId || (role === 'provider' ? user?.id : null)} 
+        />;
       case 'dashboard':
         return <ProviderDashboardScreen onNavigate={handleNavigate} />;
       case 'chatList':

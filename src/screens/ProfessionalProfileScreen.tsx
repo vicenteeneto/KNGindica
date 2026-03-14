@@ -22,7 +22,7 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
 
   // SEO dinâmico baseado nos dados do profissional
   const seoTitle = dbProfessional
-    ? `${dbProfessional.name} — ${dbProfessional.category} em ${dbProfessional.city || 'Rondonópolis'}`
+    ? `${dbProfessional.name} — ${dbProfessional.category} em ${dbProfessional.city || 'Sua Região'}`
     : undefined;
   const seoDescription = dbProfessional?.description
     ? dbProfessional.description.slice(0, 160)
@@ -93,6 +93,13 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
             plan_type: data.plan_type || 'basic',
             whatsapp: data.whatsapp_number,
             service: data.categories?.[0] || 'Serviços',
+            city: data.city,
+            state: data.state,
+            address: data.address,
+            opening_hours: data.opening_hours,
+            loyalty_enabled: data.loyalty_enabled,
+            loyalty_required_services: data.loyalty_required_services,
+            loyalty_benefit_description: data.loyalty_benefit_description,
           });
           
           // Registrar Lead de Visualização de Perfil
@@ -253,7 +260,7 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
                   <span className="material-symbols-outlined text-sm">
                     location_on
                   </span>
-                  Rondonópolis, MT
+                  {professional.city ? `${professional.city}, ${professional.state || ''}` : 'Localização a combinar'}
                 </p>
               </div>
             </div>
@@ -310,12 +317,13 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
           {/* Portfolio Gallery */}
           {portfolioImages.length > 0 && (
             <div className="px-4 py-4">
-              <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-[-0.015em] mb-3">
+              <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-[-0.015em] mb-4 flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary">photo_library</span>
                 Portfólio de Trabalhos
               </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {portfolioImages.map((img, idx) => (
-                  <div key={img.id} className="aspect-square rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 group cursor-pointer">
+                  <div key={img.id} className="aspect-square rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 group cursor-pointer shadow-sm">
                     <img 
                       src={img.image_url} 
                       alt={`Trabalho ${idx + 1}`} 
@@ -326,6 +334,55 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
               </div>
             </div>
           )}
+
+          {/* Business Data - Google Style Info */}
+          <div className="px-4 py-4">
+            <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-[-0.015em] mb-4 flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary">info</span>
+              Informações do Prestador
+            </h3>
+            <div className="bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
+              <div className="p-4 flex flex-col gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined text-primary">location_on</span>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Endereço de Atendimento</h4>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      {professional.address || `${professional.city || 'Atendimento em domicílio'}, ${professional.state || ''}`}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="size-10 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined text-orange-500">schedule</span>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Horário de Funcionamento</h4>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      {professional.opening_hours || 'Seg à Sex: 08:00 - 18:00 (Consulte disponibilidade)'}
+                    </p>
+                  </div>
+                </div>
+
+                {professional.loyalty_enabled && (
+                  <div className="flex items-start gap-3 p-3 bg-primary/5 rounded-xl border border-primary/20">
+                    <div className="size-10 rounded-xl bg-primary text-white flex items-center justify-center shrink-0 shadow-lg shadow-primary/30">
+                      <span className="material-symbols-outlined">loyalty</span>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-black text-primary uppercase italic tracking-tighter">Programa de Fidelidade</h4>
+                      <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        {professional.loyalty_benefit_description}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
 
           {/* Reviews Section */}
           <div className="px-4 py-4 mb-24">
