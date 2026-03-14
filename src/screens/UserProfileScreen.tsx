@@ -108,12 +108,23 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
     plan_type: (profile as any)?.plan_type || 'basic',
   });
 
+  const [isFetchingCep, setIsFetchingCep] = useState(false);
+  const [portfolio, setPortfolio] = useState<any[]>([]);
+  const [isAddingImage, setIsAddingImage] = useState(false);
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
+  const [showPortfolioModal, setShowPortfolioModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [businessInfo, setBusinessInfo] = useState({
+    opening_hours: (profile as any)?.opening_hours || 'Seg à Sex: 08:00 - 18:00',
+    loyalty_enabled: (profile as any)?.loyalty_enabled || false,
+    loyalty_benefit_description: (profile as any)?.loyalty_benefit_description || '11º serviço com 50% de desconto',
+    loyalty_required_services: (profile as any)?.loyalty_required_services || 10
+  });
+
   const [dbCategories, setDbCategories] = useState<any[]>([]);
   const [showSuggestionInput, setShowSuggestionInput] = useState(false);
   const [newCategorySuggestion, setNewCategorySuggestion] = useState('');
   const [isSubmittingSuggestion, setIsSubmittingSuggestion] = useState(false);
-
-  const [isFetchingCep, setIsFetchingCep] = useState(false);
 
   // Keep form data synced when profile loads
   React.useEffect(() => {
@@ -152,14 +163,25 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
     }
   }, [profile]);
 
-  // Fetch global categories from DB
+  // Fetch global categories and portfolio
   React.useEffect(() => {
     const fetchCategories = async () => {
       const { data } = await supabase.from('service_categories').select('*').order('name');
       if (data) setDbCategories(data);
     };
     fetchCategories();
-  }, []);
+
+    const fetchPortfolio = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from('provider_portfolio')
+        .select('*')
+        .eq('provider_id', user.id)
+        .order('created_at', { ascending: false });
+      setPortfolio(data || []);
+    };
+    if (role === 'provider') fetchPortfolio();
+  }, [user, role]);
 
   const handleCepChange = async (cepValue: string) => {
     // Remove non-numeric characters and format
@@ -323,6 +345,105 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
     }
   };
 
+  const handleAddPortfolioImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0 || !user) return;
+    setIsAddingImage(true);
+    try {
+      const file = e.target.files[0];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}-${Math.random()}.${fileExt}`;
+      const filePath = `portfolio/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('portfolio')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('portfolio')
+        .getPublicUrl(filePath);
+
+      const { error: dbError } = await supabase
+        .from('provider_portfolio')
+        .insert({
+          provider_id: user.id,
+          image_url: publicUrl,
+          title: 'Trabalho realizado',
+          description: ''
+        });
+
+      if (dbError) throw dbError;
+
+      // Update local state
+      const { data } = await supabase
+        .from('provider_portfolio')
+        .select('*')
+        .eq('provider_id', user.id)
+        .order('created_at', { ascending: false });
+      setPortfolio(data || []);
+      showToast('Imagem adicionada ao seu portfólio!', 'success');
+    } catch (err: any) {
+      showToast('Erro ao enviar imagem: ' + err.message, 'error');
+    } finally {
+      setIsAddingImage(false);
+    }
+  };
+
+  const handleDeletePortfolioImage = async (id: string, url: string) => {
+    if (!user) return;
+    if (!confirm('Deseja realmente excluir esta imagem do seu portfólio?')) return;
+
+    try {
+      const { error: dbError } = await supabase
+        .from('provider_portfolio')
+        .delete()
+        .eq('id', id);
+
+      if (dbError) throw dbError;
+
+      // Tenta remover do storage também (opcional, pode falhar se não tiver permissão)
+      try {
+        const path = url.split('/').pop();
+        if (path) {
+          await supabase.storage.from('portfolio').remove([`portfolio/${path}`]);
+        }
+      } catch (storageErr) {
+        console.warn('Erro ao remover do storage:', storageErr);
+      }
+
+      setPortfolio(prev => prev.filter(img => img.id !== id));
+      showToast('Imagem removida!', 'success');
+    } catch (err: any) {
+      showToast('Erro ao remover: ' + err.message, 'error');
+    }
+  };
+
+  const handleSaveBusinessSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingSettings(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          opening_hours: businessInfo.opening_hours,
+          loyalty_enabled: businessInfo.loyalty_enabled,
+          loyalty_benefit_description: businessInfo.loyalty_benefit_description,
+          loyalty_required_services: businessInfo.loyalty_required_services
+        })
+        .eq('id', user?.id);
+
+      if (error) throw error;
+      await refreshProfile();
+      setShowSettingsModal(false);
+      showToast('Configurações salvas com sucesso!', 'success');
+    } catch (err: any) {
+      showToast('Erro ao salvar: ' + err.message, 'error');
+    } finally {
+      setIsSavingSettings(false);
+    }
+  };
+
   const handleLogout = () => {
     logout();
     onNavigate('auth');
@@ -447,8 +568,30 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         </div>
       </div>
 
-      {/* Main Options */}
+          {/* Main Options */}
       <main className="flex-1 overflow-y-auto px-4 py-6 max-w-4xl mx-auto w-full pb-32">
+        
+        {role === 'provider' && (
+          <section className="mb-4">
+            <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-2xl p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-xl bg-primary text-white flex items-center justify-center">
+                  <span className="material-symbols-outlined">analytics</span>
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tighter italic">Painel do Prestador</p>
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Acesse suas métricas e ganhos</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => onNavigate('dashboard')}
+                className="bg-primary text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary/20"
+              >
+                Ver Dashboard
+              </button>
+            </div>
+          </section>
+        )}
 
         {/* Account Info Section */}
         <section className="mb-8">
@@ -480,28 +623,62 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 </div>
                 <div className="text-left">
                   <p className="font-semibold text-slate-900 dark:text-white">Meus Endereços</p>
-                  <p className="text-xs text-slate-500">Casa, Trabalho</p>
+                  <p className="text-xs text-slate-500">Casa, Trabalho e Localização</p>
                 </div>
               </div>
               <span className="material-symbols-outlined text-slate-400">chevron_right</span>
             </button>
 
             {role === 'provider' && (
-              <button
-                onClick={() => setShowProviderModal(true)}
-                className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="size-10 rounded-full bg-orange-50 dark:bg-orange-900/20 text-orange-500 flex items-center justify-center group-hover:bg-orange-100 dark:group-hover:bg-orange-900/40 transition-colors">
-                    <span className="material-symbols-outlined">work</span>
+              <>
+                <button
+                  onClick={() => setShowProviderModal(true)}
+                  className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="size-10 rounded-full bg-orange-50 dark:bg-orange-900/20 text-orange-500 flex items-center justify-center group-hover:bg-orange-100 dark:group-hover:bg-orange-900/40 transition-colors">
+                      <span className="material-symbols-outlined">work</span>
+                    </div>
+                    <div className="text-left">
+                      <p className="font-semibold text-slate-900 dark:text-white">Perfil Profissional</p>
+                      <p className="text-xs text-slate-500">Sobre, Serviços e WhatsApp</p>
+                    </div>
                   </div>
-                  <div className="text-left">
-                    <p className="font-semibold text-slate-900 dark:text-white">Perfil Profissional</p>
-                    <p className="text-xs text-slate-500">Sobre, Serviços</p>
+                  <span className="material-symbols-outlined text-slate-400">chevron_right</span>
+                </button>
+
+                <button
+                  onClick={() => setShowPortfolioModal(true)}
+                  className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="size-10 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-500 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 transition-colors">
+                      <span className="material-symbols-outlined">photo_library</span>
+                    </div>
+                    <div className="text-left">
+                      <p className="font-semibold text-slate-900 dark:text-white">Meus Trabalhos</p>
+                      <p className="text-xs text-slate-500">Gerenciar fotos do portfólio</p>
+                    </div>
                   </div>
-                </div>
-                <span className="material-symbols-outlined text-slate-400">chevron_right</span>
-              </button>
+                  <span className="material-symbols-outlined text-slate-400">chevron_right</span>
+                </button>
+
+                <button
+                  onClick={() => setShowSettingsModal(true)}
+                  className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="size-10 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-500 flex items-center justify-center group-hover:bg-purple-100 dark:group-hover:bg-purple-900/40 transition-colors">
+                      <span className="material-symbols-outlined">settings_heart</span>
+                    </div>
+                    <div className="text-left">
+                      <p className="font-semibold text-slate-900 dark:text-white">Configurações do Negócio</p>
+                      <p className="text-xs text-slate-500">Fidelidade e horários</p>
+                    </div>
+                  </div>
+                  <span className="material-symbols-outlined text-slate-400">chevron_right</span>
+                </button>
+              </>
             )}
 
             <button
@@ -651,6 +828,174 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         <ProviderMobileNav onNavigate={onNavigate} currentScreen="profile" />
       ) : (
         <MobileNav onNavigate={onNavigate} currentScreen="profile" />
+      )}
+
+      {/* Modal: Portfólio de Trabalhos */}
+      {showPortfolioModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl w-full max-w-2xl overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center shrink-0">
+              <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                <span className="material-symbols-outlined text-blue-500">photo_library</span>
+                Meus Trabalhos
+              </h3>
+              <button onClick={() => setShowPortfolioModal(false)} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto flex-1">
+              <div className="mb-6">
+                <button
+                  onClick={() => document.getElementById('portfolio-upload')?.click()}
+                  disabled={isAddingImage}
+                  className="w-full py-8 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl flex flex-col items-center justify-center gap-2 hover:border-primary/50 hover:bg-primary/5 transition-all group"
+                >
+                  {isAddingImage ? (
+                    <span className="material-symbols-outlined animate-spin text-primary">progress_activity</span>
+                  ) : (
+                    <>
+                      <div className="size-12 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <span className="material-symbols-outlined text-2xl">add_a_photo</span>
+                      </div>
+                      <p className="font-bold text-slate-700 dark:text-slate-300">Adicionar nova foto</p>
+                      <p className="text-xs text-slate-500">JPG, PNG ou WEBP até 5MB</p>
+                    </>
+                  )}
+                </button>
+                <input
+                  id="portfolio-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAddPortfolioImage}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {portfolio.map((img) => (
+                  <div key={img.id} className="relative aspect-square rounded-xl overflow-hidden group border border-slate-100 dark:border-slate-800">
+                    <img src={img.image_url} alt="" className="size-full object-cover" />
+                    <button
+                      onClick={() => handleDeletePortfolioImage(img.id, img.image_url)}
+                      className="absolute top-2 right-2 size-8 bg-red-500 text-white rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                    >
+                      <span className="material-symbols-outlined text-sm">delete</span>
+                    </button>
+                  </div>
+                ))}
+                {portfolio.length === 0 && !isAddingImage && (
+                  <div className="col-span-full py-12 text-center text-slate-400">
+                    <span className="material-symbols-outlined text-4xl mb-2 opacity-20">image_not_supported</span>
+                    <p className="text-sm">Nenhuma foto adicionada ao seu portfólio.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="p-6 bg-slate-50 dark:bg-slate-850 shrink-0 border-t border-slate-100 dark:border-slate-800">
+              <button
+                onClick={() => setShowPortfolioModal(false)}
+                className="w-full py-3 bg-slate-900 dark:bg-slate-700 text-white rounded-xl font-bold hover:opacity-90 transition-all"
+              >
+                Concluído
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Configurações do Negócio */}
+      {showSettingsModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl w-full max-w-md overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center shrink-0">
+              <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                <span className="material-symbols-outlined text-purple-500">settings_heart</span>
+                Configurações do Negócio
+              </h3>
+              <button onClick={() => setShowSettingsModal(false)} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            
+            <form onSubmit={handleSaveBusinessSettings} className="p-6 overflow-y-auto flex-1">
+              <div className="space-y-6">
+                {/* Horários */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">Horário de Atendimento</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400">schedule</span>
+                    <input
+                      type="text"
+                      value={businessInfo.opening_hours}
+                      onChange={(e) => setBusinessInfo({...businessInfo, opening_hours: e.target.value})}
+                      placeholder="Ex: Seg à Sex: 08:00 - 18:00"
+                      className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+                </div>
+
+                {/* Programa de Fidelidade */}
+                <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h4 className="font-bold text-slate-900 dark:text-white">Programa de Fidelidade</h4>
+                      <p className="text-xs text-slate-500 leading-snug">Incentive clientes a voltarem mais vezes.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setBusinessInfo({...businessInfo, loyalty_enabled: !businessInfo.loyalty_enabled})}
+                      className={`w-12 h-6 rounded-full transition-colors relative ${businessInfo.loyalty_enabled ? 'bg-primary' : 'bg-slate-200 dark:bg-slate-700'}`}
+                    >
+                      <div className={`absolute top-1 size-4 bg-white rounded-full transition-all ${businessInfo.loyalty_enabled ? 'left-7' : 'left-1'}`} />
+                    </button>
+                  </div>
+
+                  {businessInfo.loyalty_enabled && (
+                    <div className="space-y-4 animate-fade-in">
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Serviços Necessários</label>
+                        <input
+                          type="number"
+                          value={businessInfo.loyalty_required_services}
+                          onChange={(e) => setBusinessInfo({...businessInfo, loyalty_required_services: parseInt(e.target.value)})}
+                          className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-primary"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Recompensa</label>
+                        <input
+                          type="text"
+                          value={businessInfo.loyalty_benefit_description}
+                          onChange={(e) => setBusinessInfo({...businessInfo, loyalty_benefit_description: e.target.value})}
+                          placeholder="Ex: 50% de desconto no próximo"
+                          className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-primary"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-8">
+                <button
+                  type="button"
+                  onClick={() => setShowSettingsModal(false)}
+                  className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingSettings}
+                  className="flex-1 py-3 bg-primary text-white rounded-xl font-bold flex justify-center items-center gap-2 shadow-lg shadow-primary/30"
+                >
+                  {isSavingSettings ? <span className="material-symbols-outlined animate-spin">refresh</span> : 'Salvar Alterações'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
       {selectedImageSrc && (

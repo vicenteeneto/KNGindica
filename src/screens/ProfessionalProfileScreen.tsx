@@ -270,9 +270,10 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
                 backgroundImage: `url("${professional.image}")`,
               }}
             >
-              {/* Complex multi-stop transition for maximum fluidity */}
-              <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-white dark:from-slate-900 via-white/60 dark:via-slate-900/60 to-transparent"></div>
-              <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-white dark:from-slate-900 to-transparent"></div>
+              {/* Enhanced fluid transition: Multi-layered gradients for zero "hard cutting" effect */}
+              <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-white dark:from-slate-900 via-white/80 dark:via-slate-900/80 to-transparent"></div>
+              <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-white dark:from-slate-900 via-white/40 dark:via-slate-900/40 to-transparent"></div>
+              <div className="absolute inset-x-0 -bottom-1 h-32 bg-white dark:bg-slate-900 blur-xl opacity-50"></div>
             </div>
           </div>
         </div>
