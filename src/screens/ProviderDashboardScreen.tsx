@@ -14,7 +14,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
   const [completePercent, setCompletePercent] = useState(0);
   const [newImageUrl, setNewImageUrl] = useState('');
   const [isAddingImage, setIsAddingImage] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   
   // Settings State
   const [businessInfo, setBusinessInfo] = useState({
@@ -617,11 +617,11 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
                <p className="text-sm">Seu portfólio está vazio.</p>
             </div>
           ) : (
-            portfolio.map(img => (
+            portfolio.map((img, idx) => (
               <div 
                 key={img.id} 
                 className="group relative aspect-square rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 cursor-pointer shadow-sm active:scale-95 transition-transform"
-                onClick={() => setSelectedImage(img.image_url)}
+                onClick={() => setSelectedImageIndex(idx)}
               >
                 <img src={img.image_url} alt="Trabalho" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 <button 
@@ -747,32 +747,64 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
            activeTab === 'portfolio' ? renderPortfolioTab() : 
            renderSettingsTab()}
         </main>
-        <div className="h-20"></div>
         <ProviderMobileNav onNavigate={onNavigate} currentScreen="dashboard" />
       </div>
 
-      {/* Image Modal Lightbox */}
-      {selectedImage && (
+      {/* Image Modal Lightbox with Navigation */}
+      {selectedImageIndex !== null && (
         <div 
           className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300"
-          onClick={() => setSelectedImage(null)}
+          onClick={() => setSelectedImageIndex(null)}
         >
+          {/* Close Button */}
           <button 
-            className="absolute top-6 right-6 text-white size-12 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors"
-            onClick={() => setSelectedImage(null)}
+            className="absolute top-6 right-6 text-white size-12 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors z-[110]"
+            onClick={() => setSelectedImageIndex(null)}
           >
             <span className="material-symbols-outlined text-4xl">close</span>
           </button>
-          
-          <img 
-            src={selectedImage} 
-            alt="Foto do Portfólio" 
-            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-300"
-            onClick={(e) => e.stopPropagation()}
-          />
 
-          <div className="absolute bottom-8 left-0 right-0 text-center">
-             <p className="text-white/60 text-xs font-medium uppercase tracking-widest">Clique fora para fechar</p>
+          {/* Navigation Buttons */}
+          {portfolio.length > 1 && (
+            <>
+              <button 
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-white size-14 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors active:scale-90"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedImageIndex((selectedImageIndex - 1 + portfolio.length) % portfolio.length);
+                }}
+              >
+                <span className="material-symbols-outlined text-5xl">chevron_left</span>
+              </button>
+              <button 
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white size-14 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors active:scale-90"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedImageIndex((selectedImageIndex + 1) % portfolio.length);
+                }}
+              >
+                <span className="material-symbols-outlined text-5xl">chevron_right</span>
+              </button>
+            </>
+          )}
+          
+          <div className="relative max-w-full max-h-[80vh] flex flex-col items-center">
+            <img 
+              src={portfolio[selectedImageIndex].image_url} 
+              alt="Foto do Portfólio" 
+              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-300"
+              onClick={(e) => e.stopPropagation()}
+            />
+            
+            <div className="absolute -bottom-10 left-0 right-0 text-center">
+              <p className="text-white font-bold tracking-widest text-sm bg-black/40 px-4 py-1 rounded-full inline-block">
+                {selectedImageIndex + 1} / {portfolio.length}
+              </p>
+            </div>
+          </div>
+
+          <div className="absolute bottom-8 left-0 right-0 text-center hidden md:block">
+             <p className="text-white/40 text-[10px] font-black uppercase tracking-widest">Use setas ou clique fora para fechar</p>
           </div>
         </div>
       )}
