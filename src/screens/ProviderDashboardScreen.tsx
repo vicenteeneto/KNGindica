@@ -14,6 +14,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
   const [completePercent, setCompletePercent] = useState(0);
   const [newImageUrl, setNewImageUrl] = useState('');
   const [isAddingImage, setIsAddingImage] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   
   // Settings State
   const [businessInfo, setBusinessInfo] = useState({
@@ -163,7 +164,6 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
       if (dbError) throw dbError;
 
       setPortfolio([data, ...portfolio]);
-      alert("Imagem enviada com sucesso!");
     } catch (err: any) {
       if (err.message?.includes('Bucket not found')) {
         alert("Erro: O bucket 'portfolio' não foi encontrado. Certifique-se de criá-lo no painel do Supabase Storage.");
@@ -618,8 +618,12 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
             </div>
           ) : (
             portfolio.map(img => (
-              <div key={img.id} className="group relative aspect-square rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800">
-                <img src={img.image_url} alt="Trabalho" className="w-full h-full object-cover" />
+              <div 
+                key={img.id} 
+                className="group relative aspect-square rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 cursor-pointer shadow-sm active:scale-95 transition-transform"
+                onClick={() => setSelectedImage(img.image_url)}
+              >
+                <img src={img.image_url} alt="Trabalho" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 <button 
                   onClick={() => handleDeletePortfolioImage(img.id, img.storage_path)}
                   className="absolute top-2 right-2 size-8 bg-black/50 backdrop-blur-md text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-500 transition-colors"
@@ -746,6 +750,32 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         <div className="h-20"></div>
         <ProviderMobileNav onNavigate={onNavigate} currentScreen="dashboard" />
       </div>
+
+      {/* Image Modal Lightbox */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300"
+          onClick={() => setSelectedImage(null)}
+        >
+          <button 
+            className="absolute top-6 right-6 text-white size-12 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors"
+            onClick={() => setSelectedImage(null)}
+          >
+            <span className="material-symbols-outlined text-4xl">close</span>
+          </button>
+          
+          <img 
+            src={selectedImage} 
+            alt="Foto do Portfólio" 
+            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-300"
+            onClick={(e) => e.stopPropagation()}
+          />
+
+          <div className="absolute bottom-8 left-0 right-0 text-center">
+             <p className="text-white/60 text-xs font-medium uppercase tracking-widest">Clique fora para fechar</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

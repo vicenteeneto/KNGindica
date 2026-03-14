@@ -18,6 +18,7 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [portfolioImages, setPortfolioImages] = useState<any[]>([]);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const { user } = useAuth();
 
   // SEO dinâmico baseado nos dados do profissional
@@ -332,7 +333,11 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {portfolioImages.map((img, idx) => (
-                  <div key={img.id} className="aspect-square rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 group cursor-pointer shadow-sm">
+                  <div 
+                    key={img.id} 
+                    onClick={() => setSelectedImage(img.image_url)}
+                    className="aspect-square rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 group cursor-pointer shadow-sm active:scale-95 transition-transform"
+                  >
                     <img 
                       src={img.image_url} 
                       alt={`Trabalho ${idx + 1}`} 
@@ -477,6 +482,32 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
           Solicitar Orçamento
         </button>
       </div>
+
+      {/* Image Modal Lightbox */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300"
+          onClick={() => setSelectedImage(null)}
+        >
+          <button 
+            className="absolute top-6 right-6 text-white size-12 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors"
+            onClick={() => setSelectedImage(null)}
+          >
+            <span className="material-symbols-outlined text-4xl">close</span>
+          </button>
+          
+          <img 
+            src={selectedImage} 
+            alt="Foto do Portfólio" 
+            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-300"
+            onClick={(e) => e.stopPropagation()}
+          />
+
+          <div className="absolute bottom-8 left-0 right-0 text-center">
+             <p className="text-white/60 text-xs font-medium uppercase tracking-widest">Clique fora para fechar</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
