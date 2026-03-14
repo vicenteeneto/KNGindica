@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchUserProfile(session.user.id, session.user.email);
+        fetchUserProfile(session.user.id, session.user.email, session.user.user_metadata);
       } else {
         setLoading(false);
       }
@@ -51,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          fetchUserProfile(session.user.id, session.user.email);
+          fetchUserProfile(session.user.id, session.user.email, session.user.user_metadata);
         } else {
           setRole(null);
           setProfile(null);
@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const fetchUserProfile = async (userId: string, userEmail?: string) => {
+  const fetchUserProfile = async (userId: string, userEmail?: string, userMetadata?: any) => {
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -75,31 +75,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .single();
 
       const adminEmails = ['offkngpublicidade@gmail.com', 'netu.araujo@gmail.com'];
-      const isHardcodedAdmin = userEmail && adminEmails.includes(userEmail);
+      const isHardcodedAdmin = !!(userEmail && adminEmails.includes(userEmail.toLowerCase()));
 
       if (!error && data) {
         const finalRole = isHardcodedAdmin ? 'admin' : (data.role as UserRole);
         setRole(finalRole);
         setProfile(data as UserProfile);
 
-        // Se é um admin via e-mail mas o banco diz outra coisa, tenta atualizar no banco
+        // Se é um admin via e-mail mas o banco diz outra coisa, tenta atualizar no banco silenciosamente
         if (isHardcodedAdmin && data.role !== 'admin') {
-          await supabase.from('profiles').update({ role: 'admin' }).eq('id', userId);
+          supabase.from('profiles').update({ role: 'admin' }).eq('id', userId).then();
         }
       } else if (isHardcodedAdmin) {
-        // Se o perfil não existir ainda mas for admin por e-mail, permite acesso básico
+        // Se o perfil não existir ainda mas for admin por e-mail, permite acesso sem travar
         setRole('admin');
+        setProfile({ id: userId, full_name: 'Administrador', role: 'admin', avatar_url: null });
       } else {
         // FALLBACK: Se o perfil não existe (trigger falhou), tenta criar agora como 'client'
-        // Isso resolve erros de cadastro via Google ou instabilidades no trigger
         const { data: newProfile, error: createError } = await supabase
           .from('profiles')
           .insert({
             id: userId,
-            full_name: user?.user_metadata?.full_name || user?.user_metadata?.name || 'Novo Usuário',
+            full_name: userMetadata?.full_name || userMetadata?.name || 'Novo Usuário',
             email: userEmail,
-            role: user?.user_metadata?.role || 'client',
-            plan_type: 'basic'
+            role: userMetadata?.role || 'client',
+            plan_type: 'basic',
+            status: 'active'
           })
           .select()
           .single();
@@ -109,11 +110,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setProfile(newProfile as UserProfile);
         } else {
           console.error('Falha ao criar perfil de fallback:', createError);
-          setRole(user?.user_metadata?.role || 'client');
+          setRole((userMetadata?.role as UserRole) || 'client');
         }
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
+      // Última tentativa para admins hardcoded não ficarem presos
+      const adminEmails = ['offkngpublicidade@gmail.com', 'netu.araujo@gmail.com'];
+      if (userEmail && adminEmails.includes(userEmail.toLowerCase())) {
+        setRole('admin');
+      }
     } finally {
       setLoading(false);
     }
@@ -121,7 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshProfile = async () => {
     if (user?.id) {
-      await fetchUserProfile(user.id, user.email);
+      await fetchUserProfile(user.id, user.email, user.user_metadata);
     }
   };
 

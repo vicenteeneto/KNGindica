@@ -96,7 +96,8 @@ function AppContent() {
         localStorage.removeItem(STORAGE_KEY);
         localStorage.removeItem(STORAGE_PARAMS_KEY);
       } else if (currentScreen === 'auth' && role !== null) {
-        const isAdmin = user?.email === 'offkngpublicidade@gmail.com' || user?.email === 'netu.araujo@gmail.com' || role === 'admin';
+        const adminEmail = user?.email?.toLowerCase();
+        const isAdmin = adminEmail === 'offkngpublicidade@gmail.com' || adminEmail === 'netu.araujo@gmail.com' || role === 'admin';
         let dest: Screen;
         if (isAdmin) dest = 'adminDashboard';
         else if (role === 'provider') dest = 'dashboard';
