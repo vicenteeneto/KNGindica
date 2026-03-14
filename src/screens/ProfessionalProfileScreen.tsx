@@ -266,54 +266,56 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
           </div>
         </div>
 
-        {/* Profile Info */}
-        <div className="flex p-4 @container -mt-16 relative z-10 justify-center">
-          {/* Instagram Style Profile Row */}
-          <div className="flex px-4 pt-4 pb-2 items-center gap-6">
-            <div
-              className="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-20 w-20 border-2 border-slate-100 dark:border-slate-800 shadow-sm shrink-0"
-              style={{
-                backgroundImage: `url("${professional.image}")`,
-              }}
-            ></div>
-            <div className="flex-1 flex justify-around items-center">
-              <div className="flex flex-col items-center">
-                <p className="text-slate-900 dark:text-slate-100 text-sm font-black italic tracking-tight">{displayReviewsCount}</p>
-                <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mt-0.5">Serviços</p>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="flex items-center gap-0.5">
-                  <p className="text-slate-900 dark:text-slate-100 text-sm font-black italic tracking-tight">{displayRating}</p>
-                  <span className="material-symbols-outlined text-amber-400 text-[12px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                </div>
-                <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mt-0.5">Avaliação</p>
-              </div>
-              <div className="flex flex-col items-center">
-                <p className="text-slate-900 dark:text-slate-100 text-sm font-black italic tracking-tight">R$ {parseInt(professional.price)}</p>
-                <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mt-0.5">{professional.priceUnit}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="px-5 pt-1 pb-3 flex flex-col gap-0.5">
-            <div className="flex items-center gap-1.5 mb-0.5">
-              <p className="text-slate-900 dark:text-slate-100 text-base font-black leading-none tracking-tight">
-                {professional.name}
-              </p>
-              {professional.isVerified && (
-                <VerifiedBadge className="scale-100" />
-              )}
-            </div>
+        {/* Profile Info Container */}
+        <div className="flex flex-col items-center -mt-12 md:-mt-16 relative z-10 px-0 md:px-4">
+          <div className="w-full max-w-3xl bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-slate-800 overflow-hidden">
             
-            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">
-              {professional.category} • {professional.isAffiliate ? 'Afiliado Verificado' : 'Profissional'}
-            </p>
+            {/* Instagram Style Profile Row */}
+            <div className="flex px-4 pt-6 pb-2 items-center gap-4 md:gap-8">
+              <div
+                className="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-20 w-20 md:min-h-28 md:w-28 border-4 border-white dark:border-slate-900 shadow-xl shrink-0"
+                style={{
+                  backgroundImage: `url("${professional.image}")`,
+                }}
+              ></div>
+              <div className="flex-1 flex justify-around items-center gap-2">
+                <div className="flex flex-col items-center">
+                  <p className="text-slate-900 dark:text-slate-100 text-base font-black italic tracking-tight">{displayReviewsCount}</p>
+                  <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mt-0.5">Serviços</p>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="flex items-center gap-0.5">
+                    <p className="text-slate-900 dark:text-slate-100 text-base font-black italic tracking-tight">{displayRating}</p>
+                    <span className="material-symbols-outlined text-amber-400 text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                  </div>
+                  <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mt-0.5">Avaliação</p>
+                </div>
+                <div className="flex flex-col items-center">
+                  <p className="text-slate-900 dark:text-slate-100 text-base font-black italic tracking-tight">R$ {parseInt(professional.price)}</p>
+                  <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mt-0.5">{professional.priceUnit}</p>
+                </div>
+              </div>
+            </div>
 
-            <p className="text-slate-500 dark:text-slate-400 text-[11px] font-bold leading-normal flex items-center gap-1 mb-1">
-              <span className="material-symbols-outlined text-xs">location_on</span>
-              {professional.city ? `${professional.city}, ${professional.state || ''}` : 'Localização a combinar'}
-            </p>
-          </div>
+            <div className="px-5 pt-2 pb-4 flex flex-col gap-0.5">
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <p className="text-slate-900 dark:text-slate-100 text-lg font-black leading-none tracking-tight">
+                  {professional.name}
+                </p>
+                {professional.isVerified && (
+                  <VerifiedBadge className="scale-100" />
+                )}
+              </div>
+              
+              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1.5">
+                {professional.category} • {professional.isAffiliate ? 'Afiliado Verificado' : 'Profissional'}
+              </p>
+
+              <p className="text-slate-500 dark:text-slate-400 text-[11px] font-bold leading-normal flex items-center gap-1">
+                <span className="material-symbols-outlined text-xs">location_on</span>
+                {professional.city ? `${professional.city}, ${professional.state || ''}` : 'Localização a combinar'}
+              </p>
+            </div>
 
           {/* Bio Section */}
           <div className="px-4 py-2">
@@ -402,60 +404,55 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
             </div>
           </div>
 
-          {/* Reviews Section */}
-          <div className="px-4 py-4 mb-24">
-            <div className="flex items-center justify-between mb-3 px-1">
-              <h3 className="text-slate-900 dark:text-slate-100 text-xs font-black uppercase tracking-widest">
-                Avaliações
-              </h3>
-              <button
-                // onClick={() => onNavigate('reviews')} 
-                className="text-primary text-sm font-bold hover:underline"
-              >
-                Ver Todas
-              </button>
-            </div>
-            <div className="flex flex-col gap-4">
-              {dbReviews.length > 0 ? (
-                dbReviews.map((review, i) => (
-                  <div key={i} className="bg-white dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm animate-in fade-in slide-in-from-bottom-2">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-3">
-                        <div className="size-10 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden text-slate-500 font-bold border border-slate-200 dark:border-slate-700">
-                          {review.profiles?.avatar_url ? (
-                             <img src={review.profiles.avatar_url} alt="Reviewer" className="w-full h-full object-cover" />
-                          ) : (
-                             <div className="w-full h-full flex items-center justify-center">{(review.profiles?.full_name || 'U')[0].toUpperCase()}</div>
-                          )}
+            {/* Reviews Section */}
+            <div className="px-4 py-4 mb-24">
+              <div className="flex items-center justify-between mb-3 px-1">
+                <h3 className="text-slate-900 dark:text-slate-100 text-xs font-black uppercase tracking-widest">
+                  Avaliações
+                </h3>
+              </div>
+              <div className="flex flex-col gap-4">
+                {dbReviews.length > 0 ? (
+                  dbReviews.map((review, i) => (
+                    <div key={i} className="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-800/50">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-3">
+                          <div className="size-10 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden text-slate-500 font-bold border border-slate-200 dark:border-slate-700">
+                            {review.profiles?.avatar_url ? (
+                               <img src={review.profiles.avatar_url} alt="Reviewer" className="w-full h-full object-cover" />
+                            ) : (
+                               <div className="w-full h-full flex items-center justify-center">{(review.profiles?.full_name || 'U')[0].toUpperCase()}</div>
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                              {review.profiles?.full_name || 'Usuário'}
+                            </p>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{new Date(review.created_at).toLocaleDateString('pt-BR')}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                            {review.profiles?.full_name || 'Usuário'}
-                          </p>
-                          <p className="text-xs text-slate-500">{new Date(review.created_at).toLocaleDateString()}</p>
+                        <div className="flex text-amber-400">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <span key={star} className={`material-symbols-outlined text-[14px] ${star <= review.rating ? 'text-amber-400 filled' : 'text-slate-200 dark:text-slate-700'}`} style={{ fontVariationSettings: star <= review.rating ? "'FILL' 1" : "'FILL' 0" }}>
+                              star
+                            </span>
+                          ))}
                         </div>
                       </div>
-                      <div className="flex text-amber-400">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <span key={star} className={`material-symbols-outlined text-sm ${star <= review.rating ? 'text-amber-400' : 'text-slate-300 dark:text-slate-700'}`} style={{ fontVariationSettings: star <= review.rating ? "'FILL' 1" : "'FILL' 0" }}>
-                            star
-                          </span>
-                        ))}
-                      </div>
+                      {review.comment && (
+                        <p className="text-slate-600 dark:text-slate-400 text-sm italic pl-1">
+                          "{review.comment}"
+                        </p>
+                      )}
                     </div>
-                    {review.comment && (
-                      <p className="text-slate-700 dark:text-slate-300 text-sm italic">
-                        "{review.comment}"
-                      </p>
-                    )}
+                  ))
+                ) : (
+                  <div className="bg-slate-50 dark:bg-slate-900/30 p-8 rounded-xl border border-slate-200 dark:border-slate-800 text-center flex flex-col items-center">
+                     <span className="material-symbols-outlined text-4xl text-slate-400 mb-2">star_half</span>
+                     <p className="text-slate-500 text-sm">Nenhuma avaliação recebida ainda.</p>
                   </div>
-                ))
-              ) : (
-                <div className="bg-slate-50 dark:bg-slate-900/30 p-8 rounded-xl border border-slate-200 dark:border-slate-800 text-center flex flex-col items-center">
-                   <span className="material-symbols-outlined text-4xl text-slate-400 mb-2">star_half</span>
-                   <p className="text-slate-500 text-sm">Nenhuma avaliação recebida ainda.</p>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>
