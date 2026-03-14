@@ -521,7 +521,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                         ) : (
                           <span className="bg-slate-700 px-2 py-0.5 rounded text-[10px] font-black tracking-tighter italic shadow-lg">DESTAQUE</span>
                         )}
-                        <span className="text-sm font-bold text-blue-400">Verificado iService</span>
+                        <span className="text-sm font-bold text-blue-400">Verificado Alvus</span>
                       </div>
                       <h1 className="text-4xl md:text-7xl font-black text-white leading-[0.9] mb-4 drop-shadow-2xl">
                         {p.name.split(' ')[0]} <br />
@@ -574,7 +574,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                 <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6958?q=80&w=2070&auto=format&fit=crop" className="opacity-30 object-cover w-full h-full" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0f171e] to-transparent"></div>
                 <div className="relative z-10 text-center">
-                  <h2 className="text-5xl font-black mb-4">iService Premium</h2>
+                  <h2 className="text-5xl font-black mb-4">Alvus Premium</h2>
                   <p className="text-xl text-slate-300">Encontre os melhores prestadores da sua região.</p>
                 </div>
              </div>
@@ -709,7 +709,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
                   {/* Row: iService PLUS Recommendations */}
                   <CollectionRow 
-                    title="Destaques iService PLUS" 
+                    title="Destaques Alvus PLUS" 
                     subtitle="Os profissionais mais bem avaliados e recomendados."
                     providers={featuredProviders.length > 0 ? featuredProviders : plusProviders.slice(0, 10)} 
                     onNavigate={onNavigate}

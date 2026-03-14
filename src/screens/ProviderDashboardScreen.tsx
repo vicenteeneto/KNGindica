@@ -103,31 +103,69 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
     fetchPortfolio();
   }, [user]);
 
-  const handleAddPortfolioImage = async () => {
-    if (!newImageUrl || !user) return;
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+    
+    if (portfolio.length >= 5) {
+      alert("Você pode ter no máximo 5 fotos no seu portfólio.");
+      return;
+    }
+
     setIsAddingImage(true);
     try {
-      const { data, error } = await supabase
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      const filePath = fileName;
+
+      // 1. Upload to Storage
+      const { error: uploadError } = await supabase.storage
+        .from('portfolio')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // 2. Get Public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('portfolio')
+        .getPublicUrl(filePath);
+
+      // 3. Save to DB
+      const { data, error: dbError } = await supabase
         .from('provider_portfolio')
-        .insert({ provider_id: user.id, image_url: newImageUrl })
+        .insert({ 
+          provider_id: user.id, 
+          image_url: publicUrl,
+          storage_path: filePath // Preciso salvar o path para deletar depois
+        })
         .select()
         .single();
-      if (error) throw error;
+
+      if (dbError) throw dbError;
+
       setPortfolio([data, ...portfolio]);
-      setNewImageUrl('');
-      alert("Imagem adicionada ao portfólio!");
+      alert("Imagem enviada com sucesso!");
     } catch (err: any) {
-      alert("Erro ao adicionar imagem: " + err.message);
+      alert("Erro ao enviar imagem: " + err.message);
     } finally {
       setIsAddingImage(false);
+      // Reset input
+      event.target.value = '';
     }
   };
 
-  const handleDeletePortfolioImage = async (id: string) => {
+  const handleDeletePortfolioImage = async (id: string, storagePath?: string) => {
     if (!window.confirm("Deseja remover esta imagem do seu portfólio?")) return;
     try {
-      const { error } = await supabase.from('provider_portfolio').delete().eq('id', id);
-      if (error) throw error;
+      // 1. Delete from DB
+      const { error: dbError } = await supabase.from('provider_portfolio').delete().eq('id', id);
+      if (dbError) throw dbError;
+
+      // 2. Delete from Storage if path exists
+      if (storagePath) {
+        await supabase.storage.from('portfolio').remove([storagePath]);
+      }
+
       setPortfolio(portfolio.filter(img => img.id !== id));
     } catch (err: any) {
       alert("Erro ao remover imagem: " + err.message);
@@ -384,22 +422,47 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
       </div>
       <div className="p-4 space-y-6">
         <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-          <h3 className="font-bold mb-4">Adicionar Nova Foto</h3>
-          <div className="flex gap-2">
-            <input 
-              type="text" 
-              value={newImageUrl}
-              onChange={e => setNewImageUrl(e.target.value)}
-              className="flex-1 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent focus:border-primary outline-none transition-all"
-              placeholder="URL da Imagem (https://...)"
-            />
-            <button 
-              onClick={handleAddPortfolioImage}
-              className="bg-primary text-white px-6 rounded-xl font-bold hover:bg-primary/90 disabled:opacity-50 transition-all flex items-center gap-2"
-              disabled={!newImageUrl || isAddingImage}
-            >
-              {isAddingImage ? '...' : 'Adicionar'}
-            </button>
+          <h3 className="font-bold mb-1">Adicionar Nova Foto</h3>
+          <p className="text-xs text-slate-500 mb-4">Você pode subir até 5 fotos do seu trabalho.</p>
+          
+          <div className="flex flex-col gap-4">
+            <label className={`
+              flex flex-col items-center justify-center w-full h-32 
+              border-2 border-dashed border-slate-200 dark:border-slate-800 
+              rounded-2xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 
+              transition-all group
+              ${portfolio.length >= 5 ? 'opacity-50 cursor-not-allowed' : ''}
+            `}>
+              <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                {isAddingImage ? (
+                  <span className="material-symbols-outlined animate-spin text-primary">progress_activity</span>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-3xl text-slate-400 group-hover:text-primary transition-colors">upload_file</span>
+                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                      {portfolio.length >= 5 ? 'Limite de 5 fotos atingido' : 'Clique para selecionar uma foto'}
+                    </p>
+                  </>
+                )}
+              </div>
+              <input 
+                type="file" 
+                className="hidden" 
+                accept="image/*"
+                onChange={handleFileUpload}
+                disabled={isAddingImage || portfolio.length >= 5}
+              />
+            </label>
+            
+            <div className="flex justify-between items-center px-1">
+              <span className="text-xs font-medium text-slate-400">Progresso: {portfolio.length}/5 fotos</span>
+              <div className="h-1.5 w-24 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-primary transition-all duration-500" 
+                  style={{ width: `${(portfolio.length / 5) * 100}%` }}
+                />
+              </div>
+            </div>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3">
@@ -413,8 +476,8 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
               <div key={img.id} className="group relative aspect-square rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800">
                 <img src={img.image_url} alt="Trabalho" className="w-full h-full object-cover" />
                 <button 
-                  onClick={() => handleDeletePortfolioImage(img.id)}
-                  className="absolute top-2 right-2 size-8 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg"
+                  onClick={() => handleDeletePortfolioImage(img.id, img.storage_path)}
+                  className="absolute top-2 right-2 size-8 bg-black/50 backdrop-blur-md text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-500 transition-colors"
                 >
                   <span className="material-symbols-outlined text-[18px]">delete</span>
                 </button>
