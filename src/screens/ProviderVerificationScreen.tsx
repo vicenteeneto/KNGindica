@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { NavigationProps } from '../types';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../AuthContext';
 
 export default function ProviderVerificationScreen({ onNavigate }: NavigationProps) {
+  const { user } = useAuth();
   const [frontDoc, setFrontDoc] = useState<File | null>(null);
   const [backDoc, setBackDoc] = useState<File | null>(null);
   const [proofOfResidence, setProofOfResidence] = useState<File | null>(null);
@@ -10,17 +13,56 @@ export default function ProviderVerificationScreen({ onNavigate }: NavigationPro
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    // Simulate upload delay
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitted(true);
-    }, 2000);
+  const uploadFile = async (file: File, suffix: string) => {
+    if (!user) return null;
+    const fileExt = file.name.split('.').pop();
+    const filePath = `verifications/${user.id}/${suffix}_${Date.now()}.${fileExt}`;
+    
+    const { error: uploadError } = await supabase.storage
+      .from('verifications')
+      .upload(filePath, file);
+
+    if (uploadError) throw uploadError;
+    return filePath;
   };
 
-  const MockFileInput = ({
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !frontDoc || !backDoc || !proofOfResidence || !selfie) return;
+
+    setIsSubmitting(true);
+    try {
+      // 1. Upload all files parallel
+      const [frontPath, backPath, selfiePath, residencePath] = await Promise.all([
+        uploadFile(frontDoc, 'front'),
+        uploadFile(backDoc, 'back'),
+        uploadFile(selfie, 'selfie'),
+        uploadFile(proofOfResidence, 'residence')
+      ]);
+
+      // 2. Insert into DB
+      const { error: dbError } = await supabase
+        .from('provider_verifications')
+        .upsert({
+          provider_id: user.id,
+          document_front_path: frontPath,
+          document_back_path: backPath,
+          selfie_path: selfiePath,
+          residence_proof_path: residencePath,
+          status: 'pending'
+        }, { onConflict: 'provider_id' });
+
+      if (dbError) throw dbError;
+
+      setSubmitted(true);
+    } catch (err: any) {
+      alert("Erro ao enviar documentos: " + err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const FileInput = ({
     label,
     value,
     onChange,
@@ -30,38 +72,52 @@ export default function ProviderVerificationScreen({ onNavigate }: NavigationPro
     value: File | null,
     onChange: (f: File | null) => void,
     icon: string
-  }) => (
-    <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-6 flex flex-col items-center justify-center gap-3 text-center hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer" onClick={() => {
-      // Mock file selection
-      onChange(new File(["mock"], "document.jpg", { type: "image/jpeg" }));
-    }}>
-      {value ? (
-        <>
-          <div className="size-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center mb-2">
-            <span className="material-symbols-outlined text-2xl">check_circle</span>
-          </div>
-          <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">Arquivo Selecionado</p>
-          <p className="text-xs text-slate-500">document.jpg</p>
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); onChange(null); }}
-            className="mt-2 text-xs font-semibold text-red-500 hover:text-red-600"
-          >
-            Remover
-          </button>
-        </>
-      ) : (
-        <>
-          <div className="size-12 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center mb-2">
-            <span className="material-symbols-outlined text-2xl">{icon}</span>
-          </div>
-          <p className="text-sm font-semibold">{label}</p>
-          <p className="text-xs text-slate-500">Clique para selecionar ou arraste o arquivo</p>
-          <p className="text-[10px] text-slate-400 mt-1">JPG, PNG ou PDF (Máx. 5MB)</p>
-        </>
-      )}
-    </div>
-  );
+  }) => {
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+    return (
+      <div 
+        className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-6 flex flex-col items-center justify-center gap-3 text-center hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer" 
+        onClick={() => fileInputRef.current?.click()}
+      >
+        <input 
+          type="file" 
+          ref={fileInputRef}
+          className="hidden" 
+          accept="image/*,.pdf"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) onChange(file);
+          }}
+        />
+        {value ? (
+          <>
+            <div className="size-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center mb-2">
+              <span className="material-symbols-outlined text-2xl">check_circle</span>
+            </div>
+            <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">Arquivo Selecionado</p>
+            <p className="text-xs text-slate-500 truncate max-w-full px-4">{value.name}</p>
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onChange(null); }}
+              className="mt-2 text-xs font-semibold text-red-500 hover:text-red-600"
+            >
+              Remover
+            </button>
+          </>
+        ) : (
+          <>
+            <div className="size-12 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center mb-2">
+              <span className="material-symbols-outlined text-2xl">{icon}</span>
+            </div>
+            <p className="text-sm font-semibold">{label}</p>
+            <p className="text-xs text-slate-500">Clique para selecionar</p>
+            <p className="text-[10px] text-slate-400 mt-1">JPG, PNG ou PDF (Máx. 5MB)</p>
+          </>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
@@ -124,13 +180,13 @@ export default function ProviderVerificationScreen({ onNavigate }: NavigationPro
                 <div className="space-y-4">
                   <h3 className="font-bold text-lg">Documento de Identidade (RG ou CNH)</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <MockFileInput
+                    <FileInput
                       label="Frente do Documento"
                       value={frontDoc}
                       onChange={setFrontDoc}
                       icon="id_card"
                     />
-                    <MockFileInput
+                    <FileInput
                       label="Verso do Documento"
                       value={backDoc}
                       onChange={setBackDoc}
@@ -144,7 +200,7 @@ export default function ProviderVerificationScreen({ onNavigate }: NavigationPro
                 <div className="space-y-4">
                   <h3 className="font-bold text-lg">Selfie com Documento</h3>
                   <p className="text-sm text-slate-500 -mt-2">Tire uma foto do seu rosto segurando o documento enviado acima, próximo ao queixo.</p>
-                  <MockFileInput
+                  <FileInput
                     label="Enviar Selfie"
                     value={selfie}
                     onChange={setSelfie}
@@ -157,7 +213,7 @@ export default function ProviderVerificationScreen({ onNavigate }: NavigationPro
                 <div className="space-y-4">
                   <h3 className="font-bold text-lg">Comprovante de Residência</h3>
                   <p className="text-sm text-slate-500 -mt-2">Conta de luz, água ou fatura de cartão (máximo 3 meses).</p>
-                  <MockFileInput
+                  <FileInput
                     label="Enviar Comprovante"
                     value={proofOfResidence}
                     onChange={setProofOfResidence}

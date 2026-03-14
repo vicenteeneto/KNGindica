@@ -23,6 +23,8 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
   const [chatRoomsList, setChatRoomsList] = useState<any[]>([]);
   const [selectedChatRoom, setSelectedChatRoom] = useState<any>(null);
   const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [pendingVerifications, setPendingVerifications] = useState<any[]>([]);
+  const [selectedVerification, setSelectedVerification] = useState<any>(null);
 
   const [categoriesList, setCategoriesList] = useState<any[]>([]);
   const [categoryRequests, setCategoryRequests] = useState<any[]>([]);
@@ -51,6 +53,50 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
     } catch (e) {
       console.error("Erro ao atualizar status do prestador", e);
       alert("Erro ao atualizar status");
+    }
+  };
+
+  const handleApproveVerification = async (verification: any) => {
+    try {
+      // 1. Update verification status
+      const { error: vError } = await supabase
+        .from('provider_verifications')
+        .update({ status: 'approved' })
+        .eq('id', verification.id);
+      
+      if (vError) throw vError;
+
+      // 2. Update profile is_verified
+      const { error: pError } = await supabase
+        .from('profiles')
+        .update({ is_verified: true })
+        .eq('id', verification.provider_id);
+      
+      if (pError) throw pError;
+
+      setPendingVerifications(prev => prev.filter(v => v.id !== verification.id));
+      setSelectedVerification(null);
+      alert("Prestador verificado com sucesso!");
+    } catch (e) {
+      console.error("Erro ao aprovar verificação", e);
+      alert("Erro ao aprovar");
+    }
+  };
+
+  const handleRejectVerification = async (verification: any, reason: string) => {
+    try {
+      const { error } = await supabase
+        .from('provider_verifications')
+        .update({ status: 'rejected', rejection_reason: reason })
+        .eq('id', verification.id);
+      
+      if (error) throw error;
+      setPendingVerifications(prev => prev.filter(v => v.id !== verification.id));
+      setSelectedVerification(null);
+      alert("Verificação rejeitada.");
+    } catch (e) {
+      console.error("Erro ao rejeitar verificação", e);
+      alert("Erro ao rejeitar");
     }
   };
 
@@ -194,6 +240,14 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
           .select('*, provider:profiles(full_name, email)')
           .order('created_at', { ascending: false });
         setCategoryRequests(requests_cats || []);
+
+        // 7. Fetch Pending Verifications
+        const { data: verifications } = await supabase
+          .from('provider_verifications')
+          .select('*, provider:profiles(full_name, email, avatar_url)')
+          .eq('status', 'pending')
+          .order('created_at', { ascending: false });
+        setPendingVerifications(verifications || []);
       } catch (e) {
         console.error("Error fetching admin data", e);
       } finally {
@@ -392,6 +446,25 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
             </div>
             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Total de Clientes</p>
             <p className="text-2xl font-bold">{stats.clients}</p>
+          </div>
+
+          <div 
+            onClick={() => setActiveTab('verifications')}
+            className="group cursor-pointer bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-amber-500/50 hover:shadow-lg transition-all active:scale-95"
+          >
+            <div className="flex justify-between items-start mb-4">
+              <div className="p-2 bg-amber-50 dark:bg-amber-900/20 text-amber-600 group-hover:bg-amber-600 group-hover:text-white rounded-lg flex items-center justify-center transition-colors">
+                <span className="material-symbols-outlined">verified_user</span>
+              </div>
+              <div className="flex flex-col items-end">
+                <span className={`text-[10px] font-bold ${pendingVerifications.length > 0 ? 'text-amber-500' : 'text-slate-400'}`}>
+                  {pendingVerifications.length} pendentes
+                </span>
+                <span className="material-symbols-outlined text-slate-300 group-hover:text-amber-500 transition-colors">arrow_forward_ios</span>
+              </div>
+            </div>
+            <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Verificações de ID</p>
+            <p className="text-2xl font-bold">{pendingVerifications.length}</p>
           </div>
 
           {/* Card: Services - Clickable */}

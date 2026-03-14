@@ -86,7 +86,7 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
             price: '50.00',
             priceUnit: '/hora',
             image: data.avatar_url || 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a',
-            isVerified: true,
+            isVerified: data.is_verified,
             distance: 'A Combinar',
             description: data.bio || 'Sem descrição.',
             isAffiliate: data.plan_type === 'plus',

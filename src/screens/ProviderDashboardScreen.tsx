@@ -11,6 +11,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [portfolio, setPortfolio] = useState<any[]>([]);
+  const [completePercent, setCompletePercent] = useState(0);
   const [newImageUrl, setNewImageUrl] = useState('');
   const [isAddingImage, setIsAddingImage] = useState(false);
   
@@ -106,6 +107,20 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
     };
     fetchPortfolio();
   }, [user]);
+
+  useEffect(() => {
+    if (!profile) return;
+    
+    let percent = 0;
+    if (profile.avatar_url) percent += 15;
+    if (profile.bio) percent += 15;
+    if (profile.categories && profile.categories.length > 0) percent += 10;
+    if (profile.address) percent += 10;
+    if (portfolio.length >= 3) percent += 20;
+    if (profile.is_verified) percent += 30;
+    
+    setCompletePercent(percent);
+  }, [profile, portfolio]);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -295,6 +310,49 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         <h1 className="text-slate-900 dark:text-slate-100 text-2xl font-black leading-tight">Olá, {profile?.full_name?.split(' ')[0] || 'Profissional'}! 👋</h1>
         <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">Veja como o <strong>Alvus Clube</strong> está impulsionando seu negócio.</p>
       </section>
+
+      {/* Profile Completion Tracker */}
+      {completePercent < 100 && (
+        <section className="px-4 py-2">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm relative overflow-hidden group">
+            <div className="flex justify-between items-center mb-3">
+              <div>
+                <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight">Completude do Perfil</h3>
+                <p className="text-[10px] text-slate-500 font-medium">Complete seu perfil para atrair mais clientes</p>
+              </div>
+              <span className="text-lg font-black text-primary">{completePercent}%</span>
+            </div>
+            
+            <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-primary transition-all duration-1000 ease-out" 
+                style={{ width: `${completePercent}%` }}
+              />
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {!profile?.is_verified && (
+                <button 
+                  onClick={() => onNavigate('providerVerification')}
+                  className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-primary/10 transition-colors text-left"
+                >
+                  <span className="material-symbols-outlined text-sm text-primary">verified_user</span>
+                  <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400">Verificar Identidade (+30%)</span>
+                </button>
+              )}
+              {portfolio.length < 3 && (
+                <button 
+                  onClick={() => setActiveTab('portfolio')}
+                  className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800 hover:bg-primary/10 transition-colors text-left"
+                >
+                  <span className="material-symbols-outlined text-sm text-primary">add_a_photo</span>
+                  <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400">Add 3+ Fotos (+20%)</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Alvus Insights - Performance Central */}
       <section className="px-4 py-4">
