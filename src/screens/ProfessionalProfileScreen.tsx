@@ -196,11 +196,12 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
     }
     
     // Toggle otimista na UI
-    const nextState = !isFavorite;
+    const currentlyFavorite = isFavorite; // Guardar valor original para a lógica
+    const nextState = !currentlyFavorite;
     setIsFavorite(nextState);
 
     try {
-      if (isFavorite) {
+      if (currentlyFavorite) {
         // Remover
         const { error } = await supabase
           .from('user_favorites')
@@ -220,8 +221,9 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
     } catch (e: any) {
       console.error("Fav toggle error", e);
       // Reverter se der erro
-      setIsFavorite(!nextState);
-      alert("Erro ao salvar favorito. Verifique sua conexão.");
+      setIsFavorite(currentlyFavorite);
+      const msg = e.message || "Verifique sua conexão.";
+      alert(`Erro ao salvar favorito: ${msg}`);
     }
   };
 
