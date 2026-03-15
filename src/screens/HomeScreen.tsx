@@ -62,6 +62,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   const [providers, setProviders] = useState<any[]>([]);
   const [featuredProviders, setFeaturedProviders] = useState<any[]>([]);
   const [previousProviders, setPreviousProviders] = useState<any[]>([]);
+  const [favoriteProviders, setFavoriteProviders] = useState<any[]>([]);
   const [dynamicCategories, setDynamicCategories] = useState<{ name: string, icon: string }[]>([]);
   const [loadingProviders, setLoadingProviders] = useState(true);
   const [activeRequest, setActiveRequest] = useState<any>(null);
@@ -310,6 +311,44 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
       }
     };
     fetchPreviousProviders();
+  }, [user]);
+
+  // Fetch favorite providers
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      if (!user) {
+        setFavoriteProviders([]);
+        return;
+      }
+      try {
+        const { data: favs, error: favError } = await supabase
+          .from('user_favorites')
+          .select('provider_id, profiles!provider_id(*)')
+          .eq('user_id', user.id);
+
+        if (favError) throw favError;
+
+        if (favs) {
+          const mapped = favs.map((f: any) => {
+            const p = f.profiles;
+            if (!p) return null;
+            return {
+              id: p.id,
+              name: p.company_name || p.full_name || 'Profissional',
+              service: p.categories?.[0] || 'Serviços Gerais',
+              rating: p.rating || 5.0,
+              distance: p.city ? `Em ${p.city}` : 'N/A',
+              image: p.avatar_url || 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a',
+              plan_type: p.plan_type || 'basic'
+            };
+          }).filter(Boolean);
+          setFavoriteProviders(mapped);
+        }
+      } catch (e) {
+        console.error("Error fetching favorites:", e);
+      }
+    };
+    fetchFavorites();
   }, [user]);
 
   // Handle shuffling featured providers for the Hero spotlight
@@ -747,6 +786,16 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                     providers={providers} 
                     onNavigate={onNavigate}
                   />
+
+                  {/* Row: My Favorites (At the bottom as requested) */}
+                  {favoriteProviders.length > 0 && (
+                    <CollectionRow 
+                      title="Meus Favoritos" 
+                      subtitle="Seus profissionais preferidos salvos para acesso rápido."
+                      providers={favoriteProviders} 
+                      onNavigate={onNavigate}
+                    />
+                  )}
                 </>
               )}
             </>

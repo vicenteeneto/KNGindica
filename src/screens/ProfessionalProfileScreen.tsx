@@ -156,13 +156,22 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
       // Buscar status de favorito
       if (user) {
         const fetchFav = async () => {
-          const { data } = await supabase
-            .from('user_favorites')
-            .select('id')
-            .eq('user_id', user.id)
-            .eq('provider_id', professionalId)
-            .single();
-          setIsFavorite(!!data);
+          try {
+            const { data, error } = await supabase
+              .from('user_favorites')
+              .select('id')
+              .eq('user_id', user.id)
+              .eq('provider_id', professionalId)
+              .maybeSingle();
+            
+            if (error && error.code !== 'PGRST116') {
+              console.error("Erro ao buscar favorito:", error);
+              return;
+            }
+            setIsFavorite(!!data);
+          } catch (e) {
+            console.error("Fav fetch error", e);
+          }
         };
         fetchFav();
       }
@@ -185,16 +194,34 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
       alert("Faça login para favoritar profissionais.");
       return;
     }
+    
+    // Toggle otimista na UI
+    const nextState = !isFavorite;
+    setIsFavorite(nextState);
+
     try {
       if (isFavorite) {
-        await supabase.from('user_favorites').delete().eq('user_id', user.id).eq('provider_id', professionalId);
-        setIsFavorite(false);
+        // Remover
+        const { error } = await supabase
+          .from('user_favorites')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('provider_id', professionalId);
+        
+        if (error) throw error;
       } else {
-        await supabase.from('user_favorites').insert({ user_id: user.id, provider_id: professionalId });
-        setIsFavorite(true);
+        // Adicionar
+        const { error } = await supabase
+          .from('user_favorites')
+          .insert({ user_id: user.id, provider_id: professionalId });
+        
+        if (error) throw error;
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error("Fav toggle error", e);
+      // Reverter se der erro
+      setIsFavorite(!nextState);
+      alert("Erro ao salvar favorito. Verifique sua conexão.");
     }
   };
 
