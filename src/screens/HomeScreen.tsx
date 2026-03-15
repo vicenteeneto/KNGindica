@@ -685,6 +685,34 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
           </div>
         )}
 
+        {/* Alvo Open Orders CTA */}
+        <section className="max-w-7xl mx-auto px-4 mb-10 relative z-30">
+          <div className="bg-gradient-to-r from-emerald-600 to-emerald-800 rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl group-hover:bg-white/20 transition-all duration-700"></div>
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex-1 text-center md:text-left">
+                <div className="inline-flex items-center gap-2 bg-black/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 text-emerald-300">
+                  <span className="material-symbols-outlined text-sm">rocket_launch</span>
+                  Novo Recurso
+                </div>
+                <h2 className="text-3xl md:text-5xl font-black text-white leading-tight mb-4 tracking-tighter italic uppercase">
+                  Você define <br /> o <span className="text-emerald-300">preço!</span>
+                </h2>
+                <p className="text-emerald-50/70 text-sm md:text-base font-medium max-w-lg leading-relaxed">
+                  Poste o que você precisa e quanto quer pagar. Os profissionais disputam a sua ordem e você escolhe o melhor.
+                </p>
+              </div>
+              <button 
+                onClick={() => onNavigate('freelanceRequest')}
+                className="bg-white text-emerald-900 px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3 shrink-0"
+              >
+                Solicitar Freelance
+                <span className="material-symbols-outlined">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
         {/* Collection Rows */}
         <div className={`w-full max-w-7xl mx-auto relative z-20 pb-20 ${!activeRequest ? '-mt-8' : ''}`}>
           

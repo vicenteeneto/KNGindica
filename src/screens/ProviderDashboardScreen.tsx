@@ -248,6 +248,33 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         ))}
       </section>
 
+      {/* Oportunidades Alvo - Freelance Feed */}
+      <section className="px-4 pb-6">
+        <div 
+          onClick={() => onNavigate('openOrders')}
+          className="bg-gradient-to-br from-emerald-500 to-teal-700 rounded-3xl p-5 shadow-lg border border-white/10 relative overflow-hidden cursor-pointer group hover:scale-[1.02] active:scale-[0.98] transition-all"
+        >
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:rotate-12 transition-transform duration-500">
+            <span className="material-symbols-outlined text-7xl text-white">rocket_launch</span>
+          </div>
+          <div className="relative z-10">
+            <div className="inline-flex items-center gap-2 bg-black/20 backdrop-blur-md px-2 py-1 rounded-full text-[9px] font-black tracking-widest uppercase mb-3 text-emerald-200">
+              <span className="material-symbols-outlined text-xs">campaign</span>
+              Mais de 10 ordens hoje
+            </div>
+            <h3 className="text-xl font-black text-white uppercase tracking-tighter italic leading-none mb-1">
+              Oportunidades Alvo
+            </h3>
+            <p className="text-emerald-50/80 text-[11px] font-medium leading-tight max-w-[200px]">
+              Novos pedidos freelance abertos na sua região disponível para disputa.
+            </p>
+            <div className="mt-4 flex items-center gap-2">
+              <span className="text-[10px] font-black text-white uppercase tracking-widest bg-emerald-400/20 px-3 py-1.5 rounded-xl border border-white/20">Ver Ordens Disponíveis</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Ações Rápidas */}
       <section className="px-4 pb-6">
         <h3 className="font-black text-slate-900 dark:text-slate-100 mb-4 ml-1 flex items-center gap-2 text-sm uppercase tracking-tight">

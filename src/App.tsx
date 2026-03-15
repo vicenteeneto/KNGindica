@@ -28,6 +28,8 @@ import HelpCenterScreen from './screens/HelpCenterScreen';
 import ProviderScheduleScreen from './screens/ProviderScheduleScreen';
 import WriteReviewScreen from './screens/WriteReviewScreen';
 import FavoritesScreen from './screens/FavoritesScreen';
+import FreelanceRequestScreen from './screens/FreelanceRequestScreen';
+import OpenOrdersScreen from './screens/OpenOrdersScreen';
 import { Screen } from './types';
 import { ThemeProvider, useTheme } from './ThemeContext';
 import { AuthProvider, useAuth } from './AuthContext';
@@ -202,6 +204,10 @@ function AppContent() {
         return <CategoriesScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'favorites':
         return <FavoritesScreen onNavigate={handleNavigate} />;
+      case 'freelanceRequest':
+        return <FreelanceRequestScreen onNavigate={handleNavigate} />;
+      case 'openOrders':
+        return <OpenOrdersScreen onNavigate={handleNavigate} />;
       default:
         return <HomeScreen onNavigate={handleNavigate} />;
     }

@@ -1,4 +1,4 @@
-export type Screen = 'home' | 'listing' | 'profile' | 'dashboard' | 'chatList' | 'chat' | 'notifications' | 'registration' | 'plan' | 'providerPlan' | 'filters' | 'maia' | 'reviews' | 'serviceConfirmation' | 'providerRequests' | 'serviceStatus' | 'serviceRequestForm' | 'auth' | 'forgotPassword' | 'userProfile' | 'adminDashboard' | 'checkout' | 'providerWallet' | 'providerVerification' | 'helpCenter' | 'ticketDetails' | 'providerSchedule' | 'myRequests' | 'categories' | 'writeReview' | 'favorites';
+export type Screen = 'home' | 'listing' | 'profile' | 'dashboard' | 'chatList' | 'chat' | 'notifications' | 'registration' | 'plan' | 'providerPlan' | 'filters' | 'maia' | 'reviews' | 'serviceConfirmation' | 'providerRequests' | 'serviceStatus' | 'serviceRequestForm' | 'auth' | 'forgotPassword' | 'userProfile' | 'adminDashboard' | 'checkout' | 'providerWallet' | 'providerVerification' | 'helpCenter' | 'ticketDetails' | 'providerSchedule' | 'myRequests' | 'categories' | 'writeReview' | 'favorites' | 'freelanceRequest' | 'openOrders';
 
 export interface NavigationProps {
   onNavigate: (screen: Screen, params?: any) => void;

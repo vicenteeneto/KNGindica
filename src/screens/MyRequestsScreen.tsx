@@ -6,47 +6,58 @@ import { useAuth } from '../AuthContext';
 
 export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
   const { user, role } = useAuth();
-  const [activeTab, setActiveTab] = useState<'ativos' | 'concluidos' | 'cancelados'>('ativos');
+  const [activeTab, setActiveTab] = useState<'ativos' | 'concluidos' | 'cancelados' | 'freelance'>('ativos');
   const [requests, setRequests] = useState<any[]>([]);
+  const [freelanceOrders, setFreelanceOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchRequests = async () => {
     if (!user) return;
     setLoading(true);
     try {
-      let statuses = ['open', 'proposed', 'accepted', 'in_progress', 'awaiting_payment', 'paid'];
-      if (activeTab === 'concluidos') statuses = ['completed'];
-      else if (activeTab === 'cancelados') statuses = ['cancelled'];
-
-      console.log("Fetching requests for client:", user.id, "Tab:", activeTab);
-      
-      const { data, error } = await supabase
-        .from('service_requests')
-        .select(`
-          id,
-          title,
-          description,
-          status,
-          created_at,
-          category_id,
-          provider_id,
-          profiles:provider_id(full_name, avatar_url),
-          service_categories(name, icon)
-        `)
-        .eq('client_id', user.id)
-        .in('status', statuses)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      console.log("Requests found:", data?.length, data);
-      setRequests(data || []);
-    } catch (err: any) {
-      console.error("Erro no envio de proposta:", err);
-      if (err.message.includes('permission denied') || err.message.includes('RLS')) {
-         alert("ERRO DE PERMISSÃO: O banco de dados não permitiu gravar sua proposta. Você PRECISA rodar o SCRIPT SQL UNIFICADO (sql_v7_final_fix.sql) no editor do Supabase.");
+      if (activeTab === 'freelance') {
+        const { data, error } = await supabase
+          .from('freelance_orders')
+          .select(`
+            *,
+            service_categories(name, icon),
+            freelance_bids(
+              *,
+              profiles:provider_id(full_name, avatar_url, rating)
+            )
+          `)
+          .eq('client_id', user.id)
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        setFreelanceOrders(data || []);
       } else {
-         alert("Erro ao enviar proposta: " + err.message);
+        let statuses = ['open', 'proposed', 'accepted', 'in_progress', 'awaiting_payment', 'paid'];
+        if (activeTab === 'concluidos') statuses = ['completed'];
+        else if (activeTab === 'cancelados') statuses = ['cancelled'];
+
+        const { data, error } = await supabase
+          .from('service_requests')
+          .select(`
+            id,
+            title,
+            description,
+            status,
+            created_at,
+            category_id,
+            provider_id,
+            profiles:provider_id(full_name, avatar_url),
+            service_categories(name, icon)
+          `)
+          .eq('client_id', user.id)
+          .in('status', statuses)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setRequests(data || []);
       }
+    } catch (err: any) {
+      console.error("Erro ao buscar pedidos:", err);
+      alert("Erro ao buscar pedidos: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -122,6 +133,12 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
           >
             Cancelados
           </button>
+          <button
+            onClick={() => setActiveTab('freelance')}
+            className={`pb-3 text-sm font-bold whitespace-nowrap transition-colors border-b-2 ${activeTab === 'freelance' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+          >
+            Open Orders (Freelance)
+          </button>
         </div>
       </header>
 
@@ -143,6 +160,115 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
               >
                 Explorar Serviços
               </button>
+            </div>
+          ) : activeTab === 'freelance' ? (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+              {freelanceOrders.map((order) => (
+                <div
+                  key={order.id}
+                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-sm overflow-hidden"
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                        <span className="material-symbols-outlined">{order.service_categories?.icon || 'work'}</span>
+                      </div>
+                      <div>
+                        <h3 className="font-black text-lg tracking-tight uppercase">{order.title}</h3>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mt-1">Status: {order.status === 'open' ? 'Aguardando Lances' : 'Finalizado'}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Seu Orçamento</p>
+                      <p className="text-xl font-black text-emerald-500 leading-none">R$ {order.budget?.toFixed(2)}</p>
+                    </div>
+                  </div>
+
+                  {/* Bids List */}
+                  <div className="space-y-3 mt-6">
+                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-700 pb-2">Lances Recebidos ({order.freelance_bids?.length || 0})</h4>
+                    {order.freelance_bids?.length === 0 ? (
+                      <p className="text-xs text-slate-400 italic py-2">Aguardando prestadores interessados...</p>
+                    ) : (
+                      order.freelance_bids.map((bid: any) => (
+                        <div key={bid.id} className="flex items-center justify-between bg-slate-50 dark:bg-slate-900/50 p-3 rounded-2xl border border-transparent hover:border-primary/20 transition-all">
+                          <div className="flex items-center gap-3">
+                            <div className="size-10 rounded-full bg-slate-200 overflow-hidden">
+                              <img src={bid.profiles?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} className="w-full h-full object-cover" alt="" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold">{bid.profiles?.full_name}</p>
+                              <div className="flex items-center gap-1 text-amber-500 text-[10px] font-black">
+                                <span className="material-symbols-outlined text-[12px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                                {bid.profiles?.rating || 'Novo'}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <div className="text-right mr-2">
+                              <p className="text-xs font-black text-slate-900 dark:text-white leading-none">R$ {bid.amount?.toFixed(2)}</p>
+                            </div>
+                            <button 
+                              onClick={async () => {
+                                if(!window.confirm(`Deseja aceitar o lance de ${bid.profiles?.full_name}? Uma sala de chat será aberta.`)) return;
+                                try {
+                                  // 1. Update order
+                                  const { error: orderError } = await supabase
+                                    .from('freelance_orders')
+                                    .update({ status: 'assigned', assigned_provider_id: bid.provider_id })
+                                    .eq('id', order.id);
+                                  if (orderError) throw orderError;
+
+                                  // 2. Create service request record to link to existing system
+                                  const { data: request, error: requestError } = await supabase
+                                    .from('service_requests')
+                                    .insert([{
+                                      client_id: user.id,
+                                      provider_id: bid.provider_id,
+                                      title: `Freelance: ${order.title}`,
+                                      description: order.description,
+                                      budget_amount: bid.amount,
+                                      status: 'accepted',
+                                      category_id: order.category_id
+                                    }])
+                                    .select()
+                                    .single();
+                                  if (requestError) throw requestError;
+
+                                  // 3. Create chat room
+                                  const { data: room, error: roomError } = await supabase
+                                    .from('chat_rooms')
+                                    .insert([{
+                                      request_id: request.id,
+                                      client_id: user.id,
+                                      provider_id: bid.provider_id
+                                    }])
+                                    .select()
+                                    .single();
+                                  if (roomError) throw roomError;
+
+                                  alert("Parabéns! Você escolheu seu prestador. O chat já está aberto.");
+                                  onNavigate('chat', { 
+                                    roomId: room.id, 
+                                    opponentName: bid.profiles?.full_name, 
+                                    opponentAvatar: bid.profiles?.avatar_url,
+                                    requestId: request.id
+                                  });
+                                } catch (err: any) {
+                                  alert("Erro ao aceitar lance: " + err.message);
+                                }
+                              }}
+                              className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20"
+                            >
+                              Aceitar
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
