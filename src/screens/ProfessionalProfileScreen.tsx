@@ -5,6 +5,21 @@ import VerifiedBadge from '../components/VerifiedBadge';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
 import { useSEO } from '../hooks/useSEO';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+// Fix Leaflet Default Icon issue in React
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+let DefaultIcon = L.icon({
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41]
+});
+L.Marker.prototype.options.icon = DefaultIcon;
 
 interface ProfessionalProfileProps extends NavigationProps {
   professionalId?: string;
@@ -227,6 +242,34 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
     }
   };
 
+  const handleShare = async () => {
+    const profileUrl = window.location.href;
+    const title = `iService - ${professional?.name || 'Perfil'}`;
+    const text = `Confira o perfil de ${professional?.name || 'este profissional'} no iService!`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title,
+          text,
+          url: profileUrl,
+        });
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+          console.error("Erro ao compartilhar", err);
+        }
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(profileUrl);
+        alert("Link do perfil copiado para a área de transferência!");
+      } catch (err) {
+        console.error("Erro ao copiar link", err);
+        alert("Não foi possível copiar o link.");
+      }
+    }
+  };
+
   const professional = dbProfessional || professionals.find(p => p.id === professionalId) || professionals[0];
 
   const displayRating = realAverage !== null ? realAverage : professional?.rating;
@@ -279,7 +322,11 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
                 <span className="hidden sm:inline">Editar Perfil</span>
               </button>
             )}
-            <button className="flex items-center justify-center rounded-lg h-10 w-10 bg-transparent text-slate-900 dark:text-slate-100 p-0 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            <button 
+              onClick={handleShare}
+              className="flex items-center justify-center rounded-lg h-10 w-10 bg-transparent text-slate-900 dark:text-slate-100 p-0 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              title="Compartilhar"
+            >
               <span className="material-symbols-outlined">share</span>
             </button>
             <button onClick={() => onNavigate('home')} className="flex items-center justify-center rounded-lg h-10 w-10 bg-transparent text-slate-900 dark:text-slate-100 p-0 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="Início">
@@ -442,6 +489,32 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
                   </div>
                 )}
               </div>
+
+              {/* Map View */}
+              {(professional.latitude && professional.longitude) && (
+                <div className="px-4 pb-4">
+                  <div className="w-full h-48 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm relative z-0">
+                    <MapContainer 
+                      center={[professional.latitude, professional.longitude]} 
+                      zoom={15} 
+                      style={{ height: '100%', width: '100%' }}
+                      scrollWheelZoom={false}
+                    >
+                      <TileLayer
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      />
+                      <Marker position={[professional.latitude, professional.longitude]}>
+                        <Popup>
+                          <div className="text-xs font-bold">{professional.name}</div>
+                        </Popup>
+                      </Marker>
+                    </MapContainer>
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-2 font-medium text-center italic">
+                    📍 Localização aproximada do prestador
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 

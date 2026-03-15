@@ -67,6 +67,10 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   const [loadingProviders, setLoadingProviders] = useState(true);
   const [activeRequest, setActiveRequest] = useState<any>(null);
   const [showLocationModal, setShowLocationModal] = useState(false);
+  const [touchStartHero, setTouchStartHero] = useState<number | null>(null);
+  const [touchEndHero, setTouchEndHero] = useState<number | null>(null);
+  const [manualCityInput, setManualCityInput] = useState('');
+  const isManualLocation = useRef(false);
 
   // Geocodifica uma string de cidade para [lat, lng]
   const geocodeCidade = async (cidade: string): Promise<[number, number] | null> => {
@@ -99,8 +103,6 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
       console.error("Erro ao registrar lead", e);
     }
   };
-  const [manualCityInput, setManualCityInput] = useState('');
-  const isManualLocation = useRef(false);
 
   // Ask for location on mount
   useEffect(() => {
@@ -452,6 +454,30 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
     return () => clearInterval(interval);
   }, [heroProviders.length]);
 
+  const minSwipeDistance = 50;
+
+  const handleTouchStartHero = (e: React.TouchEvent) => {
+    setTouchEndHero(null);
+    setTouchStartHero(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMoveHero = (e: React.TouchEvent) => {
+    setTouchEndHero(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEndHero = () => {
+    if (!touchStartHero || !touchEndHero) return;
+    const distance = touchStartHero - touchEndHero;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isLeftSwipe) {
+      setCurrentHeroIndex((prev) => (prev + 1) % Math.min(heroProviders.length, 5));
+    } else if (isRightSwipe) {
+      setCurrentHeroIndex((prev) => (prev === 0 ? Math.min(heroProviders.length, 5) - 1 : prev - 1));
+    }
+  };
+
   return (
     <div className="w-full bg-[#0f171e] min-h-screen flex flex-col font-display text-white pb-20 md:pb-0 overflow-x-hidden transition-colors duration-500">
       
@@ -534,7 +560,12 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
       <main className="flex-1 w-full relative">
         {/* Prime-Style Hero Carousel */}
-        <section className="relative w-full h-[60vh] md:h-[75vh] overflow-hidden bg-black">
+        <section 
+          className="relative w-full h-[60vh] md:h-[75vh] overflow-hidden bg-black touch-pan-y"
+          onTouchStart={handleTouchStartHero}
+          onTouchMove={handleTouchMoveHero}
+          onTouchEnd={handleTouchEndHero}
+        >
           {heroProviders.length > 0 ? (
             <div className="absolute inset-0 w-full h-full">
               {heroProviders.slice(0, 5).map((p, idx) => (
