@@ -44,6 +44,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
     created_at: new Date().toISOString(),
     status: 'open'
   };
+
   return (
     <div className="bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
       {/* Floating Action Buttons */}
@@ -72,6 +73,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
           </button>
         </div>
       </div>
+
       {/* Header */}
       <header className="sticky top-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-center p-4 justify-between max-w-4xl mx-auto w-full">
@@ -86,7 +88,6 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
       </header>
 
       <main className="flex-1 max-w-4xl mx-auto w-full pb-24">
-        {/* Success Animation/Icon Area */}
         <div className="flex flex-col px-4 py-8">
           <div className="flex flex-col items-center gap-6">
             <div className="relative">
@@ -111,7 +112,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                  displayData.status === 'proposed' ? 'Você recebeu uma proposta. Confira os detalhes abaixo.' :
                  displayData.status === 'awaiting_payment' ? 'Sua proposta foi aceita! Realize o pagamento da taxa de intermediação para liberar o contato direto.' :
                  displayData.status === 'paid' ? 'Pagamento confirmado! O profissional entrará em contato em breve.' :
-                 displayData.status === 'completed' ? 'Obrigado por utilizar o Alvus Clube! Por favor, avalie o atendimento do profissional.' :
+                 displayData.status === 'completed' ? 'Obrigado por utilizar o Alvo! Por favor, avalie o atendimento do profissional.' :
                  'O profissional está pronto para realizar o seu atendimento.'}
               </p>
               
@@ -154,7 +155,6 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                       alert("Aguarde um profissional aceitar seu pedido para iniciar o chat.");
                       return;
                     }
-                    // Encontrar ou criar sala
                     const { data: room } = await supabase.from('chat_rooms').select('id').eq('request_id', params?.requestId).single();
                     if (room) {
                       onNavigate('chat', { 
@@ -178,7 +178,6 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
           <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Detalhes do Agendamento</h3>
           
           <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 divide-y divide-slate-100 dark:divide-slate-700 overflow-hidden shadow-sm">
-            {/* Service Info */}
             <div className="flex items-center gap-4 p-4">
               <div className="size-10 flex items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <span className="material-symbols-outlined">{displayData.service_categories?.icon || 'cleaning_services'}</span>
@@ -189,7 +188,6 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
               </div>
             </div>
             
-            {/* Date/Time */}
             <div className="flex items-center gap-4 p-4">
               <div className="size-10 flex items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <span className="material-symbols-outlined">calendar_today</span>
@@ -200,7 +198,6 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
               </div>
             </div>
             
-            {/* Location */}
             <div className="flex items-center gap-4 p-4">
               <div className="size-10 flex items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <span className="material-symbols-outlined">location_on</span>
@@ -211,7 +208,6 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
               </div>
             </div>
             
-            {/* Payment */}
             <div className="flex items-center gap-4 p-4">
               <div className="size-10 flex items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <span className="material-symbols-outlined">payments</span>
@@ -226,7 +222,6 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
             </div>
           </div>
           
-          {/* Action Buttons */}
           <div className="pt-4 flex flex-col gap-3">
             {(displayData.status === 'proposed' || displayData.status === 'awaiting_payment') && (
               <button 

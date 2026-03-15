@@ -15,6 +15,7 @@ interface Toast {
   title: string;
   message: string;
   type: 'notification' | 'message';
+  avatar?: string;
 }
 
 interface NotificationContextType {
@@ -33,14 +34,21 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const addToast = (title: string, message: string, type: 'notification' | 'message') => {
+  const addToast = (title: string, message: string, type: 'notification' | 'message', avatar?: string) => {
     const id = Math.random().toString(36).substring(2, 9);
-    setToasts(prev => [...prev, { id, title, message, type }]);
+    setToasts(prev => [...prev, { id, title, message, type, avatar }]);
     
-    // Auto-remove after 5 seconds
+    // Play subtle notification sound if possible
+    try {
+      const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+      audio.volume = 0.3;
+      audio.play().catch(() => {}); // Ignore auto-play blocking
+    } catch (e) {}
+
+    // Auto-remove after 6 seconds
     setTimeout(() => {
       removeToast(id);
-    }, 5000);
+    }, 6000);
   };
 
   const removeToast = (id: string) => {
@@ -135,8 +143,12 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           }, (payload) => {
             if (roomIds.includes(payload.new.room_id) && payload.new.sender_id !== user.id) {
               setUnreadMessages(prev => prev + 1);
-              // Para mensagens, o toast pode ser mais direto
-              addToast('Nova Mensagem', payload.new.content.substring(0, 50) + (payload.new.content.length > 50 ? '...' : ''), 'message');
+              // Buscar nome do remetente
+              const fetchSender = async () => {
+                const { data: sender } = await supabase.from('profiles').select('full_name, avatar_url').eq('id', payload.new.sender_id).single();
+                addToast(sender?.full_name || 'Nova Mensagem', payload.new.content.substring(0, 100), 'message', sender?.avatar_url);
+              };
+              fetchSender();
             }
           })
           .on('postgres_changes', {
@@ -165,24 +177,42 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       {children}
       
       {/* Toast Container */}
-      <div className="fixed top-4 right-4 left-4 md:left-auto md:w-80 z-[9999] flex flex-col gap-2 pointer-events-none">
+      <div className="fixed top-4 right-4 left-4 md:left-auto md:w-[380px] z-[9999] flex flex-col gap-3 pointer-events-none">
         {toasts.map(toast => (
           <div 
             key={toast.id}
-            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-4 flex gap-4 items-center animate-fade-in-up pointer-events-auto cursor-pointer hover:scale-[1.02] transition-transform"
+            className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-white/20 dark:border-slate-800 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] p-4 flex gap-4 items-center animate-in slide-in-from-right-full duration-500 pointer-events-auto cursor-pointer hover:scale-[1.02] active:scale-95 transition-all group"
             onClick={() => removeToast(toast.id)}
           >
-            <div className={`size-10 rounded-full flex items-center justify-center shrink-0 ${toast.type === 'message' ? 'bg-primary/20 text-primary' : 'bg-amber-100 text-amber-600'}`}>
-              <span className="material-symbols-outlined text-2xl">
-                {toast.type === 'message' ? 'chat' : 'notifications'}
-              </span>
+            <div className="relative shrink-0">
+               {toast.avatar ? (
+                 <img src={toast.avatar} className="size-12 rounded-full border-2 border-primary shadow-sm" alt="Avatar" />
+               ) : (
+                 <div className={`size-12 rounded-full flex items-center justify-center ${toast.type === 'message' ? 'bg-primary text-white' : 'bg-amber-500 text-white shadow-lg shadow-amber-500/20'}`}>
+                   <span className="material-symbols-outlined text-2xl">
+                     {toast.type === 'message' ? 'chat' : 'notifications'}
+                   </span>
+                 </div>
+               )}
+               <div className="absolute -bottom-1 -right-1 size-5 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-sm">
+                 <span className={`material-symbols-outlined text-[10px] ${toast.type === 'message' ? 'text-primary' : 'text-amber-500'}`}>
+                   {toast.type === 'message' ? 'chat' : 'notifications'}
+                 </span>
+               </div>
             </div>
+            
             <div className="flex-1 min-w-0">
-              <h4 className="font-bold text-sm text-slate-900 dark:text-white truncate">{toast.title}</h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">{toast.message}</p>
+              <h4 className="font-black text-sm text-slate-900 dark:text-white truncate flex items-center gap-2 italic uppercase tracking-tighter">
+                {toast.title}
+                <span className="size-1.5 rounded-full bg-primary animate-pulse"></span>
+              </h4>
+              <p className="text-xs font-bold text-slate-500 dark:text-slate-400 line-clamp-2 mt-0.5 leading-snug">
+                {toast.message}
+              </p>
             </div>
-            <button className="text-slate-400 hover:text-slate-600">
-              <span className="material-symbols-outlined text-sm">close</span>
+            
+            <button className="size-8 rounded-full flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="material-symbols-outlined text-base">close</span>
             </button>
           </div>
         ))}

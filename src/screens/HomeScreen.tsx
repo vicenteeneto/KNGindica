@@ -591,7 +591,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                         ) : (
                           <span className="bg-slate-700 px-2 py-0.5 rounded text-[10px] font-black tracking-tighter italic shadow-lg">DESTAQUE</span>
                         )}
-                        <span className="text-sm font-bold text-blue-400">Verificado Alvus</span>
+                        <span className="text-sm font-bold text-blue-400">Verificado Alvo</span>
                       </div>
                       <h1 className="text-3xl md:text-6xl font-black text-white leading-[0.9] mb-3 drop-shadow-2xl">
                         {p.name.split(' ')[0]} <br />
@@ -644,8 +644,10 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                 <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6958?q=80&w=2070&auto=format&fit=crop" className="opacity-30 object-cover w-full h-full" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0f171e] to-transparent"></div>
                 <div className="relative z-10 text-center">
-                  <h2 className="text-5xl font-black mb-4">Alvus Premium</h2>
-                  <p className="text-xl text-slate-300">Encontre os melhores prestadores da sua região.</p>
+                  <h2 className="text-5xl font-black mb-4">Alvo Premium</h2>
+                  <p className="text-xl text-slate-300 font-medium max-w-xl mx-auto mb-10 leading-relaxed">
+                    Torne-se um parceiro parceiro Alvo e multiplique seus serviços com exposição máxima e ferramentas exclusivas.
+                  </p>
                 </div>
              </div>
           )}
@@ -777,9 +779,9 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                     />
                   )}
 
-                  {/* Row: iService PLUS Recommendations */}
+                  {/* Row: Alvo Indica Recommendations */}
                   <CollectionRow 
-                    title="Destaques Alvus PLUS" 
+                    title="Destaques Alvo Indica" 
                     subtitle="Os profissionais mais bem avaliados e recomendados."
                     providers={featuredProviders.length > 0 ? featuredProviders : plusProviders.slice(0, 10)} 
                     onNavigate={onNavigate}
@@ -812,7 +814,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
                   {/* Row: All Providers (Fallback/Discovery) */}
                   <CollectionRow 
-                    title="Descobrir Profissionais" 
+                    title="Alvo Indica" 
                     subtitle="Explore todos os prestadores em Rondonópolis e região."
                     providers={providers} 
                     onNavigate={onNavigate}

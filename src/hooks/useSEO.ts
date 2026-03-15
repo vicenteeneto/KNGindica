@@ -9,7 +9,7 @@ interface SEOProps {
 }
 
 const DEFAULT = {
-  title: 'Alvus — Encontre Serviços Perto de Você',
+  title: 'Alvo Indica — Encontre profissionais indicados perto de você',
   description: 'Conectamos você com os melhores prestadores de serviços da sua cidade. Limpeza, reformas, elétrica e muito mais.',
   image: 'https://iservice-dusky.vercel.app/og-image.png',
   url: 'https://iservice-dusky.vercel.app',
@@ -28,7 +28,7 @@ function setMeta(selector: string, value: string) {
 
 export function useSEO({ title, description, image, url, type = 'website' }: SEOProps = {}) {
   useEffect(() => {
-    const t = title ? `${title} | Alvus` : DEFAULT.title;
+    const t = title ? `${title} | Alvo Indica` : DEFAULT.title;
     const d = description || DEFAULT.description;
     const img = image || DEFAULT.image;
     const u = url || window.location.href;
@@ -44,7 +44,7 @@ export function useSEO({ title, description, image, url, type = 'website' }: SEO
     setMeta('meta[property="og:image"]', img);
     setMeta('meta[property="og:url"]', u);
     setMeta('meta[property="og:type"]', type);
-    setMeta('meta[property="og:site_name"]', 'Alvus Clube');
+    setMeta('meta[property="og:site_name"]', 'Alvo Indica');
 
     // Twitter Card
     setMeta('meta[name="twitter:card"]', 'summary_large_image');

@@ -147,19 +147,23 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
       </section>
 
 
-      {/* Alvus Insights - Performance Central */}
-      <section className="px-4 py-4">
-        <div className="flex items-center justify-between mb-4 px-1">
-          <h3 className="font-black text-slate-900 dark:text-slate-100 flex items-center gap-2 text-sm uppercase tracking-tight">
-            <span className="material-symbols-outlined text-primary text-[20px]">insights</span>
-            Alvus Insights
-          </h3>
-          <div className="flex items-center gap-1.5">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-            </span>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tempo Real</span>
+      {/* Alvo Insights - Performance Central */}
+      <section className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden relative group">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter italic">
+              Alvo Insights
+            </h3>
+            <div className="flex items-center gap-1.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              </span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tempo Real</span>
+            </div>
+          </div>
+          <div className="size-12 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-2xl">insights</span>
           </div>
         </div>
 

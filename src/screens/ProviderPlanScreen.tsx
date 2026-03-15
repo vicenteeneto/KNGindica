@@ -116,7 +116,7 @@ export default function ProviderPlanScreen({ onNavigate }: NavigationProps) {
             <span className="material-symbols-outlined text-[14px]">bolt</span>
             Plano atual: <span className="capitalize">{currentPlan === 'plus' ? 'Plus ✨' : 'Free'}</span>
           </div>
-          <h2 className="text-2xl font-bold leading-tight">Cresça mais com o Alvus Clube</h2>
+          <h2 className="text-2xl font-bold leading-tight">Cresça mais com o Alvo</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">Escolha o plano que melhor se encaixa no seu negócio.</p>
         </div>
 
