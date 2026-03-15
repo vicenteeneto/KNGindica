@@ -155,6 +155,8 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
             city: data.city,
             state: data.state,
             address: data.address,
+            latitude: data.latitude,
+            longitude: data.longitude,
             opening_hours: data.opening_hours,
             loyalty_enabled: data.loyalty_enabled,
             loyalty_required_services: data.loyalty_required_services,
