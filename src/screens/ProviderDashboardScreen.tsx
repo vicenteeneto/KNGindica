@@ -8,6 +8,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
   const { logout, profile, user } = useAuth();
   const [stats, setStats] = useState({ requests: 0, visits: 0, leads: 0, earnings: 0, pending: 0 });
   const [recentRequests, setRecentRequests] = useState<any[]>([]);
+  const [portfolioCount, setPortfolioCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   
@@ -75,6 +76,14 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
 
         if (recentReqs) setRecentRequests(recentReqs);
 
+        // 5. Fetch portfolio count
+        const { count: pCount } = await supabase
+          .from('provider_portfolio')
+          .select('*', { count: 'exact', head: true })
+          .eq('provider_id', user.id);
+        
+        setPortfolioCount(pCount || 0);
+
       } catch (err) {
         console.error("Dashboard error", err);
       } finally {
@@ -106,8 +115,17 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
 
   const renderHeader = () => (
     <header className="flex items-center bg-white dark:bg-slate-900 p-3 border-b border-slate-100 dark:border-slate-800 justify-between sticky top-0 z-10 transition-all">
-      <div className="flex size-9 shrink-0 items-center overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" onClick={() => onNavigate('profile', { professionalId: user?.id })}>
-        <div className="bg-center bg-no-repeat aspect-square bg-cover size-full cursor-pointer" style={{ backgroundImage: `url('${profile?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"}')` }}></div>
+      <div className="flex items-center">
+        <button 
+          onClick={() => onNavigate('home')}
+          className="mr-3 p-1.5 text-primary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+          title="Voltar para Home"
+        >
+          <span className="material-symbols-outlined text-[22px]">arrow_back</span>
+        </button>
+        <div className="flex size-9 shrink-0 items-center overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" onClick={() => onNavigate('profile', { professionalId: user?.id })}>
+          <div className="bg-center bg-no-repeat aspect-square bg-cover size-full cursor-pointer" style={{ backgroundImage: `url('${profile?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"}')` }}></div>
+        </div>
       </div>
       <div className="flex flex-col ml-3 flex-1 cursor-pointer">
         <h2 className="text-slate-900 dark:text-slate-100 text-base font-black leading-tight tracking-tight">Dashboard</h2>
@@ -281,36 +299,62 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         </div>
       </section>
 
-      {/* Ações Rápidas */}
-      <section className="px-4 pb-6">
-        <h3 className="font-black text-slate-900 dark:text-slate-100 mb-4 ml-1 flex items-center gap-2 text-sm uppercase tracking-tight">
-          <span className="material-symbols-outlined text-slate-400 text-[20px]">bolt</span>
-          Ações Rápidas
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <button onClick={() => onNavigate('userProfile')} className="flex items-center gap-3 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 hover:border-primary transition-all cursor-pointer group shadow-sm">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
-              <span className="material-symbols-outlined">person</span>
+      {/* Completude do Perfil - Aparece apenas se incompleto */}
+      {(() => {
+        const missing = [];
+        if (!profile?.avatar_url) missing.push("Foto de Perfil");
+        if (!(profile as any)?.bio || (profile as any)?.bio.length < 30) missing.push("Bio completa");
+        if (!(profile as any)?.categories || (profile as any)?.categories.length === 0) missing.push("Categorias");
+        if (!(profile as any)?.latitude || !(profile as any)?.longitude) missing.push("Localização (GPS)");
+        if (!(profile as any)?.price_value) missing.push("Preço do serviço");
+        if (portfolioCount === 0) missing.push("Fotos no Portfólio");
+
+        if (missing.length === 0) return null;
+
+        return (
+          <section className="px-4 pb-6">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 border-2 border-amber-500/20 shadow-lg relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-4 opacity-5">
+                <span className="material-symbols-outlined text-6xl text-amber-500">task_alt</span>
+              </div>
+              
+              <div className="flex items-center gap-3 mb-4">
+                <div className="size-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/30">
+                  <span className="material-symbols-outlined">assignment_late</span>
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tighter">
+                    Finalize seu Perfil
+                  </h3>
+                  <p className="text-[10px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-widest">
+                    Aumente sua visibilidade
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-600 dark:text-slate-400 mb-4 leading-relaxed font-medium">
+                Seu perfil ainda não está completo. Para aparecer nos primeiros lugares e atrair mais clientes, você precisa preencher:
+              </p>
+
+              <div className="flex flex-wrap gap-2 mb-5">
+                {missing.map((item, idx) => (
+                  <span key={idx} className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700">
+                    • {item}
+                  </span>
+                ))}
+              </div>
+
+              <button 
+                onClick={() => onNavigate('userProfile')}
+                className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-md shadow-amber-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+              >
+                Completar Perfil Agora
+                <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              </button>
             </div>
-            <div className="flex-1 text-left">
-              <p className="font-bold text-slate-700 dark:text-slate-200 text-sm">Gerenciar Perfil</p>
-              <p className="text-[10px] text-slate-500">Dados, Portfólio e Configurações</p>
-            </div>
-            <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">chevron_right</span>
-          </button>
-          
-          <button onClick={() => onNavigate('chatList')} className="flex items-center gap-3 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 hover:border-primary transition-all cursor-pointer group shadow-sm">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-500 group-hover:scale-110 transition-transform">
-              <span className="material-symbols-outlined">chat</span>
-            </div>
-            <div className="flex-1 text-left">
-              <p className="font-bold text-slate-700 dark:text-slate-200 text-sm">Conversas</p>
-              <p className="text-[10px] text-slate-500">Falar com clientes</p>
-            </div>
-            <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">chevron_right</span>
-          </button>
-        </div>
-      </section>
+          </section>
+        );
+      })()}
 
       {/* Cards Auxiliares */}
       <section className="px-4 pb-4">

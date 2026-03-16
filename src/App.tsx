@@ -75,8 +75,7 @@ function AppContent() {
         if (state.params) setNavigationParams(state.params);
       } else {
         // Fallback to role-specific home
-        if (role === 'provider') setCurrentScreen('dashboard');
-        else if (role === 'admin') setCurrentScreen('adminDashboard');
+        if (role === 'admin') setCurrentScreen('adminDashboard');
         else setCurrentScreen('home');
       }
     };
@@ -102,7 +101,6 @@ function AppContent() {
         const isAdmin = adminEmail === 'offkngpublicidade@gmail.com' || adminEmail === 'netu.araujo@gmail.com' || role === 'admin';
         let dest: Screen;
         if (isAdmin) dest = 'adminDashboard';
-        else if (role === 'provider') dest = 'dashboard';
         else dest = 'home';
         setCurrentScreen(dest);
         localStorage.setItem(STORAGE_KEY, dest);
