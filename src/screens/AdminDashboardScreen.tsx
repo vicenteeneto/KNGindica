@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
+import { useNotifications } from '../NotificationContext';
 
 export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
   const { logout, user } = useAuth();
+  const { showToast, showModal } = useNotifications();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [stats, setStats] = useState({
     providers: 0,
@@ -38,6 +40,10 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
   const [growthData, setGrowthData] = useState<{ clients: number[], providers: number[] }>({ clients: [0,0,0,0,0,0,0], providers: [0,0,0,0,0,0,0] });
   const [mockReviewForm, setMockReviewForm] = useState({ provider_id: '', reviewer_id: '', rating: 5, comment: '', request_id: '' });
   const [maintenanceLoading, setMaintenanceLoading] = useState(false);
+  const [providerSearchTerm, setProviderSearchTerm] = useState('');
+  const [reviewerSearchTerm, setReviewerSearchTerm] = useState('');
+  const [showProviderResults, setShowProviderResults] = useState(false);
+  const [showReviewerResults, setShowReviewerResults] = useState(false);
 
   const AVAILABLE_ICONS = [
     'handyman', 'bolt', 'plumbing', 'cleaning_services', 'yard', 'local_shipping', 'ac_unit', 'format_paint', 
@@ -54,7 +60,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
       setSelectedProviderForKYC(null);
     } catch (e) {
       console.error("Erro ao atualizar status do prestador", e);
-      alert("Erro ao atualizar status");
+      showToast("Erro", "Erro ao atualizar status", "error");
     }
   };
 
@@ -78,10 +84,10 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
 
       setPendingVerifications(prev => prev.filter(v => v.id !== verification.id));
       setSelectedVerification(null);
-      alert("Prestador verificado com sucesso!");
+      showToast("Sucesso", "Prestador verificado com sucesso!", "success");
     } catch (e) {
       console.error("Erro ao aprovar verificação", e);
-      alert("Erro ao aprovar");
+      showToast("Erro", "Erro ao aprovar", "error");
     }
   };
 
@@ -95,48 +101,59 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
       if (error) throw error;
       setPendingVerifications(prev => prev.filter(v => v.id !== verification.id));
       setSelectedVerification(null);
-      alert("Verificação rejeitada.");
+      showToast("Aviso", "Verificação rejeitada.", "notification");
     } catch (e) {
       console.error("Erro ao rejeitar verificação", e);
-      alert("Erro ao rejeitar");
+      showToast("Erro", "Erro ao rejeitar", "error");
     }
   };
 
   const handleDeleteUserRecords = async (userId: string) => {
-    if (!window.confirm("ATENÇÃO: Isso apagará todos os registros deste usuário (pedidos, chats, avaliações) do banco público. O e-mail ainda continuará no Auth do Supabase. Deseja continuar?")) return;
-    
-    setMaintenanceLoading(true);
-    try {
-      // 1. Apagar chats
-      await supabase.from('chat_messages').delete().or(`sender_id.eq.${userId}`);
-      const { data: rooms } = await supabase.from('chat_rooms').select('id').or(`client_id.eq.${userId},provider_id.eq.${userId}`);
-      if (rooms && rooms.length > 0) {
-        await supabase.from('chat_rooms').delete().in('id', rooms.map(r => r.id));
+    showModal({
+      title: "Confirmar Reset",
+      message: "ATENÇÃO: Isso apagará todos os registros deste usuário (pedidos, chats, avaliações) do banco público. O e-mail ainda continuará no Auth do Supabase. Deseja continuar?",
+      confirmLabel: "Sim, Resetar",
+      cancelLabel: "Cancelar",
+      type: "danger",
+      onConfirm: async () => {
+        setMaintenanceLoading(true);
+        try {
+          // 1. Apagar chats
+          await supabase.from('chat_messages').delete().or(`sender_id.eq.${userId}`);
+          const { data: rooms } = await supabase.from('chat_rooms').select('id').or(`client_id.eq.${userId},provider_id.eq.${userId}`);
+          if (rooms && rooms.length > 0) {
+            await supabase.from('chat_rooms').delete().in('id', rooms.map(r => r.id));
+          }
+
+          // 2. Apagar pedidos
+          await supabase.from('service_requests').delete().or(`client_id.eq.${userId},provider_id.eq.${userId}`);
+
+          // 3. Apagar avaliações
+          await supabase.from('reviews').delete().or(`reviewer_id.eq.${userId},provider_id.eq.${userId}`);
+
+          // 4. Apagar perfil (public.profiles)
+          const { error } = await supabase.from('profiles').delete().eq('id', userId);
+
+          if (error) throw error;
+          showModal({
+            title: "Sucesso!",
+            message: "Registros públicos do usuário excluídos. Agora você pode excluí-lo no painel Auth do Supabase para resetar o e-mail.",
+            type: "success"
+          });
+          fetchData();
+        } catch (e) {
+          console.error("Erro ao excluir registros:", e);
+          showToast("Erro", "Erro ao excluir registros.", "error");
+        } finally {
+          setMaintenanceLoading(false);
+        }
       }
-
-      // 2. Apagar pedidos
-      await supabase.from('service_requests').delete().or(`client_id.eq.${userId},provider_id.eq.${userId}`);
-
-      // 3. Apagar avaliações
-      await supabase.from('reviews').delete().or(`reviewer_id.eq.${userId},provider_id.eq.${userId}`);
-
-      // 4. Apagar perfil (public.profiles)
-      const { error } = await supabase.from('profiles').delete().eq('id', userId);
-
-      if (error) throw error;
-      alert("Registros públicos do usuário excluídos com sucesso! Agora você pode excluí-lo no painel Auth do Supabase para resetar o e-mail.");
-      fetchData();
-    } catch (e) {
-      console.error("Erro ao excluir registros:", e);
-      alert("Erro ao excluir registros.");
-    } finally {
-      setMaintenanceLoading(false);
-    }
+    });
   };
 
   const handleCreateMockReview = async () => {
     if (!mockReviewForm.provider_id || !mockReviewForm.reviewer_id || !mockReviewForm.comment) {
-      alert("Preencha todos os campos da avaliação.");
+      showToast("Campos Incompletos", "Preencha todos os campos da avaliação.", "error");
       return;
     }
 
@@ -151,40 +168,59 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
       });
 
       if (error) throw error;
-      alert("Avaliação mock criada com sucesso!");
+      showToast("Sucesso", "Avaliação mock criada com sucesso!", "success");
       setMockReviewForm({ provider_id: '', reviewer_id: '', rating: 5, comment: '', request_id: '' });
+      setProviderSearchTerm('');
+      setReviewerSearchTerm('');
       fetchData();
     } catch (e) {
       console.error("Erro ao criar avaliação mock:", e);
-      alert("Erro ao criar avaliação.");
+      showToast("Erro", "Erro ao criar avaliação.", "error");
     } finally {
       setMaintenanceLoading(false);
     }
   };
 
   const handleDeleteReview = async (reviewId: string) => {
-    if (!window.confirm("Deseja realmente excluir esta avaliação?")) return;
-    
-    try {
-      const { error } = await supabase.from('reviews').delete().eq('id', reviewId);
-      if (error) throw error;
-      setReviewsList(prev => prev.filter(r => r.id !== reviewId));
-    } catch (e) {
-      console.error("Erro ao excluir review:", e);
-    }
+    showModal({
+      title: "Excluir Avaliação",
+      message: "Deseja realmente excluir esta avaliação?",
+      confirmLabel: "Sim, Excluir",
+      cancelLabel: "Voltar",
+      type: "danger",
+      onConfirm: async () => {
+        try {
+          const { error } = await supabase.from('reviews').delete().eq('id', reviewId);
+          if (error) throw error;
+          setReviewsList(prev => prev.filter(r => r.id !== reviewId));
+          showToast("Sucesso", "Avaliação removida", "success");
+        } catch (e) {
+          console.error("Erro ao excluir review:", e);
+          showToast("Erro", "Não foi possível excluir", "error");
+        }
+      }
+    });
   };
 
   const handleClearTestRequests = async () => {
-    if (!window.confirm("Deseja apagar todas as solicitações 'abertas' sem prestador vinculados? (Limpeza de Testes)")) return;
-    
-    try {
-      const { error } = await supabase.from('service_requests').delete().is('provider_id', null).eq('status', 'open');
-      if (error) throw error;
-      alert("Limpeza concluída!");
-      fetchData();
-    } catch (e) {
-      console.error("Erro na limpeza:", e);
-    }
+    showModal({
+      title: "Limpeza de Testes",
+      message: "Deseja apagar todas as solicitações 'abertas' sem prestador vinculados? (Limpeza de Testes)",
+      confirmLabel: "Limpar Agora",
+      cancelLabel: "Não",
+      type: "warning",
+      onConfirm: async () => {
+        try {
+          const { error } = await supabase.from('service_requests').delete().is('provider_id', null).eq('status', 'open');
+          if (error) throw error;
+          showToast("Sucesso", "Limpeza concluída!", "success");
+          fetchData();
+        } catch (e) {
+          console.error("Erro na limpeza:", e);
+          showToast("Erro", "Erro na limpeza", "error");
+        }
+      }
+    });
   };
 
   const handleResolveDispute = async (requestId: string, resolution: 'refund_client' | 'pay_provider' | 'resolved') => {
@@ -195,14 +231,14 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
       setSelectedDispute(null);
     } catch (e) {
       console.error("Erro ao resolver disputa", e);
-      alert("Erro ao resolver disputa. Verifique as permissões de banco.");
+      showToast("Erro", "Erro ao resolver disputa. Verifique as permissões de banco.", "error");
     }
   };
 
   const exportToCSV = () => {
     const concludedOrders = ordersList.filter(o => o.status === 'completed');
     if (concludedOrders.length === 0) {
-      alert("Nenhum pedido concluído para exportar.");
+      showToast("Aviso", "Nenhum pedido concluído para exportar.", "notification");
       return;
     }
     const headers = "ID,Cliente,Prestador,Servico,Status,Valor Total,Taxa Plataforma,Data\n";
@@ -1318,7 +1354,10 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                   </div>
                 </div>
                 <div className="flex flex-row md:flex-col gap-2 shrink-0 border-t md:border-t-0 md:border-l border-slate-100 dark:border-slate-800 pt-4 md:pt-0 md:pl-4 justify-center">
-                  <button className="flex-1 md:flex-none flex justify-center items-center gap-2 px-3 py-2 bg-slate-50 dark:bg-slate-800 text-red-500 text-xs font-bold rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                  <button 
+                    onClick={() => handleDeleteReview(review.id)}
+                    className="flex-1 md:flex-none flex justify-center items-center gap-2 px-3 py-2 bg-slate-50 dark:bg-slate-800 text-red-500 text-xs font-bold rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                  >
                     <span className="material-symbols-outlined text-[16px]">delete</span> Excluir
                   </button>
                 </div>
@@ -1544,7 +1583,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
         </section>
 
         {/* Criação de Avaliações Mock */}
-        <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+        <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm overflow-visible">
           <div className="flex items-center gap-3 mb-6">
             <div className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 p-2 rounded-lg">
               <span className="material-symbols-outlined">reviews</span>
@@ -1553,26 +1592,99 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
           </div>
 
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">ID do Prestador</label>
-                <input 
-                  type="text" 
-                  value={mockReviewForm.provider_id}
-                  onChange={e => setMockReviewForm({...mockReviewForm, provider_id: e.target.value})}
-                  className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs outline-none focus:border-primary"
-                  placeholder="UID do Prestador"
-                />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {/* Pesquisa de Prestador */}
+              <div className="relative">
+                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Buscar Prestador</label>
+                <div className="relative">
+                  <input 
+                    type="text" 
+                    value={providerSearchTerm}
+                    onChange={e => {
+                      setProviderSearchTerm(e.target.value);
+                      setShowProviderResults(true);
+                      if (e.target.value === '') setMockReviewForm({...mockReviewForm, provider_id: ''});
+                    }}
+                    onFocus={() => setShowProviderResults(true)}
+                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs outline-none focus:border-primary pr-10"
+                    placeholder="Nome do prestador..."
+                  />
+                  {mockReviewForm.provider_id && (
+                    <span className="material-symbols-outlined absolute right-2 top-2 text-emerald-500 text-lg">check_circle</span>
+                  )}
+                </div>
+                
+                {showProviderResults && providerSearchTerm.length > 0 && (
+                  <div className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-xl max-h-40 overflow-y-auto">
+                    {providersList
+                      .filter(p => (p.full_name || '').toLowerCase().includes(providerSearchTerm.toLowerCase()))
+                      .slice(0, 5)
+                      .map(p => (
+                        <button
+                          key={p.id}
+                          onClick={() => {
+                            setMockReviewForm({...mockReviewForm, provider_id: p.id});
+                            setProviderSearchTerm(p.full_name || p.id);
+                            setShowProviderResults(false);
+                          }}
+                          className="w-full flex items-center gap-3 p-2 hover:bg-slate-50 dark:hover:bg-slate-800 border-b border-slate-100 dark:border-slate-800 last:border-0 text-left"
+                        >
+                          <img src={p.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} className="size-6 rounded-full bg-slate-100" />
+                          <div className="overflow-hidden">
+                            <p className="text-[11px] font-bold truncate">{p.full_name}</p>
+                            <p className="text-[9px] text-slate-500 truncate">{p.service_category || 'Prestador'}</p>
+                          </div>
+                        </button>
+                      ))}
+                  </div>
+                )}
               </div>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">ID do Autor (Cliente)</label>
-                <input 
-                  type="text" 
-                  value={mockReviewForm.reviewer_id}
-                  onChange={e => setMockReviewForm({...mockReviewForm, reviewer_id: e.target.value})}
-                  className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs outline-none focus:border-primary"
-                  placeholder="UID do Autor"
-                />
+
+              {/* Pesquisa de Autor */}
+              <div className="relative">
+                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Buscar Autor (Cliente)</label>
+                <div className="relative">
+                  <input 
+                    type="text" 
+                    value={reviewerSearchTerm}
+                    onChange={e => {
+                      setReviewerSearchTerm(e.target.value);
+                      setShowReviewerResults(true);
+                      if (e.target.value === '') setMockReviewForm({...mockReviewForm, reviewer_id: ''});
+                    }}
+                    onFocus={() => setShowReviewerResults(true)}
+                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs outline-none focus:border-primary pr-10"
+                    placeholder="Nome do cliente..."
+                  />
+                  {mockReviewForm.reviewer_id && (
+                    <span className="material-symbols-outlined absolute right-2 top-2 text-emerald-500 text-lg">check_circle</span>
+                  )}
+                </div>
+
+                {showReviewerResults && reviewerSearchTerm.length > 0 && (
+                  <div className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-xl max-h-40 overflow-y-auto">
+                    {clientsList
+                      .filter(c => (c.full_name || '').toLowerCase().includes(reviewerSearchTerm.toLowerCase()))
+                      .slice(0, 5)
+                      .map(c => (
+                        <button
+                          key={c.id}
+                          onClick={() => {
+                            setMockReviewForm({...mockReviewForm, reviewer_id: c.id});
+                            setReviewerSearchTerm(c.full_name || c.id);
+                            setShowReviewerResults(false);
+                          }}
+                          className="w-full flex items-center gap-3 p-2 hover:bg-slate-50 dark:hover:bg-slate-800 border-b border-slate-100 dark:border-slate-800 last:border-0 text-left"
+                        >
+                          <img src={c.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} className="size-6 rounded-full bg-slate-100" />
+                          <div className="overflow-hidden">
+                            <p className="text-[11px] font-bold truncate">{c.full_name}</p>
+                            <p className="text-[9px] text-slate-500 truncate">{c.email || 'Cliente'}</p>
+                          </div>
+                        </button>
+                      ))}
+                  </div>
+                )}
               </div>
             </div>
 

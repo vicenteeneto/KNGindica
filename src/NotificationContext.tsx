@@ -25,8 +25,10 @@ interface ModalConfig {
   title: string;
   message: string;
   confirmLabel?: string;
+  cancelLabel?: string;
   onConfirm?: () => void;
-  type?: 'success' | 'info' | 'warning';
+  onCancel?: () => void;
+  type?: 'success' | 'info' | 'warning' | 'danger';
 }
 
 interface NotificationContextType {
@@ -233,11 +235,13 @@ export function NotificationProvider({ children, onNavigate }: { children: React
               <div className={`size-20 rounded-3xl mb-6 flex items-center justify-center shadow-lg ${
                 modal.type === 'success' ? 'bg-emerald-500 text-white shadow-emerald-500/20' : 
                 modal.type === 'warning' ? 'bg-amber-500 text-white shadow-amber-500/20' :
+                modal.type === 'danger' ? 'bg-red-500 text-white shadow-red-500/20' :
                 'bg-primary text-white shadow-primary/20'
               }`}>
                 <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>
                   {modal.type === 'success' ? 'check_circle' : 
-                   modal.type === 'warning' ? 'warning' : 'info'}
+                   modal.type === 'warning' ? 'warning' : 
+                   modal.type === 'danger' ? 'delete_forever' : 'info'}
                 </span>
               </div>
               
@@ -248,19 +252,34 @@ export function NotificationProvider({ children, onNavigate }: { children: React
                 {modal.message}
               </p>
               
-              <button
-                onClick={() => {
-                  if (modal.onConfirm) modal.onConfirm();
-                  setModal(null);
-                }}
-                className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg transition-all active:scale-95 ${
-                  modal.type === 'success' ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/20' :
-                  modal.type === 'warning' ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20' :
-                  'bg-primary hover:bg-primary/90 text-white shadow-primary/20'
-                }`}
-              >
-                {modal.confirmLabel || 'Entendido'}
-              </button>
+              <div className="flex flex-col gap-3 w-full">
+                <button
+                  onClick={() => {
+                    if (modal.onConfirm) modal.onConfirm();
+                    setModal(null);
+                  }}
+                  className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg transition-all active:scale-95 ${
+                    modal.type === 'success' ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/20' :
+                    modal.type === 'warning' ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20' :
+                    modal.type === 'danger' ? 'bg-red-500 hover:bg-red-600 text-white shadow-red-500/20' :
+                    'bg-primary hover:bg-primary/90 text-white shadow-primary/20'
+                  }`}
+                >
+                  {modal.confirmLabel || 'Entendido'}
+                </button>
+
+                {modal.onCancel && (
+                  <button
+                    onClick={() => {
+                      modal.onCancel?.();
+                      setModal(null);
+                    }}
+                    className="w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all active:scale-95"
+                  >
+                    {modal.cancelLabel || 'Cancelar'}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
