@@ -191,9 +191,10 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
       setProviderSearchTerm('');
       setReviewerSearchTerm('');
       fetchData();
-    } catch (e) {
-      console.error("Erro ao criar avaliação mock:", e);
-      showToast("Erro", "Erro ao criar avaliação.", "error");
+    } catch (e: any) {
+      console.error("Erro ao inserir avaliação mock:", e);
+      const errorMsg = e.message || "Verifique se o script SQL foi aplicado no Supabase.";
+      showToast("Erro", `Erro ao criar avaliação: ${errorMsg}`, "error");
     } finally {
       setMaintenanceLoading(false);
     }
