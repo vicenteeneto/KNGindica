@@ -2,11 +2,29 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-@theme {
-  --color-primary: #137fec;
-  --color-background-light: #f6f7f8;
-  --color-background-dark: #101922;
+:root {
+  /* Alvo Premium (Estilo Inter & Google) */
+  --color-primary: #FF7A00;
+  --bg-dark-main: #000000;
+  --bg-dark-surface: #121212;
+  --bg-dark-card: #1a1a1a;
   --font-display: "Inter", sans-serif;
+
+  /* Legacy Fallback (Azul Clássico)
+  --color-primary: #137fec;
+  --bg-dark-main: #0f171e;
+  --bg-dark-surface: #101922;
+  --bg-dark-card: #1e293b;
+  */
+}
+
+@theme {
+  --color-primary: var(--color-primary);
+  --color-background-light: #f6f7f8;
+  --color-background-dark: var(--bg-dark-main);
+  --color-surface-dark: var(--bg-dark-surface);
+  --color-card-dark: var(--bg-dark-card);
+  --font-display: var(--font-display);
 }
 
 @layer base {

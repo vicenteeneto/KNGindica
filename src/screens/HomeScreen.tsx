@@ -558,7 +558,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             <button
               key={cat.name}
               onClick={() => cat.name === 'Todos' ? onNavigate('listing', { searchQuery: '' }) : onNavigate('listing', { category: cat.name })}
-              className="flex-shrink-0 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all border border-slate-700 bg-slate-800/40 hover:bg-white hover:text-black hover:border-white"
+              className="flex-shrink-0 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all border border-white/10 bg-white/5 hover:bg-primary hover:text-white hover:border-primary text-gray-300"
             >
               {cat.name}
             </button>
@@ -584,22 +584,22 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                   <img
                     src={p.image}
                     alt={p.name}
-                    className="w-full h-full object-cover opacity-60 scale-105 transform hover:scale-100 transition-transform duration-[10000ms]"
+                    className="w-full h-full object-cover opacity-50 scale-105 transform hover:scale-100 transition-transform duration-[10000ms]"
                   />
-                  {/* Gradients */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0f171e] via-[#0f171e]/50 to-transparent"></div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#0f171e]/90 via-[#0f171e]/40 to-transparent"></div>
+                  {/* Gradients - Deep Black Style */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/20 to-transparent"></div>
 
                   {/* Content */}
                   <div className="absolute bottom-16 md:bottom-24 left-0 w-full px-4 md:px-12 max-w-7xl mx-auto left-1/2 -translate-x-1/2">
                     <div className="max-w-2xl animate-fade-in-up">
                       <div className="flex items-center gap-2 mb-3">
                         {p.plan_type === 'plus' ? (
-                          <span className="bg-primary px-2 py-0.5 rounded text-[10px] font-black tracking-tighter italic shadow-lg">PLUS</span>
+                          <span className="bg-primary px-2 py-0.5 rounded text-[10px] font-black tracking-tighter italic text-white shadow-lg">PLUS</span>
                         ) : (
-                          <span className="bg-slate-700 px-2 py-0.5 rounded text-[10px] font-black tracking-tighter italic shadow-lg">DESTAQUE</span>
+                          <span className="bg-white/10 px-2 py-0.5 rounded text-[10px] font-black tracking-tighter italic text-gray-400 shadow-lg border border-white/5">DESTAQUE</span>
                         )}
-                        <span className="text-sm font-bold text-blue-400">Verificado Alvo</span>
+                        <span className="text-sm font-bold text-orange-200/80">Verificado Alvo</span>
                       </div>
                       <h1 className="text-3xl md:text-6xl font-black text-white leading-[0.9] mb-3 drop-shadow-2xl">
                         {p.name.split(' ')[0]} <br />
@@ -617,14 +617,14 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                       <div className="flex items-center gap-2 md:gap-3">
                         <button
                           onClick={() => onNavigate('profile', { professionalId: p.id })}
-                          className="flex items-center gap-1.5 bg-white text-black px-3 md:px-8 py-2 md:py-3.5 rounded-lg font-black text-[10px] md:text-sm uppercase tracking-widest hover:bg-white/80 transition-all active:scale-95"
+                          className="flex items-center gap-1.5 bg-primary text-white px-3 md:px-8 py-2 md:py-3.5 rounded-lg font-black text-[10px] md:text-sm uppercase tracking-widest hover:bg-orange-600 transition-all active:scale-95 shadow-xl shadow-primary/20"
                         >
-                          <span className="material-symbols-outlined text-[16px] md:text-[24px]">play_arrow</span>
+                          <span className="material-symbols-outlined text-[16px] md:text-[24px] filled">play_arrow</span>
                           Ver Perfil
                         </button>
                         <button
                           onClick={() => onNavigate('listing', { category: p.service })}
-                          className="flex items-center gap-1.5 bg-slate-500/30 backdrop-blur-md text-white px-3 md:px-8 py-2 md:py-3.5 rounded-lg font-bold text-[10px] md:text-sm uppercase tracking-widest hover:bg-slate-500/50 transition-all"
+                          className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md text-white px-3 md:px-8 py-2 md:py-3.5 rounded-lg font-bold text-[10px] md:text-sm uppercase tracking-widest hover:bg-white/20 transition-all border border-white/10"
                         >
                           <span className="material-symbols-outlined text-[16px] md:text-[24px]">info</span>
                           Detalhes
@@ -726,15 +726,18 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
           
           {/* Action Row - Search & View Toggle */}
           <div className="px-4 md:px-8 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="relative w-full md:w-96 group">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
-              <input 
-                type="text"
-                placeholder="O que você precisa?"
-                className="w-full pl-10 pr-4 py-2.5 bg-[#1a242f] border border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm font-medium"
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={handleSearch}
-              />
+            <div className="relative group max-w-lg w-full">
+                  <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                    <span className="material-symbols-outlined text-gray-400 group-focus-within:text-primary transition-colors">sparkles</span>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Pergunte algo ou busque serviços..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && onNavigate('listing', { searchQuery })}
+                    className="w-full pl-10 pr-4 py-2 bg-slate-100/10 backdrop-blur-xl border border-white/10 rounded-full text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all placeholder:text-gray-500"
+                  />
             </div>
             
             <div className="flex items-center gap-4">
@@ -877,8 +880,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
        {/* Manual Location Modal */}
        {showLocationModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-          <div className="bg-[#1a242f] border border-slate-700 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in-up">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-xl p-4">
+          <div className="bg-[#0a0a0a] border border-white/10 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in-up">
             <div className="p-6 border-b border-slate-800 flex justify-between items-center">
               <h3 className="font-black text-xl text-white flex items-center gap-2 italic uppercase tracking-tighter">
                 <span className="material-symbols-outlined text-primary">location_on</span>
@@ -894,13 +897,13 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
               </p>
               <div className="mb-8">
                 <div className="relative">
-                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">search</span>
+                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">search</span>
                   <input
                     type="text"
                     value={manualCityInput}
                     onChange={(e) => setManualCityInput(e.target.value)}
                     placeholder="Ex: Rondonópolis, SP..."
-                    className="w-full pl-12 pr-4 py-4 bg-[#0f171e] border-2 border-slate-700 rounded-2xl focus:border-primary outline-none transition-all text-white font-bold"
+                    className="w-full pl-12 pr-4 py-4 bg-white/5 border-2 border-white/10 rounded-2xl focus:border-primary outline-none transition-all text-white font-bold"
                     autoFocus
                   />
                 </div>
@@ -969,9 +972,9 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight }: Co
       <div className="flex flex-col mb-5">
         <h3 className={`text-xl md:text-2xl font-black tracking-tighter uppercase italic flex items-center gap-2 ${highlight ? 'text-primary' : 'text-white'}`}>
           {title}
-          <span className="material-symbols-outlined text-sm font-normal not-italic opacity-40">chevron_right</span>
+          <span className="material-symbols-outlined text-sm font-normal not-italic opacity-20">chevron_right</span>
         </h3>
-        <p className="text-xs md:text-sm text-slate-400 font-medium">{subtitle}</p>
+        <p className="text-xs md:text-sm text-gray-400 font-medium">{subtitle}</p>
       </div>
 
       <div className="flex gap-4 md:gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0">
@@ -981,7 +984,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight }: Co
             onClick={() => onNavigate('profile', { professionalId: p.id })}
             className="snap-start shrink-0 w-[160px] md:w-[260px] group cursor-pointer"
           >
-            <div className={`relative aspect-[16/9] md:aspect-video rounded-xl overflow-hidden shadow-2xl bg-slate-800 transition-all duration-300 group-hover:scale-105 group-hover:ring-4 ${highlight ? 'group-hover:ring-primary/40' : 'group-hover:ring-white/20'}`}>
+            <div className={`relative aspect-[16/9] md:aspect-video rounded-xl overflow-hidden shadow-2xl bg-[#0a0a0a] transition-all duration-300 group-hover:scale-105 group-hover:ring-4 ${highlight ? 'group-hover:ring-primary/40' : 'group-hover:ring-white/5'}`}>
               <img
                 className="w-full h-full object-cover transition-transform duration-700"
                 src={p.image}
@@ -1012,7 +1015,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight }: Co
             
             {/* Name Below Card for cleaner look */}
             <div className="mt-2 text-center">
-              <h4 className="font-bold text-[11px] md:text-xs truncate text-slate-200 group-hover:text-primary transition-colors uppercase tracking-tight">
+              <h4 className="font-bold text-[11px] md:text-xs truncate text-gray-400 group-hover:text-primary transition-colors uppercase tracking-tight">
                 {p.name}
               </h4>
             </div>
@@ -1023,9 +1026,9 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight }: Co
         <div className="snap-start shrink-0 w-[160px] md:w-[260px] cursor-pointer">
            <button 
             onClick={() => onNavigate('listing', { category: providers[0].service })}
-            className="w-full aspect-[16/9] md:aspect-video rounded-xl border-2 border-slate-700 bg-slate-800/20 hover:bg-white hover:text-black transition-all flex flex-col items-center justify-center gap-2 group"
+            className="w-full aspect-[16/9] md:aspect-video rounded-xl border-2 border-white/5 bg-white/2 hover:bg-white hover:text-black transition-all flex flex-col items-center justify-center gap-2 group"
           >
-            <span className="size-10 rounded-full bg-slate-800 flex items-center justify-center group-hover:bg-black/10">
+            <span className="size-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-black/10">
               <span className="material-symbols-outlined">add</span>
             </span>
             <span className="text-xs font-black uppercase tracking-widest">Ver Mais</span>

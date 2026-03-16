@@ -63,15 +63,15 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-white dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 antialiased relative overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-white dark:bg-black font-display text-slate-900 dark:text-slate-100 antialiased relative overflow-hidden">
 
-      {/* Background Decor */}
-      <div className="absolute top-0 right-0 w-full h-[40vh] bg-primary/5 dark:bg-primary/10 -skew-y-6 origin-top-right z-0"></div>
-      <div className="absolute top-[-10vh] left-[-10vw] w-[40vw] h-[40vw] rounded-full bg-primary/10 dark:bg-primary/5 blur-3xl z-0"></div>
+      {/* Background Decor - Minimalist Dark Mode */}
+      <div className="absolute top-0 right-0 w-full h-[40vh] bg-primary/2 dark:bg-primary/5 -skew-y-6 origin-top-right z-0"></div>
+      <div className="absolute top-[-10vh] left-[-10vw] w-[40vw] h-[40vw] rounded-full bg-primary/5 dark:bg-primary/2 blur-3xl z-0"></div>
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col justify-center px-4 py-8 md:py-12 z-10 w-full max-w-7xl mx-auto">
-        <div className="w-full max-w-md mx-auto sm:bg-white/80 sm:dark:bg-slate-900/80 sm:backdrop-blur-xl sm:border border-slate-200 dark:border-slate-800 sm:shadow-2xl rounded-3xl sm:p-8 flex flex-col">
+        <div className="w-full max-w-md mx-auto sm:bg-white/80 sm:dark:bg-black/60 sm:backdrop-blur-xl sm:border border-slate-200 dark:border-white/5 sm:shadow-2xl rounded-3xl sm:p-8 flex flex-col">
           {/* Logo/Header */}
           <div className="flex flex-col items-center mb-8">
             <div className="w-16 h-16 bg-primary text-white rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-primary/30">
@@ -99,19 +99,19 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
             {!isLogin && (
               <>
                 <div className="flex flex-col gap-1.5 cursor-pointer">
-                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Quero me cadastrar como</label>
-                  <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                  <label className="text-sm font-semibold text-slate-700 dark:text-gray-400 ml-1">Quero me cadastrar como</label>
+                  <div className="flex bg-slate-100 dark:bg-white/5 p-1 rounded-xl">
                     <button
                       type="button"
                       onClick={() => setSignUpRole('client')}
-                      className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${signUpRole === 'client' ? 'bg-white dark:bg-slate-700 shadow text-primary' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                      className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${signUpRole === 'client' ? 'bg-white dark:bg-primary shadow text-primary dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:hover:text-gray-300'}`}
                     >
                       Cliente
                     </button>
                     <button
                       type="button"
                       onClick={() => setSignUpRole('provider')}
-                      className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${signUpRole === 'provider' ? 'bg-white dark:bg-slate-700 shadow text-primary' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                      className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${signUpRole === 'provider' ? 'bg-white dark:bg-primary shadow text-primary dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:hover:text-gray-300'}`}
                     >
                       Prestador
                     </button>
@@ -127,7 +127,7 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
                       required={!isLogin}
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all dark:text-white"
+                      className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all dark:text-white"
                       placeholder="Seu nome"
                     />
                   </div>
@@ -136,15 +136,15 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
             )}
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">E-mail</label>
+              <label className="text-sm font-semibold text-gray-300 ml-1">E-mail</label>
               <div className="relative flex items-center">
-                <span className="material-symbols-outlined absolute left-3 text-slate-400">mail</span>
+                <span className="material-symbols-outlined absolute left-3 text-gray-500">mail</span>
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all dark:text-white shadow-sm"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all text-white shadow-sm"
                   placeholder="seu@email.com"
                 />
               </div>
@@ -152,21 +152,21 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
 
             <div className="flex flex-col gap-1.5">
               <div className="flex justify-between items-center ml-1">
-                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Senha</label>
+                <label className="text-sm font-semibold text-gray-300">Senha</label>
                 {isLogin && (
-                  <button type="button" onClick={() => onNavigate('forgotPassword')} className="text-xs font-bold text-primary hover:underline">
+                  <button type="button" onClick={() => onNavigate('forgotPassword')} className="text-xs font-bold text-orange-500 hover:underline">
                     Esqueceu a senha?
                   </button>
                 )}
               </div>
               <div className="relative flex items-center">
-                <span className="material-symbols-outlined absolute left-3 text-slate-400">lock</span>
+                <span className="material-symbols-outlined absolute left-3 text-gray-500">lock</span>
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all dark:text-white shadow-sm"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all text-white shadow-sm"
                   placeholder="••••••••"
                 />
               </div>
@@ -175,7 +175,7 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
             <button
               type="submit"
               disabled={isLoading}
-              className="mt-4 flex justify-center items-center w-full bg-primary text-white font-bold py-3.5 rounded-xl shadow-lg shadow-primary/30 hover:bg-primary/90 hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+              className="mt-4 flex justify-center items-center w-full bg-orange-500 text-black font-bold py-3.5 rounded-xl shadow-lg shadow-orange-500/30 hover:bg-orange-600 hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <span className="material-symbols-outlined animate-spin">progress_activity</span>
@@ -206,7 +206,7 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
               }
             }}
             disabled={isLoading}
-            className="flex items-center justify-center gap-3 w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-3.5 rounded-xl font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all mb-8 disabled:opacity-50"
+            className="flex items-center justify-center gap-3 w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 py-3.5 rounded-xl font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-white/10 transition-all mb-8 disabled:opacity-50"
           >
             <svg viewBox="0 0 24 24" className="w-5 h-5">
               <path

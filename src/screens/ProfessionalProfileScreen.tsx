@@ -351,21 +351,21 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
               }}
             >
               {/* Enhanced fluid transition: Multi-layered gradients for zero "hard cutting" effect */}
-              <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-white dark:from-slate-900 via-white/80 dark:via-slate-900/80 to-transparent"></div>
-              <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-white dark:from-slate-900 via-white/40 dark:via-slate-900/40 to-transparent"></div>
-              <div className="absolute inset-x-0 -bottom-1 h-32 bg-white dark:bg-slate-900 blur-xl opacity-50"></div>
+              <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+              <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+              <div className="absolute inset-x-0 -bottom-1 h-32 bg-black blur-xl opacity-50"></div>
             </div>
           </div>
         </div>
 
         {/* Profile Info Container */}
         <div className="flex flex-col items-center -mt-12 md:-mt-16 relative z-10 px-0 md:px-4">
-          <div className="w-full max-w-3xl bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-slate-800 overflow-hidden">
+          <div className="w-full max-w-3xl bg-white dark:bg-black md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 overflow-hidden">
             
             {/* Instagram Style Profile Row */}
             <div className="flex px-4 pt-6 pb-2 items-center gap-4 md:gap-8">
               <div
-                className="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-20 w-20 md:min-h-28 md:w-28 border-4 border-white dark:border-slate-900 shadow-xl shrink-0"
+                className="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-20 w-20 md:min-h-28 md:w-28 border-4 border-white dark:border-black shadow-xl shrink-0"
                 style={{
                   backgroundImage: `url("${professional.image}")`,
                 }}
@@ -434,11 +434,11 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
           {/* Bio Section */}
           <div className="px-4 py-2">
             <h3 className="text-slate-900 dark:text-slate-100 text-xs font-black uppercase tracking-widest mb-2 flex items-center gap-2">
-              <span className="size-1 w-1 rounded-full bg-primary/40" />
+              <span className="size-1 w-1 rounded-full bg-primary" />
               Sobre
             </h3>
-            <div className="bg-slate-50 dark:bg-slate-900/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/50">
-              <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed font-medium">
+            <div className="bg-slate-50 dark:bg-white/5 p-3 rounded-xl border border-slate-100 dark:border-white/5">
+              <p className="text-slate-600 dark:text-gray-400 text-sm leading-relaxed font-medium">
                 {professional.description}
               </p>
             </div>
@@ -554,7 +554,7 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
               <div className="flex flex-col gap-4">
                 {dbReviews.length > 0 ? (
                   dbReviews.map((review, i) => (
-                    <div key={i} className="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-800/50">
+                    <div key={i} className="bg-white/2 dark:bg-white/5 p-4 rounded-2xl border border-slate-100 dark:border-white/5">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-3">
                           <div className="size-10 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden text-slate-500 font-bold border border-slate-200 dark:border-slate-700">
@@ -587,7 +587,7 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
                     </div>
                   ))
                 ) : (
-                  <div className="bg-slate-50 dark:bg-slate-900/30 p-8 rounded-xl border border-slate-200 dark:border-slate-800 text-center flex flex-col items-center">
+                  <div className="bg-slate-50 dark:bg-white/5 p-8 rounded-xl border border-slate-200 dark:border-white/5 text-center flex flex-col items-center">
                      <span className="material-symbols-outlined text-4xl text-slate-400 mb-2">star_half</span>
                      <p className="text-slate-500 text-sm">Nenhuma avaliação recebida ainda.</p>
                   </div>
@@ -599,7 +599,7 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
       </main>
 
       {/* Sticky Footer Action */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-center gap-2 z-[60]">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-black/95 backdrop-blur-lg border-t border-slate-200 dark:border-white/5 flex flex-col sm:flex-row justify-center gap-2 z-[60]">
         {professional.plan_type === 'plus' && professional.whatsapp && (
           <a
             href={`https://wa.me/55${professional.whatsapp.replace(/\D/g, '')}`}
@@ -617,7 +617,7 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
              trackLead(professional.id, 'chat_start');
              onNavigate('serviceRequestForm', { providerId: professional.id, providerName: professional.name });
           }}
-          className="w-full max-w-2xl bg-primary hover:bg-primary/90 text-white py-4 px-6 rounded-xl font-bold flex items-center justify-center gap-3 shadow-lg transition-transform active:scale-95"
+          className="w-full max-w-2xl bg-primary hover:bg-primary/90 text-white py-4 px-6 rounded-xl font-bold flex items-center justify-center gap-3 shadow-xl transition-transform active:scale-95 shadow-primary/20"
         >
           <span className="material-symbols-outlined text-[24px]">design_services</span>
           Solicitar Orçamento
