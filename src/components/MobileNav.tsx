@@ -40,13 +40,6 @@ export default function MobileNav({ onNavigate, currentScreen }: MobileNavProps)
         <span className="text-[10px] font-medium leading-normal">Pedidos</span>
       </button>
 
-      <button
-        onClick={() => onNavigate('favorites')}
-        className={`flex flex-1 flex-col items-center justify-end gap-1 group transition-colors ${currentScreen === 'favorites' ? 'text-primary' : 'text-slate-400 hover:text-primary'}`}
-      >
-        <span className="material-symbols-outlined text-[24px]" style={currentScreen === 'favorites' ? { fontVariationSettings: "'FILL' 1" } : {}}>favorite</span>
-        <span className="text-[10px] font-medium leading-normal">Salvos</span>
-      </button>
       
       <button
         onClick={() => onNavigate('notifications')}

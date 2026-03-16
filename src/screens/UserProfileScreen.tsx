@@ -571,22 +571,22 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
             </span>
           </div>
           <p className="text-slate-500 dark:text-slate-400 text-sm mb-1">{displayUser.email}</p>
-          <div className="flex items-center gap-2 mt-2">
-            <span className="bg-white/50 dark:bg-slate-800/50 px-3 py-1 rounded-full text-xs font-semibold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+          <div className="flex flex-wrap items-center justify-center gap-1.5 mt-2">
+            <span className="bg-white/50 dark:bg-white/5 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-tighter text-slate-500 dark:text-gray-400 border border-slate-200 dark:border-white/5 shadow-sm">
               {displayUser.joinDate}
             </span>
             {formData.plan_type === 'plus' ? (
-              <span className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-500 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 border border-yellow-200 dark:border-yellow-800/50 shadow-sm animate-pulse">
-                <span className="material-symbols-outlined text-[14px]">workspace_premium</span>
-                ASSINANTE PLUS
+              <span className="bg-orange-500 text-black px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-tighter flex items-center gap-1 shadow-sm border border-orange-400">
+                <span className="material-symbols-outlined text-[12px]">workspace_premium</span>
+                PLUS
               </span>
             ) : (
-              <span className="bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 px-3 py-1 rounded-full text-xs font-bold border border-slate-200 dark:border-slate-700">
-                PLANO BÁSICO
+              <span className="bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-gray-400 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-tighter border border-slate-200 dark:border-white/5">
+                BÁSICO
               </span>
             )}
-            <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-500 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 border border-amber-200 dark:border-amber-800/50">
-              <span className="material-symbols-outlined text-[14px]">stars</span>
+            <span className="bg-amber-500 text-black px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-tighter flex items-center gap-1 shadow-sm border border-amber-400">
+              <span className="material-symbols-outlined text-[12px]">stars</span>
               {displayUser.points} pts
             </span>
           </div>

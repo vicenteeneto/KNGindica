@@ -693,9 +693,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
           </div>
         )}
 
-        {/* Alvo Open Orders CTA */}
         <section className="max-w-7xl mx-auto px-4 mb-10 relative z-30">
-          <div className="bg-gradient-to-r from-emerald-600 to-emerald-800 rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden group">
+          <div className="bg-gradient-to-r from-emerald-600 to-emerald-800 rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl group-hover:bg-white/20 transition-all duration-700"></div>
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex-1 text-center md:text-left">
@@ -703,16 +702,16 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                   <span className="material-symbols-outlined text-sm">rocket_launch</span>
                   Novo Recurso
                 </div>
-                <h2 className="text-3xl md:text-5xl font-black text-white leading-tight mb-4 tracking-tighter italic uppercase">
+                <h2 className="text-2xl md:text-3xl font-black text-white leading-tight mb-4 tracking-tighter italic uppercase">
                   Você define <br /> o <span className="text-emerald-300">preço!</span>
                 </h2>
-                <p className="text-emerald-50/70 text-sm md:text-base font-medium max-w-lg leading-relaxed">
+                <p className="text-emerald-50/70 text-xs md:text-sm font-medium max-w-lg leading-relaxed">
                   Poste o que você precisa e quanto quer pagar. Os profissionais disputam a sua ordem e você escolhe o melhor.
                 </p>
               </div>
               <button 
                 onClick={() => onNavigate('freelanceRequest')}
-                className="bg-white text-emerald-900 px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3 shrink-0"
+                className="bg-white text-emerald-900 px-8 py-4 rounded-xl font-black text-xs uppercase tracking-widest shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3 shrink-0"
               >
                 Solicitar Freelance
                 <span className="material-symbols-outlined">arrow_forward</span>
@@ -743,7 +742,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             <div className="flex items-center gap-4">
                <button 
                 onClick={() => setViewMode(prev => prev === 'list' ? 'map' : 'list')}
-                className="flex items-center gap-2 bg-[#1a242f] text-white px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-tighter border border-slate-700 hover:border-primary transition-colors shadow-xl"
+                className="flex items-center gap-2 bg-slate-100 dark:bg-[#1a242f] text-slate-900 dark:text-white px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-tighter border border-slate-200 dark:border-slate-700 hover:border-primary transition-colors shadow-lg"
               >
                 <span className="material-symbols-outlined text-[18px]">{viewMode === 'list' ? 'map' : 'format_list_bulleted'}</span>
                 {viewMode === 'list' ? 'Ver Mapa' : 'Ver Lista'}
@@ -1026,13 +1025,15 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight }: Co
         <div className="snap-start shrink-0 w-[160px] md:w-[260px] cursor-pointer">
            <button 
             onClick={() => onNavigate('listing', { category: providers[0].service })}
-            className="w-full aspect-[16/9] md:aspect-video rounded-xl border-2 border-white/5 bg-white/2 hover:bg-white hover:text-black transition-all flex flex-col items-center justify-center gap-2 group"
+            className="w-full aspect-[16/9] md:aspect-video rounded-xl border-2 border-slate-200/50 dark:border-white/5 bg-slate-100 dark:bg-white/2 hover:bg-primary hover:text-white dark:hover:bg-white dark:hover:text-black transition-all flex flex-col items-center justify-center gap-2 group shadow-sm dark:shadow-none"
           >
-            <span className="size-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-black/10">
+            <span className="size-10 rounded-full bg-slate-200 dark:bg-white/5 flex items-center justify-center group-hover:bg-black/10">
               <span className="material-symbols-outlined">add</span>
             </span>
             <span className="text-xs font-black uppercase tracking-widest">Ver Mais</span>
            </button>
+           {/* Alignment placeholder */}
+           <div className="mt-2 text-center h-[20px] md:h-[24px]"></div>
         </div>
       </div>
     </section>
