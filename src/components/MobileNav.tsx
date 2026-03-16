@@ -41,18 +41,6 @@ export default function MobileNav({ onNavigate, currentScreen }: MobileNavProps)
       </button>
 
       
-      <button
-        onClick={() => onNavigate('notifications')}
-        className={`flex flex-1 flex-col items-center justify-end gap-1 group transition-colors ${currentScreen === 'notifications' ? 'text-primary' : 'text-slate-400 hover:text-primary'} relative`}
-      >
-        <span className="material-symbols-outlined text-[24px]" style={currentScreen === 'notifications' ? { fontVariationSettings: "'FILL' 1" } : {}}>notifications</span>
-        {unreadNotifications > 0 && (
-          <span className="absolute top-0 right-1/4 size-4 bg-primary text-white text-[8px] font-bold rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900">
-            {unreadNotifications > 9 ? '9+' : unreadNotifications}
-          </span>
-        )}
-        <span className="text-[10px] font-medium leading-normal">Avisos</span>
-      </button>
       
       {/* Profile for final user */}
       <button

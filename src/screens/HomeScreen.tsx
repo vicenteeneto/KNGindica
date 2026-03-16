@@ -70,6 +70,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   const [touchStartHero, setTouchStartHero] = useState<number | null>(null);
   const [touchEndHero, setTouchEndHero] = useState<number | null>(null);
   const [manualCityInput, setManualCityInput] = useState('');
+  const [role, setRole] = useState<'client' | 'provider' | null>(null);
   const isManualLocation = useRef(false);
 
   // Geocodifica uma string de cidade para [lat, lng]
@@ -182,6 +183,16 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         }
 
         if (error) throw error;
+
+        // Fetch current user role if logged in
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+          if (profile) setRole(profile.role);
+        }
 
         // Map them to look like our UI components expect
         let mapped = (data || []).map(p => {
@@ -481,12 +492,12 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   };
 
   return (
-    <div className="w-full bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-display text-slate-900 dark:text-white pb-20 md:pb-0 overflow-x-hidden transition-colors duration-500">
+    <div className="w-full bg-[#000000] min-h-screen flex flex-col font-display text-white pb-20 md:pb-0 overflow-x-hidden transition-colors duration-500">
       
       {/* Floating Header */}
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 px-4 pt-3 pb-1.5 ${isScrolled
-        ? 'bg-white/90 dark:bg-black/95 backdrop-blur-md shadow-lg border-b border-slate-200 dark:border-white/5'
-        : 'bg-gradient-to-b from-white/60 via-white/20 to-transparent dark:from-black/90 dark:via-black/30'
+        ? 'bg-black/95 backdrop-blur-md shadow-2xl border-b border-white/5'
+        : 'bg-gradient-to-b from-black/90 via-black/30 to-transparent'
         }`}>
         <div className="flex items-center justify-between mx-auto max-w-7xl">
           <div className="flex items-center gap-3">
@@ -522,7 +533,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
               </button>
               <button 
                 onClick={() => onNavigate('myRequests')} 
-                className="text-sm font-medium text-slate-500 dark:text-slate-300 hover:text-primary dark:hover:text-white transition-colors"
+                className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
               >
                 Meus Pedidos
               </button>
@@ -541,7 +552,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                 <div className="flex items-center gap-2">
                   <div className="hidden sm:flex flex-col items-end mr-1">
                     <span className="text-[10px] font-black text-primary uppercase tracking-widest italic leading-none">Modo</span>
-                    <span className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-tight leading-none">Cliente</span>
+                    <span className="text-[10px] font-bold text-white uppercase tracking-tight leading-none">Cliente</span>
                   </div>
                   <button onClick={() => onNavigate('userProfile')} className="size-9 rounded-full overflow-hidden border-2 border-primary/50 hover:border-primary transition-colors shadow-lg shadow-primary/10">
                     <img src={user.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${user.email}&background=random`} alt="Avatar" className="w-full h-full object-cover" />
@@ -691,6 +702,29 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
               </button>
             </div>
           </div>
+        )}
+
+        {/* Provider Dashboard CTA (Standardized) */}
+        {role === 'provider' && (
+          <section className="max-w-7xl mx-auto px-4 mb-8">
+            <div className="bg-primary/10 border border-primary/20 rounded-2xl p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-xl bg-primary text-white flex items-center justify-center">
+                  <span className="material-symbols-outlined">analytics</span>
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-black text-white uppercase tracking-tighter italic">Painel do Prestador</p>
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Acesse suas métricas e ganhos</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => onNavigate('dashboard')}
+                className="bg-primary text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary/20"
+              >
+                Ver Dashboard
+              </button>
+            </div>
+          </section>
         )}
 
         <section className="max-w-7xl mx-auto px-4 mb-10 relative z-30">

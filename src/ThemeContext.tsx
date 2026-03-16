@@ -32,7 +32,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+    // Disabled as requested: Dark mode is standard
+    setTheme('dark');
   };
 
   return (
