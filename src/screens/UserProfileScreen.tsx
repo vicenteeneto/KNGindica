@@ -514,7 +514,15 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
     <div className="flex flex-col min-h-screen bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
 
       {/* Header Profile Area (Gradient bg) */}
-      <div className="bg-gradient-to-b from-primary/20 to-transparent dark:from-primary/10 pt-12 pb-6 px-4 shrink-0 shadow-sm border-b border-white/20 dark:border-slate-800/50">
+      <div className="bg-gradient-to-b from-primary/20 to-transparent dark:from-primary/10 pt-12 pb-6 px-4 shrink-0 shadow-sm border-b border-white/20 dark:border-slate-800/50 relative">
+        {/* Back Button */}
+        <button 
+          onClick={() => onNavigate('home')}
+          className="absolute top-6 left-4 size-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-slate-700 dark:text-white hover:bg-white/40 transition-all z-10"
+        >
+          <span className="material-symbols-outlined">arrow_back</span>
+        </button>
+
         <div className="max-w-4xl mx-auto flex flex-col items-center">
           <div className="relative mb-4">
             <div
@@ -573,7 +581,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         </div>
       </div>
 
-          {/* Main Options */}
+      {/* Main Options */}
       <main className="flex-1 overflow-y-auto px-4 py-6 max-w-4xl mx-auto w-full pb-32">
         
         {role === 'provider' && (
@@ -597,28 +605,6 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
             </div>
           </section>
         )}
-
-        {/* Quick Access Area */}
-        <section className="mb-6">
-          <button 
-            onClick={() => onNavigate('favorites')}
-            className="w-full bg-gradient-to-br from-red-500 to-red-600 rounded-3xl p-5 shadow-lg shadow-red-500/20 flex items-center justify-between group overflow-hidden relative"
-          >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl group-hover:bg-white/20 transition-all"></div>
-            <div className="flex items-center gap-4 relative z-10">
-              <div className="size-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
-                <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
-              </div>
-              <div className="text-left">
-                <h3 className="text-lg font-black text-white italic uppercase tracking-tighter leading-tight">Meus Favoritos</h3>
-                <p className="text-white/70 text-[10px] font-bold uppercase tracking-widest">Seus profissionais preferidos</p>
-              </div>
-            </div>
-            <div className="size-10 rounded-full bg-white/20 flex items-center justify-center text-white relative z-10">
-              <span className="material-symbols-outlined">chevron_right</span>
-            </div>
-          </button>
-        </section>
 
         {/* Account Info Section */}
         <section className="mb-8">
