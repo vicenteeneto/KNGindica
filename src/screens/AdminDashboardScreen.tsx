@@ -45,7 +45,8 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
     reviewer_avatar_url: '', 
     rating: 5, 
     comment: '', 
-    request_id: '' 
+    request_id: '',
+    created_at: new Date().toISOString().split('T')[0]
   });
   const [maintenanceLoading, setMaintenanceLoading] = useState(false);
   const [providerSearchTerm, setProviderSearchTerm] = useState('');
@@ -169,12 +170,13 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
     try {
       const { error } = await supabase.from('reviews').insert({
         provider_id: mockReviewForm.provider_id,
-        reviewer_id: mockReviewForm.reviewer_id || null, // Opicional agora
+        reviewer_id: mockReviewForm.reviewer_id || null, 
         reviewer_name: mockReviewForm.reviewer_name || null,
         reviewer_avatar_url: mockReviewForm.reviewer_avatar_url || null,
         rating: mockReviewForm.rating,
         comment: mockReviewForm.comment,
-        request_id: mockReviewForm.request_id || null
+        request_id: mockReviewForm.request_id || null,
+        created_at: mockReviewForm.created_at ? new Date(mockReviewForm.created_at).toISOString() : new Date().toISOString()
       });
 
       if (error) throw error;
@@ -186,7 +188,8 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
         reviewer_avatar_url: '', 
         rating: 5, 
         comment: '', 
-        request_id: '' 
+        request_id: '',
+        created_at: new Date().toISOString().split('T')[0]
       });
       setProviderSearchTerm('');
       setReviewerSearchTerm('');

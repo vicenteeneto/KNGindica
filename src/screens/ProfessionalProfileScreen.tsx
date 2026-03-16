@@ -114,7 +114,7 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
       const fetchStats = async () => {
         const { data } = await supabase
           .from('reviews')
-          .select('rating, comment, created_at, profiles!reviews_reviewer_id_fkey(full_name, avatar_url)')
+          .select('rating, comment, created_at, reviewer_name, reviewer_avatar_url, profiles!reviews_reviewer_id_fkey(full_name, avatar_url)')
           .eq('provider_id', professionalId)
           .order('created_at', { ascending: false });
 
