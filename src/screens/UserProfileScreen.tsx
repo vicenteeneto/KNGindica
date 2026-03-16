@@ -544,7 +544,12 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
             />
           </div>
 
-          <h1 className="text-2xl font-bold tracking-tight text-center">{displayUser.name}</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold tracking-tight text-center">{displayUser.name}</h1>
+            <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest italic shadow-sm ${role === 'provider' ? 'bg-emerald-500 text-white' : 'bg-primary text-white'}`}>
+              MODO {role === 'provider' ? 'PRESTADOR' : 'CLIENTE'}
+            </span>
+          </div>
           <p className="text-slate-500 dark:text-slate-400 text-sm mb-1">{displayUser.email}</p>
           <div className="flex items-center gap-2 mt-2">
             <span className="bg-white/50 dark:bg-slate-800/50 px-3 py-1 rounded-full text-xs font-semibold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
@@ -592,6 +597,28 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
             </div>
           </section>
         )}
+
+        {/* Quick Access Area */}
+        <section className="mb-6">
+          <button 
+            onClick={() => onNavigate('favorites')}
+            className="w-full bg-gradient-to-br from-red-500 to-red-600 rounded-3xl p-5 shadow-lg shadow-red-500/20 flex items-center justify-between group overflow-hidden relative"
+          >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl group-hover:bg-white/20 transition-all"></div>
+            <div className="flex items-center gap-4 relative z-10">
+              <div className="size-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+                <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
+              </div>
+              <div className="text-left">
+                <h3 className="text-lg font-black text-white italic uppercase tracking-tighter leading-tight">Meus Favoritos</h3>
+                <p className="text-white/70 text-[10px] font-bold uppercase tracking-widest">Seus profissionais preferidos</p>
+              </div>
+            </div>
+            <div className="size-10 rounded-full bg-white/20 flex items-center justify-center text-white relative z-10">
+              <span className="material-symbols-outlined">chevron_right</span>
+            </div>
+          </button>
+        </section>
 
         {/* Account Info Section */}
         <section className="mb-8">
@@ -680,22 +707,6 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 </button>
               </>
             )}
-
-            <button
-              onClick={() => onNavigate('favorites')}
-              className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
-            >
-              <div className="flex items-center gap-4">
-                <div className="size-10 rounded-full bg-red-50 dark:bg-red-900/20 text-red-500 flex items-center justify-center group-hover:bg-red-100 dark:group-hover:bg-red-900/40 transition-colors">
-                  <span className="material-symbols-outlined">favorite</span>
-                </div>
-                <div className="text-left">
-                  <p className="font-semibold text-slate-900 dark:text-white">Meus Favoritos</p>
-                  <p className="text-xs text-slate-500">Profissionais salvos</p>
-                </div>
-              </div>
-              <span className="material-symbols-outlined text-slate-400">chevron_right</span>
-            </button>
 
             <button
               onClick={() => alert('Gerenciar métodos de pagamento')}

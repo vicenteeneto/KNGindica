@@ -15,7 +15,6 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
     const fetchRooms = async () => {
       if (!user) return;
       try {
-        const roleColumn = role === 'provider' ? 'provider_id' : 'client_id';
         const { data: roomsData, error } = await supabase
           .from('chat_rooms')
           .select(`
@@ -27,7 +26,7 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
             provider:profiles!chat_rooms_provider_id_fkey(full_name, avatar_url),
             service_requests(title)
           `)
-          .eq(roleColumn, user.id);
+          .or(`client_id.eq.${user.id},provider_id.eq.${user.id}`);
 
         if (error) throw error;
 
@@ -104,7 +103,8 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
             </div>
           ) : (
             rooms.map((room) => {
-              const profile = role === 'provider' ? room.client : room.provider;
+              // Unified logic: opponent is whoever is NOT the current user
+              const profile = room.provider_id === user?.id ? room.client : room.provider;
               const title = room.service_requests?.title || 'Serviço';
               const latestMessage = room.latestMessage?.message || 'Inicie a conversa!';
               const time = room.latestMessage ? new Date(room.latestMessage.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';

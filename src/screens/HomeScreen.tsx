@@ -536,9 +536,15 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                 <span className="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-[#0f171e]"></span>
               </button>
               {user && (
-                <button onClick={() => onNavigate('userProfile')} className="size-9 rounded-full overflow-hidden border-2 border-slate-700 hover:border-primary transition-colors">
-                  <img src={user.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${user.email}&background=random`} alt="Avatar" className="w-full h-full object-cover" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <div className="hidden sm:flex flex-col items-end mr-1">
+                    <span className="text-[10px] font-black text-primary uppercase tracking-widest italic leading-none">Modo</span>
+                    <span className="text-[10px] font-bold text-white uppercase tracking-tight leading-none">Cliente</span>
+                  </div>
+                  <button onClick={() => onNavigate('userProfile')} className="size-9 rounded-full overflow-hidden border-2 border-primary/50 hover:border-primary transition-colors shadow-lg shadow-primary/10">
+                    <img src={user.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${user.email}&background=random`} alt="Avatar" className="w-full h-full object-cover" />
+                  </button>
+                </div>
               )}
             </div>
           </div>

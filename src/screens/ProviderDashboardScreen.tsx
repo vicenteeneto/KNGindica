@@ -109,7 +109,13 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
       <div className="flex size-9 shrink-0 items-center overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" onClick={() => onNavigate('profile', { professionalId: user?.id })}>
         <div className="bg-center bg-no-repeat aspect-square bg-cover size-full cursor-pointer" style={{ backgroundImage: `url('${profile?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"}')` }}></div>
       </div>
-      <h2 className="text-slate-900 dark:text-slate-100 text-base font-black leading-tight tracking-tight flex-1 ml-3 cursor-pointer">Dashboard</h2>
+      <div className="flex flex-col ml-3 flex-1 cursor-pointer">
+        <h2 className="text-slate-900 dark:text-slate-100 text-base font-black leading-tight tracking-tight">Dashboard</h2>
+        <div className="flex items-center gap-1">
+          <span className="size-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+          <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest italic">Modo Prestador</span>
+        </div>
+      </div>
       <div className="flex gap-1.5">
         <button onClick={() => onNavigate('chatList')} className="flex size-9 items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 relative hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" title="Mensagens">
           <span className="material-symbols-outlined text-[20px]">chat</span>
