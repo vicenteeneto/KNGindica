@@ -38,7 +38,15 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
   const [providerSearch, setProviderSearch] = useState('');
   const [clientSearch, setClientSearch] = useState('');
   const [growthData, setGrowthData] = useState<{ clients: number[], providers: number[] }>({ clients: [0,0,0,0,0,0,0], providers: [0,0,0,0,0,0,0] });
-  const [mockReviewForm, setMockReviewForm] = useState({ provider_id: '', reviewer_id: '', rating: 5, comment: '', request_id: '' });
+  const [mockReviewForm, setMockReviewForm] = useState({ 
+    provider_id: '', 
+    reviewer_id: '', 
+    reviewer_name: '', 
+    reviewer_avatar_url: '', 
+    rating: 5, 
+    comment: '', 
+    request_id: '' 
+  });
   const [maintenanceLoading, setMaintenanceLoading] = useState(false);
   const [providerSearchTerm, setProviderSearchTerm] = useState('');
   const [reviewerSearchTerm, setReviewerSearchTerm] = useState('');
@@ -161,7 +169,9 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
     try {
       const { error } = await supabase.from('reviews').insert({
         provider_id: mockReviewForm.provider_id,
-        reviewer_id: mockReviewForm.reviewer_id,
+        reviewer_id: mockReviewForm.reviewer_id || null, // Opicional agora
+        reviewer_name: mockReviewForm.reviewer_name || null,
+        reviewer_avatar_url: mockReviewForm.reviewer_avatar_url || null,
         rating: mockReviewForm.rating,
         comment: mockReviewForm.comment,
         request_id: mockReviewForm.request_id || null
@@ -169,7 +179,15 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
 
       if (error) throw error;
       showToast("Sucesso", "Avaliação mock criada com sucesso!", "success");
-      setMockReviewForm({ provider_id: '', reviewer_id: '', rating: 5, comment: '', request_id: '' });
+      setMockReviewForm({ 
+        provider_id: '', 
+        reviewer_id: '', 
+        reviewer_name: '', 
+        reviewer_avatar_url: '', 
+        rating: 5, 
+        comment: '', 
+        request_id: '' 
+      });
       setProviderSearchTerm('');
       setReviewerSearchTerm('');
       fetchData();
@@ -1650,15 +1668,22 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                     onChange={e => {
                       setReviewerSearchTerm(e.target.value);
                       setShowReviewerResults(true);
-                      if (e.target.value === '') setMockReviewForm({...mockReviewForm, reviewer_id: ''});
+                      // Se o usuário está digitando, limpamos o ID fixo para permitir nome customizado
+                      setMockReviewForm({
+                        ...mockReviewForm, 
+                        reviewer_id: '', 
+                        reviewer_name: e.target.value
+                      });
                     }}
                     onFocus={() => setShowReviewerResults(true)}
                     className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs outline-none focus:border-primary pr-10"
-                    placeholder="Nome do cliente..."
+                    placeholder="Nome do cliente (ou digite um novo)..."
                   />
-                  {mockReviewForm.reviewer_id && (
-                    <span className="material-symbols-outlined absolute right-2 top-2 text-emerald-500 text-lg">check_circle</span>
-                  )}
+                  {mockReviewForm.reviewer_id ? (
+                    <span className="material-symbols-outlined absolute right-2 top-2 text-emerald-500 text-lg">verified</span>
+                  ) : mockReviewForm.reviewer_name ? (
+                    <span className="material-symbols-outlined absolute right-2 top-2 text-blue-500 text-lg">edit_note</span>
+                  ) : null}
                 </div>
 
                 {showReviewerResults && reviewerSearchTerm.length > 0 && (
@@ -1670,7 +1695,12 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                         <button
                           key={c.id}
                           onClick={() => {
-                            setMockReviewForm({...mockReviewForm, reviewer_id: c.id});
+                            setMockReviewForm({
+                              ...mockReviewForm, 
+                              reviewer_id: c.id,
+                              reviewer_name: c.full_name,
+                              reviewer_avatar_url: c.avatar_url || ''
+                            });
                             setReviewerSearchTerm(c.full_name || c.id);
                             setShowReviewerResults(false);
                           }}
@@ -1686,6 +1716,18 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* Novo Campo: Foto do Autor (Opcional) */}
+            <div className="animate-in slide-in-from-top-2 duration-300">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">URL da Foto do Autor (Opcional - Google Imports)</label>
+              <input 
+                type="text" 
+                value={mockReviewForm.reviewer_avatar_url}
+                onChange={e => setMockReviewForm({...mockReviewForm, reviewer_avatar_url: e.target.value})}
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs outline-none focus:border-primary"
+                placeholder="https://... (deixe vazio para usar inicial)"
+              />
             </div>
 
             <div>
