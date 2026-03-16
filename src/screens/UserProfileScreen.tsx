@@ -592,27 +592,6 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       {/* Main Options */}
       <main className="flex-1 overflow-y-auto px-4 py-6 max-w-4xl mx-auto w-full pb-32">
         
-        {role === 'provider' && (
-          <section className="mb-4">
-            <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-2xl p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="size-10 rounded-xl bg-primary text-white flex items-center justify-center">
-                  <span className="material-symbols-outlined">analytics</span>
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tighter italic">Painel do Prestador</p>
-                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Acesse suas métricas e ganhos</p>
-                </div>
-              </div>
-              <button 
-                onClick={() => onNavigate('dashboard')}
-                className="bg-primary text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary/20"
-              >
-                Ver Dashboard
-              </button>
-            </div>
-          </section>
-        )}
 
         {/* Account Info Section */}
         <section className="mb-8">
@@ -740,26 +719,6 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
               <span className="material-symbols-outlined text-slate-400">chevron_right</span>
             </button>
 
-            {/* In-app theme toggle replaces the floating button */}
-            <button
-              onClick={toggleTheme}
-              className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
-            >
-              <div className="flex items-center gap-4">
-                <div className="size-10 rounded-full bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 flex items-center justify-center group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/40 transition-colors">
-                  <span className="material-symbols-outlined">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
-                </div>
-                <div className="text-left">
-                  <p className="font-semibold text-slate-900 dark:text-white">Aparência do App</p>
-                  <p className="text-xs text-slate-500">
-                    {theme === 'dark' ? 'Modo Escuro' : 'Modo Claro'}
-                  </p>
-                </div>
-              </div>
-              <div className="w-10 h-6 bg-slate-200 dark:bg-primary rounded-full relative transition-colors shadow-inner flex items-center shrinks-0">
-                <div className={`absolute top-1 bg-white w-4 h-4 rounded-full shadow transition-all ${theme === 'dark' ? 'left-5' : 'left-1'}`}></div>
-              </div>
-            </button>
 
             <button
               onClick={() => showToast("Central de Ajuda", "Suporte disponível pelo WhatsApp oficial do Alvo.", "notification")}
@@ -818,12 +777,6 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
 
       </main>
 
-      {/* Using the standard MobileNav */}
-      {role === 'provider' ? (
-        <ProviderMobileNav onNavigate={onNavigate} currentScreen="profile" />
-      ) : (
-        <MobileNav onNavigate={onNavigate} currentScreen="profile" />
-      )}
 
       {/* Modal: Portfólio de Trabalhos */}
       {showPortfolioModal && (

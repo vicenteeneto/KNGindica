@@ -704,28 +704,6 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
           </div>
         )}
 
-        {/* Provider Dashboard CTA (Standardized) */}
-        {role === 'provider' && (
-          <section className="max-w-7xl mx-auto px-4 mb-8">
-            <div className="bg-primary/10 border border-primary/20 rounded-2xl p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="size-10 rounded-xl bg-primary text-white flex items-center justify-center">
-                  <span className="material-symbols-outlined">analytics</span>
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-black text-white uppercase tracking-tighter italic">Painel do Prestador</p>
-                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Acesse suas métricas e ganhos</p>
-                </div>
-              </div>
-              <button 
-                onClick={() => onNavigate('dashboard')}
-                className="bg-primary text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary/20"
-              >
-                Ver Dashboard
-              </button>
-            </div>
-          </section>
-        )}
 
         <section className="max-w-7xl mx-auto px-4 mb-10 relative z-30">
           <div className="bg-gradient-to-r from-emerald-600/90 to-emerald-800/95 rounded-xl p-4 md:p-6 shadow-xl relative overflow-hidden group border border-emerald-400/20">
@@ -1010,7 +988,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight }: Co
         <p className="text-xs md:text-sm text-slate-500 dark:text-gray-400 font-medium">{subtitle}</p>
       </div>
 
-      <div className="flex gap-4 md:gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0">
+      <div className="flex gap-4 md:gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory px-0 md:mx-0 md:px-0">
         {providers.map((p) => (
           <div
             key={p.id}
