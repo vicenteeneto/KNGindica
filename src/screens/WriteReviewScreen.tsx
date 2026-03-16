@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
+import { useNotifications } from '../NotificationContext';
 
 interface WriteReviewScreenProps extends NavigationProps {
   params?: any;
@@ -9,6 +10,7 @@ interface WriteReviewScreenProps extends NavigationProps {
 
 export default function WriteReviewScreen({ onNavigate, params }: WriteReviewScreenProps) {
   const { user } = useAuth();
+  const { showToast, showModal } = useNotifications();
   const [rating, setRating] = useState<number>(0);
   const [hoveredRating, setHoveredRating] = useState<number>(0);
   const [comment, setComment] = useState('');
@@ -22,8 +24,14 @@ export default function WriteReviewScreen({ onNavigate, params }: WriteReviewScr
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (rating === 0) return alert('Por favor, selecione uma nota.');
-    if (!user || !requestId || !providerId) return alert('Erro ao identificar pedido.');
+    if (rating === 0) {
+      showToast("Nota obrigatória", "Por favor, selecione uma nota de 1 a 5 estrelas.", "notification");
+      return;
+    }
+    if (!user || !requestId || !providerId) {
+      showToast("Erro de identificação", "Não foi possível identificar o pedido ou profissional.", "error");
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -38,11 +46,11 @@ export default function WriteReviewScreen({ onNavigate, params }: WriteReviewScr
         });
 
       if (error) throw error;
-      alert('Avaliação enviada com sucesso!');
+      showToast("Avaliação enviada", "Obrigado por seu feedback!", "success");
       onNavigate('myRequests');
     } catch (err) {
       console.error('Error submitting review:', err);
-      alert('Erro ao enviar avaliação. Tente novamente mais tarde.');
+      showToast("Erro ao enviar", "Tente novamente mais tarde.", "error");
     } finally {
       setIsSubmitting(false);
     }

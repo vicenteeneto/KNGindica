@@ -14,14 +14,24 @@ interface Toast {
   id: string;
   title: string;
   message: string;
-  type: 'notification' | 'message';
+  type: 'notification' | 'message' | 'success' | 'error';
   avatar?: string;
+}
+
+interface ModalConfig {
+  title: string;
+  message: string;
+  confirmLabel?: string;
+  onConfirm?: () => void;
+  type?: 'success' | 'info' | 'warning';
 }
 
 interface NotificationContextType {
   unreadNotifications: number;
   unreadMessages: number;
   toasts: Toast[];
+  showToast: (title: string, message: string, type?: 'notification' | 'message' | 'success' | 'error', avatar?: string) => void;
+  showModal: (config: ModalConfig) => void;
   removeToast: (id: string) => void;
   refreshCounts: () => Promise<void>;
 }
@@ -33,8 +43,9 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [modal, setModal] = useState<ModalConfig | null>(null);
 
-  const addToast = (title: string, message: string, type: 'notification' | 'message', avatar?: string) => {
+  const showToast = (title: string, message: string, type: 'notification' | 'message' | 'success' | 'error' = 'notification', avatar?: string) => {
     const id = Math.random().toString(36).substring(2, 9);
     setToasts(prev => [...prev, { id, title, message, type, avatar }]);
     
@@ -49,6 +60,10 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     setTimeout(() => {
       removeToast(id);
     }, 6000);
+  };
+
+  const showModal = (config: ModalConfig) => {
+    setModal(config);
   };
 
   const removeToast = (id: string) => {
@@ -113,7 +128,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         filter: `user_id=eq.${user.id}`
       }, (payload) => {
         setUnreadNotifications(prev => prev + 1);
-        addToast(payload.new.title, payload.new.message, 'notification');
+        showToast(payload.new.title, payload.new.message, 'notification');
       })
       .on('postgres_changes', {
         event: 'UPDATE',
@@ -146,7 +161,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
               // Buscar nome do remetente
               const fetchSender = async () => {
                 const { data: sender } = await supabase.from('profiles').select('full_name, avatar_url').eq('id', payload.new.sender_id).single();
-                addToast(sender?.full_name || 'Nova Mensagem', payload.new.content.substring(0, 100), 'message', sender?.avatar_url);
+                showToast(sender?.full_name || 'Nova Mensagem', payload.new.content.substring(0, 100), 'message', sender?.avatar_url);
               };
               fetchSender();
             }
@@ -173,9 +188,50 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   return (
-    <NotificationContext.Provider value={{ unreadNotifications, unreadMessages, toasts, removeToast, refreshCounts: fetchCounts }}>
+    <NotificationContext.Provider value={{ unreadNotifications, unreadMessages, toasts, showToast, showModal, removeToast, refreshCounts: fetchCounts }}>
       {children}
       
+      {/* Modal Container */}
+      {modal && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-[32px] overflow-hidden shadow-[0_32px_64px_rgba(0,0,0,0.5)] border border-white/20 dark:border-slate-800 animate-in zoom-in-95 duration-300">
+            <div className="p-8 flex flex-col items-center text-center">
+              <div className={`size-20 rounded-3xl mb-6 flex items-center justify-center shadow-lg ${
+                modal.type === 'success' ? 'bg-emerald-500 text-white shadow-emerald-500/20' : 
+                modal.type === 'warning' ? 'bg-amber-500 text-white shadow-amber-500/20' :
+                'bg-primary text-white shadow-primary/20'
+              }`}>
+                <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                  {modal.type === 'success' ? 'check_circle' : 
+                   modal.type === 'warning' ? 'warning' : 'info'}
+                </span>
+              </div>
+              
+              <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter italic mb-2">
+                {modal.title}
+              </h3>
+              <p className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
+                {modal.message}
+              </p>
+              
+              <button
+                onClick={() => {
+                  if (modal.onConfirm) modal.onConfirm();
+                  setModal(null);
+                }}
+                className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg transition-all active:scale-95 ${
+                  modal.type === 'success' ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/20' :
+                  modal.type === 'warning' ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20' :
+                  'bg-primary hover:bg-primary/90 text-white shadow-primary/20'
+                }`}
+              >
+                {modal.confirmLabel || 'Entendido'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Toast Container */}
       <div className="fixed top-4 right-4 left-4 md:left-auto md:w-[380px] z-[9999] flex flex-col gap-3 pointer-events-none">
         {toasts.map(toast => (

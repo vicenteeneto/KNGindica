@@ -11,7 +11,7 @@ interface ChatScreenProps extends NavigationProps {
 
 export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenProps) {
   const { user, role } = useAuth();
-  const { refreshCounts } = useNotifications();
+  const { refreshCounts, showModal, showToast } = useNotifications();
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
@@ -205,7 +205,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
     if (!file || !user || !roomId) return;
     
     if (file.size > 5 * 1024 * 1024) {
-      alert("O arquivo é muito grande. Limite de 5MB.");
+      showToast("Arquivo muito grande", "O limite é de 5MB por anexo.", "error");
       return;
     }
 
@@ -248,7 +248,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
     try {
       const price = parseFloat(proposalPrice.replace(',', '.'));
       if (isNaN(price)) {
-        alert("Por favor, insira um valor válido.");
+        showToast("Valor inválido", "Por favor, insira um preço numérico válido.", "error");
         setIsSendingProposal(false);
         return;
       }
@@ -274,7 +274,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
         throw reqError;
       }
       if (!updateData || updateData.length === 0) {
-        alert("Erro: O pedido não foi encontrado ou você não tem permissão para alterá-lo.");
+        showToast("Erro inesperado", "O pedido não foi encontrado ou você não tem permissão.", "error");
         setIsSendingProposal(false);
         return;
       }
@@ -297,11 +297,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
 
     } catch (err: any) {
       console.error("Erro no envio de proposta:", err);
-      if (err.message.includes('permission denied') || err.message.includes('RLS')) {
-         alert("ERRO DE PERMISSÃO: O banco de dados não permitiu gravar sua proposta. Você PRECISA rodar o SCRIPT SQL UNIFICADO (sql_v7_final_fix.sql) no editor do Supabase.");
-      } else {
-         alert("Erro ao enviar proposta: " + err.message);
-      }
+      showToast("Erro no envio", err.message || "Verifique sua conexão.", "error");
     } finally {
       setIsSendingProposal(false);
     }
@@ -317,12 +313,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
         .update({ status: 'awaiting_payment' }) // Próximo passo seria o pagamento da taxa
         .eq('id', params.requestId);
 
-      if (error) {
-        if (error.message.includes('enum')) {
-          alert("ERRO DE BANCO: O status 'awaiting_payment' não existe no banco de dados. Você PRECISA rodar o script SQL de correção (sql_v6_enum_fix.sql) no editor do Supabase.");
-        }
-        throw error;
-      }
+      if (error) throw error;
       
       // Notificar no chat
       await supabase.from('chat_messages').insert({
@@ -333,14 +324,17 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
 
       const { data } = await supabase.from('service_requests').select('*').eq('id', params.requestId).single();
       setServiceRequest(data);
-      alert("Proposta aceita com sucesso! Vamos seguir para o pagamento.");
+      
+      showModal({
+        title: "Proposta Aceita!",
+        message: "Você aceitou a proposta com sucesso. Agora vamos seguir para o pagamento da taxa de intermediação para liberar o contato.",
+        confirmLabel: "Ir para Pagamento",
+        type: "success",
+        onConfirm: () => onNavigate('checkout', { requestId: params.requestId })
+      });
     } catch (err: any) {
        console.error("Erro no aceite de proposta:", err);
-       if (err.message.includes('permission denied') || err.message.includes('RLS')) {
-          alert("ERRO DE PERMISSÃO: O banco de dados não permitiu aceitar a proposta. Você PRECISA rodar o SCRIPT SQL UNIFICADO (sql_v7_final_fix.sql) no editor do Supabase.");
-       } else {
-          alert(err.message);
-       }
+       showToast("Erro ao aceitar", err.message || "Tente novamente mais tarde.", "error");
     } finally {
       setLoading(false);
     }

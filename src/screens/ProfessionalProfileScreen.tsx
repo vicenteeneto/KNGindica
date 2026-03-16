@@ -9,7 +9,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Fix Leaflet Default Icon issue in React
+import { useNotifications } from '../NotificationContext';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
@@ -37,6 +37,7 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const { user } = useAuth();
+  const { showToast, showModal } = useNotifications();
 
   const minSwipeDistance = 50;
 
@@ -208,7 +209,7 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
 
   const toggleFavorite = async () => {
     if (!user) {
-      alert("Faça login para favoritar profissionais.");
+      showToast("Acesso Restrito", "Faça login para favoritar profissionais.", "notification");
       return;
     }
     
@@ -239,8 +240,7 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
       console.error("Fav toggle error", e);
       // Reverter se der erro
       setIsFavorite(currentlyFavorite);
-      const msg = e.message || "Verifique sua conexão.";
-      alert(`Erro ao salvar favorito: ${msg}`);
+      showToast("Erro ao favoritar", e.message || "Verifique sua conexão.", "error");
     }
   };
 
@@ -264,15 +264,15 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
     } else {
       try {
         await navigator.clipboard.writeText(profileUrl);
-        alert("Link do perfil copiado para a área de transferência!");
+        showToast("Link Copiado", "URL do perfil copiada para a área de transferência.", "success");
       } catch (err) {
         console.error("Erro ao copiar link", err);
-        alert("Não foi possível copiar o link.");
+        showToast("Erro ao copiar", "Não foi possível copiar o link.", "error");
       }
     }
   };
 
-  const professional = dbProfessional || professionals.find(p => p.id === professionalId) || professionals[0];
+  const professional = dbProfessional || professionals.find(p => p.id === professionalId) || (loadingProfile ? null : professionals.find(p => p.category === dbProfessional?.category) || professionals[1]); // Evita cair no primeiro (Claudio/Ricardo) se possível
 
   const displayRating = realAverage !== null ? realAverage : professional?.rating;
   const displayReviewsCount = realReviewsCount !== null ? realReviewsCount : professional?.reviews;

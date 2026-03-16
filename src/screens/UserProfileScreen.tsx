@@ -5,6 +5,7 @@ import ProviderMobileNav from '../components/ProviderMobileNav';
 import { supabase } from '../lib/supabase';
 import { useTheme } from '../ThemeContext';
 import { useAuth } from '../AuthContext';
+import { useNotifications } from '../NotificationContext';
 import ImageCropper from '../components/ImageCropper';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -55,17 +56,11 @@ const formatCEP = (value: string) => {
 
 export default function UserProfileScreen({ onNavigate }: NavigationProps) {
   const { user, profile, role, setDevRole, upgradeToProvider, logout, refreshProfile } = useAuth();
+  const { showToast, showModal } = useNotifications();
   const { theme, toggleTheme } = useTheme();
   const [isUploading, setIsUploading] = useState(false);
   const [selectedImageSrc, setSelectedImageSrc] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Toast notification state
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 4000);
-  };
 
   // States for Modals
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -226,8 +221,9 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       if (error) throw error;
       await refreshProfile();
       setShowProfileModal(false);
+      showToast("Perfil atualizado", "Seus dados foram salvos com sucesso.", "success");
     } catch (err: any) {
-      alert("Erro ao salvar: " + err.message + "\n\nSe o erro persistir, verifique se as colunas phone e cpf existem no banco de dados.");
+      showToast("Erro ao salvar", err.message, "error");
     } finally {
       setIsSaving(false);
     }
@@ -275,8 +271,9 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       if (error) throw error;
       await refreshProfile();
       setShowAddressModal(false);
+      showToast("Endereço salvo", "Suas informações de localização foram atualizadas.", "success");
     } catch (err: any) {
-      alert("Erro ao salvar: " + err.message);
+      showToast("Erro ao salvar", err.message, "error");
     } finally {
       setIsSaving(false);
     }
@@ -293,7 +290,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       if (error) throw error;
       await refreshProfile();
       setShowLocationPickerModal(false);
-      showToast('Localização salva! Você já aparece no mapa dos clientes.', 'success');
+      showToast('Localização salva!', 'Suas coordenadas foram atualizadas no mapa.', 'success');
     } catch (err: any) {
       showToast('Erro ao salvar localização: ' + err.message, 'error');
     } finally {
@@ -317,8 +314,9 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       if (error) throw error;
       await refreshProfile();
       setShowProviderModal(false);
+      showToast("Perfil profissional salvo", "Suas informações foram atualizadas.", "success");
     } catch (err: any) {
-      alert("Erro ao salvar: " + err.message + "\n\nSe o erro persistir, verifique se as colunas bio e categories existem no banco de dados.");
+      showToast("Erro ao salvar", err.message, "error");
     } finally {
       setIsSaving(false);
     }
@@ -392,31 +390,36 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
 
   const handleDeletePortfolioImage = async (id: string, url: string) => {
     if (!user) return;
-    if (!confirm('Deseja realmente excluir esta imagem do seu portfólio?')) return;
+    
+    showModal({
+      title: "Excluir Imagem?",
+      message: "Tem certeza que deseja remover esta foto do seu portfólio? Esta ação não pode ser desfeita.",
+      confirmLabel: "Excluir",
+      type: "warning",
+      onConfirm: async () => {
+        try {
+          const { error: dbError } = await supabase
+            .from('provider_portfolio')
+            .delete()
+            .eq('id', id);
 
-    try {
-      const { error: dbError } = await supabase
-        .from('provider_portfolio')
-        .delete()
-        .eq('id', id);
+          if (dbError) throw dbError;
 
-      if (dbError) throw dbError;
+          // Tenta remover do storage também (opcional)
+          try {
+            const path = url.split('/').pop();
+            if (path) {
+              await supabase.storage.from('portfolio').remove([`portfolio/${path}`]);
+            }
+          } catch {}
 
-      // Tenta remover do storage também (opcional, pode falhar se não tiver permissão)
-      try {
-        const path = url.split('/').pop();
-        if (path) {
-          await supabase.storage.from('portfolio').remove([`portfolio/${path}`]);
+          setPortfolio(prev => prev.filter(img => img.id !== id));
+          showToast('Imagem removida', 'A foto foi excluída do seu portfólio.', 'success');
+        } catch (err: any) {
+          showToast('Erro ao remover', err.message, 'error');
         }
-      } catch (storageErr) {
-        console.warn('Erro ao remover do storage:', storageErr);
       }
-
-      setPortfolio(prev => prev.filter(img => img.id !== id));
-      showToast('Imagem removida!', 'success');
-    } catch (err: any) {
-      showToast('Erro ao remover: ' + err.message, 'error');
-    }
+    });
   };
 
   const handleSaveBusinessSettings = async (e: React.FormEvent) => {
@@ -695,7 +698,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
             )}
 
             <button
-              onClick={() => alert('Gerenciar métodos de pagamento')}
+              onClick={() => showToast("Em desenvolvimento", "A gestão de pagamentos estará disponível em breve.", "notification")}
               className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
             >
               <div className="flex items-center gap-4">
@@ -754,7 +757,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
             </button>
 
             <button
-              onClick={() => alert('Abrir central de ajuda')}
+              onClick={() => showToast("Central de Ajuda", "Suporte disponível pelo WhatsApp oficial do Alvo.", "notification")}
               className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
             >
               <div className="flex items-center gap-4">
@@ -1001,35 +1004,6 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           onCropSave={uploadCroppedAvatar}
           onCropCancel={() => setSelectedImageSrc(null)}
         />
-      )}
-      {/* ── Toast de Notificação ─────────────────────────────────── */}
-      {toast && (
-        <div
-          className={`fixed top-5 left-1/2 -translate-x-1/2 z-[500] flex items-start gap-3 w-[90vw] max-w-sm px-4 py-3.5 rounded-2xl shadow-2xl border backdrop-blur-md
-            animate-[slideInDown_0.35s_ease-out]
-            ${toast.type === 'success'
-              ? 'bg-gradient-to-br from-emerald-500/90 to-emerald-700/90 border-emerald-400/30 text-white'
-              : 'bg-gradient-to-br from-red-500/90 to-red-700/90 border-red-400/30 text-white'
-            }
-          `}
-        >
-          <span className="material-symbols-outlined text-2xl mt-0.5 shrink-0">
-            {toast.type === 'success' ? 'check_circle' : 'error'}
-          </span>
-          <div className="flex-1 min-w-0">
-            <p className="font-bold text-sm leading-tight">
-              {toast.type === 'success' ? 'Sucesso!' : 'Algo deu errado'}
-            </p>
-            <p className="text-xs text-white/85 mt-0.5 leading-snug">{toast.message}</p>
-          </div>
-          <button onClick={() => setToast(null)} className="text-white/70 hover:text-white shrink-0 mt-0.5">
-            <span className="material-symbols-outlined text-[18px]">close</span>
-          </button>
-          {/* Barra de progresso */}
-          <div className="absolute bottom-0 left-0 h-1 rounded-b-2xl bg-white/30 w-full">
-            <div className="h-full rounded-b-2xl bg-white/70 animate-[shrinkWidth_4s_linear_forwards]" />
-          </div>
-        </div>
       )}
 
       {/* Modals for Editing Data */}
