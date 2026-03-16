@@ -1734,6 +1734,17 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
               />
             </div>
 
+            {/* Novo Campo: Data da Avaliação (Opcional) */}
+            <div className="animate-in slide-in-from-top-2 duration-300">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Data da Avaliação</label>
+              <input 
+                type="date" 
+                value={mockReviewForm.created_at}
+                onChange={e => setMockReviewForm({...mockReviewForm, created_at: e.target.value})}
+                className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs outline-none focus:border-primary"
+              />
+            </div>
+
             <div>
               <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nota (1-5)</label>
               <div className="flex gap-2">
@@ -1795,7 +1806,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
               {reviewsList.slice(0, 10).map(r => (
                 <tr key={r.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
                   <td className="px-6 py-3 font-medium">{r.provider?.full_name}</td>
-                  <td className="px-6 py-3 text-slate-500">{r.reviewer?.full_name}</td>
+                  <td className="px-6 py-3 text-slate-500">{r.reviewer_name || r.reviewer?.full_name || 'Usuário'}</td>
                   <td className="px-6 py-3">
                     <span className="flex items-center gap-1 font-bold text-orange-500">
                       {r.rating} <span className="material-symbols-outlined text-[14px]">star</span>
