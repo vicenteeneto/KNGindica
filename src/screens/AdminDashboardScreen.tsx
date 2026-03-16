@@ -160,8 +160,8 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
   };
 
   const handleCreateMockReview = async () => {
-    if (!mockReviewForm.provider_id || !mockReviewForm.reviewer_id || !mockReviewForm.comment) {
-      showToast("Campos Incompletos", "Preencha todos os campos da avaliação.", "error");
+    if (!mockReviewForm.provider_id || (!mockReviewForm.reviewer_id && !mockReviewForm.reviewer_name) || !mockReviewForm.comment) {
+      showToast("Campos Incompletos", "Preencha o prestador, o autor e o comentário.", "error");
       return;
     }
 
