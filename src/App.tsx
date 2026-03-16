@@ -214,14 +214,14 @@ function AppContent() {
   };
 
   return (
-    <>
+    <NotificationProvider onNavigate={handleNavigate}>
       {renderScreen()}
       {activeChat && (
         <div className="fixed bottom-0 right-0 z-[100] md:bottom-4 md:right-4 w-full h-full md:w-auto md:h-auto font-display">
           <ChatScreen onNavigate={handleNavigate} params={activeChat} onClose={() => setActiveChat(null)} />
         </div>
       )}
-    </>
+    </NotificationProvider>
   );
 }
 
@@ -229,9 +229,7 @@ export default function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <NotificationProvider>
-          <AppContent />
-        </NotificationProvider>
+        <AppContent />
       </ThemeProvider>
     </AuthProvider>
   );

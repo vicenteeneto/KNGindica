@@ -783,42 +783,32 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           </div>
         </section>
 
-        {/* Profile Switcher */}
-        <section className="mb-8">
-          <div className="bg-gradient-to-tr from-slate-800 to-slate-900 text-white rounded-2xl p-6 shadow-lg shadow-black/10 relative overflow-hidden flex flex-col items-start gap-4 border border-slate-700">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-bl-full flex items-start justify-end p-4">
-              <span className="material-symbols-outlined text-4xl text-white/20">swap_horiz</span>
+        {/* Profile Switcher (Only for clients to upgrade) */}
+        {role !== 'provider' && (
+          <section className="mb-8">
+            <div className="bg-gradient-to-tr from-slate-800 to-slate-900 text-white rounded-2xl p-6 shadow-lg shadow-black/10 relative overflow-hidden flex flex-col items-start gap-4 border border-slate-700">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-bl-full flex items-start justify-end p-4">
+                <span className="material-symbols-outlined text-4xl text-white/20">swap_horiz</span>
+              </div>
+              <div className="relative z-10 w-3/4">
+                <h3 className="font-bold text-lg mb-1 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-amber-400">handyman</span>
+                  Modo Prestador
+                </h3>
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  Alternar para a visualização exclusiva de prestador de serviços.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowUpgradeModal(true)}
+                className="relative z-10 bg-primary hover:bg-primary/90 text-white font-bold px-6 py-3 rounded-xl shadow-sm hover:scale-105 active:scale-95 transition-all w-full flex justify-center items-center gap-2"
+              >
+                <span className="material-symbols-outlined">switch_account</span>
+                Mudar para Prestador
+              </button>
             </div>
-            <div className="relative z-10 w-3/4">
-              <h3 className="font-bold text-lg mb-1 flex items-center gap-2">
-                <span className="material-symbols-outlined text-amber-400">
-                  {role === 'provider' ? 'person' : 'handyman'}
-                </span>
-                {role === 'provider' ? 'Modo Cliente' : 'Modo Prestador'}
-              </h3>
-              <p className="text-sm text-slate-300 leading-relaxed">
-                {role === 'provider'
-                  ? 'Alternar para a visualização de busca e contratação de serviços.'
-                  : 'Alternar para a visualização exclusiva de prestador de serviços.'}
-              </p>
-            </div>
-            <button
-              onClick={() => {
-                if (role === 'provider') {
-                  setDevRole('client');
-                  onNavigate('home');
-                } else {
-                  // Se for cliente, mostra o modal de "Tornar-se Prestador" em vez de apenas mudar visualmente
-                  setShowUpgradeModal(true);
-                }
-              }}
-              className="relative z-10 bg-primary hover:bg-primary/90 text-white font-bold px-6 py-3 rounded-xl shadow-sm hover:scale-105 active:scale-95 transition-all w-full flex justify-center items-center gap-2"
-            >
-              <span className="material-symbols-outlined">switch_account</span>
-              {role === 'provider' ? 'Mudar para Cliente' : 'Mudar para Prestador'}
-            </button>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* Logout */}
         <button

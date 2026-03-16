@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from './lib/supabase';
 import { useAuth } from './AuthContext';
+import { Screen } from './types';
 
 interface Notification {
   id: string;
@@ -16,6 +17,8 @@ interface Toast {
   message: string;
   type: 'notification' | 'message' | 'success' | 'error';
   avatar?: string;
+  targetScreen?: Screen;
+  params?: any;
 }
 
 interface ModalConfig {
@@ -30,24 +33,32 @@ interface NotificationContextType {
   unreadNotifications: number;
   unreadMessages: number;
   toasts: Toast[];
-  showToast: (title: string, message: string, type?: 'notification' | 'message' | 'success' | 'error', avatar?: string) => void;
+  showToast: (title: string, message: string, type?: 'notification' | 'message' | 'success' | 'error', avatar?: string, targetScreen?: Screen, params?: any) => void;
   showModal: (config: ModalConfig) => void;
   removeToast: (id: string) => void;
   refreshCounts: () => Promise<void>;
+  onNavigate?: (screen: Screen, params?: any) => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
-export function NotificationProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+export function NotificationProvider({ children, onNavigate }: { children: ReactNode, onNavigate?: (screen: Screen, params?: any) => void }) {
+  const { user, role } = useAuth();
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [modal, setModal] = useState<ModalConfig | null>(null);
 
-  const showToast = (title: string, message: string, type: 'notification' | 'message' | 'success' | 'error' = 'notification', avatar?: string) => {
+  const showToast = (
+    title: string, 
+    message: string, 
+    type: 'notification' | 'message' | 'success' | 'error' = 'notification', 
+    avatar?: string,
+    targetScreen?: Screen,
+    params?: any
+  ) => {
     const id = Math.random().toString(36).substring(2, 9);
-    setToasts(prev => [...prev, { id, title, message, type, avatar }]);
+    setToasts(prev => [...prev, { id, title, message, type, avatar, targetScreen, params }]);
     
     // Play subtle notification sound if possible
     try {
@@ -74,22 +85,18 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     if (!user) return;
     
     try {
-      // Usando a função RPC que criamos no SQL v11
       const { data, error } = await supabase.rpc('get_unread_counts', { p_user_id: user.id });
       
       if (!error && data && data.length > 0) {
         setUnreadNotifications(Number(data[0].notifications_count));
         setUnreadMessages(Number(data[0].messages_count));
       } else {
-        // Fallback caso a função RPC não exista ou falhe
         const [notifs, msgs] = await Promise.all([
           supabase.from('notifications').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('is_read', false),
           supabase.from('chat_messages').select('id, chat_rooms!inner(id)').eq('is_read', false).neq('sender_id', user.id)
         ]);
         
         setUnreadNotifications(notifs.count || 0);
-        // Filtragem manual de mensagens baseada em salas que o usuário participa
-        // (Nota: O join acima aproximado, no real precisamos garantir que a sala pertence ao usuário)
         const { data: userRooms } = await supabase.from('chat_rooms')
           .select('id')
           .or(`client_id.eq.${user.id},provider_id.eq.${user.id}`);
@@ -128,7 +135,23 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         filter: `user_id=eq.${user.id}`
       }, (payload) => {
         setUnreadNotifications(prev => prev + 1);
-        showToast(payload.new.title, payload.new.message, 'notification');
+        
+        // Mapeamento de redirecionamento inteligente
+        let target = 'notifications' as Screen;
+        let navParams: any = {};
+        
+        if (payload.new.type === 'order') {
+          target = role === 'provider' ? 'providerRequests' : 'serviceStatus';
+          navParams = { requestId: payload.new.related_entity_id };
+        } else if (payload.new.type === 'new_bid') {
+          target = 'serviceStatus';
+          navParams = { requestId: payload.new.related_entity_id };
+        } else if (payload.new.type === 'status') {
+          target = 'serviceStatus';
+          navParams = { requestId: payload.new.related_entity_id };
+        }
+
+        showToast(payload.new.title, payload.new.message, 'notification', undefined, target, navParams);
       })
       .on('postgres_changes', {
         event: 'UPDATE',
@@ -136,12 +159,11 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         table: 'notifications',
         filter: `user_id=eq.${user.id}`
       }, () => {
-        fetchCounts(); // Atualiza contagem quando marcar como lida
+        fetchCounts();
       })
       .subscribe();
 
     // 2. Canal de Mensagens de Chat
-    // Precisamos descobrir quais salas o usuário participa para filtrar
     const setupChatSubscription = async () => {
       const { data: rooms } = await supabase.from('chat_rooms')
         .select('id')
@@ -158,10 +180,22 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           }, (payload) => {
             if (roomIds.includes(payload.new.room_id) && payload.new.sender_id !== user.id) {
               setUnreadMessages(prev => prev + 1);
-              // Buscar nome do remetente
               const fetchSender = async () => {
                 const { data: sender } = await supabase.from('profiles').select('full_name, avatar_url').eq('id', payload.new.sender_id).single();
-                showToast(sender?.full_name || 'Nova Mensagem', payload.new.content.substring(0, 100), 'message', sender?.avatar_url);
+                
+                // Redirecionamento para o chat específico ao clicar no toast
+                showToast(
+                  sender?.full_name || 'Nova Mensagem', 
+                  payload.new.content.substring(0, 100), 
+                  'message', 
+                  sender?.avatar_url,
+                  'chat',
+                  { 
+                    roomId: payload.new.room_id, 
+                    opponentName: sender?.full_name, 
+                    opponentAvatar: sender?.avatar_url 
+                  }
+                );
               };
               fetchSender();
             }
@@ -185,10 +219,10 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       supabase.removeChannel(notificationsChannel);
       supabase.channel('realtime_messages').unsubscribe();
     };
-  }, [user]);
+  }, [user, role]);
 
   return (
-    <NotificationContext.Provider value={{ unreadNotifications, unreadMessages, toasts, showToast, showModal, removeToast, refreshCounts: fetchCounts }}>
+    <NotificationContext.Provider value={{ unreadNotifications, unreadMessages, toasts, showToast, showModal, removeToast, refreshCounts: fetchCounts, onNavigate }}>
       {children}
       
       {/* Modal Container */}
@@ -238,7 +272,12 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           <div 
             key={toast.id}
             className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-white/20 dark:border-slate-800 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] p-4 flex gap-4 items-center animate-in slide-in-from-right-full duration-500 pointer-events-auto cursor-pointer hover:scale-[1.02] active:scale-95 transition-all group"
-            onClick={() => removeToast(toast.id)}
+            onClick={() => {
+              if (toast.targetScreen && onNavigate) {
+                onNavigate(toast.targetScreen, toast.params);
+              }
+              removeToast(toast.id);
+            }}
           >
             <div className="relative shrink-0">
                {toast.avatar ? (
@@ -267,7 +306,13 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
               </p>
             </div>
             
-            <button className="size-8 rounded-full flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                removeToast(toast.id);
+              }}
+              className="size-8 rounded-full flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
               <span className="material-symbols-outlined text-base">close</span>
             </button>
           </div>

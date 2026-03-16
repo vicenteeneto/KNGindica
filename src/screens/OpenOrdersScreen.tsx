@@ -66,9 +66,9 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
         await supabase.from('notifications').insert({
           user_id: orders.find(o => o.id === orderId)?.client_id,
           title: "Novo Lance Recebido!",
-          content: `Um profissional deu um lance de R$ ${parseFloat(bidAmount).toFixed(2)} em sua ordem: ${orders.find(o => o.id === orderId)?.title}`,
+          message: `Um profissional deu um lance de R$ ${parseFloat(bidAmount).toFixed(2)} em sua ordem: ${orders.find(o => o.id === orderId)?.title}`,
           type: 'new_bid',
-          metadata: { orderId: orderId, amount: bidAmount }
+          related_entity_id: orderId
         });
 
         alert("Lance enviado com sucesso!");

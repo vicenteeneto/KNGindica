@@ -36,6 +36,8 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
   const [providerSearch, setProviderSearch] = useState('');
   const [clientSearch, setClientSearch] = useState('');
   const [growthData, setGrowthData] = useState<{ clients: number[], providers: number[] }>({ clients: [0,0,0,0,0,0,0], providers: [0,0,0,0,0,0,0] });
+  const [mockReviewForm, setMockReviewForm] = useState({ provider_id: '', reviewer_id: '', rating: 5, comment: '', request_id: '' });
+  const [maintenanceLoading, setMaintenanceLoading] = useState(false);
 
   const AVAILABLE_ICONS = [
     'handyman', 'bolt', 'plumbing', 'cleaning_services', 'yard', 'local_shipping', 'ac_unit', 'format_paint', 
@@ -100,6 +102,91 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
     }
   };
 
+  const handleDeleteUserRecords = async (userId: string) => {
+    if (!window.confirm("ATENÇÃO: Isso apagará todos os registros deste usuário (pedidos, chats, avaliações) do banco público. O e-mail ainda continuará no Auth do Supabase. Deseja continuar?")) return;
+    
+    setMaintenanceLoading(true);
+    try {
+      // 1. Apagar chats
+      await supabase.from('chat_messages').delete().or(`sender_id.eq.${userId}`);
+      const { data: rooms } = await supabase.from('chat_rooms').select('id').or(`client_id.eq.${userId},provider_id.eq.${userId}`);
+      if (rooms && rooms.length > 0) {
+        await supabase.from('chat_rooms').delete().in('id', rooms.map(r => r.id));
+      }
+
+      // 2. Apagar pedidos
+      await supabase.from('service_requests').delete().or(`client_id.eq.${userId},provider_id.eq.${userId}`);
+
+      // 3. Apagar avaliações
+      await supabase.from('reviews').delete().or(`reviewer_id.eq.${userId},provider_id.eq.${userId}`);
+
+      // 4. Apagar perfil (public.profiles)
+      const { error } = await supabase.from('profiles').delete().eq('id', userId);
+
+      if (error) throw error;
+      alert("Registros públicos do usuário excluídos com sucesso! Agora você pode excluí-lo no painel Auth do Supabase para resetar o e-mail.");
+      fetchData();
+    } catch (e) {
+      console.error("Erro ao excluir registros:", e);
+      alert("Erro ao excluir registros.");
+    } finally {
+      setMaintenanceLoading(false);
+    }
+  };
+
+  const handleCreateMockReview = async () => {
+    if (!mockReviewForm.provider_id || !mockReviewForm.reviewer_id || !mockReviewForm.comment) {
+      alert("Preencha todos os campos da avaliação.");
+      return;
+    }
+
+    setMaintenanceLoading(true);
+    try {
+      const { error } = await supabase.from('reviews').insert({
+        provider_id: mockReviewForm.provider_id,
+        reviewer_id: mockReviewForm.reviewer_id,
+        rating: mockReviewForm.rating,
+        comment: mockReviewForm.comment,
+        request_id: mockReviewForm.request_id || null
+      });
+
+      if (error) throw error;
+      alert("Avaliação mock criada com sucesso!");
+      setMockReviewForm({ provider_id: '', reviewer_id: '', rating: 5, comment: '', request_id: '' });
+      fetchData();
+    } catch (e) {
+      console.error("Erro ao criar avaliação mock:", e);
+      alert("Erro ao criar avaliação.");
+    } finally {
+      setMaintenanceLoading(false);
+    }
+  };
+
+  const handleDeleteReview = async (reviewId: string) => {
+    if (!window.confirm("Deseja realmente excluir esta avaliação?")) return;
+    
+    try {
+      const { error } = await supabase.from('reviews').delete().eq('id', reviewId);
+      if (error) throw error;
+      setReviewsList(prev => prev.filter(r => r.id !== reviewId));
+    } catch (e) {
+      console.error("Erro ao excluir review:", e);
+    }
+  };
+
+  const handleClearTestRequests = async () => {
+    if (!window.confirm("Deseja apagar todas as solicitações 'abertas' sem prestador vinculados? (Limpeza de Testes)")) return;
+    
+    try {
+      const { error } = await supabase.from('service_requests').delete().is('provider_id', null).eq('status', 'open');
+      if (error) throw error;
+      alert("Limpeza concluída!");
+      fetchData();
+    } catch (e) {
+      console.error("Erro na limpeza:", e);
+    }
+  };
+
   const handleResolveDispute = async (requestId: string, resolution: 'refund_client' | 'pay_provider' | 'resolved') => {
     try {
       const { error } = await supabase.from('service_requests').update({ status: resolution }).eq('id', requestId);
@@ -148,115 +235,121 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
     'disputed': 'Em Disputa'
   };
 
-  useEffect(() => {
-    // Only fetch for admin if needed, but for now fetch all to simulate dashboard
-    const fetchAdminData = async () => {
-      setLoading(true);
-      try {
-        // 1. Fetch profiles for stats and list
-        const { data: profiles } = await supabase.from('profiles').select('*');
-        const clients = profiles?.filter(p => p.role === 'client') || [];
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      // 1. Fetch profiles for stats and list
+      const { data: profiles } = await supabase.from('profiles').select('*');
+      const clients = profiles?.filter(p => p.role === 'client') || [];
 
-        // 2. Fetch requests for stats and orders list
-        const { data: requests } = await supabase.from('service_requests').select('*, client:profiles!service_requests_client_id_fkey(full_name, avatar_url), provider:profiles!service_requests_provider_id_fkey(full_name, avatar_url), category:service_categories(name)').order('created_at', { ascending: false });
-        const compServ = requests?.filter(r => r.status === 'completed') || [];
+      // 2. Fetch requests for stats and orders list
+      const { data: requests } = await supabase.from('service_requests').select('*, client:profiles!service_requests_client_id_fkey(full_name, avatar_url), provider:profiles!service_requests_provider_id_fkey(full_name, avatar_url), category:service_categories(name)').order('created_at', { ascending: false });
+      const compServ = requests?.filter(r => r.status === 'completed') || [];
 
-        // 3. Fetch reviews
-        const { data: reviews } = await supabase.from('reviews').select('*, reviewer:profiles!reviews_reviewer_id_fkey(full_name), provider:profiles!reviews_provider_id_fkey(full_name, role)').order('created_at', { ascending: false });
+      // 3. Fetch reviews
+      const { data: reviews } = await supabase.from('reviews').select('*, reviewer:profiles!reviews_reviewer_id_fkey(full_name), provider:profiles!reviews_provider_id_fkey(full_name, role)').order('created_at', { ascending: false });
 
-        // Calculate dynamic platform revenue (e.g. 15% of all completed service prices)
-        const revenue = compServ.reduce((acc, curr) => acc + (curr.price || 0), 0) * 0.15;
+      // Calculate dynamic platform revenue (e.g. 15% of all completed service prices)
+      const revenue = compServ.reduce((acc, curr) => acc + (curr.price || 0), 0) * 0.15;
 
-        // Enrich providers data
-        const providers = (profiles?.filter(p => p.role === 'provider') || []).map(p => {
-          const pOrders = (requests || []).filter(r => r.provider_id === p.id && r.status === 'completed');
-          const pEarn = pOrders.reduce((acc, curr) => acc + (curr.price || 0), 0) * 0.85;
-          const pReviews = (reviews || []).filter(r => r.provider_id === p.id);
-          const pRating = pReviews.length > 0 ? (pReviews.reduce((acc, curr) => acc + (curr.rating || 0), 0) / pReviews.length).toFixed(1) : '--';
-          
-          return {
-            ...p,
-            completed_services: pOrders.length,
-            earnings: pEarn,
-            rating: pRating,
-            total_reviews: pReviews.length
-          };
-        });
-
-        // 4. Fetch Categories
-        const { data: categories } = await supabase.from('service_categories').select('*').order('name');
-
-        // 5. Fetch Conversion Metrics from the view
-        const { data: metrics } = await supabase.from('admin_conversion_metrics').select('*');
-        setConversionMetrics(metrics || []);
-
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const newToday = profiles?.filter(p => new Date(p.created_at) >= today).length || 0;
-
-        setStats({
-          providers: providers.length,
-          clients: clients.length,
-          servicesCompleted: compServ.length,
-          revenue: revenue,
-          newToday: newToday
-        });
-
-        setProvidersList(providers);
-        setClientsList(clients);
-        setOrdersList(requests || []);
-        setReviewsList(reviews || []);
-        setCategoriesList(categories || []);
-
-        // Unified Recent Users (mix of both)
-        const allUsers = (profiles || []).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-        setRecentUsersList(allUsers);
-
-        // Calculate Growth Data for the last 7 days
-        const gClients = [0,0,0,0,0,0,0];
-        const gProviders = [0,0,0,0,0,0,0];
-        const now = new Date();
+      // Enrich providers data
+      const providers = (profiles?.filter(p => p.role === 'provider') || []).map(p => {
+        const pOrders = (requests || []).filter(r => r.provider_id === p.id && r.status === 'completed');
+        const pEarn = pOrders.reduce((acc, curr) => acc + (curr.price || 0), 0) * 0.85;
+        const pReviews = (reviews || []).filter(r => r.provider_id === p.id);
+        const pRating = pReviews.length > 0 ? (pReviews.reduce((acc, curr) => acc + (curr.rating || 0), 0) / pReviews.length).toFixed(1) : '--';
         
-        for (let i = 0; i < 7; i++) {
-          const d = new Date();
-          d.setDate(now.getDate() - (6 - i));
-          d.setHours(0,0,0,0);
-          const nextD = new Date(d);
-          nextD.setDate(d.getDate() + 1);
+        return {
+          ...p,
+          completed_services: pOrders.length,
+          earnings: pEarn,
+          rating: pRating,
+          total_reviews: pReviews.length
+        };
+      });
 
-          const dayProfiles = profiles?.filter(p => {
-             const created = new Date(p.created_at);
-             return created >= d && created < nextD;
-          }) || [];
+      // 4. Fetch Categories
+      const { data: categories } = await supabase.from('service_categories').select('*').order('name');
 
-          gClients[i] = dayProfiles.filter(p => p.role === 'client').length;
-          gProviders[i] = dayProfiles.filter(p => p.role === 'provider').length;
-        }
-        setGrowthData({ clients: gClients, providers: gProviders });
+      // 5. Fetch Conversion Metrics from the view
+      const { data: metrics } = await supabase.from('admin_conversion_metrics').select('*');
+      setConversionMetrics(metrics || []);
 
-        // 6. Fetch Category Requests
-        const { data: requests_cats } = await supabase
-          .from('category_requests')
-          .select('*, provider:profiles(full_name, email)')
-          .order('created_at', { ascending: false });
-        setCategoryRequests(requests_cats || []);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const newToday = profiles?.filter(p => new Date(p.created_at) >= today).length || 0;
 
-        // 7. Fetch Pending Verifications
-        const { data: verifications } = await supabase
-          .from('provider_verifications')
-          .select('*, provider:profiles(full_name, email, avatar_url)')
-          .eq('status', 'pending')
-          .order('created_at', { ascending: false });
-        setPendingVerifications(verifications || []);
-      } catch (e) {
-        console.error("Error fetching admin data", e);
-      } finally {
-        setLoading(false);
+      setStats({
+        providers: providers.length,
+        clients: clients.length,
+        servicesCompleted: compServ.length,
+        revenue: revenue,
+        newToday: newToday
+      });
+
+      setProvidersList(providers);
+      setClientsList(clients);
+      setOrdersList(requests || []);
+      setReviewsList(reviews || []);
+      setCategoriesList(categories || []);
+
+      const allUsers = (profiles || []).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      setRecentUsersList(allUsers);
+
+      // Calculate Growth Data for the last 7 days
+      const gClients = [0,0,0,0,0,0,0];
+      const gProviders = [0,0,0,0,0,0,0];
+      const now = new Date();
+      
+      for (let i = 0; i < 7; i++) {
+        const d = new Date();
+        d.setDate(now.getDate() - (6 - i));
+        d.setHours(0,0,0,0);
+        const nextD = new Date(d);
+        nextD.setDate(d.getDate() + 1);
+
+        const dayProfiles = profiles?.filter(p => {
+           const created = new Date(p.created_at);
+           return created >= d && created < nextD;
+        }) || [];
+
+        gClients[i] = dayProfiles.filter(p => p.role === 'client').length;
+        gProviders[i] = dayProfiles.filter(p => p.role === 'provider').length;
       }
-    };
+      setGrowthData({ clients: gClients, providers: gProviders });
 
-    fetchAdminData();
-  }, []);
+      // 6. Fetch Category Requests
+      const { data: requests_cats } = await supabase
+        .from('category_requests')
+        .select('*, provider:profiles(full_name, email)')
+        .order('created_at', { ascending: false });
+      setCategoryRequests(requests_cats || []);
+
+      // 7. Fetch Pending Verifications
+      const { data: verifications } = await supabase
+        .from('provider_verifications')
+        .select('*, provider:profiles(full_name, email, avatar_url, phone, service_category)')
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false });
+      setPendingVerifications(verifications || []);
+
+      // 8. Fetch Chat Rooms
+      const { data: rooms } = await supabase
+        .from('chat_rooms')
+        .select('*, client:profiles!chat_rooms_client_id_fkey(full_name, avatar_url), provider:profiles!chat_rooms_provider_id_fkey(full_name, avatar_url), request:service_requests(title, status)')
+        .order('updated_at', { ascending: false });
+      setChatRoomsList(rooms || []);
+
+    } catch (err) {
+      console.error("Error fetching admin data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [user]);
 
   useEffect(() => {
     if (activeTab === 'chat_audit') {
@@ -1376,6 +1469,198 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
     </div>
   );
 
+  const renderMaintenanceTab = () => (
+    <div className="animate-in fade-in duration-500 space-y-8">
+      <div>
+        <h2 className="text-xl font-bold">Zeladoria e Manutenção</h2>
+        <p className="text-sm text-slate-500">Ferramentas para limpeza de dados e gestão de experiência inicial</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Gestão de Contas de Teste */}
+        <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="bg-red-100 dark:bg-red-900/30 text-red-600 p-2 rounded-lg">
+              <span className="material-symbols-outlined">person_remove</span>
+            </div>
+            <h3 className="text-lg font-bold">Reset de Contas de Teste</h3>
+          </div>
+          
+          <p className="text-sm text-slate-500 mb-4">
+            Pesquise um usuário para apagar todos os registros públicos dele (pedidos, chats, avaliações). 
+            Isso permite "limpar" a conta antes de excluí-la no Auth do Supabase.
+          </p>
+
+          <div className="space-y-4">
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-xl pointer-events-none">search</span>
+              <input
+                type="text"
+                placeholder="Nome ou e-mail do usuário..."
+                className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:border-red-500 transition-all"
+                onChange={(e) => {
+                  const term = e.target.value.toLowerCase();
+                  if (term.length > 2) {
+                    const found = recentUsersList.filter(u => 
+                      u.full_name?.toLowerCase().includes(term) || 
+                      u.email?.toLowerCase().includes(term) ||
+                      u.id.includes(term)
+                    );
+                    setRecentUsersList(found.length > 0 ? found : recentUsersList);
+                  }
+                }}
+              />
+            </div>
+
+            <div className="max-h-48 overflow-y-auto space-y-2 border border-slate-100 dark:border-slate-800 rounded-lg p-2">
+              {recentUsersList.slice(0, 5).map(u => (
+                <div key={u.id} className="flex items-center justify-between p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg group">
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <img src={u.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} className="w-8 h-8 rounded-full bg-slate-100" />
+                    <div className="overflow-hidden">
+                      <p className="text-xs font-bold truncate">{u.full_name}</p>
+                      <p className="text-[10px] text-slate-500 truncate">{u.email || u.id}</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => handleDeleteUserRecords(u.id)}
+                    disabled={maintenanceLoading}
+                    className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">delete_forever</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <button 
+              onClick={handleClearTestRequests}
+              className="w-full py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-lg hover:bg-red-50 hover:text-red-500 transition-all flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-700 border-dashed"
+            >
+              <span className="material-symbols-outlined text-[18px]">cleaning_services</span>
+              Limpar Pedidos "Orfãos" (Sem prestador)
+            </button>
+          </div>
+        </section>
+
+        {/* Criação de Avaliações Mock */}
+        <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 p-2 rounded-lg">
+              <span className="material-symbols-outlined">reviews</span>
+            </div>
+            <h3 className="text-lg font-bold">Criar Avaliação Mock</h3>
+          </div>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">ID do Prestador</label>
+                <input 
+                  type="text" 
+                  value={mockReviewForm.provider_id}
+                  onChange={e => setMockReviewForm({...mockReviewForm, provider_id: e.target.value})}
+                  className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs outline-none focus:border-primary"
+                  placeholder="UID do Prestador"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">ID do Autor (Cliente)</label>
+                <input 
+                  type="text" 
+                  value={mockReviewForm.reviewer_id}
+                  onChange={e => setMockReviewForm({...mockReviewForm, reviewer_id: e.target.value})}
+                  className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs outline-none focus:border-primary"
+                  placeholder="UID do Autor"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nota (1-5)</label>
+              <div className="flex gap-2">
+                {[1, 2, 3, 4, 5].map(n => (
+                  <button 
+                    key={n}
+                    onClick={() => setMockReviewForm({...mockReviewForm, rating: n})}
+                    className={`flex-1 py-1 rounded-md text-xs font-bold transition-all ${mockReviewForm.rating === n ? 'bg-primary text-white shadow-sm' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}
+                  >
+                    {n} ★
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Comentário</label>
+              <textarea 
+                value={mockReviewForm.comment}
+                onChange={e => setMockReviewForm({...mockReviewForm, comment: e.target.value})}
+                className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs outline-none focus:border-primary h-20 resize-none"
+                placeholder="Escreva um comentário realista..."
+              />
+            </div>
+
+            <button 
+              onClick={handleCreateMockReview}
+              disabled={maintenanceLoading}
+              className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-lg transition-all shadow-md shadow-emerald-500/20 flex items-center justify-center gap-2"
+            >
+              <span className="material-symbols-outlined text-[18px]">add_task</span>
+              Publicar Avaliação Mock
+            </button>
+          </div>
+        </section>
+      </div>
+
+      {/* Lista de Avaliações Recentes (Para exclusão rápida) */}
+      <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+          <h3 className="font-bold flex items-center gap-2">
+            <span className="material-symbols-outlined text-slate-400">format_list_bulleted</span>
+            Avaliações Recentes
+          </h3>
+          <span className="text-xs text-slate-500">{reviewsList.length} total</span>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
+              <tr>
+                <th className="px-6 py-3 font-bold text-slate-500 uppercase">Prestador</th>
+                <th className="px-6 py-3 font-bold text-slate-500 uppercase">Autor</th>
+                <th className="px-6 py-3 font-bold text-slate-500 uppercase">Nota</th>
+                <th className="px-6 py-3 font-bold text-slate-500 uppercase">Comentário</th>
+                <th className="px-6 py-3 font-bold text-slate-500 uppercase text-right">Ação</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              {reviewsList.slice(0, 10).map(r => (
+                <tr key={r.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                  <td className="px-6 py-3 font-medium">{r.provider?.full_name}</td>
+                  <td className="px-6 py-3 text-slate-500">{r.reviewer?.full_name}</td>
+                  <td className="px-6 py-3">
+                    <span className="flex items-center gap-1 font-bold text-orange-500">
+                      {r.rating} <span className="material-symbols-outlined text-[14px]">star</span>
+                    </span>
+                  </td>
+                  <td className="px-6 py-3 text-slate-500 max-w-xs truncate">{r.comment}</td>
+                  <td className="px-6 py-3 text-right">
+                    <button 
+                      onClick={() => handleDeleteReview(r.id)}
+                      className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">delete</span>
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  );
+
   const renderDisputesTab = () => {
     const disputedOrders = ordersList.filter(o => o.status === 'disputed' || o.status === 'conflict');
     
@@ -1830,6 +2115,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
         {activeTab === 'disputes' && renderDisputesTab()}
         {activeTab === 'finance' && renderFinanceTab()}
         {activeTab === 'settings' && renderSettingsTab()}
+        {activeTab === 'maintenance' && renderMaintenanceTab()}
       </main>
 
       {/* Bottom Navigation Bar */}
@@ -1873,6 +2159,10 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
           <button onClick={() => setActiveTab('settings')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'settings' ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary'}`}>
             <span className="material-symbols-outlined text-[24px]" style={activeTab === 'settings' ? { fontVariationSettings: "'FILL' 1" } : {}}>settings</span>
             <span className="text-[10px] font-medium hidden md:block">Configurações</span>
+          </button>
+          <button onClick={() => setActiveTab('maintenance')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'maintenance' ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary'}`}>
+            <span className="material-symbols-outlined text-[24px]" style={activeTab === 'maintenance' ? { fontVariationSettings: "'FILL' 1" } : {}}>construction</span>
+            <span className="text-[10px] font-medium hidden md:block">Manutenção</span>
           </button>
           <button onClick={() => onNavigate('home')} className="flex flex-col items-center gap-1 md:hidden text-slate-500 hover:text-primary transition-colors">
             <span className="material-symbols-outlined text-[24px]">home</span>

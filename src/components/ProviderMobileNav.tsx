@@ -25,6 +25,14 @@ export default function ProviderMobileNav({ onNavigate, currentScreen }: Provide
     <nav className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-2 pb-4 pt-3 z-50 transition-colors">
       <div className="flex max-w-7xl mx-auto items-center justify-around h-12">
         <button
+          onClick={() => onNavigate('home')}
+          className={getButtonClass(currentScreen === 'home')}
+        >
+          <span className={getIconClass(currentScreen === 'home')} style={currentScreen === 'home' ? { fontVariationSettings: "'FILL' 1" } : {}}>home</span>
+          <span className="text-[9px] font-semibold tracking-tight">Início</span>
+        </button>
+
+        <button
           onClick={() => onNavigate('dashboard')}
           className={getButtonClass(currentScreen === 'dashboard')}
         >

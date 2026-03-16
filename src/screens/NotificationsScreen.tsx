@@ -85,6 +85,36 @@ export default function NotificationsScreen({ onNavigate }: NavigationProps) {
     }
   };
 
+  const handleNotificationClick = (notification: Notification) => {
+    if (!notification.is_read) {
+      handleMarkAsRead(notification.id);
+    }
+
+    if (!notification.type || !notification.related_entity_id) return;
+
+    // Mapeamento de redirecionamento idêntico ao do Toast
+    let target: Screen = 'notifications';
+    let navParams: any = {};
+
+    if (notification.type === 'order') {
+      target = role === 'provider' ? 'providerRequests' : 'serviceStatus';
+      navParams = { requestId: notification.related_entity_id };
+    } else if (notification.type === 'new_bid') {
+      target = 'serviceStatus';
+      navParams = { requestId: notification.related_entity_id };
+    } else if (notification.type === 'status') {
+      target = 'serviceStatus';
+      navParams = { requestId: notification.related_entity_id };
+    } else if (notification.type === 'message' || notification.type === 'chat') {
+      // Para mensagens na lista geral de notificações (se houver)
+      target = 'chatList';
+    }
+
+    if (target !== 'notifications') {
+      onNavigate(target, navParams);
+    }
+  };
+
   const getIconForType = (type: string) => {
     switch (type) {
       case 'order': return { icon: 'pending_actions', color: 'text-primary', bg: 'bg-primary/20' };
@@ -178,8 +208,8 @@ export default function NotificationsScreen({ onNavigate }: NavigationProps) {
             return (
               <div
                 key={notification.id}
-                onClick={() => isUnread ? handleMarkAsRead(notification.id) : undefined}
-                className={`${isUnread ? 'bg-primary/5 dark:bg-primary/10 cursor-pointer pointer-events-auto' : 'bg-white dark:bg-background-dark'} px-4 py-4 border-b border-slate-100 dark:border-slate-800 flex gap-4 items-start relative transition-colors`}
+                onClick={() => handleNotificationClick(notification)}
+                className={`${isUnread ? 'bg-primary/5 dark:bg-primary/10 cursor-pointer pointer-events-auto' : 'bg-white dark:bg-background-dark cursor-pointer'} px-4 py-4 border-b border-slate-100 dark:border-slate-800 flex gap-4 items-start relative transition-colors`}
               >
                 {isUnread && <div className="absolute right-4 top-4 size-2.5 bg-primary rounded-full shadow-[0_0_8px_rgba(var(--primary),0.6)]"></div>}
 
