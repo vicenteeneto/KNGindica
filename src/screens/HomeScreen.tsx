@@ -481,12 +481,12 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   };
 
   return (
-    <div className="w-full bg-[#0f171e] min-h-screen flex flex-col font-display text-white pb-20 md:pb-0 overflow-x-hidden transition-colors duration-500">
+    <div className="w-full bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-display text-slate-900 dark:text-white pb-20 md:pb-0 overflow-x-hidden transition-colors duration-500">
       
       {/* Floating Header */}
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 px-4 pt-3 pb-1.5 ${isScrolled
-        ? 'bg-[#1a242f]/95 backdrop-blur-md shadow-2xl'
-        : 'bg-gradient-to-b from-black/90 via-black/30 to-transparent'
+        ? 'bg-white/90 dark:bg-black/95 backdrop-blur-md shadow-lg border-b border-slate-200 dark:border-white/5'
+        : 'bg-gradient-to-b from-white/60 via-white/20 to-transparent dark:from-black/90 dark:via-black/30'
         }`}>
         <div className="flex items-center justify-between mx-auto max-w-7xl">
           <div className="flex items-center gap-3">
@@ -522,26 +522,26 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
               </button>
               <button 
                 onClick={() => onNavigate('myRequests')} 
-                className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+                className="text-sm font-medium text-slate-500 dark:text-slate-300 hover:text-primary dark:hover:text-white transition-colors"
               >
                 Meus Pedidos
               </button>
             </nav>
 
             <div className="flex items-center gap-1 md:gap-3">
-              <button onClick={() => onNavigate('chatList')} className="p-2 hover:bg-white/10 rounded-full transition-colors relative">
+              <button onClick={() => onNavigate('chatList')} className="p-2 hover:bg-slate-200 dark:hover:bg-white/10 rounded-full transition-colors relative">
                 <span className="material-symbols-outlined text-[26px]">chat</span>
-                <span className="absolute top-2 right-2 size-2 bg-primary rounded-full border border-[#0f171e]"></span>
+                <span className="absolute top-2 right-2 size-2 bg-primary rounded-full border border-white dark:border-black"></span>
               </button>
-              <button onClick={() => onNavigate('notifications')} className="p-2 hover:bg-white/10 rounded-full transition-colors relative">
+              <button onClick={() => onNavigate('notifications')} className="p-2 hover:bg-slate-200 dark:hover:bg-white/10 rounded-full transition-colors relative">
                 <span className="material-symbols-outlined text-[26px]">notifications</span>
-                <span className="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-[#0f171e]"></span>
+                <span className="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-white dark:border-black"></span>
               </button>
               {user && (
                 <div className="flex items-center gap-2">
                   <div className="hidden sm:flex flex-col items-end mr-1">
                     <span className="text-[10px] font-black text-primary uppercase tracking-widest italic leading-none">Modo</span>
-                    <span className="text-[10px] font-bold text-white uppercase tracking-tight leading-none">Cliente</span>
+                    <span className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-tight leading-none">Cliente</span>
                   </div>
                   <button onClick={() => onNavigate('userProfile')} className="size-9 rounded-full overflow-hidden border-2 border-primary/50 hover:border-primary transition-colors shadow-lg shadow-primary/10">
                     <img src={user.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${user.email}&background=random`} alt="Avatar" className="w-full h-full object-cover" />
@@ -558,7 +558,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             <button
               key={cat.name}
               onClick={() => cat.name === 'Todos' ? onNavigate('listing', { searchQuery: '' }) : onNavigate('listing', { category: cat.name })}
-              className="flex-shrink-0 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all border border-white/10 bg-white/5 hover:bg-primary hover:text-white hover:border-primary text-gray-300"
+              className="flex-shrink-0 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-primary hover:text-white hover:border-primary text-slate-500 dark:text-gray-300"
             >
               {cat.name}
             </button>
@@ -569,7 +569,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
       <main className="flex-1 w-full relative">
         {/* Prime-Style Hero Carousel */}
         <section 
-          className="relative w-full h-[60vh] md:h-[75vh] overflow-hidden bg-black touch-pan-y"
+          className="relative w-full h-[60vh] md:h-[75vh] overflow-hidden bg-background-light dark:bg-black touch-pan-y"
           onTouchStart={handleTouchStartHero}
           onTouchMove={handleTouchMoveHero}
           onTouchEnd={handleTouchEndHero}
@@ -586,9 +586,9 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                     alt={p.name}
                     className="w-full h-full object-cover opacity-50 scale-105 transform hover:scale-100 transition-transform duration-[10000ms]"
                   />
-                  {/* Gradients - Deep Black Style */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/20 to-transparent"></div>
+                  {/* Gradients - Theme-aware Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-background-light dark:from-background-dark via-transparent to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-background-light/40 dark:from-black/80 via-transparent to-transparent"></div>
 
                   {/* Content */}
                   <div className="absolute bottom-16 md:bottom-24 left-0 w-full px-4 md:px-12 max-w-7xl mx-auto left-1/2 -translate-x-1/2">
@@ -601,7 +601,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                         )}
                         <span className="text-sm font-bold text-orange-200/80">Verificado Alvo</span>
                       </div>
-                      <h1 className="text-3xl md:text-6xl font-black text-white leading-[0.9] mb-3 drop-shadow-2xl">
+                      <h1 className="text-3xl md:text-6xl font-black text-slate-900 dark:text-white leading-[0.9] mb-3 drop-shadow-2xl">
                         {p.name.split(' ')[0]} <br />
                         <span className="text-primary">{p.name.split(' ').slice(1).join(' ')}</span>
                       </h1>
@@ -694,27 +694,27 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         )}
 
         <section className="max-w-7xl mx-auto px-4 mb-10 relative z-30">
-          <div className="bg-gradient-to-r from-emerald-600 to-emerald-800 rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl group-hover:bg-white/20 transition-all duration-700"></div>
-            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="bg-gradient-to-r from-emerald-600/90 to-emerald-800/95 rounded-xl p-4 md:p-6 shadow-xl relative overflow-hidden group border border-emerald-400/20">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
               <div className="flex-1 text-center md:text-left">
-                <div className="inline-flex items-center gap-2 bg-black/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 text-emerald-300">
-                  <span className="material-symbols-outlined text-sm">rocket_launch</span>
-                  Novo Recurso
+                <div className="inline-flex items-center gap-1.5 bg-black/10 backdrop-blur-sm px-2 py-0.5 rounded-full text-[9px] font-black tracking-wider uppercase mb-3 text-emerald-200/80">
+                  <span className="material-symbols-outlined text-[10px]">rocket_launch</span>
+                  Destaque
                 </div>
-                <h2 className="text-2xl md:text-3xl font-black text-white leading-tight mb-4 tracking-tighter italic uppercase">
-                  Você define <br /> o <span className="text-emerald-300">preço!</span>
+                <h2 className="text-xl md:text-2xl font-black text-white leading-tight mb-2 tracking-tighter italic uppercase">
+                  Você define o <span className="text-emerald-300">preço!</span>
                 </h2>
-                <p className="text-emerald-50/70 text-xs md:text-sm font-medium max-w-lg leading-relaxed">
-                  Poste o que você precisa e quanto quer pagar. Os profissionais disputam a sua ordem e você escolhe o melhor.
+                <p className="text-emerald-100/60 text-[10px] md:text-sm font-medium max-w-lg leading-snug">
+                  Poste o que você precisa e os profissionais disputam sua ordem.
                 </p>
               </div>
               <button 
                 onClick={() => onNavigate('freelanceRequest')}
-                className="bg-white text-emerald-900 px-8 py-4 rounded-xl font-black text-xs uppercase tracking-widest shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3 shrink-0"
+                className="bg-white text-emerald-900 px-5 py-2.5 rounded-lg font-black text-[10px] uppercase tracking-widest shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shrink-0"
               >
                 Solicitar Freelance
-                <span className="material-symbols-outlined">arrow_forward</span>
+                <span className="material-symbols-outlined text-sm">arrow_forward</span>
               </button>
             </div>
           </div>
@@ -879,10 +879,10 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
        {/* Manual Location Modal */}
        {showLocationModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-xl p-4">
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in-up">
-            <div className="p-6 border-b border-slate-800 flex justify-between items-center">
-              <h3 className="font-black text-xl text-white flex items-center gap-2 italic uppercase tracking-tighter">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 dark:bg-black/90 backdrop-blur-xl p-4">
+          <div className="bg-white dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/10 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in-up">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+              <h3 className="font-black text-xl text-slate-900 dark:text-white flex items-center gap-2 italic uppercase tracking-tighter">
                 <span className="material-symbols-outlined text-primary">location_on</span>
                 Sua Cidade
               </h3>
@@ -902,7 +902,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                     value={manualCityInput}
                     onChange={(e) => setManualCityInput(e.target.value)}
                     placeholder="Ex: Rondonópolis, SP..."
-                    className="w-full pl-12 pr-4 py-4 bg-white/5 border-2 border-white/10 rounded-2xl focus:border-primary outline-none transition-all text-white font-bold"
+                    className="w-full pl-12 pr-4 py-4 bg-slate-100 dark:bg-white/5 border-2 border-slate-200 dark:border-white/10 rounded-2xl focus:border-primary outline-none transition-all text-slate-900 dark:text-white font-bold"
                     autoFocus
                   />
                 </div>
@@ -969,11 +969,11 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight }: Co
   return (
     <section className="px-4 md:px-8 mb-12">
       <div className="flex flex-col mb-5">
-        <h3 className={`text-xl md:text-2xl font-black tracking-tighter uppercase italic flex items-center gap-2 ${highlight ? 'text-primary' : 'text-white'}`}>
+        <h3 className={`text-xl md:text-2xl font-black tracking-tighter uppercase italic flex items-center gap-2 ${highlight ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>
           {title}
           <span className="material-symbols-outlined text-sm font-normal not-italic opacity-20">chevron_right</span>
         </h3>
-        <p className="text-xs md:text-sm text-gray-400 font-medium">{subtitle}</p>
+        <p className="text-xs md:text-sm text-slate-500 dark:text-gray-400 font-medium">{subtitle}</p>
       </div>
 
       <div className="flex gap-4 md:gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0">
@@ -983,7 +983,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight }: Co
             onClick={() => onNavigate('profile', { professionalId: p.id })}
             className="snap-start shrink-0 w-[160px] md:w-[260px] group cursor-pointer"
           >
-            <div className={`relative aspect-[16/9] md:aspect-video rounded-xl overflow-hidden shadow-2xl bg-[#0a0a0a] transition-all duration-300 group-hover:scale-105 group-hover:ring-4 ${highlight ? 'group-hover:ring-primary/40' : 'group-hover:ring-white/5'}`}>
+            <div className={`relative aspect-[16/9] md:aspect-video rounded-xl overflow-hidden shadow-2xl bg-white dark:bg-[#0a0a0a] transition-all duration-300 group-hover:scale-105 group-hover:ring-4 ${highlight ? 'group-hover:ring-primary/40' : 'group-hover:ring-slate-200 dark:group-hover:ring-white/5'}`}>
               <img
                 className="w-full h-full object-cover transition-transform duration-700"
                 src={p.image}
@@ -1014,7 +1014,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight }: Co
             
             {/* Name Below Card for cleaner look */}
             <div className="mt-2 text-center">
-              <h4 className="font-bold text-[11px] md:text-xs truncate text-gray-400 group-hover:text-primary transition-colors uppercase tracking-tight">
+              <h4 className="font-bold text-[11px] md:text-xs truncate text-slate-500 dark:text-gray-400 group-hover:text-primary transition-colors uppercase tracking-tight">
                 {p.name}
               </h4>
             </div>

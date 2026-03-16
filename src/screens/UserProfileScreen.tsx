@@ -571,23 +571,19 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
             </span>
           </div>
           <p className="text-slate-500 dark:text-slate-400 text-sm mb-1">{displayUser.email}</p>
-          <div className="flex flex-wrap items-center justify-center gap-1.5 mt-2">
-            <span className="bg-white/50 dark:bg-white/5 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-tighter text-slate-500 dark:text-gray-400 border border-slate-200 dark:border-white/5 shadow-sm">
+          <div className="flex flex-wrap items-center justify-center gap-1 mt-2">
+            <span className="bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter text-slate-500 dark:text-gray-400 border border-slate-200 dark:border-white/5 shadow-sm">
               {displayUser.joinDate}
             </span>
-            {formData.plan_type === 'plus' ? (
-              <span className="bg-orange-500 text-black px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-tighter flex items-center gap-1 shadow-sm border border-orange-400">
-                <span className="material-symbols-outlined text-[12px]">workspace_premium</span>
-                PLUS
-              </span>
-            ) : (
-              <span className="bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-gray-400 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-tighter border border-slate-200 dark:border-white/5">
-                BÁSICO
-              </span>
-            )}
-            <span className="bg-amber-500 text-black px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-tighter flex items-center gap-1 shadow-sm border border-amber-400">
-              <span className="material-symbols-outlined text-[12px]">stars</span>
-              {displayUser.points} pts
+            <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter border shadow-sm ${
+              formData.plan_type === 'plus' 
+                ? 'bg-orange-500 text-black border-orange-400' 
+                : 'bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-gray-400 border-slate-200 dark:border-white/5'
+            }`}>
+              {formData.plan_type === 'plus' ? 'PLUS' : 'BÁSICO'}
+            </span>
+            <span className="bg-amber-500 text-black px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter border border-amber-400 shadow-sm">
+              {displayUser.points} PTS
             </span>
           </div>
         </div>
