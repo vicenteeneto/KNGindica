@@ -42,13 +42,15 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
             category: p.categories?.[0] || 'Serviços Gerais',
             rating: 5.0, // Default for now
             reviews: 0,
-            price: 50,
-            priceUnit: '/hora',
+            price: p.price_value || 0,
+            priceUnit: p.pricing_model || 'hourly',
+            show_price: p.show_price !== false,
+            pricing_model: p.pricing_model || 'hourly',
             image: p.avatar_url || 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a',
-            isVerified: true,
+            isVerified: p.is_verified,
             distance: p.city ? 0 : 99, // Basic distance mock
             description: p.bio || 'Sem descrição.',
-            isAffiliate: !!p.company_name,
+            isAffiliate: p.plan_type === 'plus',
           }));
           setDbProfessionals(mapped);
 
@@ -297,6 +299,28 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                   {professional.service}
                 </p>
+
+                {/* Pricing Info */}
+                <div className="mt-2 text-xs font-bold">
+                  {(professional as any).show_price ? (
+                    <div className="flex items-center gap-1 text-slate-900 dark:text-white">
+                      {(professional as any).pricing_model === 'negotiable' ? (
+                        <span className="text-primary italic">A combinar</span>
+                      ) : (
+                        <>
+                          {(professional as any).pricing_model === 'starting_at' && <span className="text-[10px] text-slate-500 font-normal">A partir de</span>}
+                          <span>R$ {parseFloat((professional as any).price || '0').toLocaleString('pt-BR')}</span>
+                          <span className="text-[10px] text-slate-500 font-normal">
+                            {(professional as any).pricing_model === 'hourly' ? '/ h' : 
+                             (professional as any).pricing_model === 'fixed' ? '(Fixo)' : ''}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="text-slate-400 italic font-normal">Preço sob consulta</span>
+                  )}
+                </div>
               </div>
               <div className="mt-3">
                 <button 

@@ -143,8 +143,10 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
             category: data.categories?.[0] || 'Serviços Gerais',
             rating: 5.0, 
             reviews: 0,
-            price: '50.00',
-            priceUnit: '/hora',
+            price: data.price_value?.toString() || '0',
+            priceUnit: data.pricing_model || 'hourly',
+            show_price: data.show_price !== false,
+            pricing_model: data.pricing_model || 'hourly',
             image: data.avatar_url || 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a',
             isVerified: data.is_verified,
             distance: 'A Combinar',
@@ -381,8 +383,30 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
                   <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mt-0.5">Avaliação</p>
                 </div>
                 <div className="flex flex-col items-center">
-                  <p className="text-slate-900 dark:text-slate-100 text-base font-black italic tracking-tight">R$ {parseInt(professional.price)}</p>
-                  <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mt-0.5">{professional.priceUnit}</p>
+                  {professional.show_price ? (
+                    <>
+                      <p className="text-slate-900 dark:text-slate-100 text-base font-black italic tracking-tight">
+                        {professional.pricing_model === 'negotiable' ? (
+                          'A combinar'
+                        ) : (
+                          <>
+                            {professional.pricing_model === 'starting_at' && <span className="text-[9px] mr-1 opacity-50">A partir</span>}
+                            R$ {parseFloat(professional.price || '0').toLocaleString('pt-BR')}
+                          </>
+                        )}
+                      </p>
+                      <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mt-0.5">
+                        {professional.pricing_model === 'hourly' ? '/ hora' : 
+                         professional.pricing_model === 'fixed' ? 'Preço Fixo' : 
+                         professional.pricing_model === 'starting_at' ? 'Inicial' : 'Negociável'}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-slate-900 dark:text-slate-100 text-sm font-black italic tracking-tight uppercase">Sob Consulta</p>
+                      <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mt-0.5">Valores</p>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

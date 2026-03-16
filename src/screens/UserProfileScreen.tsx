@@ -101,6 +101,9 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
     categories: (profile as any)?.categories || [],
     whatsapp_number: (profile as any)?.whatsapp_number || '',
     plan_type: (profile as any)?.plan_type || 'basic',
+    pricing_model: (profile as any)?.pricing_model || 'hourly',
+    price_value: (profile as any)?.price_value?.toString() || '',
+    show_price: (profile as any)?.show_price !== false,
   });
 
   const [isFetchingCep, setIsFetchingCep] = useState(false);
@@ -135,6 +138,9 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         categories: (profile as any).categories || [],
         whatsapp_number: formatPhone((profile as any).whatsapp_number || ''),
         plan_type: (profile as any).plan_type || 'basic',
+        pricing_model: (profile as any).pricing_model || 'hourly',
+        price_value: (profile as any).price_value?.toString() || '',
+        show_price: (profile as any).show_price !== false,
       });
       // Sincroniza coords/cidade ao carregar o perfil
       if ((profile as any).latitude && (profile as any).longitude) {
@@ -308,6 +314,9 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           bio: formData.bio,
           categories: formData.categories,
           whatsapp_number: formData.whatsapp_number,
+          pricing_model: formData.pricing_model,
+          price_value: formData.price_value ? parseFloat(formData.price_value.replace(',', '.')) : null,
+          show_price: formData.show_price,
         })
         .eq('id', user?.id);
 
@@ -1200,6 +1209,59 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">Serviços Prestados (Selecione um ou mais)</label>
+                  
+                  {/* Precificação Flexível */}
+                  <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 mb-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tighter italic">Opções de Preço</h4>
+                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Ajuste como seu valor aparece</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Exibir</span>
+                        <button
+                          type="button"
+                          onClick={() => setFormData({...formData, show_price: !formData.show_price})}
+                          className={`w-10 h-5 rounded-full transition-colors relative ${formData.show_price ? 'bg-primary' : 'bg-slate-200 dark:bg-slate-700'}`}
+                        >
+                          <div className={`absolute top-0.5 size-4 bg-white rounded-full transition-all ${formData.show_price ? 'left-5.5' : 'left-0.5'}`} />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Modelo de Cobrança</label>
+                        <select 
+                          value={formData.pricing_model}
+                          onChange={(e) => setFormData({...formData, pricing_model: e.target.value})}
+                          className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm font-bold"
+                        >
+                          <option value="hourly">Por Hora (R$ X / hora)</option>
+                          <option value="fixed">Preço Fixo (R$ X)</option>
+                          <option value="starting_at">A Partir de (A partir de R$ X)</option>
+                          <option value="negotiable">A Combinar (Preço sob consulta)</option>
+                        </select>
+                      </div>
+
+                      {formData.pricing_model !== 'negotiable' && (
+                        <div className="animate-in fade-in slide-in-from-top-2">
+                          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Valor Base (R$)</label>
+                          <div className="relative">
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">R$</span>
+                            <input
+                              type="text"
+                              value={formData.price_value}
+                              onChange={(e) => setFormData({...formData, price_value: e.target.value})}
+                              placeholder="0,00"
+                              className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm font-bold"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-2 gap-2 mb-4">
                     {dbCategories.length > 0 ? (
                       dbCategories.map(cat => (
