@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
-import ProviderMobileNav from '../components/ProviderMobileNav';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
+import { formatCurrency } from '../lib/formatters';
 
 export default function ProviderWalletScreen({ onNavigate }: NavigationProps) {
   const { user } = useAuth();
@@ -85,7 +85,7 @@ export default function ProviderWalletScreen({ onNavigate }: NavigationProps) {
             <div className="flex items-start gap-1">
               <span className="text-white/80 font-bold text-xl mt-1">R$</span>
               <h2 className="text-5xl font-black text-white tracking-tighter">
-                {balance.available.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                {formatCurrency(balance.available)}
               </h2>
             </div>
             
@@ -112,13 +112,13 @@ export default function ProviderWalletScreen({ onNavigate }: NavigationProps) {
             <div className="flex-1 flex flex-col items-center justify-center py-2 px-1">
               <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1 text-center">A Receber</p>
               <p className="text-lg font-bold text-slate-900 dark:text-white">
-                R$ {balance.pending.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                R$ {formatCurrency(balance.pending)}
               </p>
             </div>
             <div className="flex-1 flex flex-col items-center justify-center py-2 px-1">
               <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1 text-center">Total (Mês)</p>
               <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
-                R$ {balance.monthTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                R$ {formatCurrency(balance.monthTotal)}
               </p>
             </div>
             <div className="flex-1 flex flex-col items-center justify-center py-2 px-1">
@@ -163,7 +163,7 @@ export default function ProviderWalletScreen({ onNavigate }: NavigationProps) {
                     </div>
                     <div className="text-right">
                       <p className={`font-bold ${tx.type === 'fee_deduction' ? 'text-rose-600' : 'text-emerald-600'}`}>
-                        {tx.type === 'fee_deduction' ? '-' : '+'} R$ {Number(tx.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        {tx.type === 'fee_deduction' ? '-' : '+'} R$ {formatCurrency(tx.amount)}
                       </p>
                       <p className="text-[10px] text-slate-400 border border-slate-200 dark:border-slate-600 px-1.5 py-0.5 rounded ml-auto mt-1 w-max capitalize">{tx.status}</p>
                     </div>
@@ -197,7 +197,6 @@ export default function ProviderWalletScreen({ onNavigate }: NavigationProps) {
         </div>
       </main>
       
-      <ProviderMobileNav onNavigate={onNavigate} currentScreen="providerWallet" />
     </div>
   );
 }

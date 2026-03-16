@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { NavigationProps } from '../types';
-import MobileNav from '../components/MobileNav';
 
 type Tab = 'Concluídos' | 'Em andamento' | 'Cancelados';
 
@@ -138,7 +137,6 @@ export default function ServiceHistoryScreen({ onNavigate }: NavigationProps) {
           <div className="h-24"></div> {/* Spacer for MobileNav */}
         </div>
 
-        <MobileNav onNavigate={onNavigate} currentScreen="myRequests" />
       </div>
     </div>
   );

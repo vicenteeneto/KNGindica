@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
-import MobileNav from '../components/MobileNav';
 import VerifiedBadge from '../components/VerifiedBadge';
 
 export default function FavoritesScreen({ onNavigate }: NavigationProps) {
@@ -135,7 +134,6 @@ export default function FavoritesScreen({ onNavigate }: NavigationProps) {
         )}
       </main>
 
-      <MobileNav onNavigate={onNavigate} currentScreen="profile" />
     </div>
   );
 }

@@ -4,9 +4,10 @@ import { useNotifications } from '../NotificationContext';
 
 interface MobileNavProps extends NavigationProps {
   currentScreen: Screen;
+  role?: 'client' | 'provider' | null;
 }
 
-export default function MobileNav({ onNavigate, currentScreen }: MobileNavProps) {
+export default function MobileNav({ onNavigate, currentScreen, role }: MobileNavProps) {
   const { unreadNotifications, unreadMessages } = useNotifications();
 
   return (
@@ -18,6 +19,16 @@ export default function MobileNav({ onNavigate, currentScreen }: MobileNavProps)
         <span className="material-symbols-outlined text-[24px]">home</span>
         <span className="text-[10px] font-medium leading-normal">Início</span>
       </button>
+
+      {role === 'provider' && (
+        <button
+          onClick={() => onNavigate('dashboard')}
+          className={`flex flex-1 flex-col items-center justify-end gap-1 group transition-colors ${currentScreen === 'dashboard' ? 'text-primary' : 'text-slate-400 hover:text-primary'}`}
+        >
+          <span className="material-symbols-outlined text-[24px]">pie_chart</span>
+          <span className="text-[10px] font-medium leading-normal">Painel</span>
+        </button>
+      )}
       
       <button
         onClick={() => onNavigate('chatList')}

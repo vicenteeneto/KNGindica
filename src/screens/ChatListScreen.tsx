@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
-import MobileNav from '../components/MobileNav';
-import ProviderMobileNav from '../components/ProviderMobileNav';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
 
@@ -144,12 +142,6 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
         </div>
       </main>
 
-      {/* Bottom Navigation Bar (Mobile Only) */}
-      {role === 'provider' ? (
-        <ProviderMobileNav onNavigate={onNavigate} currentScreen={'chatList' as any} />
-      ) : (
-        <MobileNav onNavigate={onNavigate} currentScreen="chatList" />
-      )}
 
       {/* Action Button */}
       <button onClick={() => alert('Abrir lista de contatos para novo chat')} className="absolute bottom-24 right-6 w-14 h-14 bg-primary text-white rounded-full shadow-lg flex items-center justify-center hover:scale-105 transition-transform z-40">

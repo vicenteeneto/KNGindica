@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
-import ProviderMobileNav from '../components/ProviderMobileNav';
 
 const DAYS = [
   { label: 'Dom', value: 0 },
@@ -379,7 +378,6 @@ export default function ProviderScheduleScreen({ onNavigate }: NavigationProps) 
           </main>
         )}
 
-        <ProviderMobileNav onNavigate={onNavigate} currentScreen="providerSchedule" />
       </div>
     </div>
   );

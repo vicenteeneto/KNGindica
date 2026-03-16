@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
+import { parseCurrency, maskCurrency } from '../lib/formatters';
 
 export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) {
   const { user } = useAuth();
@@ -41,7 +42,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
           client_id: user.id,
           title: formData.title,
           description: formData.description,
-          budget: parseFloat(formData.budget),
+          budget: parseCurrency(formData.budget),
           category_id: formData.category_id,
           status: 'open'
         }])
@@ -123,12 +124,15 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
               <div className="relative">
                 <span className="absolute left-5 top-1/2 -translate-y-1/2 font-bold text-slate-400">R$</span>
                 <input 
-                  type="number" 
+                  type="text" 
                   required
                   placeholder="0,00"
                   className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl pl-12 pr-5 py-4 transition-all outline-none font-black text-xl"
                   value={formData.budget}
-                  onChange={e => setFormData({...formData, budget: e.target.value})}
+                  onChange={e => {
+                    const masked = maskCurrency(e.target.value);
+                    setFormData({...formData, budget: masked});
+                  }}
                 />
               </div>
             </div>

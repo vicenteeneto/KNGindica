@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { useAuth } from '../AuthContext';
-import ProviderMobileNav from '../components/ProviderMobileNav';
+import { formatCurrency } from '../lib/formatters';
 import { supabase } from '../lib/supabase';
 
 export default function ProviderDashboardScreen({ onNavigate }: NavigationProps) {
@@ -348,14 +348,14 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5 group-hover:text-primary transition-colors">Saldo Atualizado</p>
             <div className="flex items-end gap-1.5">
               <span className="text-2xl font-black leading-none group-hover:text-primary transition-colors">
-                R$ {stats.earnings?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                R$ {formatCurrency(stats.earnings)}
               </span>
               <span className="text-[8px] text-emerald-500 font-bold mb-0.5 border border-emerald-500/20 px-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/10 tracking-widest uppercase">Líquido</span>
             </div>
             {stats.pending > 0 && (
               <div className="flex items-center gap-1 mt-1 opacity-80 underline-offset-2 underline decoration-slate-300">
                 <span className="text-[10px] font-bold text-slate-500">
-                  + R$ {stats.pending?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  + R$ {formatCurrency(stats.pending)}
                 </span>
                 <span className="text-[8px] text-slate-400 font-black uppercase tracking-widest ml-1">Em Trânsito</span>
               </div>
@@ -377,7 +377,6 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         <main className="flex-1 overflow-y-auto">
           {renderDashboardTab()}
         </main>
-        <ProviderMobileNav onNavigate={onNavigate} currentScreen="dashboard" />
       </div>
     </div>
   );

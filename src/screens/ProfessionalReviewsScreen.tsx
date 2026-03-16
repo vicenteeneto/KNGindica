@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { NavigationProps } from '../types';
-import MobileNav from '../components/MobileNav';
 import { supabase } from '../lib/supabase';
 
 interface ProfessionalReviewsProps extends NavigationProps {
@@ -216,8 +215,6 @@ export default function ProfessionalReviewsScreen({ onNavigate, params }: Profes
         </div>
       </main>
 
-      {/* Bottom Navigation */}
-      <MobileNav onNavigate={onNavigate} currentScreen="profile" />
     </div>
   );
 }

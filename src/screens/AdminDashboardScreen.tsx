@@ -3,6 +3,7 @@ import { NavigationProps } from '../types';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
 import { useNotifications } from '../NotificationContext';
+import { formatCurrency } from '../lib/formatters';
 
 export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
   const { logout, user } = useAuth();
@@ -268,7 +269,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
       const date = new Date(order.created_at).toLocaleDateString('pt-BR');
       const val = order.price || 0;
       const tax = val * 0.15; // 15% platform fee
-      return `"${order.id}","${order.client?.full_name || ''}","${order.provider?.full_name || ''}","${order.category?.name || 'Serviço Direto'}","${order.status}","R$ ${val.toFixed(2)}","R$ ${tax.toFixed(2)}","${date}"`;
+      return `"${order.id}","${order.client?.full_name || ''}","${order.provider?.full_name || ''}","${order.category?.name || 'Serviço Direto'}","${order.status}","R$ ${formatCurrency(val)}","R$ ${formatCurrency(tax)}","${date}"`;
     }).join("\n");
     
     const csvContent = "data:text/csv;charset=utf-8," + headers + rows;
@@ -645,7 +646,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
               <span className="material-symbols-outlined text-slate-300 group-hover:text-orange-500 transition-colors">arrow_forward_ios</span>
             </div>
             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Receita Estimada</p>
-            <p className="text-2xl font-bold">R$ {stats.revenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+            <p className="text-2xl font-bold">R$ {formatCurrency(stats.revenue)}</p>
           </div>
         </div>
       </section>

@@ -1,7 +1,5 @@
 import React, { useState, useRef } from 'react';
 import { NavigationProps } from '../types';
-import MobileNav from '../components/MobileNav';
-import ProviderMobileNav from '../components/ProviderMobileNav';
 import { supabase } from '../lib/supabase';
 import { useTheme } from '../ThemeContext';
 import { useAuth } from '../AuthContext';

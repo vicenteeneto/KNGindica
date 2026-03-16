@@ -1,6 +1,5 @@
 import React from 'react';
 import { NavigationProps } from '../types';
-import MobileNav from '../components/MobileNav';
 
 export default function CategoriesScreen({ onNavigate }: NavigationProps) {
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -105,7 +104,6 @@ export default function CategoriesScreen({ onNavigate }: NavigationProps) {
           </div>
         </main>
 
-        <MobileNav onNavigate={onNavigate} currentScreen="categories" />
       </div>
     </div>
   );

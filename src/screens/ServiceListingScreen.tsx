@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { NavigationProps, Professional, Screen } from '../types';
 import { professionals as mockProfessionals } from '../data/mockData';
-import MobileNav from '../components/MobileNav';
 import VerifiedBadge from '../components/VerifiedBadge';
 import { supabase } from '../lib/supabase';
+import { formatCurrency } from '../lib/formatters';
 
 interface ServiceListingProps extends NavigationProps {
   initialParams?: {
@@ -309,7 +309,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
                       ) : (
                         <>
                           {(professional as any).pricing_model === 'starting_at' && <span className="text-[10px] text-slate-500 font-normal">A partir de</span>}
-                          <span>R$ {parseFloat((professional as any).price || '0').toLocaleString('pt-BR')}</span>
+                          <span>R$ {formatCurrency((professional as any).price || 0)}</span>
                           <span className="text-[10px] text-slate-500 font-normal">
                             {(professional as any).pricing_model === 'hourly' ? '/ h' : 
                              (professional as any).pricing_model === 'fixed' ? '(Fixo)' : ''}
@@ -345,7 +345,6 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
       </main>
 
       {/* Bottom Navigation Bar (Mobile Only) */}
-      <MobileNav onNavigate={onNavigate} currentScreen="listing" />
     </div>
   );
 }

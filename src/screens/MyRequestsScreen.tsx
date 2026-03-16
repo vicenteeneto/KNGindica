@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
-import MobileNav from '../components/MobileNav';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
 
@@ -370,7 +369,6 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
         </div>
       </main>
 
-      <MobileNav onNavigate={onNavigate} currentScreen="myRequests" />
     </div>
   );
 }

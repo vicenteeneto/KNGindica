@@ -887,7 +887,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
       </main>
 
       {/* Bottom Navigation (Mobile Only) */}
-      <MobileNav onNavigate={onNavigate} currentScreen="home" />
+      <MobileNav onNavigate={onNavigate} currentScreen="home" role={role} />
 
        {/* Manual Location Modal */}
        {showLocationModal && (

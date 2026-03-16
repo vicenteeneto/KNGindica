@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { NavigationProps, Screen } from '../types';
-import MobileNav from '../components/MobileNav';
-import ProviderMobileNav from '../components/ProviderMobileNav';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
 import { useNotifications } from '../NotificationContext';
@@ -234,12 +232,6 @@ export default function NotificationsScreen({ onNavigate }: NavigationProps) {
         )}
       </main>
 
-      {/* Bottom Navigation Bar */}
-      {role === 'provider' ? (
-        <ProviderMobileNav onNavigate={onNavigate} currentScreen={'profile' as any} />
-      ) : (
-        <MobileNav onNavigate={onNavigate} currentScreen="notifications" />
-      )}
     </div>
   );
 }
