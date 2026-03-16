@@ -154,19 +154,23 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
     </header>
   );
 
+  const getGreetingName = () => {
+    if (!profile?.full_name) return 'Profissional';
+    const names = profile.full_name.trim().split(' ');
+    if (names.length > 1 && (names[0].length <= 2 || ['Dr.', 'Dra.', 'Sr.', 'Sra.'].includes(names[0]))) {
+      return `${names[0]} ${names[1]}`;
+    }
+    return names[0];
+  };
+
   const generateInsights = () => {
-    return [{
-      title: "Consulte seu Perfil",
-      desc: "Mantenha seus dados sempre atualizados para atrair mais clientes.",
-      icon: "person",
-      action: () => onNavigate('userProfile')
-    }];
+    return []; // Removed "Consulte seu Perfil" as requested
   };
 
   const renderDashboardTab = () => (
     <>
       <section className="px-4 pt-4 pb-1 text-center sm:text-left">
-        <h1 className="text-slate-900 dark:text-slate-100 text-xl font-black leading-tight italic tracking-tighter">Olá, {profile?.full_name?.split(' ')[0] || 'Profissional'}! 👋</h1>
+        <h1 className="text-slate-900 dark:text-slate-100 text-xl font-black leading-tight italic tracking-tighter">Olá, {getGreetingName()}! 👋</h1>
         <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-0.5">Visão Geral do seu Negócio</p>
       </section>
 
@@ -222,11 +226,11 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
           
           <div className="flex justify-between items-start mb-6">
             <div>
-              <h4 className="text-white font-black text-xs uppercase tracking-widest flex items-center gap-2">
+              <h4 className="text-white font-black text-[10px] uppercase tracking-widest flex items-center gap-2">
                 Taxa de Conversão
-                <span className="bg-primary/20 text-primary border border-primary/30 px-1.5 py-0.5 rounded text-[8px]">SMART METRIC</span>
+                <span className="bg-primary/20 text-primary border border-primary/30 px-1 py-0.5 rounded-[4px] text-[7px] leading-none">SMART METRIC</span>
               </h4>
-              <p className="text-slate-400 text-[10px] mt-1 font-medium italic">Visitas convertidas em contatos reais</p>
+              <p className="text-slate-400 text-[9px] mt-0.5 font-medium italic">Visitas convertidas em contatos reais</p>
             </div>
             <div className="text-right">
               <p className="text-2xl font-black text-white leading-none">
@@ -273,7 +277,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
       </section>
 
       {/* Oportunidades Alvo - Freelance Feed */}
-      <section className="px-4 pb-6">
+      <section className="px-4 pt-6 pb-6">
         <div 
           onClick={() => onNavigate('openOrders')}
           className="bg-gradient-to-br from-emerald-500 to-teal-700 rounded-3xl p-5 shadow-lg border border-white/10 relative overflow-hidden cursor-pointer group hover:scale-[1.02] active:scale-[0.98] transition-all"
