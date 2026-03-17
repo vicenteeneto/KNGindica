@@ -30,6 +30,7 @@ import WriteReviewScreen from './screens/WriteReviewScreen';
 import FavoritesScreen from './screens/FavoritesScreen';
 import FreelanceRequestScreen from './screens/FreelanceRequestScreen';
 import OpenOrdersScreen from './screens/OpenOrdersScreen';
+import WhatsAppSearchScreen from './screens/WhatsAppSearchScreen';
 import { Screen } from './types';
 import { ThemeProvider, useTheme } from './ThemeContext';
 import { AuthProvider, useAuth } from './AuthContext';
@@ -48,6 +49,12 @@ function AppContent() {
   // Recuperar tela salva antes de criar o estado
   const getSavedScreen = (): Screen => {
     try {
+      // Check for WhatsApp Search URL first
+      const path = window.location.pathname;
+      if (path.startsWith('/search/')) {
+        return 'whatsappSearch';
+      }
+
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved && !NON_PERSISTENT_SCREENS.includes(saved)) return saved as Screen;
     } catch {}
@@ -56,6 +63,12 @@ function AppContent() {
 
   const getSavedParams = () => {
     try {
+      const path = window.location.pathname;
+      if (path.startsWith('/search/')) {
+        const searchId = path.split('/')[2];
+        return { searchId };
+      }
+
       const saved = localStorage.getItem(STORAGE_PARAMS_KEY);
       if (saved) return JSON.parse(saved);
     } catch {}
@@ -93,9 +106,11 @@ function AppContent() {
   useEffect(() => {
     if (!loading) {
       if (!user) {
-        setCurrentScreen('auth');
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem(STORAGE_PARAMS_KEY);
+        if (currentScreen !== 'whatsappSearch') {
+          setCurrentScreen('auth');
+          localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem(STORAGE_PARAMS_KEY);
+        }
       } else if (currentScreen === 'auth' && role !== null) {
         const adminEmail = user?.email?.toLowerCase();
         const isAdmin = adminEmail === 'offkngpublicidade@gmail.com' || adminEmail === 'netu.araujo@gmail.com' || role === 'admin';
@@ -206,6 +221,8 @@ function AppContent() {
         return <FreelanceRequestScreen onNavigate={handleNavigate} />;
       case 'openOrders':
         return <OpenOrdersScreen onNavigate={handleNavigate} />;
+      case 'whatsappSearch':
+        return <WhatsAppSearchScreen onNavigate={handleNavigate} params={navigationParams} />;
       default:
         return <HomeScreen onNavigate={handleNavigate} />;
     }
