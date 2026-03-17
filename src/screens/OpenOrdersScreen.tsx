@@ -96,7 +96,7 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
         <div className="flex items-center p-4 justify-between max-w-4xl mx-auto w-full">
           <button 
             onClick={() => onNavigate('dashboard')}
-            className="text-slate-900 dark:text-slate-100 flex size-10 items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+            className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-all shrink-0"
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </button>

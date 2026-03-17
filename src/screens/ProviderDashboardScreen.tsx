@@ -118,10 +118,10 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
       <div className="flex items-center">
         <button 
           onClick={() => onNavigate('home')}
-          className="mr-3 p-1.5 text-primary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+          className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-all mr-3 shrink-0"
           title="Voltar para Home"
         >
-          <span className="material-symbols-outlined text-[22px]">arrow_back</span>
+          <span className="material-symbols-outlined">arrow_back</span>
         </button>
         <div className="flex size-9 shrink-0 items-center overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" onClick={() => onNavigate('profile', { professionalId: user?.id })}>
           <div className="bg-center bg-no-repeat aspect-square bg-cover size-full cursor-pointer" style={{ backgroundImage: `url('${profile?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"}')` }}></div>

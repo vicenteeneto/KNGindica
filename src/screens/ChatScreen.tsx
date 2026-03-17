@@ -365,7 +365,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
         {/* TopAppBar */}
         <nav className="sticky top-0 z-10 bg-white dark:bg-slate-900 border-b border-primary/10 px-4 py-3 flex items-center justify-between shadow-sm shrink-0">
         <div className="flex items-center gap-3">
-          <button onClick={() => onClose ? onClose() : onNavigate('chatList')} className="p-1 hover:bg-primary/10 rounded-full text-slate-600 dark:text-slate-400">
+          <button onClick={() => onClose ? onClose() : onNavigate('chatList')} className="size-10 rounded-full hover:bg-primary/10 flex items-center justify-center text-slate-600 dark:text-slate-400 transition-all">
             <span className="material-symbols-outlined">{onClose ? 'close' : 'arrow_back'}</span>
           </button>
           <div className="relative">

@@ -22,7 +22,7 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
             service_categories(name, icon),
             freelance_bids(
               *,
-              profiles:provider_id(full_name, avatar_url, rating)
+              profiles:provider_id(full_name, avatar_url)
             )
           `)
           .eq('client_id', user.id)
@@ -108,7 +108,13 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
 
       {/* Header */}
       <header className="flex flex-col bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-20">
-        <div className="flex items-center p-4 max-w-4xl mx-auto w-full">
+        <div className="flex items-center gap-3 p-4 max-w-4xl mx-auto w-full">
+          <button 
+            onClick={() => onNavigate('home')}
+            className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-all shrink-0"
+          >
+            <span className="material-symbols-outlined">arrow_back</span>
+          </button>
           <h1 className="text-xl font-bold tracking-tight">Meus Pedidos</h1>
         </div>
 
@@ -199,7 +205,7 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
                               <p className="text-sm font-bold">{bid.profiles?.full_name}</p>
                               <div className="flex items-center gap-1 text-amber-500 text-[10px] font-black">
                                 <span className="material-symbols-outlined text-[12px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                {bid.profiles?.rating || 'Novo'}
+                                {bid.profiles?.rating || '5.0'}
                               </div>
                             </div>
                           </div>
