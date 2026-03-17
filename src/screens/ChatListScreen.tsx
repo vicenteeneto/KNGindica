@@ -28,8 +28,28 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
 
         if (error) throw error;
 
-        // Fetch latest messages for each room
-        const roomsWithMessages = await Promise.all((roomsData || []).map(async (room) => {
+        // Group by opponent ID and keep only the latest room
+        const roomMap = new Map<string, any>();
+
+        (roomsData || []).forEach(room => {
+          const opponentId = room.provider_id === user.id ? room.client_id : room.provider_id;
+          if (!opponentId) return;
+
+          const existing = roomMap.get(opponentId);
+          if (!existing) {
+            roomMap.set(opponentId, room);
+          } else {
+            // Keep the one with the higher ID (assuming higher ID = newer, or we can refine after fetching messages)
+             if (room.id > existing.id) {
+               roomMap.set(opponentId, room);
+             }
+          }
+        });
+
+        const uniqueRooms = Array.from(roomMap.values());
+
+        // Fetch latest messages for each unique room
+        const roomsWithMessages = await Promise.all(uniqueRooms.map(async (room) => {
           const { data: messages } = await supabase
             .from('chat_messages')
             .select('*')

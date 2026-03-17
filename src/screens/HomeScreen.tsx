@@ -70,7 +70,6 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   const [touchStartHero, setTouchStartHero] = useState<number | null>(null);
   const [touchEndHero, setTouchEndHero] = useState<number | null>(null);
   const [manualCityInput, setManualCityInput] = useState('');
-  const [role, setRole] = useState<'client' | 'provider' | null>(null);
   const isManualLocation = useRef(false);
 
   // Geocodifica uma string de cidade para [lat, lng]
@@ -184,15 +183,6 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
         if (error) throw error;
 
-        // Fetch current user role if logged in
-        if (user) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .single();
-          if (profile) setRole(profile.role);
-        }
 
         // Map them to look like our UI components expect
         let mapped = (data || []).map(p => {
@@ -887,7 +877,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
       </main>
 
       {/* Bottom Navigation (Mobile Only) */}
-      <MobileNav onNavigate={onNavigate} currentScreen="home" role={role} />
+      <MobileNav onNavigate={onNavigate} currentScreen="home" role={useAuth().role} />
 
        {/* Manual Location Modal */}
        {showLocationModal && (
