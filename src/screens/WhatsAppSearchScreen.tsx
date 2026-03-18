@@ -149,19 +149,13 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
                   }`}
                 >
                   <div className="flex items-center gap-4">
-                    {/* Avatar — sempre mostrado */}
-                    <div className="size-16 md:size-20 rounded-2xl overflow-hidden border-2 border-white/10 shadow-xl flex-shrink-0">
-                      {isBlurred ? (
-                        <div className="w-full h-full bg-white/10 flex items-center justify-center">
-                          <span className="material-symbols-outlined text-3xl text-white/20">person</span>
-                        </div>
-                      ) : (
-                        <img
-                          src={p.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.full_name || 'P')}&background=random&color=fff`}
-                          className="w-full h-full object-cover"
-                          alt={p.full_name}
-                        />
-                      )}
+                    {/* Avatar — sempre com dados reais, blur via CSS */}
+                    <div className={`size-16 md:size-20 rounded-2xl overflow-hidden border-2 border-white/10 shadow-xl flex-shrink-0 ${isBlurred ? 'blur-sm' : ''}`}>
+                      <img
+                        src={p.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.full_name || 'P')}&background=random&color=fff`}
+                        className="w-full h-full object-cover"
+                        alt={p.full_name}
+                      />
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -173,11 +167,11 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
                         </div>
                       </div>
 
-                      {/* Nome — borrado se não logado */}
-                      <div className={`transition-all ${isBlurred ? 'blur-sm select-none' : ''}`}>
-                        <h3 className="font-bold text-lg leading-snug">{isBlurred ? 'Profissional Cadastrado' : p.full_name}</h3>
+                      {/* Nome e bio — dados reais com blur */}
+                      <div className={`transition-all ${isBlurred ? 'blur-[5px] select-none' : ''}`}>
+                        <h3 className="font-bold text-lg leading-snug">{p.full_name}</h3>
                         <p className="text-xs text-slate-400 font-medium">
-                          ✨ {isBlurred ? '••••••••••••••••••••' : (p.bio ? p.bio.substring(0, 50) + '...' : 'Especialista verificado')}
+                          ✨ {p.bio ? p.bio.substring(0, 50) + '...' : 'Especialista verificado'}
                         </p>
                       </div>
 
