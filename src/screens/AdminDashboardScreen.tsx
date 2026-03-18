@@ -6,7 +6,8 @@ import { useNotifications } from '../NotificationContext';
 import { formatCurrency } from '../lib/formatters';
 
 export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
-  const { logout, user } = useAuth();
+  const { logout, user, profile, role } = useAuth();
+  const isPremiumUser = profile?.plan_type === 'plus' || role === 'admin';
   const { showToast, showModal } = useNotifications();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [stats, setStats] = useState({
@@ -2273,8 +2274,22 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
               <span className="material-symbols-outlined">notifications</span>
               <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-red-500"></span>
             </button>
-            <div className="h-10 w-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary font-bold">
-              AD
+            <div className={`h-10 w-10 rounded-full overflow-hidden border-2 flex items-center justify-center transition-all ${
+              isPremiumUser 
+                ? 'border-primary animate-glow-incandescent scale-110' 
+                : 'border-primary/30 bg-primary/20 text-primary font-bold'
+            }`}>
+              {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
+                <img 
+                  src={profile?.avatar_url || user?.user_metadata?.avatar_url} 
+                  alt="Avatar" 
+                  className="w-full h-full object-cover" 
+                />
+              ) : (
+                <span className="font-bold">
+                  {profile?.full_name?.substring(0, 2).toUpperCase() || 'AD'}
+                </span>
+              )}
             </div>
           </div>
         </div>
