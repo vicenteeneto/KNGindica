@@ -87,6 +87,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (isHardcodedAdmin && data.role !== 'admin') {
           supabase.from('profiles').update({ role: 'admin' }).eq('id', userId).then();
         }
+
+        // Se o perfil existe mas está sem imagem e temos uma do Google, atualiza no banco
+        const googleAvatar = userMetadata?.avatar_url || userMetadata?.picture;
+        if (googleAvatar && !data.avatar_url) {
+          supabase.from('profiles').update({ avatar_url: googleAvatar }).eq('id', userId).then();
+        }
       } else if (isHardcodedAdmin) {
         // Se o perfil não existir ainda mas for admin por e-mail, permite acesso sem travar
         setRole('admin');
