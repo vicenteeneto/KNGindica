@@ -9,6 +9,7 @@ export interface UserProfile {
   role: UserRole;
   full_name: string | null;
   avatar_url: string | null;
+  plan_type?: 'basic' | 'plus' | null;
 }
 
 interface AuthContextType {
@@ -98,6 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             id: userId,
             full_name: userMetadata?.full_name || userMetadata?.name || 'Novo Usuário',
             email: userEmail,
+            avatar_url: userMetadata?.avatar_url || userMetadata?.picture || null,
             role: userMetadata?.role || 'client',
             plan_type: 'basic',
             status: 'active'

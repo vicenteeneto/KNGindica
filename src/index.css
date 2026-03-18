@@ -61,4 +61,14 @@
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
+  /* Incandescent glow for Admin and Pro users */
+  .animate-glow-incandescent {
+    animation: glow-pulse 2s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes glow-pulse {
+  0% { box-shadow: 0 0 5px #FF7A00, 0 0 10px #FF4D00; border-color: #FF7A00; }
+  100% { box-shadow: 0 0 15px #FF4D00, 0 0 25px #FF0000; border-color: #FF0000; }
 }

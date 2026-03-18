@@ -51,7 +51,8 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 }
 
 export default function HomeScreen({ onNavigate }: NavigationProps) {
-  const { user } = useAuth();
+  const { user, profile, role } = useAuth();
+  const isPremiumUser = profile?.plan_type === 'plus' || role === 'admin';
   const [searchQuery, setSearchQuery] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
@@ -544,8 +545,19 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                     <span className="text-[10px] font-black text-primary uppercase tracking-widest italic leading-none">Modo</span>
                     <span className="text-[10px] font-bold text-white uppercase tracking-tight leading-none">Cliente</span>
                   </div>
-                  <button onClick={() => onNavigate('userProfile')} className="size-9 rounded-full overflow-hidden border-2 border-primary/50 hover:border-primary transition-colors shadow-lg shadow-primary/10">
-                    <img src={user.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${user.email}&background=random`} alt="Avatar" className="w-full h-full object-cover" />
+                  <button 
+                    onClick={() => onNavigate('userProfile')} 
+                    className={`size-9 rounded-full overflow-hidden border-2 transition-all shadow-lg ${
+                      isPremiumUser 
+                        ? 'border-primary animate-glow-incandescent scale-110 shadow-primary/20' 
+                        : 'border-primary/50 hover:border-primary shadow-primary/10'
+                    }`}
+                  >
+                    <img 
+                      src={profile?.avatar_url || user.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${user.email}&background=random`} 
+                      alt="Avatar" 
+                      className="w-full h-full object-cover" 
+                    />
                   </button>
                 </div>
               )}
