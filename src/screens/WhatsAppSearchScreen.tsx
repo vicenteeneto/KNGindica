@@ -242,7 +242,11 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
                   {/* Google Button */}
                   <button
                     onClick={async () => {
-                      try { await signInWithGoogle(window.location.href); } catch (err) { console.error(err); }
+                      try {
+                        // Salva o searchId para restaurar após o login OAuth
+                        if (searchId) localStorage.setItem('pendingSearchId', searchId);
+                        await signInWithGoogle(window.location.origin);
+                      } catch (err) { console.error(err); }
                     }}
                     className="w-full bg-white text-black py-3.5 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-gray-100 active:scale-95 transition-all shadow-lg mb-3"
                   >

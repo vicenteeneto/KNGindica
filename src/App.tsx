@@ -112,6 +112,15 @@ function AppContent() {
           localStorage.removeItem(STORAGE_PARAMS_KEY);
         }
       } else if (currentScreen === 'auth' && role !== null) {
+        // Verifica se havia uma pesquisa pendente do WhatsApp antes do login
+        const pendingSearchId = localStorage.getItem('pendingSearchId');
+        if (pendingSearchId) {
+          localStorage.removeItem('pendingSearchId');
+          setNavigationParams({ searchId: pendingSearchId });
+          setCurrentScreen('whatsappSearch');
+          localStorage.setItem(STORAGE_KEY, 'whatsappSearch');
+          return;
+        }
         const adminEmail = user?.email?.toLowerCase();
         const isAdmin = adminEmail === 'offkngpublicidade@gmail.com' || adminEmail === 'netu.araujo@gmail.com' || role === 'admin';
         let dest: Screen;
