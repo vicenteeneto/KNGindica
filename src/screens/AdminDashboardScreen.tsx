@@ -481,7 +481,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
         .insert({
           name: request.category_name,
           icon: 'handyman', // Default icon
-          description: `Categoria sugerida por ${request.provider?.full_name}`
+          description: `Serviço de ${request.category_name} — profissionais especializados disponíveis na plataforma KNGindica.`
         })
         .select()
         .single();
