@@ -354,9 +354,9 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
       {/* Footer */}
       <footer className="py-10 px-4 text-center border-t border-white/5 relative z-10">
         <div className="flex justify-center items-center gap-2 mb-2">
-          <span className="text-[10px] font-black uppercase tracking-widest text-primary/60">KNGindica</span>
+          <span className="text-[10px] font-black tracking-widest text-primary/60">KNGindica</span>
         </div>
-        <p className="text-[9px] text-slate-700 uppercase tracking-widest">Powered by KNGapps · {new Date().getFullYear()}</p>
+        <p className="text-[9px] text-slate-700 tracking-widest">Powered by KNGapps · {new Date().getFullYear()}</p>
       </footer>
     </div>
   );
