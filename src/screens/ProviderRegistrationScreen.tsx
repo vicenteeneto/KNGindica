@@ -17,6 +17,15 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [geoLoading, setGeoLoading] = useState(false);
+  const [dbCategories, setDbCategories] = useState<any[]>([]);
+
+  React.useEffect(() => {
+    const fetchCategories = async () => {
+      const { data } = await supabase.from('service_categories').select('*').order('name');
+      if (data) setDbCategories(data);
+    };
+    fetchCategories();
+  }, []);
 
   const handleGetLocation = () => {
     if (!navigator.geolocation) {
@@ -56,18 +65,33 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
 
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from('profiles').update({
+      // 1. Update Profile
+      const { error: profileError } = await supabase.from('profiles').update({
         full_name: formData.name,
-        // Assume document and bio might need columns added eventually, but skipping if not in schema yet
-        // However, city, latitude, and longitude are critical now:
         city: formData.city,
         latitude: formData.latitude,
         longitude: formData.longitude,
+        categories: [formData.category], // Store name in JSONB for legacy support
         role: 'provider',
-        status: 'pending' // KYC logic
+        status: 'pending'
       }).eq('id', user.id);
 
-      if (error) throw error;
+      if (profileError) throw profileError;
+
+      // 2. Link to Category in provider_services (For Judite Search)
+      const selectedCat = dbCategories.find(c => c.name === formData.category);
+      if (selectedCat) {
+        // Clear previous services to avoid duplicates during re-registration
+        await supabase.from('provider_services').delete().eq('provider_id', user.id);
+        
+        const { error: serviceError } = await supabase.from('provider_services').insert({
+          provider_id: user.id,
+          category_id: selectedCat.id,
+          title: selectedCat.name,
+          description: formData.bio || `Serviço de ${selectedCat.name}`
+        });
+        if (serviceError) throw serviceError;
+      }
       
       await refreshProfile();
       onNavigate('plan');
@@ -157,12 +181,9 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
                 required
               >
                 <option disabled value="">Selecione uma categoria</option>
-                <option value="electrician">Eletricista</option>
-                <option value="plumber">Encanador</option>
-                <option value="painter">Pintor</option>
-                <option value="carpenter">Marceneiro</option>
-                <option value="cleaner">Limpeza e Faxina</option>
-                <option value="it">Suporte Técnico de TI</option>
+                {dbCategories.map(cat => (
+                  <option key={cat.id} value={cat.name}>{cat.name}</option>
+                ))}
               </select>
               <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
             </div>

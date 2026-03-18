@@ -319,6 +319,30 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         .eq('id', user?.id);
 
       if (error) throw error;
+
+      // Sincronizar com provider_services para a busca da Judite (n8n)
+      if (user && formData.categories.length > 0) {
+        // Limpar registros antigos para este prestador
+        await supabase.from('provider_services').delete().eq('provider_id', user.id);
+        
+        // Criar novos links com base nos IDs reais das categorias
+        const servicesToInsert = formData.categories.map((catName: string) => {
+          const dbCat = dbCategories.find(c => c.name === catName);
+          if (!dbCat) return null;
+          return {
+            provider_id: user.id,
+            category_id: dbCat.id,
+            title: catName,
+            description: formData.bio || `Serviço de ${catName}`
+          };
+        }).filter(Boolean);
+
+        if (servicesToInsert.length > 0) {
+          const { error: serviceError } = await supabase.from('provider_services').insert(servicesToInsert);
+          if (serviceError) throw serviceError;
+        }
+      }
+
       await refreshProfile();
       setShowProviderModal(false);
       showToast("Perfil profissional salvo", "Suas informações foram atualizadas.", "success");
