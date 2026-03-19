@@ -31,6 +31,7 @@ import FavoritesScreen from './screens/FavoritesScreen';
 import FreelanceRequestScreen from './screens/FreelanceRequestScreen';
 import OpenOrdersScreen from './screens/OpenOrdersScreen';
 import WhatsAppSearchScreen from './screens/WhatsAppSearchScreen';
+import TermsConsentScreen from './screens/TermsConsentScreen';
 import { Screen } from './types';
 import { ThemeProvider, useTheme } from './ThemeContext';
 import { AuthProvider, useAuth } from './AuthContext';
@@ -42,7 +43,7 @@ const STORAGE_KEY = 'KNGindica_currentScreen';
 const STORAGE_PARAMS_KEY = 'KNGindica_navParams';
 
 // Telas que nunca devem ser persistidas (sensíveis ou de sessão)
-const NON_PERSISTENT_SCREENS = ['auth', 'forgotPassword', 'chat'];
+const NON_PERSISTENT_SCREENS = ['auth', 'forgotPassword', 'chat', 'termsConsent'];
 
 const ADMIN_TABS = [
   { id: 'dashboard', icon: 'grid_view', label: 'Dashboard' },
@@ -59,7 +60,7 @@ const ADMIN_TABS = [
 ];
 
 function AppContent() {
-  const { user, role, loading } = useAuth();
+  const { user, role, profile, loading } = useAuth();
   const [adminTab, setAdminTab] = React.useState('dashboard');
 
   // Recuperar tela salva antes de criar o estado
@@ -139,6 +140,13 @@ function AppContent() {
         }
         const adminEmail = user?.email?.toLowerCase();
         const isAdmin = adminEmail === 'offkngpublicidade@gmail.com' || adminEmail === 'netu.araujo@gmail.com' || role === 'admin';
+        
+        // NOVO: Redirecionar para termos se não aceitou e não for admin (opcional: admins também aceitam)
+        if (profile && !profile.terms_accepted && currentScreen !== 'auth') {
+          setCurrentScreen('termsConsent');
+          return;
+        }
+
         let dest: Screen;
         if (isAdmin) dest = 'adminDashboard';
         else dest = 'home';
@@ -146,7 +154,7 @@ function AppContent() {
         localStorage.setItem(STORAGE_KEY, dest);
       }
     }
-  }, [user, role, loading, currentScreen]);
+  }, [user, role, profile, loading, currentScreen]);
 
   const handleNavigate = (screen: Screen, params?: any) => {
     if (screen === 'chat') {
@@ -246,6 +254,10 @@ function AppContent() {
         return <FreelanceRequestScreen onNavigate={handleNavigate} />;
       case 'openOrders':
         return <OpenOrdersScreen onNavigate={handleNavigate} />;
+      case 'titles':
+        return <CategoriesScreen onNavigate={handleNavigate} params={navigationParams} />;
+      case 'termsConsent':
+        return <TermsConsentScreen onNavigate={handleNavigate} />;
       case 'whatsappSearch':
         return <WhatsAppSearchScreen onNavigate={handleNavigate} params={navigationParams} />;
       default:

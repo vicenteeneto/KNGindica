@@ -10,6 +10,7 @@ export interface UserProfile {
   full_name: string | null;
   avatar_url: string | null;
   plan_type?: 'basic' | 'plus' | null;
+  terms_accepted?: boolean;
 }
 
 interface AuthContextType {
