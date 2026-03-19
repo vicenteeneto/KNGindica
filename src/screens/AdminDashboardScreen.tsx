@@ -969,16 +969,16 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {loading ? (
                 <tr><td colSpan={6} className="p-6 text-center text-slate-500">Carregando prestadores...</td></tr>
-              ) : providersList.filter(p => 
-                  p.full_name?.toLowerCase().includes(providerSearch.toLowerCase()) || 
+              ) : providersList.filter(p =>
+                  p.full_name?.toLowerCase().includes(providerSearch.toLowerCase()) ||
                   p.email?.toLowerCase().includes(providerSearch.toLowerCase()) ||
                   p.service_category?.toLowerCase().includes(providerSearch.toLowerCase())
                 ).length === 0 ? (
                 <tr><td colSpan={6} className="p-6 text-center text-slate-500">Nenhum prestador encontrado.</td></tr>
               ) : (
                 providersList
-                  .filter(p => 
-                    p.full_name?.toLowerCase().includes(providerSearch.toLowerCase()) || 
+                  .filter(p =>
+                    p.full_name?.toLowerCase().includes(providerSearch.toLowerCase()) ||
                     p.email?.toLowerCase().includes(providerSearch.toLowerCase()) ||
                     p.service_category?.toLowerCase().includes(providerSearch.toLowerCase())
                   )
@@ -1110,15 +1110,15 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {loading ? (
                 <tr><td colSpan={4} className="p-6 text-center text-slate-500">Carregando...</td></tr>
-              ) : clientsList.filter(c => 
-                  c.full_name?.toLowerCase().includes(clientSearch.toLowerCase()) || 
+              ) : clientsList.filter(c =>
+                  c.full_name?.toLowerCase().includes(clientSearch.toLowerCase()) ||
                   c.email?.toLowerCase().includes(clientSearch.toLowerCase())
                 ).length === 0 ? (
                 <tr><td colSpan={4} className="p-6 text-center text-slate-500">Nenhum cliente encontrado.</td></tr>
               ) : (
                 clientsList
-                  .filter(c => 
-                    c.full_name?.toLowerCase().includes(clientSearch.toLowerCase()) || 
+                  .filter(c =>
+                    c.full_name?.toLowerCase().includes(clientSearch.toLowerCase()) ||
                     c.email?.toLowerCase().includes(clientSearch.toLowerCase())
                   )
                   .map(client => (
@@ -1144,7 +1144,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                       <button 
+                       <button
                         onClick={() => handleUpdateProviderStatus(client.id, client.status === 'blocked' ? 'active' : 'blocked')}
                         className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${client.status === 'blocked' ? 'bg-green-500 text-white' : 'bg-red-50 text-red-500 hover:bg-red-500 hover:text-white'}`}
                        >
@@ -1378,7 +1378,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                   </div>
                 </div>
                 <div className="flex flex-row md:flex-col gap-2 shrink-0 border-t md:border-t-0 md:border-l border-slate-100 dark:border-slate-800 pt-4 md:pt-0 md:pl-4 justify-center">
-                  <button 
+                  <button
                     onClick={() => handleDeleteReview(review.id)}
                     className="flex-1 md:flex-none flex justify-center items-center gap-2 px-3 py-2 bg-slate-50 dark:bg-slate-800 text-red-500 text-xs font-bold rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                   >
@@ -1548,9 +1548,9 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
             </div>
             <h3 className="text-lg font-bold">Reset de Contas de Teste</h3>
           </div>
-          
+
           <p className="text-sm text-slate-500 mb-4">
-            Pesquise um usuário para apagar todos os registros públicos dele (pedidos, chats, avaliações). 
+            Pesquise um usuário para apagar todos os registros públicos dele (pedidos, chats, avaliações).
             Isso permite "limpar" a conta antes de excluí-la no Auth do Supabase.
           </p>
 
@@ -1564,8 +1564,8 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                 onChange={(e) => {
                   const term = e.target.value.toLowerCase();
                   if (term.length > 2) {
-                    const found = recentUsersList.filter(u => 
-                      u.full_name?.toLowerCase().includes(term) || 
+                    const found = recentUsersList.filter(u =>
+                      u.full_name?.toLowerCase().includes(term) ||
                       u.email?.toLowerCase().includes(term) ||
                       u.id.includes(term)
                     );
@@ -1585,7 +1585,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                       <p className="text-[10px] text-slate-500 truncate">{u.email || u.id}</p>
                     </div>
                   </div>
-                  <button 
+                  <button
                     onClick={() => handleDeleteUserRecords(u.id)}
                     disabled={maintenanceLoading}
                     className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
@@ -1596,7 +1596,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
               ))}
             </div>
 
-            <button 
+            <button
               onClick={handleClearTestRequests}
               className="w-full py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-lg hover:bg-red-50 hover:text-red-500 transition-all flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-700 border-dashed"
             >
@@ -1621,8 +1621,8 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
               <div className="relative">
                 <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Buscar Prestador</label>
                 <div className="relative">
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={providerSearchTerm}
                     onChange={e => {
                       setProviderSearchTerm(e.target.value);
@@ -1637,7 +1637,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                     <span className="material-symbols-outlined absolute right-2 top-2 text-emerald-500 text-lg">check_circle</span>
                   )}
                 </div>
-                
+
                 {showProviderResults && providerSearchTerm.length > 0 && (
                   <div className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-xl max-h-40 overflow-y-auto">
                     {providersList
@@ -1668,16 +1668,16 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
               <div className="relative">
                 <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Buscar Autor (Cliente)</label>
                 <div className="relative">
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={reviewerSearchTerm}
                     onChange={e => {
                       setReviewerSearchTerm(e.target.value);
                       setShowReviewerResults(true);
                       // Se o usuário está digitando, limpamos o ID fixo para permitir nome customizado
                       setMockReviewForm({
-                        ...mockReviewForm, 
-                        reviewer_id: '', 
+                        ...mockReviewForm,
+                        reviewer_id: '',
                         reviewer_name: e.target.value
                       });
                     }}
@@ -1702,7 +1702,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                           key={c.id}
                           onClick={() => {
                             setMockReviewForm({
-                              ...mockReviewForm, 
+                              ...mockReviewForm,
                               reviewer_id: c.id,
                               reviewer_name: c.full_name,
                               reviewer_avatar_url: c.avatar_url || ''
@@ -1727,8 +1727,8 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
             {/* Novo Campo: Foto do Autor (Opcional) */}
             <div className="animate-in slide-in-from-top-2 duration-300">
               <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">URL da Foto do Autor (Opcional - Google Imports)</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={mockReviewForm.reviewer_avatar_url}
                 onChange={e => setMockReviewForm({...mockReviewForm, reviewer_avatar_url: e.target.value})}
                 className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs outline-none focus:border-primary"
@@ -1739,8 +1739,8 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
             {/* Novo Campo: Data da Avaliação (Opcional) */}
             <div className="animate-in slide-in-from-top-2 duration-300">
               <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Data da Avaliação</label>
-              <input 
-                type="date" 
+              <input
+                type="date"
                 value={mockReviewForm.created_at}
                 onChange={e => setMockReviewForm({...mockReviewForm, created_at: e.target.value})}
                 className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs outline-none focus:border-primary"
@@ -1751,7 +1751,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
               <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nota (1-5)</label>
               <div className="flex gap-2">
                 {[1, 2, 3, 4, 5].map(n => (
-                  <button 
+                  <button
                     key={n}
                     onClick={() => setMockReviewForm({...mockReviewForm, rating: n})}
                     className={`flex-1 py-1 rounded-md text-xs font-bold transition-all ${mockReviewForm.rating === n ? 'bg-primary text-white shadow-sm' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}
@@ -1764,7 +1764,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
 
             <div>
               <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Comentário</label>
-              <textarea 
+              <textarea
                 value={mockReviewForm.comment}
                 onChange={e => setMockReviewForm({...mockReviewForm, comment: e.target.value})}
                 className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs outline-none focus:border-primary h-20 resize-none"
@@ -1772,7 +1772,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
               />
             </div>
 
-            <button 
+            <button
               onClick={handleCreateMockReview}
               disabled={maintenanceLoading}
               className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-lg transition-all shadow-md shadow-emerald-500/20 flex items-center justify-center gap-2"
@@ -1816,7 +1816,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                   </td>
                   <td className="px-6 py-3 text-slate-500 max-w-xs truncate">{r.comment}</td>
                   <td className="px-6 py-3 text-right">
-                    <button 
+                    <button
                       onClick={() => handleDeleteReview(r.id)}
                       className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
                     >
@@ -1834,7 +1834,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
 
   const renderDisputesTab = () => {
     const disputedOrders = ordersList.filter(o => o.status === 'disputed' || o.status === 'conflict');
-    
+
     return (
       <div className="animate-in fade-in duration-500 space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -1890,7 +1890,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                       <p className="text-xs text-slate-500">Valor Retido: R$ {dispute.price ? dispute.price.toLocaleString('pt-BR') : '0,00'}</p>
                     </div>
                   </div>
-                  <button 
+                  <button
                     onClick={() => setSelectedDispute(dispute)}
                     className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 hover:border-red-200 dark:hover:border-red-800 font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 w-full md:w-auto"
                   >
@@ -1937,7 +1937,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
               R$ {grossVolume.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </h3>
           </div>
-          
+
           <div className="bg-gradient-to-br from-primary to-primary-hover p-6 rounded-xl shadow-md text-white">
             <div className="p-2 bg-white/20 rounded-lg inline-flex mb-3">
               <span className="material-symbols-outlined text-2xl text-white">savings</span>
@@ -2121,7 +2121,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
             {categoryRequests.filter(r => r.status === 'pending').length} pendentes
           </span>
         </div>
-        
+
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse whitespace-nowrap">
@@ -2148,7 +2148,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                       </td>
                       <td className="px-6 py-4">
                         <span className={`px-2 py-1 text-[10px] font-bold rounded uppercase ${
-                          req.status === 'approved' ? 'bg-green-100 text-green-700' : 
+                          req.status === 'approved' ? 'bg-green-100 text-green-700' :
                           req.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
                         }`}>
                           {req.status === 'approved' ? 'Aprovada' : req.status === 'rejected' ? 'Rejeitada' : 'Pendente'}
@@ -2157,13 +2157,13 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                       <td className="px-6 py-4 text-right">
                         {req.status === 'pending' && (
                           <div className="flex gap-2 justify-end">
-                            <button 
+                            <button
                               onClick={() => handleApproveCategoryRequest(req)}
                               className="px-3 py-1.5 bg-green-500 text-white text-xs font-bold rounded-lg hover:bg-green-600 transition-colors flex items-center gap-1"
                             >
                               <span className="material-symbols-outlined text-[16px]">check</span> Aprovar
                             </button>
-                            <button 
+                            <button
                               onClick={() => handleRejectCategoryRequest(req.id)}
                               className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-lg hover:bg-red-50 hover:text-red-500 transition-colors flex items-center gap-1"
                             >
@@ -2214,7 +2214,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button 
+                    <button
                       onClick={() => setSelectedChatRoom(room)}
                       className="text-primary hover:bg-primary/10 px-4 py-2 rounded-lg text-sm font-bold transition-all"
                     >
@@ -2230,364 +2230,379 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
     </div>
   );
 
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'dashboard': return renderDashboardTab();
+      case 'providers': return renderProvidersTab();
+      case 'clients': return renderClientsTab();
+      case 'orders': return renderOrdersTab();
+      case 'reviews': return renderReviewsTab();
+      case 'categories': return renderCategoriesTab();
+      case 'chat_audit': return renderChatAuditTab();
+      case 'disputes': return renderDisputesTab();
+      case 'finance': return renderFinanceTab();
+      case 'settings': return renderSettingsTab();
+      case 'maintenance': return renderMaintenanceTab();
+      default: return renderDashboardTab();
+    }
+  };
+
+  const adminTabs = [
+    { id: 'dashboard', icon: 'grid_view', label: 'Dashboard' },
+    { id: 'providers', icon: 'engineering', label: 'Prestadores' },
+    { id: 'clients', icon: 'group', label: 'Clientes' },
+    { id: 'orders', icon: 'receipt', label: 'Pedidos' },
+    { id: 'reviews', icon: 'reviews', label: 'Reviews' },
+    { id: 'categories', icon: 'category', label: 'Categorias' },
+    { id: 'disputes', icon: 'gavel', label: 'Disputas', badge: ordersList.filter(o => o.status === 'disputed').length },
+    { id: 'finance', icon: 'payments', label: 'Financeiro' },
+    { id: 'settings', icon: 'settings', label: 'Configurações' },
+    { id: 'maintenance', icon: 'construction', label: 'Manutenção' },
+  ];
+
   return (
-    <div className="flex flex-col min-h-screen bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
-
-      {/* Header Section */}
-      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 sticky top-0 z-20">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => onNavigate('home')}
-              className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-all shrink-0"
-            >
-              <span className="material-symbols-outlined">arrow_back</span>
-            </button>
-            <div className="bg-primary p-2 rounded-lg text-white flex items-center justify-center">
-              <span className="material-symbols-outlined">dashboard</span>
-            </div>
-            <div>
-              <h1 className="text-xl font-bold leading-tight">Admin Dashboard</h1>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Visão Geral da Plataforma</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 md:gap-4">
-            <button 
-              onClick={() => setActiveTab('chat_audit')}
-              className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${activeTab === 'chat_audit' ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'}`}
-            >
-              <span className="material-symbols-outlined text-[18px]">forum</span>
-              <span>Auditoria de Chat</span>
-            </button>
-            <button
-              onClick={handleLogout}
-              className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-sm font-semibold transition-colors"
-            >
-              <span className="material-symbols-outlined text-[18px]">logout</span>
-              <span>Sair</span>
-            </button>
-            <button onClick={() => onNavigate('chatList')} className="relative p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors" title="Mensagens">
-              <span className="material-symbols-outlined">chat</span>
-              <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-primary"></span>
-            </button>
-            <button className="relative p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors" title="Notificações">
-              <span className="material-symbols-outlined">notifications</span>
-              <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-red-500"></span>
-            </button>
-            <div className={`h-10 w-10 rounded-full overflow-hidden border-2 flex items-center justify-center transition-all ${
-              isPremiumUser 
-                ? 'border-primary animate-glow-incandescent scale-110' 
-                : 'border-primary/30 bg-primary/20 text-primary font-bold'
-            }`}>
-              {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
-                <img 
-                  src={profile?.avatar_url || user?.user_metadata?.avatar_url} 
-                  alt="Avatar" 
-                  className="w-full h-full object-cover" 
-                />
-              ) : (
-                <span className="font-bold">
-                  {profile?.full_name?.substring(0, 2).toUpperCase() || 'AD'}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="flex-1 max-w-7xl mx-auto w-full p-4 md:p-6 space-y-8 pb-32 md:pb-32">
-        {activeTab === 'dashboard' && renderDashboardTab()}
-        {activeTab === 'providers' && renderProvidersTab()}
-        {activeTab === 'clients' && renderClientsTab()}
-        {activeTab === 'orders' && renderOrdersTab()}
-        {activeTab === 'reviews' && renderReviewsTab()}
-        {activeTab === 'categories' && renderCategoriesTab()}
-        {activeTab === 'chat_audit' && renderChatAuditTab()}
-        {activeTab === 'disputes' && renderDisputesTab()}
-        {activeTab === 'finance' && renderFinanceTab()}
-        {activeTab === 'settings' && renderSettingsTab()}
-        {activeTab === 'maintenance' && renderMaintenanceTab()}
-      </main>
-
-      {/* Bottom Navigation Bar */}
-      <nav className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 fixed bottom-0 left-0 md:left-20 right-0 z-20 transition-transform">
-        <div className="max-w-7xl mx-auto flex justify-around p-2 md:py-3">
-          <button onClick={() => setActiveTab('dashboard')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'dashboard' ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary'}`}>
-            <span className="material-symbols-outlined text-[24px]" style={activeTab === 'dashboard' ? { fontVariationSettings: "'FILL' 1" } : {}}>grid_view</span>
-            <span className="text-[10px] font-medium hidden md:block">Dashboard</span>
-          </button>
-          <button onClick={() => setActiveTab('providers')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'providers' ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary'}`}>
-            <span className="material-symbols-outlined text-[24px]" style={activeTab === 'providers' ? { fontVariationSettings: "'FILL' 1" } : {}}>engineering</span>
-            <span className="text-[10px] font-medium hidden md:block">Prestadores</span>
-          </button>
-          <button onClick={() => setActiveTab('clients')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'clients' ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary'}`}>
-            <span className="material-symbols-outlined text-[24px]" style={activeTab === 'clients' ? { fontVariationSettings: "'FILL' 1" } : {}}>group</span>
-            <span className="text-[10px] font-medium hidden md:block">Clientes</span>
-          </button>
-          <button onClick={() => setActiveTab('orders')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'orders' ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary'}`}>
-            <span className="material-symbols-outlined text-[24px]" style={activeTab === 'orders' ? { fontVariationSettings: "'FILL' 1" } : {}}>receipt</span>
-            <span className="text-[10px] font-medium hidden md:block">Pedidos</span>
-          </button>
-          <button onClick={() => setActiveTab('reviews')} className={`hidden lg:flex flex-col items-center gap-1 transition-colors ${activeTab === 'reviews' ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary'}`}>
-            <span className="material-symbols-outlined text-[24px]" style={activeTab === 'reviews' ? { fontVariationSettings: "'FILL' 1" } : {}}>reviews</span>
-            <span className="text-[10px] font-medium hidden md:block">Reviews</span>
-          </button>
-          <button onClick={() => setActiveTab('categories')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'categories' ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary'}`}>
-            <span className="material-symbols-outlined text-[24px]" style={activeTab === 'categories' ? { fontVariationSettings: "'FILL' 1" } : {}}>category</span>
-            <span className="text-[10px] font-medium hidden md:block">Categorias</span>
-          </button>
-          <button onClick={() => setActiveTab('disputes')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'disputes' ? 'text-red-500' : 'text-slate-500 dark:text-slate-400 hover:text-red-500'}`}>
-            <span className="material-symbols-outlined text-[24px] relative" style={activeTab === 'disputes' ? { fontVariationSettings: "'FILL' 1" } : {}}>
-              gavel
-              {ordersList.filter(o => o.status === 'disputed').length > 0 && <span className="absolute -top-1 -right-1 flex h-3 w-3 rounded-full bg-red-500 border-2 border-white dark:border-slate-900"></span>}
-            </span>
-            <span className="text-[10px] font-medium hidden md:block">Disputas</span>
-          </button>
-          <button onClick={() => setActiveTab('finance')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'finance' ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary'}`}>
-            <span className="material-symbols-outlined text-[24px]" style={activeTab === 'finance' ? { fontVariationSettings: "'FILL' 1" } : {}}>payments</span>
-            <span className="text-[10px] font-medium hidden md:block">Financeiro</span>
-          </button>
-          <button onClick={() => setActiveTab('settings')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'settings' ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary'}`}>
-            <span className="material-symbols-outlined text-[24px]" style={activeTab === 'settings' ? { fontVariationSettings: "'FILL' 1" } : {}}>settings</span>
-            <span className="text-[10px] font-medium hidden md:block">Configurações</span>
-          </button>
-          <button onClick={() => setActiveTab('maintenance')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'maintenance' ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary'}`}>
-            <span className="material-symbols-outlined text-[24px]" style={activeTab === 'maintenance' ? { fontVariationSettings: "'FILL' 1" } : {}}>construction</span>
-            <span className="text-[10px] font-medium hidden md:block">Manutenção</span>
-          </button>
-          <button onClick={() => onNavigate('home')} className="flex flex-col items-center gap-1 md:hidden text-slate-500 hover:text-primary transition-colors">
-            <span className="material-symbols-outlined text-[24px]">home</span>
-          </button>
-        </div>
-      </nav>
-
-      {/* KYC Modal */}
-      {selectedProviderForKYC && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-            <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white dark:bg-slate-900 z-10">
-              <h3 className="text-xl font-bold">Análise de Prestador (KYC)</h3>
-              <button onClick={() => setSelectedProviderForKYC(null)} className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-            <div className="p-6 space-y-6">
-              <div className="flex items-center gap-4">
-                <img src={selectedProviderForKYC.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} alt="Avatar" className="w-20 h-20 rounded-full object-cover bg-slate-200" />
-                <div>
-                  <h4 className="text-2xl font-bold">{selectedProviderForKYC.full_name || 'Sem Nome'}</h4>
-                  <p className="text-slate-500">{selectedProviderForKYC.email || selectedProviderForKYC.id}</p>
-                  <p className="text-sm font-medium mt-1 inline-block px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800">{selectedProviderForKYC.service_category || 'Categoria não definida'}</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                  <p className="text-xs text-slate-500 font-bold uppercase mb-1">Documento de Identidade (Frente)</p>
-                  <div className="h-32 bg-slate-200 dark:bg-slate-700 rounded-lg flex items-center justify-center text-slate-400">
-                    <span className="material-symbols-outlined text-4xl">id_card</span>
-                  </div>
-                </div>
-                <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                  <p className="text-xs text-slate-500 font-bold uppercase mb-1">Selfie com Documento</p>
-                  <div className="h-32 bg-slate-200 dark:bg-slate-700 rounded-lg flex items-center justify-center text-slate-400">
-                    <span className="material-symbols-outlined text-4xl">face</span>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <p className="text-sm font-bold mb-2">Detalhes Adicionais</p>
-                <div className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
-                  <p><strong>Status Atual:</strong> {selectedProviderForKYC.status || 'active'}</p>
-                  <p><strong>Telefone:</strong> {selectedProviderForKYC.phone || 'Não informado'}</p>
-                  <p><strong>Criado em:</strong> {new Date(selectedProviderForKYC.created_at).toLocaleString('pt-BR')}</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="p-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row gap-3 justify-end bg-slate-50 dark:bg-slate-800/30">
-              <button 
-                onClick={() => handleUpdateProviderStatus(selectedProviderForKYC.id, 'blocked')}
-                className="px-6 py-2.5 bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40 rounded-xl font-bold transition-colors"
+    <div className="flex flex-col md:flex-row min-h-screen bg-slate-50 dark:bg-[#020617] font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
+      
+      {/* Sidebar Admin Secundaria (Só PC) */}
+      <aside className="hidden md:flex fixed left-20 top-0 bottom-0 w-20 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-white/10 flex-col items-center py-6 z-40 shadow-xl">
+        <div className="flex-1 flex flex-col gap-4 overflow-y-auto no-scrollbar scroll-smooth px-2">
+          {adminTabs.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`size-12 flex flex-col items-center justify-center rounded-xl transition-all group relative ${
+                  isActive 
+                    ? 'bg-primary/20 text-primary border border-primary/20' 
+                    : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
+                title={tab.label}
               >
-                Bloquear / Recusar
+                <span 
+                  className={`material-symbols-outlined text-[22px] ${isActive ? 'filled text-primary' : ''}`}
+                  style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}
+                >
+                  {tab.icon}
+                </span>
+                
+                {tab.badge !== undefined && tab.badge > 0 ? (
+                  <span className="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-white dark:border-slate-900 animate-pulse"></span>
+                ) : null}
+
+                <span className="absolute left-[calc(100%+8px)] bg-slate-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap shadow-lg">
+                  {tab.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </aside>
+
+      <div className="flex-1 flex flex-col min-h-screen w-full md:pl-20">
+        {/* Header Section */}
+        <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 p-4 sticky top-0 md:fixed md:left-40 md:right-0 z-30 transition-all">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => onNavigate('home')}
+                className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-all shrink-0"
+              >
+                <span className="material-symbols-outlined">arrow_back</span>
+              </button>
+              <div className="bg-primary p-2 rounded-lg text-white flex items-center justify-center">
+                <span className="material-symbols-outlined">dashboard</span>
+              </div>
+              <div>
+                <h1 className="text-xl font-bold leading-tight">Admin Dashboard</h1>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Visão Geral da Plataforma</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 md:gap-4">
+              <button 
+                onClick={() => setActiveTab('chat_audit')}
+                className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${activeTab === 'chat_audit' ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'}`}
+              >
+                <span className="material-symbols-outlined text-[18px]">forum</span>
+                <span>Auditoria de Chat</span>
               </button>
               <button
-                onClick={() => handleUpdateProviderStatus(selectedProviderForKYC.id, 'active')} 
-                className="px-6 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold transition-colors shadow-sm flex items-center gap-2"
+                onClick={handleLogout}
+                className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-sm font-semibold transition-colors"
               >
-                <span className="material-symbols-outlined text-[18px]">verified</span> Aprovar Perfil
+                <span className="material-symbols-outlined text-[18px]">logout</span>
+                <span>Sair</span>
               </button>
+              <button onClick={() => onNavigate('chatList')} className="relative p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors" title="Mensagens">
+                <span className="material-symbols-outlined">chat</span>
+                <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-primary"></span>
+              </button>
+              <button className="relative p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors" title="Notificações">
+                <span className="material-symbols-outlined">notifications</span>
+                <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-red-500"></span>
+              </button>
+              <div className={`h-10 w-10 rounded-full overflow-hidden border-2 flex items-center justify-center transition-all ${
+                isPremiumUser 
+                  ? 'border-primary animate-glow-incandescent scale-110' 
+                  : 'border-primary/30 bg-primary/20 text-primary font-bold'
+              }`}>
+                {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
+                  <img 
+                    src={profile?.avatar_url || user?.user_metadata?.avatar_url} 
+                    alt="Avatar" 
+                    className="w-full h-full object-cover" 
+                  />
+                ) : (
+                  <span className="font-bold">
+                    {profile?.full_name?.substring(0, 2).toUpperCase() || 'AD'}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        </header>
 
-      {/* Category Add/Edit Modal */}
-      {isCategoryModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
-            <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/30">
-              <h3 className="text-xl font-bold">{editingCategory ? 'Editar Categoria' : 'Nova Categoria'}</h3>
-              <button onClick={() => setIsCategoryModalOpen(false)} className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-                <span className="material-symbols-outlined">close</span>
+        <main className="flex-1 max-w-7xl mx-auto w-full p-4 md:p-6 space-y-8 md:mt-[100px] mb-20">
+          {activeTab === 'dashboard' && renderDashboardTab()}
+          {activeTab === 'providers' && renderProvidersTab()}
+          {activeTab === 'clients' && renderClientsTab()}
+          {activeTab === 'orders' && renderOrdersTab()}
+          {activeTab === 'reviews' && renderReviewsTab()}
+          {activeTab === 'categories' && renderCategoriesTab()}
+          {activeTab === 'chat_audit' && renderChatAuditTab()}
+          {activeTab === 'disputes' && renderDisputesTab()}
+          {activeTab === 'finance' && renderFinanceTab()}
+          {activeTab === 'settings' && renderSettingsTab()}
+          {activeTab === 'maintenance' && renderMaintenanceTab()}
+        </main>
+
+        {/* Bottom Navigation Bar - Mobile ONLY */}
+        <nav className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 fixed bottom-0 left-0 right-0 z-20 transition-transform md:hidden">
+          <div className="max-w-7xl mx-auto flex justify-around p-2 md:py-3">
+            {adminTabs.map((tab) => (
+              <button 
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)} 
+                className={`flex flex-col items-center gap-1 transition-colors ${activeTab === tab.id ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary'}`}
+              >
+                <span 
+                  className="material-symbols-outlined text-[24px]" 
+                  style={activeTab === tab.id ? { fontVariationSettings: "'FILL' 1" } : {}}
+                >
+                  {tab.icon}
+                </span>
+                <span className="text-[10px] font-medium hidden md:block">
+                  {tab.label}
+                </span>
               </button>
-            </div>
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-semibold mb-1">Nome da Categoria</label>
-                <input 
-                  type="text" 
-                  value={categoryForm.name} 
-                  onChange={e => setCategoryForm({...categoryForm, name: e.target.value})}
-                  className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
-                  placeholder="Ex: Eletricista"
-                />
+            ))}
+          </div>
+        </nav>
+
+        {/* Modals sibling to main content */}
+        {selectedProviderForKYC && (
+          <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+              <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white dark:bg-slate-900 z-10">
+                <h3 className="text-xl font-bold">Análise de Prestador (KYC)</h3>
+                <button onClick={() => setSelectedProviderForKYC(null)} className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                  <span className="material-symbols-outlined">close</span>
+                </button>
               </div>
-              <div>
-                <label className="block text-sm font-semibold mb-1">Descrição</label>
-                <textarea 
-                  value={categoryForm.description} 
-                  onChange={e => setCategoryForm({...categoryForm, description: e.target.value})}
-                  className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all resize-none h-24"
-                  placeholder="Descreva o que este serviço contempla."
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold mb-2 flex items-center justify-between">
-                  Escolha um Ícone para a Categoria
-                  {categoryForm.icon_name && (
-                    <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[14px]">{categoryForm.icon_name}</span> Selecionado
-                    </span>
-                  )}
-                </label>
-                <div className="grid grid-cols-6 sm:grid-cols-10 gap-2 p-3 border border-slate-200 dark:border-slate-700 rounded-xl h-32 overflow-y-auto bg-slate-50 dark:bg-slate-800/20">
-                  {AVAILABLE_ICONS.map(icon => (
-                    <button
-                      key={icon}
-                      type="button"
-                      onClick={() => setCategoryForm({...categoryForm, icon_name: icon})}
-                      className={`p-2 rounded-lg flex items-center justify-center transition-all ${categoryForm.icon_name === icon ? 'bg-primary text-white shadow-md scale-110 relative z-10' : 'text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white'}`}
-                      title={icon}
-                    >
-                      <span className="material-symbols-outlined text-[20px]">{icon}</span>
-                    </button>
-                  ))}
+              <div className="p-6 space-y-6">
+                <div className="flex items-center gap-4">
+                  <img src={selectedProviderForKYC.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} alt="Avatar" className="w-20 h-20 rounded-full object-cover bg-slate-200" />
+                  <div>
+                    <h4 className="text-2xl font-bold">{selectedProviderForKYC.full_name || 'Sem Nome'}</h4>
+                    <p className="text-slate-500">{selectedProviderForKYC.email || selectedProviderForKYC.id}</p>
+                    <p className="text-sm font-medium mt-1 inline-block px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800">{selectedProviderForKYC.service_category || 'Categoria não definida'}</p>
+                  </div>
                 </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <p className="text-xs text-slate-500 font-bold uppercase mb-1">Documento de Identidade (Frente)</p>
+                    <div className="h-48 bg-slate-200 dark:bg-slate-700 rounded-lg flex items-center justify-center text-slate-400 overflow-hidden relative group">
+                      {selectedProviderForKYC.document_front_url ? (
+                        <img src={selectedProviderForKYC.document_front_url} alt="Documento Frente" className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                      ) : (
+                        <span className="material-symbols-outlined text-4xl">id_card</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <p className="text-xs text-slate-500 font-bold uppercase mb-1">Selfie com Documento</p>
+                    <div className="h-48 bg-slate-200 dark:bg-slate-700 rounded-lg flex items-center justify-center text-slate-400 overflow-hidden relative group">
+                      {selectedProviderForKYC.selfie_url ? (
+                        <img src={selectedProviderForKYC.selfie_url} alt="Selfie" className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                      ) : (
+                        <span className="material-symbols-outlined text-4xl">face</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-sm font-bold mb-2">Detalhes Adicionais</p>
+                  <div className="text-sm text-slate-600 dark:text-slate-400 space-y-2 p-4 bg-slate-50 dark:bg-slate-800/30 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+                       <span className="font-medium">Status Atual:</span>
+                       <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                         selectedProviderForKYC.status === 'active' ? 'bg-green-100 text-green-700' : 
+                         selectedProviderForKYC.status === 'pending' ? 'bg-amber-100 text-amber-700' : 
+                         'bg-red-100 text-red-700'
+                       }`}>{selectedProviderForKYC.status || 'Pendente'}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+                       <span className="font-medium">Telefone:</span>
+                       <span>{selectedProviderForKYC.phone || 'Não informado'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                       <span className="font-medium">Membro desde:</span>
+                       <span>{new Date(selectedProviderForKYC.created_at).toLocaleDateString('pt-BR')}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row gap-3 justify-end bg-slate-50 dark:bg-slate-800/30">
+                <button 
+                  onClick={() => handleUpdateProviderStatus(selectedProviderForKYC.id, 'blocked')}
+                  className="px-6 py-2.5 bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40 rounded-xl font-bold transition-colors"
+                >
+                  Recusar / Bloquear
+                </button>
+                <button
+                  onClick={() => handleUpdateProviderStatus(selectedProviderForKYC.id, 'active')} 
+                  className="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold transition-colors shadow-lg flex items-center justify-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-[18px]">verified</span> Aprovar Perfil
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isCategoryModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
+              <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/30">
+                <h3 className="text-xl font-bold">{editingCategory ? 'Editar Categoria' : 'Nova Categoria'}</h3>
+                <button onClick={() => setIsCategoryModalOpen(false)} className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-1">Nome da Categoria</label>
+                  <input 
+                    type="text" 
+                    value={categoryForm.name} 
+                    onChange={e => setCategoryForm({...categoryForm, name: e.target.value})}
+                    className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                    placeholder="Ex: Eletricista"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-1">Descrição</label>
+                  <textarea 
+                    value={categoryForm.description} 
+                    onChange={e => setCategoryForm({...categoryForm, description: e.target.value})}
+                    className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all resize-none h-24"
+                    placeholder="Descreva o que este serviço contempla."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2 flex items-center justify-between">
+                    Escolha um Ícone para a Categoria
+                  </label>
+                  <div className="grid grid-cols-6 gap-2 p-3 border border-slate-200 dark:border-slate-700 rounded-xl h-32 overflow-y-auto bg-slate-50 dark:bg-slate-800/20">
+                    {AVAILABLE_ICONS.map(icon => (
+                      <button
+                        key={icon}
+                        type="button"
+                        onClick={() => setCategoryForm({...categoryForm, icon_name:icon})}
+                        className={`p-2 rounded-lg flex items-center justify-center transition-all ${categoryForm.icon_name === icon ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+                      >
+                        <span className="material-symbols-outlined text-[20px]">{icon}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-1">Preço Base (R$)</label>
+                  <input 
+                    type="number" 
+                    value={categoryForm.base_price} 
+                    onChange={e => setCategoryForm({...categoryForm, base_price: Number(e.target.value)})}
+                    className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                  />
+                </div>
+              </div>
+              <div className="p-6 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3 bg-slate-50 dark:bg-slate-800/30">
+                <button onClick={() => setIsCategoryModalOpen(false)} className="px-5 py-2.5 font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors">Cancelar</button>
+                <button onClick={handleSaveCategory} disabled={!categoryForm.name} className="px-5 py-2.5 bg-primary hover:bg-primary-hover disabled:bg-primary/50 text-white font-bold rounded-xl transition-colors flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[18px]">save</span> {editingCategory ? 'Salvar Edição' : 'Criar Categoria'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {selectedDispute && (
+          <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+              <div className="p-6 border-b border-red-200 dark:border-red-900/50 flex items-center justify-between sticky top-0 bg-red-50 dark:bg-red-900/20 z-10">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-red-500 text-3xl">gavel</span>
+                  <div>
+                    <h3 className="text-xl font-bold text-red-700 dark:text-red-400">Resolução de Disputa</h3>
+                    <p className="text-sm text-red-600 dark:text-red-500 font-medium">Pedido #{selectedDispute.id.split('-')[0].toUpperCase()}</p>
+                  </div>
+                </div>
+                <button onClick={() => setSelectedDispute(null)} className="p-2 text-red-400 hover:text-red-700 dark:hover:text-red-200 rounded-full hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors">
+                  <span className="material-symbols-outlined">close</span>
+                </button>
               </div>
               
-              <div>
-                <label className="block text-sm font-semibold mb-1">Preço Base Exibido (R$)</label>
-                <input 
-                  type="number" 
-                  value={categoryForm.base_price} 
-                  onChange={e => setCategoryForm({...categoryForm, base_price: e.target.value})}
-                  className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
-                  placeholder="Visão ilustrativa. Deixe 0.00 se o prestador negociar na hora."
-                />
+              <div className="p-6 space-y-6">
+                 <div className="flex flex-col md:flex-row gap-6">
+                   <div className="flex-1 p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800/30">
+                     <p className="text-xs font-bold text-slate-500 uppercase mb-3">Cliente</p>
+                     <div className="flex items-center gap-3">
+                        <img src={selectedDispute.client?.avatar_url || ""} alt="" className="w-10 h-10 rounded-full bg-slate-200" />
+                        <div>
+                          <p className="font-bold">{selectedDispute.client?.full_name || 'Usuário'}</p>
+                          <p className="text-xs text-slate-500">Solicitante</p>
+                        </div>
+                     </div>
+                   </div>
+                   <div className="flex-1 p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800/30">
+                     <p className="text-xs font-bold text-slate-500 uppercase mb-3">Prestador</p>
+                     <div className="flex items-center gap-3">
+                        <img src={selectedDispute.provider?.avatar_url || ""} alt="" className="w-10 h-10 rounded-full bg-slate-200" />
+                        <div>
+                          <p className="font-bold">{selectedDispute.provider?.full_name || 'Profissional'}</p>
+                          <p className="text-xs text-slate-500">Prestador</p>
+                        </div>
+                     </div>
+                   </div>
+                 </div>
+
+                 <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-900/50">
+                    <div className="flex justify-between items-center">
+                      <p className="text-sm font-bold text-amber-800 dark:text-amber-500">Valor em Disputa</p>
+                      <p className="text-2xl font-black text-amber-600">R$ {selectedDispute.price?.toLocaleString('pt-BR') || '0,00'}</p>
+                    </div>
+                 </div>
               </div>
-            </div>
-            <div className="p-6 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3 bg-slate-50 dark:bg-slate-800/30">
-              <button 
-                onClick={() => setIsCategoryModalOpen(false)}
-                className="px-5 py-2.5 font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors"
-              >
-                Cancelar
-              </button>
-              <button 
-                onClick={handleSaveCategory}
-                disabled={!categoryForm.name}
-                className="px-5 py-2.5 bg-primary hover:bg-primary-hover disabled:bg-primary/50 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-colors flex items-center gap-2"
-              >
-                <span className="material-symbols-outlined text-[18px]">save</span> 
-                {editingCategory ? 'Salvar Edição' : 'Criar Categoria'}
-              </button>
+
+              <div className="p-6 border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row gap-3 bg-slate-50 dark:bg-slate-800/30 justify-end">
+                <button onClick={() => handleResolveDispute(selectedDispute.id, 'refund_client')} className="px-6 py-3 bg-white dark:bg-slate-800 border-2 border-red-200 text-red-600 font-bold rounded-xl hover:bg-red-50 transition-all">Estornar Cliente</button>
+                <button onClick={() => handleResolveDispute(selectedDispute.id, 'pay_provider')} className="px-6 py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition-all shadow-lg">Pagar Prestador</button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Dispute Modal */}
-      {selectedDispute && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-            <div className="p-6 border-b border-red-200 dark:border-red-900/50 flex items-center justify-between sticky top-0 bg-red-50 dark:bg-red-900/20 z-10">
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-red-500 text-3xl">gavel</span>
-                <div>
-                  <h3 className="text-xl font-bold text-red-700 dark:text-red-400">Resolução de Disputa</h3>
-                  <p className="text-sm text-red-600 dark:text-red-500 font-medium">Pedido #{selectedDispute.id.split('-')[0].toUpperCase()}</p>
-                </div>
-              </div>
-              <button onClick={() => setSelectedDispute(null)} className="p-2 text-red-400 hover:text-red-700 dark:hover:text-red-200 rounded-full hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors">
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-
-            <div className="p-6 space-y-6">
-              <div className="flex flex-col md:flex-row gap-6">
-                
-                {/* Client Box */}
-                <div className="flex-1 p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800/30">
-                  <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Lado do Cliente</div>
-                  <div className="flex items-center gap-3 mb-3">
-                    <img src={selectedDispute.client?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} alt="Cliente" className="w-10 h-10 rounded-full object-cover bg-slate-200" />
-                    <div>
-                      <p className="font-bold">{selectedDispute.client?.full_name || 'Usuário'}</p>
-                      <p className="text-xs text-slate-500">Solicitante</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 p-3 bg-white dark:bg-slate-900 rounded-lg shadow-sm">
-                    "O serviço não foi prestado conforme o combinado e o prestador danificou a pintura da minha parede."
-                  </p>
-                </div>
-
-                {/* Provider Box */}
-                <div className="flex-1 p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800/30">
-                  <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Lado do Prestador</div>
-                  <div className="flex items-center gap-3 mb-3">
-                    <img src={selectedDispute.provider?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} alt="Prestador" className="w-10 h-10 rounded-full object-cover bg-slate-200" />
-                    <div>
-                      <p className="font-bold">{selectedDispute.provider?.full_name || 'Prestador'}</p>
-                      <p className="text-xs text-slate-500">Profissional</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 p-3 bg-white dark:bg-slate-900 rounded-lg shadow-sm">
-                    "Fiz a instalação perfeitamente, a parede já estava descascada antes de eu começar."
-                  </p>
-                </div>
-              </div>
-
-              <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-900/50">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="text-sm text-amber-800 dark:text-amber-500 font-bold">Valor Retido / Em Disputa</p>
-                    <p className="text-xs text-amber-700 dark:text-amber-600">O pagamento está em escrow na plataforma.</p>
-                  </div>
-                  <p className="text-2xl font-black text-amber-600">R$ {selectedDispute.price ? selectedDispute.price.toLocaleString('pt-BR') : '0,00'}</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="p-6 border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row gap-3 bg-slate-50 dark:bg-slate-800/30 justify-end">
-              <button 
-                onClick={() => handleResolveDispute(selectedDispute.id, 'refund_client')}
-                className="flex-1 md:flex-none px-6 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all flex items-center justify-center gap-2"
-              >
-                <span className="material-symbols-outlined text-[20px]">undo</span> Estornar Cliente
-              </button>
-              <button 
-                onClick={() => handleResolveDispute(selectedDispute.id, 'pay_provider')}
-                className="flex-1 md:flex-none px-6 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all flex items-center justify-center gap-2"
-              >
-                <span className="material-symbols-outlined text-[20px]">payments</span> Pagar Prestador
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
