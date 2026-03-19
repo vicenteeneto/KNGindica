@@ -2268,7 +2268,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
     <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-[#020617] font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
       <div className="flex-1 flex flex-col min-h-screen w-full">
         {/* Header Section */}
-        <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 p-4 sticky top-0 md:fixed md:left-16 md:right-0 z-30 transition-all">
+        <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 p-4 sticky top-0 md:fixed md:left-14 md:right-0 z-30 transition-all">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="bg-primary p-2 rounded-lg text-white flex items-center justify-center">
