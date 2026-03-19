@@ -47,19 +47,7 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
         const providerIds = serviceLinks.map(s => s.provider_id);
         const { data: providersData } = await supabase
           .from('profiles')
-          .select(`
-            id,
-            full_name,
-            avatar_url,
-            bio,
-            role,
-            city,
-            categories,
-            plan_type,
-            rating,
-            status,
-            categories
-          `)
+          .select('*')
           .in('id', providerIds)
           .eq('role', 'provider');
 

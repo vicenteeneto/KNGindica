@@ -25,8 +25,7 @@ export default function FavoritesScreen({ onNavigate }: NavigationProps) {
               full_name,
               avatar_url,
               categories,
-              plan_type,
-              rating
+              plan_type
             )
           `)
           .eq('user_id', user.id)
