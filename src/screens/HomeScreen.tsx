@@ -190,7 +190,6 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
               plan_type,
               status,
               created_at,
-              service_category,
               categories,
               rating,
               price_value,

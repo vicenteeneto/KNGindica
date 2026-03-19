@@ -145,7 +145,6 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
             city,
             address,
             bio,
-            service_category,
             experience_years,
             rating,
             price_value,

@@ -54,7 +54,7 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
             bio,
             role,
             city,
-            service_category,
+            categories,
             plan_type,
             rating,
             status,
