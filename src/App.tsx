@@ -32,6 +32,7 @@ import FreelanceRequestScreen from './screens/FreelanceRequestScreen';
 import OpenOrdersScreen from './screens/OpenOrdersScreen';
 import WhatsAppSearchScreen from './screens/WhatsAppSearchScreen';
 import TermsConsentScreen from './screens/TermsConsentScreen';
+import { initOneSignal } from './lib/OneSignalService';
 import { Screen } from './types';
 import { ThemeProvider, useTheme } from './ThemeContext';
 import { AuthProvider, useAuth } from './AuthContext';
@@ -141,17 +142,27 @@ function AppContent() {
         const adminEmail = user?.email?.toLowerCase();
         const isAdmin = adminEmail === 'offkngpublicidade@gmail.com' || adminEmail === 'netu.araujo@gmail.com' || role === 'admin';
         
-        // NOVO: Redirecionar para termos se não aceitou e não for admin (opcional: admins também aceitam)
-        if (profile && !profile.terms_accepted && currentScreen !== 'auth') {
+        // NOVO: Redirecionar para termos se não aceitou (admins também passam pelo filtro para aceitação oficial)
+        // Se currentScreen for auth ou forgotPassword, não atrapalha o fluxo de login
+        if (profile && profile.terms_accepted === false && !['auth', 'forgotPassword', 'termsConsent'].includes(currentScreen)) {
           setCurrentScreen('termsConsent');
           return;
+        }
+
+        // Inicializa OneSignal ao logar
+        if (user) {
+          initOneSignal(user.id);
         }
 
         let dest: Screen;
         if (isAdmin) dest = 'adminDashboard';
         else dest = 'home';
-        setCurrentScreen(dest);
-        localStorage.setItem(STORAGE_KEY, dest);
+        
+        // Only set home if we aren't already on a deep-link or specific screen
+        if (currentScreen === 'auth' || !currentScreen) {
+          setCurrentScreen(dest);
+          localStorage.setItem(STORAGE_KEY, dest);
+        }
       }
     }
   }, [user, role, profile, loading, currentScreen]);
@@ -254,7 +265,7 @@ function AppContent() {
         return <FreelanceRequestScreen onNavigate={handleNavigate} />;
       case 'openOrders':
         return <OpenOrdersScreen onNavigate={handleNavigate} />;
-      case 'titles':
+      case 'categories':
         return <CategoriesScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'termsConsent':
         return <TermsConsentScreen onNavigate={handleNavigate} />;

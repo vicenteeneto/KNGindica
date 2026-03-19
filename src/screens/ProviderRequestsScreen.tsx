@@ -3,7 +3,7 @@ import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
 
-type Tab = 'Novos' | 'Aceitos' | 'Em Andamento' | 'Finalizados';
+type Tab = 'Novos' | 'Orçados' | 'Agendados' | 'Em Andamento' | 'Finalizados';
 
 export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) {
   const { user } = useAuth();
@@ -11,7 +11,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const tabs: Tab[] = ['Novos', 'Aceitos', 'Em Andamento', 'Finalizados'];
+  const tabs: Tab[] = ['Novos', 'Orçados', 'Agendados', 'Em Andamento', 'Finalizados'];
 
   const fetchRequests = async () => {
     if (!user) return;
@@ -19,7 +19,8 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
     try {
       let statuses: string[] = ['open'];
       if (activeTab === 'Novos') statuses = ['open', 'proposed'];
-      else if (activeTab === 'Aceitos') statuses = ['accepted', 'awaiting_payment'];
+      else if (activeTab === 'Orçados') statuses = ['accepted', 'quoted', 'awaiting_payment'];
+      else if (activeTab === 'Agendados') statuses = ['scheduled'];
       else if (activeTab === 'Em Andamento') statuses = ['paid', 'in_service'];
       else if (activeTab === 'Finalizados') statuses = ['completed'];
 
@@ -43,7 +44,6 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
       if (activeTab !== 'Novos') {
         query = query.eq('provider_id', user.id);
       } else {
-        // Para "Novos", pega os globais (null) e os diretos para mim
         query = query.or(`provider_id.is.null,provider_id.eq.${user.id}`);
       }
 
@@ -65,7 +65,6 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
   const handleOpenChat = async (req: any) => {
     if (!user) return;
     try {
-      // Find existing room
       let { data: room } = await supabase
         .from('chat_rooms')
         .select('id')
@@ -73,7 +72,6 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
         .single();
         
       if (!room) {
-        // Create fallback if not exists somehow
         const { data: newRoom, error: createError } = await supabase
           .from('chat_rooms')
           .insert({
@@ -99,46 +97,53 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
     }
   };
 
-  const handleAcceptRequest = async (requestId: string) => {
+  const updateRequestStatus = async (requestId: string, newStatus: string) => {
     if (!user) return;
     try {
+      const updateData: any = { status: newStatus };
+      if (newStatus === 'accepted' || newStatus === 'quoted') {
+        updateData.provider_id = user.id;
+      }
+
       const { error } = await supabase
         .from('service_requests')
-        .update({ status: 'accepted', provider_id: user.id })
+        .update(updateData)
         .eq('id', requestId);
 
       if (error) throw error;
 
-      // Fetch client_id to create chat room
-      const { data: reqData } = await supabase
-        .from('service_requests')
-        .select('client_id')
-        .eq('id', requestId)
-        .single();
+      if (newStatus === 'accepted' || newStatus === 'quoted') {
+        const { data: reqData } = await supabase
+          .from('service_requests')
+          .select('client_id')
+          .eq('id', requestId)
+          .single();
 
-      if (reqData?.client_id) {
-        // Create a chat room for this request
-        await supabase
-          .from('chat_rooms')
-          .insert({
-            request_id: requestId,
-            client_id: reqData.client_id,
-            provider_id: user.id
-          });
+        if (reqData?.client_id) {
+          await supabase
+            .from('chat_rooms')
+            .upsert({
+              request_id: requestId,
+              client_id: reqData.client_id,
+              provider_id: user.id
+            }, { onConflict: 'request_id' });
+        }
       }
 
-      alert('Pedido aceito com sucesso!');
-      fetchRequests(); // Refresh list
+      fetchRequests();
     } catch (err) {
       console.error(err);
+      alert('Erro ao atualizar status.');
     }
   };
 
   const statusMap: Record<string, string> = {
     'open': 'Novo!',
     'proposed': 'Proposta Enviada',
-    'accepted': 'Aceito',
-    'awaiting_payment': 'Pagamento Pendente',
+    'accepted': 'Aceito / Em Negociação',
+    'quoted': 'Orçamento Enviado',
+    'awaiting_payment': 'Aguardando Pagamento',
+    'scheduled': 'Agendado',
     'paid': 'Pago',
     'in_service': 'Em Execução',
     'completed': 'Finalizado',
@@ -232,24 +237,74 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                         </button>
                         <div className="flex gap-2">
                           <button
-                            onClick={() => handleAcceptRequest(req.id)}
+                            onClick={() => updateRequestStatus(req.id, 'accepted')}
                             className="flex-1 cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold transition-opacity hover:opacity-90 active:scale-[0.98]">
                             Aceitar Pedido
                           </button>
-                          <button className="flex-1 cursor-pointer items-center justify-center rounded-lg h-10 px-4 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-[0.98] transition-colors">
+                          <button 
+                            onClick={() => updateRequestStatus(req.id, 'cancelled')}
+                            className="flex-1 cursor-pointer items-center justify-center rounded-lg h-10 px-4 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-[0.98] transition-colors">
                             Recusar
                           </button>
                         </div>
                       </div>
                     )}
                     
-                    {(activeTab === 'Aceitos' || activeTab === 'Em Andamento') && (
-                      <div className="mt-6 flex gap-2">
+                    {activeTab === 'Orçados' && (
+                      <div className="mt-4 flex flex-col gap-2">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => updateRequestStatus(req.id, 'quoted')}
+                            className="flex-1 cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold hover:opacity-90 active:scale-[0.98] transition-all">
+                            <span className="material-symbols-outlined text-[18px]">receipt_long</span>
+                            Confirmar Orçamento
+                          </button>
+                          <button
+                            onClick={() => updateRequestStatus(req.id, 'scheduled')}
+                            className="flex-1 cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-[0.98] transition-all">
+                            <span className="material-symbols-outlined text-[18px]">calendar_month</span>
+                            Agendar
+                          </button>
+                        </div>
                         <button
                           onClick={() => handleOpenChat(req)}
-                          className="flex-1 cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 dark:text-emerald-500 text-sm font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/20 active:scale-[0.98] transition-colors border border-emerald-200 dark:border-emerald-800/30">
+                          className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 dark:text-emerald-500 text-sm font-bold border border-emerald-200 dark:border-emerald-800/30">
                           <span className="material-symbols-outlined text-[18px]">chat</span>
-                          Conversar com Cliente
+                          Chat com Cliente
+                        </button>
+                      </div>
+                    )}
+
+                    {activeTab === 'Agendados' && (
+                      <div className="mt-4 flex flex-col gap-2">
+                        <button
+                          onClick={() => updateRequestStatus(req.id, 'in_service')}
+                          className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold hover:opacity-90 active:scale-[0.98] transition-all">
+                          <span className="material-symbols-outlined text-[18px]">play_circle</span>
+                          Iniciar Serviço Agora
+                        </button>
+                        <button
+                          onClick={() => handleOpenChat(req)}
+                          className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 text-sm font-bold border border-slate-200 dark:border-slate-800">
+                          <span className="material-symbols-outlined text-[18px]">chat</span>
+                          Avisar Atraso/Dúvida
+                        </button>
+                      </div>
+                    )}
+
+                    {activeTab === 'Em Andamento' && (
+                      <div className="mt-4 flex flex-col gap-2">
+                        <button
+                          onClick={() => updateRequestStatus(req.id, 'completed')}
+                          className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-emerald-500 text-white text-sm font-bold hover:bg-emerald-600 active:scale-[0.98] transition-all shadow-lg shadow-emerald-500/20">
+                          <span className="material-symbols-outlined text-[18px]">task_alt</span>
+                          Finalizar e Solicitar Pagamento
+                        </button>
+                        <button
+                          onClick={() => handleOpenChat(req)}
+                          className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 text-sm font-bold">
+                          <span className="material-symbols-outlined text-[18px]">chat</span>
+                          Enviar Foto/Relato
                         </button>
                       </div>
                     )}
@@ -259,8 +314,9 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
             </div>
           ) : !loading ? (
             <div className="flex flex-col items-center justify-center py-20 text-center text-slate-500">
-              <span className="material-symbols-outlined text-6xl mb-4 opacity-50">inbox</span>
-              <p className="text-lg">Nenhuma solicitação encontrada nesta categoria.</p>
+              <span className="material-symbols-outlined text-6xl mb-4 opacity-50">auto_stories</span>
+              <p className="text-lg font-bold">Nenhum pedido nesta fase.</p>
+              <p className="text-sm">Acompanhe sua esteira de trabalho para não perder prazos.</p>
             </div>
           ) : null}
 

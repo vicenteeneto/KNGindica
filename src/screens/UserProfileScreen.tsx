@@ -10,6 +10,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import { requestNotificationPermission } from '../lib/OneSignalService';
 L.Icon.Default.prototype.options.iconUrl = markerIcon;
 L.Icon.Default.prototype.options.shadowUrl = markerShadow;
 L.Icon.Default.imagePath = '';
@@ -726,7 +727,10 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3 px-2">Configurações</h2>
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
             <button
-              onClick={() => onNavigate('notifications')}
+              onClick={() => {
+                requestNotificationPermission();
+                showToast("Solicitando permissão", "Siga as instruções do navegador para ativar as notificações push.", "notification");
+              }}
               className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
             >
               <div className="flex items-center gap-4">
@@ -734,11 +738,16 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   <span className="material-symbols-outlined">notifications</span>
                 </div>
                 <div className="text-left">
-                  <p className="font-semibold text-slate-900 dark:text-white">Notificações</p>
-                  <p className="text-xs text-slate-500">Push, E-mail, SMS</p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-semibold text-slate-900 dark:text-white">Notificações Push</p>
+                    {(profile as any)?.onesignal_id && (
+                      <span className="bg-emerald-500 size-2 rounded-full animate-pulse"></span>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-500">{(profile as any)?.onesignal_id ? 'Notificações Ativadas' : 'Ativar notificações no celular'}</p>
                 </div>
               </div>
-              <span className="material-symbols-outlined text-slate-400">chevron_right</span>
+              <span className="material-symbols-outlined text-slate-400">{(profile as any)?.onesignal_id ? 'check' : 'chevron_right'}</span>
             </button>
 
 

@@ -195,7 +195,11 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
               rating,
               price_value,
               pricing_model,
-              show_price
+              show_price,
+              phone,
+              is_verified,
+              bio,
+              address
             `)
             .eq('role', 'provider');
           data = res.data;
