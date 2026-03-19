@@ -552,7 +552,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         {/* Back Button */}
         <button 
           onClick={() => onNavigate('home')}
-          className="absolute top-6 left-4 size-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-slate-700 dark:text-white hover:bg-white/40 transition-all z-10"
+          className="absolute top-6 left-4 md:left-24 size-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-slate-700 dark:text-white hover:bg-white/40 transition-all z-10"
         >
           <span className="material-symbols-outlined">arrow_back</span>
         </button>

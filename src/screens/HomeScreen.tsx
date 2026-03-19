@@ -486,7 +486,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
     <div className="w-full bg-[#000000] min-h-screen flex flex-col font-display text-white pb-20 md:pb-0 overflow-x-hidden transition-colors duration-500">
       
       {/* Floating Header */}
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 px-4 pt-3 pb-1.5 ${isScrolled
+      <header className={`fixed top-0 left-0 md:left-20 right-0 z-50 transition-all duration-500 px-4 pt-3 pb-1.5 ${isScrolled
         ? 'bg-black/95 backdrop-blur-md shadow-2xl border-b border-white/5'
         : 'bg-gradient-to-b from-black/90 via-black/30 to-transparent'
         }`}>
@@ -508,34 +508,18 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
           </div>
 
           <div className="flex items-center gap-2 md:gap-5">
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-6">
-              <button 
-                onClick={() => onNavigate('home')} 
-                className="text-sm font-bold hover:text-primary transition-colors flex items-center gap-1.5"
-              >
-                Início
-              </button>
-              <button 
-                onClick={() => onNavigate('categories')} 
-                className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
-              >
-                Categorias
-              </button>
-              <button 
-                onClick={() => onNavigate('myRequests')} 
-                className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
-              >
-                Meus Pedidos
-              </button>
+            {/* Desktop Navigation - Hidden since migrated to Sidebar */}
+            <nav className="hidden items-center gap-6">
+              {/* Opções migradas para SidebarNav */}
             </nav>
 
             <div className="flex items-center gap-1 md:gap-3">
-              <button onClick={() => onNavigate('chatList')} className="p-2 hover:bg-slate-200 dark:hover:bg-white/10 rounded-full transition-colors relative">
+              {/* Ocultar Chat e Notificações no topo se estiver em Desktop (já estão na Sidebar) */}
+              <button onClick={() => onNavigate('chatList')} className="md:hidden p-2 hover:bg-slate-200 dark:hover:bg-white/10 rounded-full transition-colors relative">
                 <span className="material-symbols-outlined text-[26px]">chat</span>
                 <span className="absolute top-2 right-2 size-2 bg-primary rounded-full border border-white dark:border-black"></span>
               </button>
-              <button onClick={() => onNavigate('notifications')} className="p-2 hover:bg-slate-200 dark:hover:bg-white/10 rounded-full transition-colors relative">
+              <button onClick={() => onNavigate('notifications')} className="md:hidden p-2 hover:bg-slate-200 dark:hover:bg-white/10 rounded-full transition-colors relative">
                 <span className="material-symbols-outlined text-[26px]">notifications</span>
                 <span className="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-white dark:border-black"></span>
               </button>

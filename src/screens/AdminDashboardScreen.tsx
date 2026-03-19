@@ -2310,7 +2310,7 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
       </main>
 
       {/* Bottom Navigation Bar */}
-      <nav className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 fixed bottom-0 left-0 right-0 z-20 transition-transform">
+      <nav className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 fixed bottom-0 left-0 md:left-20 right-0 z-20 transition-transform">
         <div className="max-w-7xl mx-auto flex justify-around p-2 md:py-3">
           <button onClick={() => setActiveTab('dashboard')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'dashboard' ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary'}`}>
             <span className="material-symbols-outlined text-[24px]" style={activeTab === 'dashboard' ? { fontVariationSettings: "'FILL' 1" } : {}}>grid_view</span>
