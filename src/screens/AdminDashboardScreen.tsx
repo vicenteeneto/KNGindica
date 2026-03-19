@@ -5,11 +5,15 @@ import { supabase } from '../lib/supabase';
 import { useNotifications } from '../NotificationContext';
 import { formatCurrency } from '../lib/formatters';
 
-export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
+interface AdminProps extends NavigationProps {
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+}
+
+export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveTab }: AdminProps) {
   const { logout, user, profile, role } = useAuth();
   const isPremiumUser = profile?.plan_type === 'plus' || role === 'admin';
   const { showToast, showModal } = useNotifications();
-  const [activeTab, setActiveTab] = useState('dashboard');
   const [stats, setStats] = useState({
     providers: 0,
     clients: 0,
@@ -2261,55 +2265,12 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
   ];
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-slate-50 dark:bg-[#020617] font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
-      
-      {/* Sidebar Admin Secundaria (Só PC) */}
-      <aside className="hidden md:flex fixed left-20 top-0 bottom-0 w-20 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-white/10 flex-col items-center py-6 z-40 shadow-xl">
-        <div className="flex-1 flex flex-col gap-4 overflow-y-auto no-scrollbar scroll-smooth px-2">
-          {adminTabs.map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`size-12 flex flex-col items-center justify-center rounded-xl transition-all group relative ${
-                  isActive 
-                    ? 'bg-primary/20 text-primary border border-primary/20' 
-                    : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
-                }`}
-                title={tab.label}
-              >
-                <span 
-                  className={`material-symbols-outlined text-[22px] ${isActive ? 'filled text-primary' : ''}`}
-                  style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}
-                >
-                  {tab.icon}
-                </span>
-                
-                {tab.badge !== undefined && tab.badge > 0 ? (
-                  <span className="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-white dark:border-slate-900 animate-pulse"></span>
-                ) : null}
-
-                <span className="absolute left-[calc(100%+8px)] bg-slate-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap shadow-lg">
-                  {tab.label}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </aside>
-
-      <div className="flex-1 flex flex-col min-h-screen w-full md:pl-20">
+    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-[#020617] font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-screen w-full">
         {/* Header Section */}
-        <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 p-4 sticky top-0 md:fixed md:left-40 md:right-0 z-30 transition-all">
+        <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 p-4 sticky top-0 md:fixed md:left-16 md:right-0 z-30 transition-all">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <button 
-                onClick={() => onNavigate('home')}
-                className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-all shrink-0"
-              >
-                <span className="material-symbols-outlined">arrow_back</span>
-              </button>
               <div className="bg-primary p-2 rounded-lg text-white flex items-center justify-center">
                 <span className="material-symbols-outlined">dashboard</span>
               </div>
@@ -2377,22 +2338,19 @@ export default function AdminDashboardScreen({ onNavigate }: NavigationProps) {
         </main>
 
         {/* Bottom Navigation Bar - Mobile ONLY */}
-        <nav className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 fixed bottom-0 left-0 right-0 z-20 transition-transform md:hidden">
-          <div className="max-w-7xl mx-auto flex justify-around p-2 md:py-3">
+        <nav className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 fixed bottom-0 left-0 right-0 z-20 md:hidden">
+          <div className="max-w-7xl mx-auto flex justify-around p-2">
             {adminTabs.map((tab) => (
               <button 
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)} 
-                className={`flex flex-col items-center gap-1 transition-colors ${activeTab === tab.id ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary'}`}
+                className={`flex flex-col items-center justify-center p-2 rounded-lg transition-colors ${activeTab === tab.id ? 'text-primary bg-primary/10' : 'text-slate-500 hover:text-primary'}`}
               >
                 <span 
-                  className="material-symbols-outlined text-[24px]" 
+                  className="material-symbols-outlined text-[20px]" 
                   style={activeTab === tab.id ? { fontVariationSettings: "'FILL' 1" } : {}}
                 >
                   {tab.icon}
-                </span>
-                <span className="text-[10px] font-medium hidden md:block">
-                  {tab.label}
                 </span>
               </button>
             ))}

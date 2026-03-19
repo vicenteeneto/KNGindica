@@ -44,8 +44,23 @@ const STORAGE_PARAMS_KEY = 'KNGindica_navParams';
 // Telas que nunca devem ser persistidas (sensíveis ou de sessão)
 const NON_PERSISTENT_SCREENS = ['auth', 'forgotPassword', 'chat'];
 
+const ADMIN_TABS = [
+  { id: 'dashboard', icon: 'grid_view', label: 'Dashboard' },
+  { id: 'providers', icon: 'engineering', label: 'Prestadores' },
+  { id: 'clients', icon: 'group', label: 'Clientes' },
+  { id: 'orders', icon: 'receipt', label: 'Pedidos' },
+  { id: 'reviews', icon: 'reviews', label: 'Reviews' },
+  { id: 'categories', icon: 'category', label: 'Categorias' },
+  { id: 'chat_audit', icon: 'forum', label: 'Auditoria' },
+  { id: 'disputes', icon: 'gavel', label: 'Disputas' },
+  { id: 'finance', icon: 'payments', label: 'Financeiro' },
+  { id: 'settings', icon: 'settings', label: 'Admin Settings' },
+  { id: 'maintenance', icon: 'construction', label: 'Manutenção' },
+];
+
 function AppContent() {
   const { user, role, loading } = useAuth();
+  const [adminTab, setAdminTab] = React.useState('dashboard');
 
   // Recuperar tela salva antes de criar o estado
   const getSavedScreen = (): Screen => {
@@ -208,7 +223,7 @@ function AppContent() {
       case 'userProfile':
         return <UserProfileScreen onNavigate={handleNavigate} />;
       case 'adminDashboard':
-        return <AdminDashboardScreen onNavigate={handleNavigate} />;
+        return <AdminDashboardScreen onNavigate={handleNavigate} activeTab={adminTab} setActiveTab={setAdminTab} />;
       case 'checkout':
         return <CheckoutScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'providerWallet':
@@ -242,9 +257,16 @@ function AppContent() {
     <NotificationProvider onNavigate={handleNavigate}>
       <div className="flex bg-white dark:bg-slate-900 min-h-screen">
         {!NON_PERSISTENT_SCREENS.includes(currentScreen) && (
-          <SidebarNav onNavigate={handleNavigate} currentScreen={currentScreen} role={role} />
+          <SidebarNav 
+            onNavigate={handleNavigate} 
+            currentScreen={currentScreen} 
+            role={role} 
+            adminTab={adminTab}
+            setAdminTab={setAdminTab}
+            adminTabs={role === 'admin' ? ADMIN_TABS : undefined}
+          />
         )}
-        <div className={`flex-1 w-full ${!NON_PERSISTENT_SCREENS.includes(currentScreen) ? 'md:pl-20' : ''} transition-all duration-300`}>
+        <div className={`flex-1 w-full ${!NON_PERSISTENT_SCREENS.includes(currentScreen) ? 'md:pl-16' : ''} transition-all duration-300`}>
           {renderScreen()}
         </div>
       </div>
