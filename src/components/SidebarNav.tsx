@@ -38,40 +38,40 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
   ];
 
   return (
-    <nav className="hidden md:flex fixed left-0 top-0 bottom-0 w-14 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-r border-slate-200 dark:border-white/10 flex-col items-center py-2 z-50 shadow-[8px_0_30px_rgb(0,0,0,0.04)]">
+    <nav className="hidden md:flex fixed left-0 top-0 bottom-0 w-12 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-r border-slate-200 dark:border-white/10 flex-col items-center py-2 z-50 shadow-lg overflow-hidden">
       {/* App Logo/Icon */}
       <div 
         className="mb-2 cursor-pointer group"
         onClick={() => onNavigate('home')}
       >
-        <div className="size-9 rounded-lg bg-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
-          <span className="material-symbols-outlined text-white text-xl font-bold">bolt</span>
+        <div className="size-8 rounded-lg bg-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
+          <span className="material-symbols-outlined text-white text-lg font-bold">bolt</span>
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col gap-1 overflow-y-auto no-scrollbar py-1 w-full px-1">
+      <div className="flex-1 flex flex-col gap-0.5 overflow-hidden py-1 w-full px-0.5">
         {navItems.map((item) => {
           const isActive = currentScreen === item.screen;
           return (
             <button
               key={item.id}
               onClick={() => onNavigate(item.screen, item.params)}
-              className={`flex flex-col items-center justify-center group relative p-1.5 rounded-lg transition-all w-full ${
+              className={`flex flex-col items-center justify-center group relative p-1 rounded-lg transition-all w-full ${
                 isActive 
-                  ? 'bg-primary/10 text-primary' 
+                  ? 'bg-primary/20 text-primary' 
                   : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
               title={item.label}
             >
               <span 
-                className={`material-symbols-outlined text-[18px] transition-transform group-hover:scale-110 ${isActive ? 'filled' : ''}`}
+                className={`material-symbols-outlined text-[15px] transition-transform group-hover:scale-110 ${isActive ? 'filled' : ''}`}
                 style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}
               >
                 {item.icon}
               </span>
               
               {item.badge !== undefined && item.badge > 0 && (
-                <span className="absolute top-0.5 right-0.5 size-3 bg-red-500 text-white text-[6px] font-bold rounded-full flex items-center justify-center border border-white dark:border-slate-900">
+                <span className="absolute top-0 right-0 size-2.5 bg-red-500 text-white text-[5px] font-bold rounded-full flex items-center justify-center border border-white dark:border-slate-900">
                   {item.badge > 9 ? '9+' : item.badge}
                 </span>
               )}
@@ -93,15 +93,15 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
                 <button
                   key={tab.id}
                   onClick={() => setAdminTab && setAdminTab(tab.id)}
-                  className={`flex flex-col items-center justify-center group relative p-1.5 rounded-lg transition-all w-full ${
+                  className={`flex flex-col items-center justify-center group relative p-1 rounded-lg transition-all w-full ${
                     isActive 
-                      ? 'bg-primary/20 text-primary border border-primary/20' 
+                      ? 'bg-primary/30 text-primary border border-primary/20' 
                       : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                   title={tab.label}
                 >
                   <span 
-                    className={`material-symbols-outlined text-[18px] transition-transform group-hover:scale-110 ${isActive ? 'filled' : ''}`}
+                    className={`material-symbols-outlined text-[15px] transition-transform group-hover:scale-110 ${isActive ? 'filled' : ''}`}
                     style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}
                   >
                     {tab.icon}
@@ -117,13 +117,13 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
         )}
       </div>
 
-      {/* Settings or Theme toggle at bottom */}
-      <div className="mt-auto pt-2 border-t border-slate-100 dark:border-slate-800 w-full flex justify-center">
+      {/* Settings at bottom */}
+      <div className="mt-auto pt-1 border-t border-slate-100 dark:border-slate-800 w-full flex justify-center">
         <button
           onClick={() => onNavigate('userProfile')}
-          className="size-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border border-transparent hover:border-primary/20"
+          className="size-7 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border border-transparent hover:border-primary/20"
         >
-          <span className="material-symbols-outlined text-[18px]">settings</span>
+          <span className="material-symbols-outlined text-[15px]">settings</span>
         </button>
       </div>
     </nav>

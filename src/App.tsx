@@ -266,7 +266,7 @@ function AppContent() {
             adminTabs={role === 'admin' ? ADMIN_TABS : undefined}
           />
         )}
-        <div className={`flex-1 w-full ${!NON_PERSISTENT_SCREENS.includes(currentScreen) ? 'md:pl-14' : ''} transition-all duration-300`}>
+        <div className={`flex-1 w-full ${!NON_PERSISTENT_SCREENS.includes(currentScreen) ? 'md:pl-12' : ''} transition-all duration-300`}>
           {renderScreen()}
         </div>
       </div>

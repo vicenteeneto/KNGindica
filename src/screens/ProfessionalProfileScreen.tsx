@@ -602,7 +602,7 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
       </main>
 
       {/* Sticky Footer Action */}
-      <div className="fixed bottom-0 left-0 md:left-14 right-0 p-4 bg-white/80 dark:bg-black/95 backdrop-blur-lg border-t border-slate-200 dark:border-white/5 flex flex-col sm:flex-row justify-center gap-2 z-[60]">
+      <div className="fixed bottom-0 left-0 md:left-12 right-0 p-4 bg-white/80 dark:bg-black/95 backdrop-blur-lg border-t border-slate-200 dark:border-white/5 flex flex-col sm:flex-row justify-center gap-2 z-[60]">
         {professional.plan_type === 'plus' && professional.whatsapp && (
           <a
             href={`https://wa.me/55${professional.whatsapp.replace(/\D/g, '')}`}
