@@ -59,6 +59,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
   const [reviewerSearchTerm, setReviewerSearchTerm] = useState('');
   const [showProviderResults, setShowProviderResults] = useState(false);
   const [showReviewerResults, setShowReviewerResults] = useState(false);
+  const [maintenanceSearchTerm, setMaintenanceSearchTerm] = useState('');
 
   const AVAILABLE_ICONS = [
     'handyman', 'bolt', 'plumbing', 'cleaning_services', 'yard', 'local_shipping', 'ac_unit', 'format_paint', 
@@ -1552,23 +1553,25 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
               <input
                 type="text"
                 placeholder="Nome ou e-mail do usuário..."
+                value={maintenanceSearchTerm}
                 className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:border-red-500 transition-all"
-                onChange={(e) => {
-                  const term = e.target.value.toLowerCase();
-                  if (term.length > 2) {
-                    const found = recentUsersList.filter(u =>
-                      u.full_name?.toLowerCase().includes(term) ||
-                      u.email?.toLowerCase().includes(term) ||
-                      u.id.includes(term)
-                    );
-                    setRecentUsersList(found.length > 0 ? found : recentUsersList);
-                  }
-                }}
+                onChange={(e) => setMaintenanceSearchTerm(e.target.value)}
               />
             </div>
 
             <div className="max-h-48 overflow-y-auto space-y-2 border border-slate-100 dark:border-slate-800 rounded-lg p-2">
-              {recentUsersList.slice(0, 5).map(u => (
+              {recentUsersList
+                .filter(u => {
+                  if (!maintenanceSearchTerm || maintenanceSearchTerm.length < 2) return true;
+                  const term = maintenanceSearchTerm.toLowerCase();
+                  return (
+                    u.full_name?.toLowerCase().includes(term) ||
+                    u.email?.toLowerCase().includes(term) ||
+                    u.id.toLowerCase().includes(term)
+                  );
+                })
+                .slice(0, 5)
+                .map(u => (
                 <div key={u.id} className="flex items-center justify-between p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg group">
                   <div className="flex items-center gap-3 overflow-hidden">
                     <img src={u.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} className="w-8 h-8 rounded-full bg-slate-100" />
@@ -1586,6 +1589,12 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                   </button>
                 </div>
               ))}
+              {maintenanceSearchTerm.length >= 2 && recentUsersList.filter(u => {
+                const term = maintenanceSearchTerm.toLowerCase();
+                return u.full_name?.toLowerCase().includes(term) || u.email?.toLowerCase().includes(term);
+              }).length === 0 && (
+                <p className="text-[10px] text-center text-slate-500 py-4">Nenhum usuário encontrado.</p>
+              )}
             </div>
 
             <button
