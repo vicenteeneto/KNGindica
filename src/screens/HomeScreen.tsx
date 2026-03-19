@@ -107,7 +107,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
   // Ask for location on mount
   useEffect(() => {
-    const savedLocation = localStorage.getItem('iService_manualCity');
+    const savedLocation = localStorage.getItem('KNGindica_manualCity');
     if (savedLocation) {
       isManualLocation.current = true;
       setLocationName(savedLocation);
@@ -405,7 +405,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
       const city = manualCityInput.trim();
       setLocationName(city);
       setUserCoords(null); // Clear GPS since we are using explicit city
-      localStorage.setItem('iService_manualCity', city);
+      localStorage.setItem('KNGindica_manualCity', city);
       setShowLocationModal(false);
       
       // Geocodificar a cidade e centrar o mapa
@@ -612,7 +612,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                         ) : (
                           <span className="bg-white/10 px-2 py-0.5 rounded text-[10px] font-black tracking-tighter italic text-gray-400 shadow-lg border border-white/5">DESTAQUE</span>
                         )}
-                        <span className="text-sm font-bold text-orange-200/80">Verificado Alvo</span>
+                        <span className="text-sm font-bold text-orange-200/80">Verificado KNGindica</span>
                       </div>
                       <h1 className="text-3xl md:text-6xl font-black text-slate-900 dark:text-white leading-[0.9] mb-3 drop-shadow-2xl">
                         {p.name.split(' ')[0]} <br />
@@ -665,9 +665,9 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                 <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6958?q=80&w=2070&auto=format&fit=crop" className="opacity-30 object-cover w-full h-full" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0f171e] to-transparent"></div>
                 <div className="relative z-10 text-center">
-                  <h2 className="text-5xl font-black mb-4">Alvo Premium</h2>
+                  <h2 className="text-5xl font-black mb-4">KNGindica Premium</h2>
                   <p className="text-xl text-slate-300 font-medium max-w-xl mx-auto mb-10 leading-relaxed">
-                    Torne-se um parceiro parceiro Alvo e multiplique seus serviços com exposição máxima e ferramentas exclusivas.
+                    Torne-se um parceiro KNGindica e multiplique seus serviços com exposição máxima e ferramentas exclusivas.
                   </p>
                 </div>
              </div>
@@ -833,7 +833,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
                   {/* Row: Alvo Indica Recommendations */}
                   <CollectionRow 
-                    title="Destaques Alvo Indica" 
+                    title="Destaques KNGindica" 
                     subtitle="Os profissionais mais bem avaliados e recomendados."
                     providers={featuredProviders.length > 0 ? featuredProviders : plusProviders.slice(0, 10)} 
                     onNavigate={onNavigate}
@@ -866,7 +866,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
                   {/* Row: All Providers (Fallback/Discovery) */}
                   <CollectionRow 
-                    title="Alvo Indica" 
+                    title="KNGindica" 
                     subtitle="Explore todos os prestadores em Rondonópolis e região."
                     providers={providers} 
                     onNavigate={onNavigate}

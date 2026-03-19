@@ -3,7 +3,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  /* Alvo Premium (Estilo Inter & Google) */
+  /* KNGindica Premium (Estilo Inter & Google) */
   --color-primary: #FF7A00;
   --bg-dark-main: #000000;
   --bg-dark-surface: #121212;

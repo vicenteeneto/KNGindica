@@ -37,8 +37,8 @@ import { AuthProvider, useAuth } from './AuthContext';
 import { NotificationProvider } from './NotificationContext';
 
 // ThemeToggle foi movido para o UserProfileScreen
-const STORAGE_KEY = 'iService_currentScreen';
-const STORAGE_PARAMS_KEY = 'iService_navParams';
+const STORAGE_KEY = 'KNGindica_currentScreen';
+const STORAGE_PARAMS_KEY = 'KNGindica_navParams';
 
 // Telas que nunca devem ser persistidas (sensíveis ou de sessão)
 const NON_PERSISTENT_SCREENS = ['auth', 'forgotPassword', 'chat'];

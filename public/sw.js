@@ -1,5 +1,5 @@
 /*
- * iService Service Worker
+ * KNGindica Service Worker
  * Handles background push notifications
  */
 
@@ -12,12 +12,12 @@ self.addEventListener('push', function(event) {
     data = event.data.json();
   } catch (e) {
     data = {
-      title: 'iService',
+      title: 'KNGindica',
       body: event.data.text()
     };
   }
 
-  const title = data.title || 'iService';
+  const title = data.title || 'KNGindica';
   const options = {
     body: data.body || 'Você tem uma nova notificação.',
     icon: '/logo192.png', // Fallback to a default icon

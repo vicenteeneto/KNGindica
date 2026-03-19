@@ -199,7 +199,7 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
           {paymentMethod === 'pix' && (
             <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center animate-in fade-in slide-in-from-bottom-2 text-center">
               <div className="size-48 bg-white p-2 rounded-xl mb-4 border border-slate-200">
-                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=Alvo-pix-tax-10&color=000000&bgcolor=FFFFFF`} alt="QR Code Pix" className="w-full h-full object-contain" />
+                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=KNGindica-pix-tax-10&color=000000&bgcolor=FFFFFF`} alt="QR Code Pix" className="w-full h-full object-contain" />
               </div>
               <h3 className="font-bold text-lg mb-1">Escaneie o QR Code</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-[250px]">

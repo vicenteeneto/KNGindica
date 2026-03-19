@@ -180,7 +180,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         <div className="flex items-center justify-between mb-8">
           <div>
             <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter italic">
-              Alvo Insights
+              KNGindica Insights
             </h3>
             <div className="flex items-center gap-1.5">
               <span className="relative flex h-2 w-2">
@@ -276,7 +276,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         ))}
       </section>
 
-      {/* Oportunidades Alvo - Freelance Feed */}
+      {/* Oportunidades KNGindica - Freelance Feed */}
       <section className="px-4 pt-6 pb-6">
         <div 
           onClick={() => onNavigate('openOrders')}
@@ -291,7 +291,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
               Mais de 10 ordens hoje
             </div>
             <h3 className="text-xl font-black text-white uppercase tracking-tighter italic leading-none mb-1">
-              Oportunidades Alvo
+              Oportunidades KNGindica
             </h3>
             <p className="text-emerald-50/80 text-[11px] font-medium leading-tight max-w-[200px]">
               Novos pedidos freelance abertos na sua região disponível para disputa.

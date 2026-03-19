@@ -248,8 +248,8 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
 
   const handleShare = async () => {
     const profileUrl = window.location.href;
-    const title = `Alvo Indica - ${professional?.name || 'Perfil'}`;
-    const text = `Confira o perfil de ${professional?.name || 'este profissional'} no Alvo Indica!`;
+    const title = `KNGindica - ${professional?.name || 'Perfil'}`;
+    const text = `Confira o perfil de ${professional?.name || 'este profissional'} no KNGindica!`;
 
     if (navigator.share) {
       try {

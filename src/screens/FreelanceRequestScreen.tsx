@@ -174,7 +174,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
             <span className="material-symbols-outlined text-amber-500">privacy_tip</span>
             <div>
               <h4 className="font-bold text-amber-900 dark:text-amber-500 mb-1">Dica de Privacidade</h4>
-              <p className="text-sm text-amber-800/70 dark:text-amber-500/70">Não se preocupe, seu telefone e dados pessoais não serão expostos. Todo o contato será feito pelo chat do Alvo Indica.</p>
+              <p className="text-sm text-amber-800/70 dark:text-amber-500/70">Não se preocupe, seu telefone e dados pessoais não serão expostos. Todo o contato será feito pelo chat do KNGindica.</p>
             </div>
           </div>
         </div>

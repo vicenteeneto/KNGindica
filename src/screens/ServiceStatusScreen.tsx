@@ -112,7 +112,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                  displayData.status === 'proposed' ? 'Você recebeu uma proposta. Confira os detalhes abaixo.' :
                  displayData.status === 'awaiting_payment' ? 'Sua proposta foi aceita! Realize o pagamento da taxa de intermediação para liberar o contato direto.' :
                  displayData.status === 'paid' ? 'Pagamento confirmado! O profissional entrará em contato em breve.' :
-                 displayData.status === 'completed' ? 'Obrigado por utilizar o Alvo! Por favor, avalie o atendimento do profissional.' :
+                 displayData.status === 'completed' ? 'Obrigado por utilizar o KNGindica! Por favor, avalie o atendimento do profissional.' :
                  'O profissional está pronto para realizar o seu atendimento.'}
               </p>
               

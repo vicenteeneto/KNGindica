@@ -743,7 +743,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
 
 
             <button
-              onClick={() => showToast("Central de Ajuda", "Suporte disponível pelo WhatsApp oficial do Alvo.", "notification")}
+              onClick={() => showToast("Central de Ajuda", "Suporte disponível pelo WhatsApp oficial do KNGindica.", "notification")}
               className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
             >
               <div className="flex items-center gap-4">
