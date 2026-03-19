@@ -179,7 +179,24 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
           // Sem GPS: busca todos os providers, mas prioriza pela cidade digitada
           const res = await supabase
             .from('profiles')
-            .select('*')
+            .select(`
+              id,
+              full_name,
+              avatar_url,
+              role,
+              city,
+              latitude,
+              longitude,
+              plan_type,
+              status,
+              created_at,
+              service_category,
+              categories,
+              rating,
+              price_value,
+              pricing_model,
+              show_price
+            `)
             .eq('role', 'provider');
           data = res.data;
           error = res.error;

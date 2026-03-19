@@ -135,7 +135,39 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
     if (professionalId && professionalId.length > 20) {
       const fetchProfile = async () => {
         setLoadingProfile(true);
-        const { data, error } = await supabase.from('profiles').select('*').eq('id', professionalId).single();
+        const { data, error } = await supabase
+          .from('profiles')
+          .select(`
+            id,
+            full_name,
+            avatar_url,
+            role,
+            city,
+            address,
+            bio,
+            service_category,
+            experience_years,
+            rating,
+            price_value,
+            pricing_model,
+            show_price,
+            plan_type,
+            is_verified,
+            status,
+            latitude,
+            longitude,
+            categories,
+            social_links,
+            company_name,
+            whatsapp_number,
+            state,
+            opening_hours,
+            loyalty_enabled,
+            loyalty_required_services,
+            loyalty_benefit_description
+          `)
+          .eq('id', professionalId)
+          .single();
         if (data && !error) {
           setDbProfessional({
             id: data.id,
