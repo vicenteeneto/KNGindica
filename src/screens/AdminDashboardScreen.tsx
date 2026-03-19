@@ -125,40 +125,28 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
   const handleDeleteUserRecords = async (userId: string) => {
     showModal({
-      title: "Confirmar Reset",
-      message: "ATENÇÃO: Isso apagará todos os registros deste usuário (pedidos, chats, avaliações) do banco público. O e-mail ainda continuará no Auth do Supabase. Deseja continuar?",
-      confirmLabel: "Sim, Resetar",
+      title: "Confirmar Reset Total",
+      message: "ATENÇÃO: Isso apagará permanentemente a conta do usuário (incluindo o e-mail no Supabase Auth) e todos os seus registros. Deseja continuar?",
+      confirmLabel: "Sim, Excluir Tudo",
       cancelLabel: "Cancelar",
       type: "danger",
       onConfirm: async () => {
         setMaintenanceLoading(true);
         try {
-          // 1. Apagar chats
-          await supabase.from('chat_messages').delete().or(`sender_id.eq.${userId}`);
-          const { data: rooms } = await supabase.from('chat_rooms').select('id').or(`client_id.eq.${userId},provider_id.eq.${userId}`);
-          if (rooms && rooms.length > 0) {
-            await supabase.from('chat_rooms').delete().in('id', rooms.map(r => r.id));
-          }
-
-          // 2. Apagar pedidos
-          await supabase.from('service_requests').delete().or(`client_id.eq.${userId},provider_id.eq.${userId}`);
-
-          // 3. Apagar avaliações
-          await supabase.from('reviews').delete().or(`reviewer_id.eq.${userId},provider_id.eq.${userId}`);
-
-          // 4. Apagar perfil (public.profiles)
-          const { error } = await supabase.from('profiles').delete().eq('id', userId);
+          // Chamando a nova função RPC que deleta do Auth e Cascade para o resto
+          const { error } = await supabase.rpc('delete_user_entirely', { target_user_id: userId });
 
           if (error) throw error;
+          
           showModal({
             title: "Sucesso!",
-            message: "Registros públicos do usuário excluídos. Agora você pode excluí-lo no painel Auth do Supabase para resetar o e-mail.",
+            message: "A conta e todos os dados foram removidos permanentemente.",
             type: "success"
           });
           fetchData();
-        } catch (e) {
-          console.error("Erro ao excluir registros:", e);
-          showToast("Erro", "Erro ao excluir registros.", "error");
+        } catch (e: any) {
+          console.error("Erro ao excluir usuário:", e);
+          showToast("Erro", e.message || "Erro ao excluir registros.", "error");
         } finally {
           setMaintenanceLoading(false);
         }
