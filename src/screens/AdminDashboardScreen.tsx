@@ -13,7 +13,7 @@ interface AdminProps extends NavigationProps {
 export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveTab }: AdminProps) {
   const { logout, user, profile, role } = useAuth();
   const isPremiumUser = profile?.plan_type === 'plus' || role === 'admin';
-  const { showToast, showModal } = useNotifications();
+  const { showToast, showModal, unreadNotifications, unreadMessages } = useNotifications();
   const [stats, setStats] = useState({
     providers: 0,
     clients: 0,
@@ -2296,11 +2296,19 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
               </button>
               <button onClick={() => onNavigate('chatList')} className="relative p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors" title="Mensagens">
                 <span className="material-symbols-outlined">chat</span>
-                <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-primary"></span>
+                {unreadMessages > 0 && (
+                  <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-primary animate-pulse"></span>
+                )}
               </button>
-              <button className="relative p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors" title="Notificações">
+              <button 
+                onClick={() => onNavigate('notifications')}
+                className="relative p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors" 
+                title="Notificações"
+              >
                 <span className="material-symbols-outlined">notifications</span>
-                <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-red-500"></span>
+                {unreadNotifications > 0 && (
+                  <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
+                )}
               </button>
               <div className={`h-10 w-10 rounded-full overflow-hidden border-2 flex items-center justify-center transition-all ${
                 isPremiumUser 
