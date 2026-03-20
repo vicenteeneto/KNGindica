@@ -11,6 +11,7 @@ import L from 'leaflet';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { requestNotificationPermission } from '../lib/OneSignalService';
+import { maskCurrency, parseCurrency } from '../lib/formatters';
 L.Icon.Default.prototype.options.iconUrl = markerIcon;
 L.Icon.Default.prototype.options.shadowUrl = markerShadow;
 L.Icon.Default.imagePath = '';
@@ -101,7 +102,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
     whatsapp_number: (profile as any)?.whatsapp_number || '',
     plan_type: (profile as any)?.plan_type || 'basic',
     pricing_model: (profile as any)?.pricing_model || 'hourly',
-    price_value: (profile as any)?.price_value?.toString() || '',
+    price_value: maskCurrency((profile as any)?.price_value?.toString() || ''),
     show_price: (profile as any)?.show_price !== false,
   });
 
@@ -138,7 +139,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         whatsapp_number: formatPhone((profile as any).whatsapp_number || ''),
         plan_type: (profile as any).plan_type || 'basic',
         pricing_model: (profile as any).pricing_model || 'hourly',
-        price_value: (profile as any).price_value?.toString() || '',
+        price_value: maskCurrency((profile as any).price_value?.toString() || ''),
         show_price: (profile as any).show_price !== false,
       });
       // Sincroniza coords/cidade ao carregar o perfil
@@ -314,7 +315,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           categories: formData.categories,
           whatsapp_number: formData.whatsapp_number,
           pricing_model: formData.pricing_model,
-          price_value: formData.price_value ? parseFloat(formData.price_value.replace(',', '.')) : null,
+          price_value: formData.price_value ? parseCurrency(formData.price_value) : null,
           show_price: formData.show_price,
         })
         .eq('id', user?.id);
@@ -1222,7 +1223,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                             <input
                               type="text"
                               value={formData.price_value}
-                              onChange={(e) => setFormData({...formData, price_value: e.target.value})}
+                              onChange={(e) => setFormData({...formData, price_value: maskCurrency(e.target.value)})}
                               placeholder="0,00"
                               className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm font-bold"
                             />

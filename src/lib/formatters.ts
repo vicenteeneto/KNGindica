@@ -8,13 +8,17 @@ export const formatCurrency = (value: number | string): string => {
 };
 
 export const parseCurrency = (value: string): number => {
-  // Removes everything except digits
+  // Remove tudo que não é dígito
   const cleanValue = value.replace(/\D/g, '');
   if (!cleanValue) return 0;
+  // Converte para centavos e depois para decimal
   return parseInt(cleanValue) / 100;
 };
 
 export const maskCurrency = (value: string): string => {
-  const num = parseCurrency(value);
+  // Limita a 11 dígitos (999.999.999,99) para evitar valores absurdos
+  const cleanValue = value.replace(/\D/g, '').slice(0, 11);
+  if (!cleanValue) return '';
+  const num = parseInt(cleanValue) / 100;
   return formatCurrency(num);
 };
