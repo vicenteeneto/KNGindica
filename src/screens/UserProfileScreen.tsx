@@ -99,13 +99,15 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
     cep: (profile as any)?.cep || '',
     city: (profile as any)?.city || '',
     address: (profile as any)?.address || '',
+    address_complement: (profile as any)?.address_complement || '',
     bio: (profile as any)?.bio || '',
     categories: (profile as any)?.categories || [],
     whatsapp_number: (profile as any)?.whatsapp_number || '',
     plan_type: (profile as any)?.plan_type || 'basic',
     pricing_model: (profile as any)?.pricing_model || 'hourly',
-    price_value: maskCurrency((profile as any)?.price_value?.toString() || ''),
+    price_value: (profile as any)?.price_value ? formatCurrency((profile as any).price_value) : '',
     show_price: (profile as any).show_price !== false,
+    is_negotiable: (profile as any)?.pricing_model === 'negotiable',
   });
 
   const [isFetchingCep, setIsFetchingCep] = useState(false);
@@ -122,6 +124,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
   });
 
   const [dbCategories, setDbCategories] = useState<any[]>([]);
+  const [categorySearch, setCategorySearch] = useState('');
   const [activeCities, setActiveCities] = useState<string[]>([]);
   const [showSuggestionInput, setShowSuggestionInput] = useState(false);
   const [newCategorySuggestion, setNewCategorySuggestion] = useState('');
@@ -137,13 +140,15 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         cep: formatCEP((profile as any).cep || ''),
         city: (profile as any).city || '',
         address: (profile as any).address || '',
+        address_complement: (profile as any).address_complement || '',
         bio: (profile as any).bio || '',
         categories: (profile as any).categories || [],
         whatsapp_number: formatPhone((profile as any).whatsapp_number || ''),
         plan_type: (profile as any).plan_type || 'basic',
         pricing_model: (profile as any).pricing_model || 'hourly',
-        price_value: maskCurrency((profile as any).price_value?.toString() || ''),
+        price_value: (profile as any).price_value ? formatCurrency((profile as any).price_value) : '',
         show_price: (profile as any).show_price !== false,
+        is_negotiable: (profile as any)?.pricing_model === 'negotiable',
       });
       // Sincroniza coords/cidade ao carregar o perfil
       if ((profile as any).latitude && (profile as any).longitude) {
@@ -238,8 +243,8 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           city: formData.city,
           state: formData.state,
           zip_code: formData.zip_code,
-          latitude: formData.latitude,
-          longitude: formData.longitude,
+          address_complement: formData.address_complement,
+          cep: formData.cep
         })
         .eq('id', user?.id);
 
@@ -296,8 +301,8 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           bio: formData.bio,
           categories: formData.categories,
           whatsapp_number: formData.whatsapp_number,
-          pricing_model: formData.pricing_model,
-          price_value: formData.price_value ? parseCurrency(formData.price_value) : null,
+          pricing_model: formData.is_negotiable ? 'negotiable' : formData.pricing_model,
+          price_value: (formData.is_negotiable || !formData.price_value) ? null : parseCurrency(formData.price_value),
           show_price: formData.show_price,
           opening_hours: businessInfo.opening_hours,
           loyalty_enabled: businessInfo.loyalty_enabled,
@@ -669,7 +674,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           </div>
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
             <button
-              onClick={() => showToast("Em desenvolvimento", "A gestão de pagamentos estará disponível em breve.", "notification")}
+              onClick={() => onNavigate('ProviderWallet' as any)}
               className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
             >
               <div className="flex items-center gap-4">
@@ -716,7 +721,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
 
 
             <button
-              onClick={() => showToast("Central de Ajuda", "Suporte disponível pelo WhatsApp oficial do KNGindica.", "notification")}
+              onClick={() => onNavigate('HelpCenter' as any)}
               className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
             >
               <div className="flex items-center gap-4">
@@ -900,6 +905,17 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                     />
                   </div>
 
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Complemento (Opcional)</label>
+                    <input
+                      type="text"
+                      value={formData.address_complement}
+                      onChange={(e) => setFormData({...formData, address_complement: e.target.value})}
+                      placeholder="Ex: Apto 101, Bloco A"
+                      className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
+                    />
+                  </div>
+
                   {role === 'provider' && (
                     <button
                       type="button"
@@ -1002,23 +1018,67 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                         </span>
                       ))}
                     </div>
-                    <select
-                      onChange={(e) => {
-                        if (e.target.value && !formData.categories.includes(e.target.value)) {
-                          setFormData({...formData, categories: [...formData.categories, e.target.value]});
-                        }
-                        e.target.value = "";
-                      }}
-                      className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-slate-900 dark:text-white uppercase text-xs"
-                    >
-                      <option value="">+ Selecionar Serviço</option>
-                      {dbCategories.map(cat => (
-                        <option key={cat.id} value={cat.name}>{cat.name}</option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={categorySearch}
+                        onChange={(e) => setCategorySearch(e.target.value)}
+                        placeholder="+ Buscar ou sugerir serviço"
+                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-slate-900 dark:text-white uppercase text-xs"
+                      />
+                      {categorySearch.trim().length > 0 && (
+                        <div className="absolute z-50 left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 max-h-48 overflow-y-auto">
+                          {dbCategories
+                            .filter(cat => cat.name.toLowerCase().includes(categorySearch.toLowerCase()) && !formData.categories.includes(cat.name))
+                            .map(cat => (
+                              <button
+                                key={cat.id}
+                                type="button"
+                                onClick={() => {
+                                  setFormData({...formData, categories: [...formData.categories, cat.name]});
+                                  setCategorySearch('');
+                                }}
+                                className="w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 text-[10px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-300 border-b border-slate-50 dark:border-slate-700 last:border-0"
+                              >
+                                {cat.name}
+                              </button>
+                            ))}
+                          {dbCategories.filter(cat => cat.name.toLowerCase().includes(categorySearch.toLowerCase()) && !formData.categories.includes(cat.name)).length === 0 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setNewCategorySuggestion(categorySearch);
+                                handleSuggestCategory();
+                                setCategorySearch('');
+                              }}
+                              className="w-full px-4 py-4 text-center hover:bg-primary/5 text-primary text-[10px] font-black uppercase tracking-widest"
+                            >
+                              <span className="material-symbols-outlined block text-2xl mb-1">add_circle</span>
+                              Sugerir "{categorySearch}"
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-blue-50/50 dark:bg-blue-900/5 p-4 rounded-2xl border border-blue-100/50 dark:border-blue-800/20">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+                        <span className="material-symbols-outlined text-[20px]">payments</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest italic">Preço à Combinar</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({...formData, is_negotiable: !formData.is_negotiable})}
+                        className={`w-10 h-5 rounded-full transition-colors relative ${formData.is_negotiable ? 'bg-blue-500' : 'bg-slate-200 dark:bg-slate-700'}`}
+                      >
+                        <div className={`absolute top-1 size-3 bg-white rounded-full transition-all ${formData.is_negotiable ? 'left-6' : 'left-1'}`} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className={`grid grid-cols-2 gap-4 transition-all duration-300 ${formData.is_negotiable ? 'opacity-30 pointer-events-none' : 'opacity-100'}`}>
                     <div>
                       <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Preço Inicial (R$)</label>
                       <input

@@ -11,6 +11,11 @@ export interface UserProfile {
   avatar_url: string | null;
   plan_type?: 'basic' | 'plus' | null;
   terms_accepted?: boolean;
+  address_complement?: string | null;
+  opening_hours?: string | null;
+  loyalty_enabled?: boolean;
+  loyalty_required_services?: number;
+  loyalty_benefit_description?: string | null;
   profiles_private?: { cpf: string | null }[];
 }
 
