@@ -1,8 +1,21 @@
 import React, { useState, useEffect } from 'react';
 
-// Cache estático para evitar múltiplas requisições ao navegar entre telas
+// Cache estático compartilhado para evitar múltiplas requisições
 let cachedCities: string[] = [];
-let isFetching = false;
+let citiesPromise: Promise<string[]> | null = null;
+
+// Lista de backup (Capitais e maiores cidades) para garantir que o componente funcione instantaneamente
+const fallbackCities = [
+  "São Paulo/SP", "Rio de Janeiro/RJ", "Brasília/DF", "Salvador/BA", "Fortaleza/CE",
+  "Belo Horizonte/MG", "Manaus/AM", "Curitiba/PR", "Recife/PE", "Goiânia/GO",
+  "Belém/PA", "Porto Alegre/RS", "Guarulhos/SP", "Campinas/SP", "São Luís/MA",
+  "São Gonçalo/RJ", "Maceió/AL", "Duque de Caxias/RJ", "Natal/RN", "Campo Grande/MS",
+  "Teresina/PI", "São Bernardo do Campo/SP", "Nova Iguaçu/RJ", "João Pessoa/PB",
+  "Santo André/SP", "Osasco/SP", "São José dos Campos/SP", "Jaboatão dos Guararapes/PE",
+  "Ribeirão Preto/SP", "Uberlândia/MG", "Contagem/MG", "Sorocaba/SP", "Aracaju/SE",
+  "Feira de Santana/BA", "Cuiabá/MT", "Joinville/SC", "Juiz de Fora/MG", "Londrina/PR",
+  "Aparecida de Goiânia/GO", "Ananindeua/PA", "Porto Velho/RO", "Rondonópolis/MT"
+];
 
 interface CityAutocompleteProps {
   value: string;
@@ -31,24 +44,32 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
     str.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
   useEffect(() => {
-    // Busca todas as cidades do Brasil via IBGE se o cache estiver vazio
-    if (cachedCities.length === 0 && !isFetching) {
-      isFetching = true;
+    // Se já estiver cacheado, não faz nada
+    if (cachedCities.length > 0) return;
+
+    // Se a promessa já existe, apenas espera por ela
+    if (!citiesPromise) {
       setLoading(true);
-      fetch('https://servicodados.ibge.gov.br/api/v1/localidades/municipios?orderBy=nome')
+      citiesPromise = fetch('https://servicodados.ibge.gov.br/api/v1/localidades/municipios?orderBy=nome')
         .then(res => res.json())
         .then(data => {
-          cachedCities = data.map((m: any) => 
-            `${m.nome}/${m.microrregiao.mesorregiao.UF.sigla}`
-          );
+          const list = data.map((m: any) => `${m.nome}/${m.microrregiao.mesorregiao.UF.sigla}`);
+          cachedCities = Array.from(new Set([...fallbackCities, ...list])); // Une e remove duplicatas
           setLoading(false);
-          isFetching = false;
+          return cachedCities;
         })
         .catch(err => {
           console.error("Erro ao carregar cidades IBGE:", err);
-          isFetching = false;
+          cachedCities = fallbackCities; // Em caso de erro, usa o backup
           setLoading(false);
+          return fallbackCities;
         });
+    } else {
+      // Se já está carregando em outro componente, apenas marca como loading localmente se o cache estiver vazio
+      if (cachedCities.length === 0) {
+        setLoading(true);
+        citiesPromise.then(() => setLoading(false));
+      }
     }
   }, []);
 
@@ -58,11 +79,12 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
 
     const query = normalize(val);
     if (query.length >= 2) {
-      // 1. Busca primeiro nas cidades ativas (prioridade)
+      // 1. Prioriza cidades ativas
       const activeMatch = activeCities.filter(c => normalize(c).includes(query));
       
-      // 2. Busca no resto do IBGE
-      const ibgeMatch = cachedCities.filter(c => {
+      // 2. Busca no cache (IBGE + Fallback)
+      const mainList = cachedCities.length > 0 ? cachedCities : fallbackCities;
+      const ibgeMatch = mainList.filter(c => {
         const normCity = normalize(c);
         return normCity.includes(query) && !activeMatch.includes(c);
       });
