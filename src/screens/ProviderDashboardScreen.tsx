@@ -184,6 +184,63 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-0.5">Visão Geral do seu Negócio</p>
       </section>
 
+      {/* Completude do Perfil - PRIORIDADE TOTAL NO TOPO SE INCOMPLETO */}
+      {(() => {
+        const missing = [];
+        if (!profile?.avatar_url) missing.push("Foto de Perfil");
+        if (!(profile as any)?.bio || (profile as any)?.bio.length < 30) missing.push("Bio completa");
+        if (!(profile as any)?.categories || (profile as any)?.categories.length === 0) missing.push("Categorias");
+        if (!(profile as any)?.latitude || !(profile as any)?.longitude) missing.push("Localização (GPS)");
+        if (!(profile as any)?.price_value) missing.push("Preço do serviço");
+        if (portfolioCount === 0) missing.push("Fotos no Portfólio");
+
+        if (missing.length === 0) return null;
+
+        return (
+          <section className="px-4 py-4">
+            <div className="bg-red-500/10 dark:bg-red-500/5 rounded-3xl p-6 border-2 border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.2)] animate-pulse-subtle relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                <span className="material-symbols-outlined text-7xl text-red-500">warning</span>
+              </div>
+              
+              <div className="flex items-center gap-4 mb-4">
+                <div className="size-12 rounded-2xl bg-red-500 text-white flex items-center justify-center shadow-lg shadow-red-500/30 shrink-0">
+                  <span className="material-symbols-outlined text-3xl">error</span>
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-red-600 dark:text-red-500 uppercase tracking-tighter italic">
+                    Perfil com Baixa Visibilidade!
+                  </h3>
+                  <p className="text-[10px] text-red-500 dark:text-red-400 font-black uppercase tracking-widest">
+                    Complete agora para aparecer nas buscas
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-900 dark:text-slate-300 mb-4 leading-relaxed font-bold bg-white/50 dark:bg-black/20 p-3 rounded-xl">
+                Seu perfil está incompleto e pode ser ignorado pelos clientes. Finalize estes itens:
+              </p>
+
+              <div className="flex flex-wrap gap-2 mb-6">
+                {missing.map((item, idx) => (
+                  <span key={idx} className="bg-white dark:bg-slate-900 text-red-600 dark:text-red-500 text-[10px] font-black px-3 py-1.5 rounded-xl border border-red-500/30 shadow-sm uppercase tracking-tighter">
+                    • {item}
+                  </span>
+                ))}
+              </div>
+
+              <button 
+                onClick={() => onNavigate('userProfile')}
+                className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-black text-sm uppercase tracking-widest rounded-2xl shadow-xl shadow-red-600/20 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
+              >
+                FINALIZAR MEU PERFIL AGORA
+                <span className="material-symbols-outlined">arrow_forward</span>
+              </button>
+            </div>
+          </section>
+        );
+      })()}
+
 
       {/* Alvo Insights - Performance Central */}
       <section className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden relative group">
@@ -313,73 +370,20 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         </div>
       </section>
 
-      {/* Completude do Perfil - Aparece apenas se incompleto */}
-      {(() => {
-        const missing = [];
-        if (!profile?.avatar_url) missing.push("Foto de Perfil");
-        if (!(profile as any)?.bio || (profile as any)?.bio.length < 30) missing.push("Bio completa");
-        if (!(profile as any)?.categories || (profile as any)?.categories.length === 0) missing.push("Categorias");
-        if (!(profile as any)?.latitude || !(profile as any)?.longitude) missing.push("Localização (GPS)");
-        if (!(profile as any)?.price_value) missing.push("Preço do serviço");
-        if (portfolioCount === 0) missing.push("Fotos no Portfólio");
-
-        if (missing.length === 0) return null;
-
-        return (
-          <section className="px-4 pb-6">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 border-2 border-amber-500/20 shadow-lg relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-4 opacity-5">
-                <span className="material-symbols-outlined text-6xl text-amber-500">task_alt</span>
-              </div>
-              
-              <div className="flex items-center gap-3 mb-4">
-                <div className="size-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/30">
-                  <span className="material-symbols-outlined">assignment_late</span>
-                </div>
-                <div>
-                  <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tighter">
-                    Finalize seu Perfil
-                  </h3>
-                  <p className="text-[10px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-widest">
-                    Aumente sua visibilidade
-                  </p>
-                </div>
-              </div>
-
-              <p className="text-xs text-slate-600 dark:text-slate-400 mb-4 leading-relaxed font-medium">
-                Seu perfil ainda não está completo. Para aparecer nos primeiros lugares e atrair mais clientes, você precisa preencher:
-              </p>
-
-              <div className="flex flex-wrap gap-2 mb-5">
-                {missing.map((item, idx) => (
-                  <span key={idx} className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700">
-                    • {item}
-                  </span>
-                ))}
-              </div>
-
-              <button 
-                onClick={() => onNavigate('userProfile')}
-                className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-md shadow-amber-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
-              >
-                Completar Perfil Agora
-                <span className="material-symbols-outlined text-sm">arrow_forward</span>
-              </button>
-            </div>
-          </section>
-        );
-      })()}
 
       {/* Cards Auxiliares */}
       <section className="px-4 pb-4">
          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center gap-3">
-               <div className="size-8 bg-blue-500/10 rounded-lg flex items-center justify-center text-blue-500">
+            <div onClick={() => onNavigate('providerRequests')} className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center gap-3 cursor-pointer hover:border-primary transition-all group">
+               <div className="size-8 bg-blue-500/10 rounded-lg flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-colors">
                   <span className="material-symbols-outlined text-sm">assignment</span>
                </div>
                <div>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ativos</p>
-                  <p className="text-lg font-black text-slate-900 dark:text-slate-100">{stats.requests}</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Serviços Ativos</p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-lg font-black text-slate-900 dark:text-slate-100">{stats.requests}</p>
+                    <span className="material-symbols-outlined text-slate-300 text-sm group-hover:translate-x-1 transition-transform">chevron_right</span>
+                  </div>
                </div>
             </div>
             <div onClick={() => onNavigate('reviews')} className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center gap-3 cursor-pointer hover:border-primary transition-colors">
