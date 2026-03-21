@@ -571,14 +571,13 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                         value={manualCityInput}
                         onChange={(val) => setManualCityInput(val)}
                         onSelect={(city) => handleCitySelect(city)}
+                        activeCities={availableCities}
                         placeholder="Ex: Rondonópolis/MT..."
                         className="w-full pl-9 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:border-primary outline-none text-xs font-bold"
                       />
                     </div>
-                  </div>
-
-                  {availableCities.length > 0 && (
-                    <div>
+                    {availableCities.length > 0 && !manualCityInput && (
+                    <div className="animate-in fade-in slide-in-from-bottom-2">
                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 ml-1">Cidades Ativas:</p>
                       <div className="flex flex-col gap-1.5">
                         {availableCities.map(city => (
@@ -588,25 +587,18 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                             onClick={async () => {
                               setManualCityInput(city);
                               setShowLocationDropdown(false);
-                              isManualLocation.current = true;
-                              setLocationName(city);
-                              setUserCoords(null);
-                              localStorage.setItem('KNGindica_manualCity', city);
-                              const coords = await geocodeCidade(city);
-                              if (coords) setMapCenter(coords);
+                              handleCitySelect(city);
                             }}
-                            className="w-full px-3 py-2 bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/10 rounded-xl text-xs font-bold transition-all flex items-center justify-between group/item"
+                            className="flex items-center gap-2 p-3 bg-white/5 border border-white/5 rounded-xl hover:border-primary/50 transition-all text-left group"
                           >
-                            <span className="flex items-center gap-2">
-                              <span className="size-1 bg-emerald-500 rounded-full animate-pulse"></span>
-                              {city}
-                            </span>
-                            <span className="material-symbols-outlined text-transparent group-hover/item:text-primary text-[16px] transition-colors">arrow_forward</span>
+                            <span className="size-1.5 rounded-full bg-primary/50 group-hover:bg-primary transition-colors"></span>
+                            <span className="text-sm font-bold text-slate-200">{city}</span>
                           </button>
                         ))}
                       </div>
                     </div>
                   )}
+                  </div>
                   
                   <div className="mt-4 pt-4 border-t border-white/5">
                     <button 

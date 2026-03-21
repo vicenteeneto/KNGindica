@@ -11,6 +11,7 @@ interface CityAutocompleteProps {
   placeholder?: string;
   className?: string;
   inputRef?: React.RefObject<HTMLInputElement>;
+  activeCities?: string[]; // Cidades que já possuem prestadores
 }
 
 export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({ 
@@ -19,10 +20,15 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
   onSelect, 
   placeholder = "Ex: Rondonópolis/MT", 
   className,
-  inputRef
+  inputRef,
+  activeCities = []
 }) => {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // Função auxiliar de normalização robusta
+  const normalize = (str: string) => 
+    str.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
   useEffect(() => {
     // Busca todas as cidades do Brasil via IBGE se o cache estiver vazio
@@ -50,17 +56,20 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
     const val = e.target.value;
     onChange(val);
 
-    if (val.length >= 3) {
-      // Normalização para busca insensível a acentos e case
-      const normalizedQuery = val.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const query = normalize(val);
+    if (query.length >= 2) {
+      // 1. Busca primeiro nas cidades ativas (prioridade)
+      const activeMatch = activeCities.filter(c => normalize(c).includes(query));
       
-      const filtered = cachedCities
-        .filter(c => {
-          const normalizedCity = c.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
-          return normalizedCity.includes(normalizedQuery);
-        })
-        .slice(0, 6); // Limita a 6 sugestões para não poluir
-      setSuggestions(filtered);
+      // 2. Busca no resto do IBGE
+      const ibgeMatch = cachedCities.filter(c => {
+        const normCity = normalize(c);
+        return normCity.includes(query) && !activeMatch.includes(c);
+      });
+
+      // Combina priorizando ativas
+      const combined = [...activeMatch, ...ibgeMatch].slice(0, 8);
+      setSuggestions(combined);
     } else {
       setSuggestions([]);
     }
@@ -97,10 +106,18 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
                 setSuggestions([]);
                 if (onSelect) onSelect(s);
               }}
-              className="w-full px-4 py-3 text-left text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-primary hover:text-white transition-colors border-b border-slate-100 dark:border-white/5 last:border-0 flex items-center gap-2"
+              className="w-full px-4 py-3 text-left text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-primary hover:text-white transition-colors border-b border-slate-100 dark:border-white/5 last:border-0 flex items-center justify-between group"
             >
-              <span className="material-symbols-outlined text-sm opacity-50">location_on</span>
-              {s}
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-sm opacity-50 group-hover:text-white">location_on</span>
+                {s}
+              </div>
+              {activeCities.includes(s) && (
+                <span className="text-[9px] uppercase font-black text-primary group-hover:text-white flex items-center gap-1">
+                  <span className="size-1.5 rounded-full bg-primary group-hover:bg-white animate-pulse"></span>
+                  Ativa
+                </span>
+              )}
             </button>
           ))}
         </div>

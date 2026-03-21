@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NavigationProps } from '../types';
 import { CityAutocomplete } from '../components/CityAutocomplete';
+import { supabase } from '../lib/supabase';
 
 export default function FilterServicesScreen({ onNavigate, params }: NavigationProps) {
   const initialFilters = params?.filters || {};
@@ -12,8 +13,23 @@ export default function FilterServicesScreen({ onNavigate, params }: NavigationP
   const [tempDistance, setTempDistance] = useState<number>(initialFilters.maxDistance || 50);
   const [tempAvailability, setTempAvailability] = useState<string | null>(initialFilters.availability || null);
   const [tempCity, setTempCity] = useState<string>(initialFilters.city || '');
+  const [activeCities, setActiveCities] = useState<string[]>([]);
 
   const categories = ['Limpeza', 'Reformas', 'Elétrica', 'Jardim', 'Pintura', 'Montagem', 'Encanador', 'Frete'];
+
+  React.useEffect(() => {
+    const fetchActive = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('city')
+        .eq('role', 'provider');
+      if (data) {
+        const unique = Array.from(new Set(data.map(d => d.city).filter(c => !!c)));
+        setActiveCities(unique);
+      }
+    };
+    fetchActive();
+  }, []);
 
   const handleApply = () => {
     onNavigate('listing', { 
@@ -69,12 +85,32 @@ export default function FilterServicesScreen({ onNavigate, params }: NavigationP
               <CityAutocomplete
                 value={tempCity}
                 onChange={val => setTempCity(val)}
+                activeCities={activeCities}
                 placeholder="Ex: Rondonópolis/MT"
                 className="w-full bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-800 rounded-2xl pl-12 pr-4 py-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none font-medium transition-all"
               />
             </div>
             <p className="text-xs text-slate-500 mt-2">Filtre por uma cidade específica para ver prestadores locais.</p>
           </section>
+
+          {activeCities.length > 0 && !tempCity && (
+            <div className="animate-in fade-in slide-in-from-bottom-2">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 ml-1">Cidades Ativas:</p>
+              <div className="flex flex-col gap-1.5">
+                {activeCities.map(city => (
+                  <button
+                    key={city}
+                    type="button"
+                    onClick={() => setTempCity(city)}
+                    className="flex items-center gap-2 p-3 bg-white/5 border border-white/5 rounded-xl hover:border-primary/50 transition-all text-left group"
+                  >
+                    <span className="size-1.5 rounded-full bg-primary/50 group-hover:bg-primary transition-colors"></span>
+                    <span className="text-sm font-bold text-slate-200">{city}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Categories Section */}
           <section>
