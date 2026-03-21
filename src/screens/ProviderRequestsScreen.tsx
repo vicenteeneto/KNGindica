@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
+import { useNotifications } from '../NotificationContext';
 
 type Tab = 'Novos' | 'Orçados' | 'Agendados' | 'Em Andamento' | 'Finalizados';
 
 export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) {
   const { user } = useAuth();
+  const { showToast } = useNotifications();
   const [activeTab, setActiveTab] = useState<Tab>('Novos');
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -156,23 +158,27 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
       }
 
       fetchRequests();
-    } catch (err) {
+      // Auto navigate to Orçados after moving from Novos
+      if (activeTab === 'Novos') {
+        setActiveTab('Orçados');
+      }
+    } catch (err: any) {
       console.error(err);
-      alert('Erro ao atualizar status.');
+      showToast('Erro ao atualizar status: ' + err.message, 'error');
     }
   };
 
-  const statusMap: Record<string, string> = {
-    'open': 'Aguardando Orçamento',
-    'proposed': 'Negociação / Chat',
-    'accepted': 'Aceito / Em Negociação',
-    'quoted': 'Orçamento Enviado',
-    'awaiting_payment': 'Aguardando Pagamento',
-    'scheduled': 'Agendado ✓',
-    'paid': 'Pago',
-    'in_service': 'Em Execução',
-    'completed': 'Finalizado',
-    'cancelled': 'Cancelado'
+  const statusMap: Record<string, { label: string; color: string }> = {
+    'open': { label: 'Aguardando Orçamento', color: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' },
+    'proposed': { label: 'Proposta Enviada', color: 'bg-blue-500/10 text-blue-600 border-blue-500/20' },
+    'accepted': { label: 'Negociação / Chat', color: 'bg-indigo-500/10 text-indigo-600 border-indigo-500/20' },
+    'quoted': { label: 'Orçamento Enviado', color: 'bg-amber-500/10 text-amber-600 border-amber-500/20' },
+    'awaiting_payment': { label: 'Aguardando Pagamento', color: 'bg-purple-500/10 text-purple-600 border-purple-500/20' },
+    'scheduled': { label: 'Serviço Agendado ✓', color: 'bg-primary text-white border-primary/20 shadow-sm' },
+    'paid': { label: 'Pago', color: 'bg-emerald-600 text-white' },
+    'in_service': { label: 'Em Execução...', color: 'bg-primary animate-pulse text-white' },
+    'completed': { label: 'Finalizado', color: 'bg-slate-500 text-white' },
+    'cancelled': { label: 'Cancelado', color: 'bg-red-500 text-white' }
   };
 
   return (
@@ -227,8 +233,8 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start">
                           <p className="text-slate-900 dark:text-white text-base font-bold truncate">{req.profiles?.full_name || 'Cliente'}</p>
-                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                            {statusMap[req.status] || req.status}
+                           <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${statusMap[req.status]?.color || 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+                            {statusMap[req.status]?.label || req.status}
                           </span>
                         </div>
                         <p className="text-slate-500 dark:text-slate-400 text-sm flex items-center gap-1 mt-0.5" title={req.description}>
@@ -263,39 +269,39 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                         <div className="flex gap-2">
                           <button
                             onClick={() => updateRequestStatus(req.id, 'accepted')}
-                            className="flex-1 cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold transition-opacity hover:opacity-90 active:scale-[0.98]">
+                            className="flex-1 cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold transition-all hover:brightness-110 active:scale-[0.98] shadow-md shadow-primary/20">
                             Aceitar Pedido
                           </button>
                           <button 
                             onClick={() => updateRequestStatus(req.id, 'cancelled')}
-                            className="flex-1 cursor-pointer items-center justify-center rounded-lg h-10 px-4 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-[0.98] transition-colors">
+                            className="flex-1 cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-500 text-sm font-bold hover:bg-red-100 dark:hover:bg-red-900/20 active:scale-[0.98] transition-colors border border-red-200 dark:border-red-800/30">
                             Recusar
                           </button>
                         </div>
                       </div>
                     )}
-                    
+
                     {activeTab === 'Orçados' && (
                       <div className="mt-4 flex flex-col gap-2">
                         <div className="flex gap-2">
                           <button
                             onClick={() => updateRequestStatus(req.id, 'quoted')}
-                            className="flex-1 cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold hover:opacity-90 active:scale-[0.98] transition-all">
+                            className="flex-1 cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold hover:brightness-110 active:scale-[0.98] transition-all shadow-md shadow-primary/20">
                             <span className="material-symbols-outlined text-[18px]">receipt_long</span>
-                            Confirmar Orçamento
+                            Enviar Valor Final
                           </button>
                           <button
                             onClick={() => updateRequestStatus(req.id, 'scheduled')}
-                            className="flex-1 cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-[0.98] transition-all">
+                            className="flex-1 cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-[0.98] transition-all border border-slate-200 dark:border-slate-700">
                             <span className="material-symbols-outlined text-[18px]">calendar_month</span>
                             Agendar
                           </button>
                         </div>
                         <button
                           onClick={() => handleOpenChat(req)}
-                          className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 dark:text-emerald-500 text-sm font-bold border border-emerald-200 dark:border-emerald-800/30">
+                          className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 dark:text-emerald-500 text-sm font-bold border border-emerald-200 dark:border-emerald-800/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/20 transition-colors">
                           <span className="material-symbols-outlined text-[18px]">chat</span>
-                          Chat com Cliente
+                          Falar com Cliente
                         </button>
                       </div>
                     )}

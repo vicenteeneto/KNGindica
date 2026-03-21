@@ -132,7 +132,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
   const [verificationStatus, setVerificationStatus] = useState<'none' | 'pending' | 'approved' | 'rejected'>('none');
   const [docUrls, setDocUrls] = useState<{ front_id?: string; selfie?: string }>({});
   const [uploadingDoc, setUploadingDoc] = useState<'front_id' | 'selfie' | null>(null);
-  const [isSyncingVerif, setIsSyncingVerif] = useState(false);
+  const [isSyncingVerif, setIsSyncingVerif] = useState(true);
 
   // Keep form data synced when profile loads
   React.useEffect(() => {
@@ -206,18 +206,25 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
 
     const fetchVerificationStatus = async () => {
       if (!user) return;
-      const { data } = await supabase
-        .from('provider_verifications')
-        .select('status, document_front_path, selfie_path')
-        .eq('provider_id', user.id)
-        .maybeSingle();
-      
-      if (data) {
-        setVerificationStatus(data.status as any);
-        setDocUrls({ 
-          front_id: data.document_front_path || undefined, 
-          selfie: data.selfie_path || undefined 
-        });
+      setIsSyncingVerif(true);
+      try {
+        const { data } = await supabase
+          .from('provider_verifications')
+          .select('status, document_front_path, selfie_path')
+          .eq('provider_id', user.id)
+          .maybeSingle();
+        
+        if (data) {
+          setVerificationStatus(data.status as any);
+          setDocUrls({ 
+            front_id: data.document_front_path || undefined, 
+            selfie: data.selfie_path || undefined 
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching verification status:", err);
+      } finally {
+        setIsSyncingVerif(false);
       }
     };
     if (role === 'provider') fetchVerificationStatus();
@@ -648,7 +655,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           if (!(profile as any)?.latitude) missing.push("Localização");
           if (!formData.is_negotiable && !formData.price_value) missing.push("Preço");
           if (portfolio.length === 0) missing.push("Portfólio");
-          if (verificationStatus !== 'approved') missing.push("Documentos");
+           if (!isSyncingVerif && verificationStatus !== 'approved' && verificationStatus !== 'pending') missing.push("Documentos");
 
           if (missing.length === 0) return null;
 
