@@ -10,22 +10,12 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
   const [activeTab, setActiveTab] = useState<Tab>('Novos');
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [categoriesMap, setCategoriesMap] = useState<Record<string, string>>({});
-
-
   const tabs: Tab[] = ['Novos', 'Orçados', 'Agendados', 'Em Andamento', 'Finalizados'];
 
   const fetchRequests = async () => {
     if (!user) return;
     setLoading(true);
     try {
-      let statuses: string[] = ['open'];
-      if (activeTab === 'Novos') statuses = ['open'];
-      else if (activeTab === 'Orçados') statuses = ['proposed', 'accepted', 'quoted', 'awaiting_payment'];
-      else if (activeTab === 'Agendados') statuses = ['scheduled'];
-      else if (activeTab === 'Em Andamento') statuses = ['paid', 'in_service'];
-      else if (activeTab === 'Finalizados') statuses = ['completed'];
-
       let query = supabase
         .from('service_requests')
         .select(`
@@ -40,37 +30,33 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
           profiles!service_requests_client_id_fkey(full_name, avatar_url),
           service_categories(name, icon)
         `)
-        .in('status', statuses)
         .order('created_at', { ascending: false });
 
-      if (activeTab !== 'Novos') {
-        query = query.eq('provider_id', user.id);
-      } else {
-        // For 'Novos', show assigned OR (open AND category match)
+      if (activeTab === 'Novos') {
+        // Tab Novos: Only 'open' requests.
+        // Can be assigned to me OR unassigned but in my category.
         const { data: profData } = await supabase.from('profiles').select('categories').eq('id', user.id).single();
-        const cats = profData?.categories || [];
-        
-        let currentMap = categoriesMap;
-        if (Object.keys(currentMap).length === 0) {
-          const { data: catData } = await supabase.from('service_categories').select('id, name');
-          if (catData) {
-            const map: Record<string, string> = {};
-            catData.forEach(c => { map[c.name] = c.id; });
-            setCategoriesMap(map);
-            currentMap = map;
-          }
+        const myCats = profData?.categories || [];
+        const { data: catData } = await supabase.from('service_categories').select('id, name');
+        let catIds: string[] = [];
+        if (catData) {
+          catIds = catData.filter(c => myCats.includes(c.name)).map(c => c.id);
         }
 
-        const categoryIds = cats
-          .map((name: string) => currentMap[name])
-          .filter(Boolean);
-        
-        if (categoryIds.length > 0) {
-          const catList = categoryIds.join(',');
-          query = query.or(`provider_id.eq.${user.id},and(provider_id.is.null,status.eq.open,category_id.in.(${catList}))`);
+        if (catIds.length > 0) {
+          query = query.eq('status', 'open')
+            .or(`provider_id.eq.${user.id},and(provider_id.is.null,category_id.in.(${catIds.join(',')}))`);
         } else {
-          query = query.eq('provider_id', user.id);
+          query = query.eq('status', 'open').eq('provider_id', user.id);
         }
+      } else if (activeTab === 'Orçados') {
+        query = query.in('status', ['proposed', 'accepted', 'quoted', 'awaiting_payment']).eq('provider_id', user.id);
+      } else if (activeTab === 'Agendados') {
+        query = query.eq('status', 'scheduled').eq('provider_id', user.id);
+      } else if (activeTab === 'Em Andamento') {
+        query = query.in('status', ['paid', 'in_service']).eq('provider_id', user.id);
+      } else if (activeTab === 'Finalizados') {
+        query = query.eq('status', 'completed').eq('provider_id', user.id);
       }
 
       const { data, error } = await query;
@@ -111,6 +97,19 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
         room = newRoom;
       }
       
+      // If status is still 'open', move to 'proposed' when chat is opened
+      if (req.status === 'open') {
+        const { error: updateError } = await supabase
+          .from('service_requests')
+          .update({ 
+            status: 'proposed',
+            provider_id: user.id 
+          })
+          .eq('id', req.id);
+        if (updateError) throw updateError;
+        fetchRequests();
+      }
+
       onNavigate('chat', { 
         roomId: room.id, 
         opponentName: req.profiles?.full_name || 'Cliente', 
@@ -164,12 +163,12 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
   };
 
   const statusMap: Record<string, string> = {
-    'open': 'Novo!',
-    'proposed': 'Proposta Enviada',
+    'open': 'Aguardando Orçamento',
+    'proposed': 'Negociação / Chat',
     'accepted': 'Aceito / Em Negociação',
     'quoted': 'Orçamento Enviado',
     'awaiting_payment': 'Aguardando Pagamento',
-    'scheduled': 'Agendado',
+    'scheduled': 'Agendado ✓',
     'paid': 'Pago',
     'in_service': 'Em Execução',
     'completed': 'Finalizado',

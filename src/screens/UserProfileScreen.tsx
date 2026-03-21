@@ -574,8 +574,8 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       <div className="bg-gradient-to-b from-primary/20 to-transparent dark:from-primary/10 pt-12 pb-6 px-4 shrink-0 shadow-sm border-b border-white/20 dark:border-slate-800/50 relative">
         {/* Back Button */}
         <button 
-          onClick={() => onNavigate('back')}
-          className="absolute top-6 left-4 md:left-24 size-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-slate-700 dark:text-white hover:bg-white/40 transition-all z-10"
+          onClick={() => onNavigate(role === 'admin' ? 'adminDashboard' : 'home')}
+          className="absolute top-6 left-4 md:left-24 size-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-slate-700 dark:text-white hover:bg-white/40 transition-all z-[100]"
         >
           <span className="material-symbols-outlined">arrow_back</span>
         </button>

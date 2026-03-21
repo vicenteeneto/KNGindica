@@ -319,8 +319,8 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
       <div className="bg-white dark:bg-slate-900 sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-center p-4 pb-2 justify-between max-w-7xl mx-auto w-full">
           <button 
-            onClick={() => onNavigate('back')} 
-            className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-all shrink-0"
+            onClick={() => onNavigate('home')} 
+            className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-all shrink-0 z-[100]"
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
