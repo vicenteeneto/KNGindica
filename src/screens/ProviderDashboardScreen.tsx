@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { useAuth } from '../AuthContext';
+import { useNotifications } from '../NotificationContext';
 import { formatCurrency } from '../lib/formatters';
 import { supabase } from '../lib/supabase';
 
 export default function ProviderDashboardScreen({ onNavigate }: NavigationProps) {
   const { logout, profile, user } = useAuth();
+  const { unreadNotifications, unreadMessages } = useNotifications();
   const [stats, setStats] = useState({ requests: 0, visits: 0, leads: 0, earnings: 0, pending: 0 });
   const [recentRequests, setRecentRequests] = useState<any[]>([]);
   const [portfolioCount, setPortfolioCount] = useState(0);
@@ -33,7 +35,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
           .from('service_requests')
           .select('*', { count: 'exact', head: true })
           .eq('provider_id', user.id)
-          .in('status', ['open', 'proposed', 'accepted', 'awaiting_payment', 'paid', 'in_service']);
+          .in('status', ['accepted', 'awaiting_payment', 'paid', 'in_service']);
           
         // 3. Fetch earnings
         const { data: walletData } = await supabase
@@ -134,21 +136,29 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
           <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest italic">Modo Prestador</span>
         </div>
       </div>
-      <div className="flex gap-1.5">
-        <button onClick={() => onNavigate('chatList')} className="flex size-9 items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 relative hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" title="Mensagens">
-          <span className="material-symbols-outlined text-[20px]">chat</span>
-          <span className="absolute top-1.5 right-1.5 flex h-1.5 w-1.5 rounded-full bg-primary"></span>
+      <div className="flex gap-1.5 mt-1 sm:mt-0">
+        <button onClick={() => onNavigate('chatList')} className="flex size-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 relative hover:bg-slate-200 dark:hover:bg-slate-700 transition-all group" title="Mensagens">
+          <span className="material-symbols-outlined text-[22px] group-hover:scale-110 transition-transform">chat</span>
+          {unreadMessages > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-5 min-w-5 px-1 items-center justify-center rounded-full bg-primary text-[10px] font-black text-white border-2 border-white dark:border-slate-900 shadow-lg animate-bounce">
+              {unreadMessages > 9 ? '9+' : unreadMessages}
+            </span>
+          )}
         </button>
-        <button onClick={() => onNavigate('notifications')} className="flex size-9 items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 relative hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" title="Notificações">
-          <span className="material-symbols-outlined text-[20px]">notifications</span>
-          <span className="absolute top-1.5 right-1.5 flex h-1.5 w-1.5 rounded-full bg-red-500"></span>
+        <button onClick={() => onNavigate('notifications')} className="flex size-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 relative hover:bg-slate-200 dark:hover:bg-slate-700 transition-all group" title="Notificações">
+          <span className="material-symbols-outlined text-[22px] group-hover:scale-110 transition-transform">notifications</span>
+          {unreadNotifications > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-5 min-w-5 px-1 items-center justify-center rounded-full bg-red-500 text-[10px] font-black text-white border-2 border-white dark:border-slate-900 shadow-lg animate-bounce">
+              {unreadNotifications > 9 ? '9+' : unreadNotifications}
+            </span>
+          )}
         </button>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-1.5 p-1.5 text-slate-500 hover:text-red-500 transition-colors"
+          className="flex size-10 items-center justify-center rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all group"
           title="Sair"
         >
-          <span className="material-symbols-outlined text-[20px]">logout</span>
+          <span className="material-symbols-outlined text-[22px] group-hover:rotate-12 transition-transform">logout</span>
         </button>
       </div>
     </header>
@@ -419,11 +429,58 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
 
 
   return (
-    <div className="bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
-      <div className="relative flex min-h-screen w-full flex-col mx-auto bg-white dark:bg-slate-900 shadow-xl overflow-x-hidden">
+    <div className="bg-slate-50 dark:bg-slate-950 font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
+      <div className="relative flex min-h-screen w-full flex-col mx-auto bg-slate-50 dark:bg-slate-950 overflow-x-hidden">
         {renderHeader()}
         <main className="flex-1 overflow-y-auto">
-          {renderDashboardTab()}
+          <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+              
+              {/* Left Column: Greeting & Main Cards */}
+              <div className="lg:col-span-8 space-y-6 sm:space-y-8">
+                {renderDashboardTab()}
+              </div>
+
+              {/* Right Column: Feed & Portfolio (Visible on Desktop) */}
+              <div className="lg:col-span-4 space-y-6 sm:space-y-8">
+                <div className="sticky top-24">
+                  <h3 className="font-black text-slate-900 dark:text-slate-100 mb-4 ml-1 flex items-center gap-2 text-[10px] uppercase tracking-widest">
+                    <span className="material-symbols-outlined text-primary text-[18px]">verified</span>
+                    Status da Conta
+                  </h3>
+                  <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-xl mb-6">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500">
+                         <span className="material-symbols-outlined text-3xl">verified_user</span>
+                      </div>
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-tighter text-slate-900 dark:text-white">Perfil Verificado</p>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Selo de Confiança Ativo</p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => onNavigate('userProfile')}
+                      className="w-full py-3 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-xs uppercase tracking-widest transition-all"
+                    >
+                      Ver Perfil Público
+                    </button>
+                  </div>
+
+                  <h3 className="font-black text-slate-900 dark:text-slate-100 mb-4 ml-1 flex items-center gap-2 text-[10px] uppercase tracking-widest">
+                    <span className="material-symbols-outlined text-slate-400 text-[18px]">support_agent</span>
+                    Ajuda e Suporte
+                  </h3>
+                  <div onClick={() => onNavigate('helpCenter')} className="group p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 cursor-pointer hover:border-primary transition-all">
+                    <div className="flex items-center gap-3">
+                       <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">help_center</span>
+                       <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Central de Ajuda KNG</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
         </main>
       </div>
     </div>

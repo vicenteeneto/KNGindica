@@ -96,13 +96,21 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
 
   // Tracking de Leads
   const trackLead = async (pId: string, type: 'whatsapp_click' | 'profile_view' | 'chat_start') => {
-    if (!user || user.id === pId) return; // Não conta lead de si mesmo
+    if (user?.id === pId) return; // Não conta lead de si mesmo
+    
+    // Para cliques no WhatsApp ou Início de Chat, ainda é ideal estar logado ou ter um identificador, 
+    // mas para 'profile_view' vamos permitir anônimo.
+    if (type !== 'profile_view' && !user) return;
+
     try {
       await supabase.from('lead_events').insert({
-        client_id: user.id,
+        client_id: user?.id || null,
         provider_id: pId,
         type: type,
-        metadata: { source: 'profile_screen' }
+        metadata: { 
+          source: 'profile_screen',
+          is_anonymous: !user
+        }
       });
     } catch (e) {
       console.error("Lead track error", e);
