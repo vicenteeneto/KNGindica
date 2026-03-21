@@ -30,7 +30,7 @@ interface ProfessionalProfileProps extends NavigationProps {
 }
 
 export default function ProfessionalProfileScreen({ onNavigate, params }: ProfessionalProfileProps) {
-  const professionalId = params?.professionalId || '1';
+  const professionalId = params?.professionalId || params?.id || '1';
   const [realReviewsCount, setRealReviewsCount] = useState<number | null>(null);
   const [realAverage, setRealAverage] = useState<number | null>(null);
   const [dbReviews, setDbReviews] = useState<any[]>([]);
@@ -123,7 +123,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
   };
 
   useEffect(() => {
-    if (professionalId?.includes('-')) {
+    if (professionalId && professionalId !== '1') {
       const fetchStats = async () => {
         const { data } = await supabase
           .from('reviews')
@@ -145,7 +145,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
       fetchStats();
     }
 
-    if (professionalId && professionalId.length > 20) {
+    if (professionalId && professionalId.length > 10) {
       const fetchProfile = async () => {
         setLoadingProfile(true);
         const { data, error } = await supabase

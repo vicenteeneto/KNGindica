@@ -12,6 +12,8 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
   const [recentRequests, setRecentRequests] = useState<any[]>([]);
   const [portfolioCount, setPortfolioCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [categoriesMap, setCategoriesMap] = useState<Record<string, string>>({});
+
 
   
 
@@ -33,15 +35,34 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         // 2. Fetch active requests count - FILTER BY CATEGORY if open
         const providerCategories = (profile as any)?.categories || [];
         
+        // Fetch categories to map names to IDs if not already done
+        let currentMap = categoriesMap;
+        if (Object.keys(currentMap).length === 0) {
+          const { data: catData } = await supabase.from('service_categories').select('id, name');
+          if (catData) {
+            const map: Record<string, string> = {};
+            catData.forEach(c => { map[c.name] = c.id; });
+            setCategoriesMap(map);
+            currentMap = map;
+          }
+        }
+
+        const categoryIds = providerCategories
+          .map((name: string) => currentMap[name])
+          .filter(Boolean);
+        
         // Base query for already assigned/interacted requests
         let query = supabase
           .from('service_requests')
           .select('*', { count: 'exact', head: true })
-          .not('status', 'in', '("completed","cancelled")');
+          .neq('status', 'completed')
+          .neq('status', 'cancelled');
 
-        if (providerCategories.length > 0) {
+        if (categoryIds.length > 0) {
           // If has categories, show assigned OR (open AND in categorical match)
-          query = query.or(`provider_id.eq.${user.id},and(provider_id.is.null,status.eq.open,category_id.in.(${providerCategories.map((c: any) => `"${c}"`).join(',')}))`);
+          // Using a more robust string for PostgREST .or()
+          const catList = categoryIds.join(',');
+          query = query.or(`provider_id.eq.${user.id},and(provider_id.is.null,status.eq.open,category_id.in.(${catList}))`);
         } else {
           // If no categories set, only show assigned ones
           query = query.eq('provider_id', user.id);
@@ -98,8 +119,9 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
           .order('created_at', { ascending: false })
           .limit(3);
 
-        if (providerCategories.length > 0) {
-          recentQuery = recentQuery.or(`provider_id.eq.${user.id},and(provider_id.is.null,status.eq.open,category_id.in.(${providerCategories.map((c: any) => `"${c}"`).join(',')}))`);
+        if (categoryIds.length > 0) {
+          const catList = categoryIds.join(',');
+          recentQuery = recentQuery.or(`provider_id.eq.${user.id},and(provider_id.is.null,status.eq.open,category_id.in.(${catList}))`);
         } else {
           recentQuery = recentQuery.eq('provider_id', user.id);
         }

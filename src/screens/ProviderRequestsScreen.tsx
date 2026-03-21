@@ -10,6 +10,8 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
   const [activeTab, setActiveTab] = useState<Tab>('Novos');
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [categoriesMap, setCategoriesMap] = useState<Record<string, string>>({});
+
 
   const tabs: Tab[] = ['Novos', 'Orçados', 'Agendados', 'Em Andamento', 'Finalizados'];
 
@@ -44,12 +46,28 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
       if (activeTab !== 'Novos') {
         query = query.eq('provider_id', user.id);
       } else {
-        // Para 'Novos', mostramos apenas o que é da categoria do prestador
-        const { data: profile } = await supabase.from('profiles').select('categories').eq('id', user.id).single();
-        const cats = profile?.categories || [];
+        // For 'Novos', show assigned OR (open AND category match)
+        const { data: profData } = await supabase.from('profiles').select('categories').eq('id', user.id).single();
+        const cats = profData?.categories || [];
         
-        if (cats.length > 0) {
-          query = query.or(`provider_id.eq.${user.id},and(provider_id.is.null,status.eq.open,category_id.in.(${cats.map((c: any) => `"${c}"`).join(',')}))`);
+        let currentMap = categoriesMap;
+        if (Object.keys(currentMap).length === 0) {
+          const { data: catData } = await supabase.from('service_categories').select('id, name');
+          if (catData) {
+            const map: Record<string, string> = {};
+            catData.forEach(c => { map[c.name] = c.id; });
+            setCategoriesMap(map);
+            currentMap = map;
+          }
+        }
+
+        const categoryIds = cats
+          .map((name: string) => currentMap[name])
+          .filter(Boolean);
+        
+        if (categoryIds.length > 0) {
+          const catList = categoryIds.join(',');
+          query = query.or(`provider_id.eq.${user.id},and(provider_id.is.null,status.eq.open,category_id.in.(${catList}))`);
         } else {
           query = query.eq('provider_id', user.id);
         }

@@ -205,7 +205,7 @@ function AppContent() {
       case 'profile':
         return <ProfessionalProfileScreen 
           onNavigate={handleNavigate} 
-          professionalId={navigationParams?.professionalId || (role === 'provider' ? user?.id : null)} 
+          params={navigationParams} 
         />;
       case 'dashboard':
         return <ProviderDashboardScreen onNavigate={handleNavigate} />;
