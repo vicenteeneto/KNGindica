@@ -38,7 +38,7 @@ export default function ServiceConfirmationScreen({ onNavigate, params }: Servic
 
           <div className="flex flex-col w-full max-w-sm mx-auto gap-3">
             <button className="w-full flex h-12 cursor-pointer items-center justify-center overflow-hidden rounded-xl bg-primary text-white text-sm font-bold leading-normal tracking-wide transition-all hover:bg-primary/90 active:scale-95 shadow-sm">
-              <span className="truncate">Ver Meus Pedidos</span>
+              <span className="truncate">Ver Serviços</span>
             </button>
             <button 
               onClick={() => onNavigate('home')}
@@ -98,7 +98,7 @@ export default function ServiceConfirmationScreen({ onNavigate, params }: Servic
         </button>
         <button className="flex flex-1 flex-col items-center gap-1 text-primary">
           <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>description</span>
-          <p className="text-[10px] font-medium uppercase tracking-wider">Pedidos</p>
+          <p className="text-[10px] font-medium uppercase tracking-wider">Serviços</p>
         </button>
         <button onClick={() => onNavigate('chatList')} className="flex flex-1 flex-col items-center gap-1 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300">
           <span className="material-symbols-outlined text-2xl">chat_bubble</span>

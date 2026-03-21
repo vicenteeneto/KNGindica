@@ -20,8 +20,8 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
     setLoading(true);
     try {
       let statuses: string[] = ['open'];
-      if (activeTab === 'Novos') statuses = ['open', 'proposed'];
-      else if (activeTab === 'Orçados') statuses = ['accepted', 'quoted', 'awaiting_payment'];
+      if (activeTab === 'Novos') statuses = ['open'];
+      else if (activeTab === 'Orçados') statuses = ['proposed', 'accepted', 'quoted', 'awaiting_payment'];
       else if (activeTab === 'Agendados') statuses = ['scheduled'];
       else if (activeTab === 'Em Andamento') statuses = ['paid', 'in_service'];
       else if (activeTab === 'Finalizados') statuses = ['completed'];
@@ -185,7 +185,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
           <button onClick={() => onNavigate('dashboard')} className="text-primary flex size-10 shrink-0 items-center justify-center cursor-pointer rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
             <span className="material-symbols-outlined text-[24px]">arrow_back</span>
           </button>
-          <h2 className="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight flex-1 ml-2">Meus Pedidos</h2>
+          <h2 className="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight flex-1 ml-2">Serviços</h2>
           <button onClick={() => onNavigate('notifications')} className="text-slate-500 dark:text-slate-400 flex size-10 shrink-0 items-center justify-center cursor-pointer rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
             <span className="material-symbols-outlined text-[24px]">notifications</span>
           </button>

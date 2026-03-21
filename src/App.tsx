@@ -49,7 +49,7 @@ const ADMIN_TABS = [
   { id: 'dashboard', icon: 'grid_view', label: 'Dashboard' },
   { id: 'providers', icon: 'engineering', label: 'Prestadores' },
   { id: 'clients', icon: 'group', label: 'Clientes' },
-  { id: 'orders', icon: 'receipt', label: 'Pedidos' },
+  { id: 'orders', icon: 'receipt', label: 'Serviços' },
   { id: 'reviews', icon: 'reviews', label: 'Reviews' },
   { id: 'categories', icon: 'category', label: 'Categorias' },
   { id: 'chat_audit', icon: 'forum', label: 'Auditoria' },

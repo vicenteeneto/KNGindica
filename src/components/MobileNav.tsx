@@ -48,7 +48,7 @@ export default function MobileNav({ onNavigate, currentScreen, role }: MobileNav
         className={`flex flex-1 flex-col items-center justify-end gap-1 group transition-colors ${currentScreen === 'myRequests' ? 'text-primary' : 'text-slate-400 hover:text-primary'}`}
       >
         <span className="material-symbols-outlined text-[24px]" style={currentScreen === 'myRequests' ? { fontVariationSettings: "'FILL' 1" } : {}}>assignment</span>
-        <span className="text-[10px] font-medium leading-normal">Pedidos</span>
+        <span className="text-[10px] font-medium leading-normal">Serviços</span>
       </button>
 
       

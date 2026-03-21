@@ -21,7 +21,7 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
       { id: 'dashboard', icon: 'pie_chart', label: 'Painel', screen: 'dashboard' as Screen },
       { id: 'providerRequests', icon: 'assignment', label: 'Serviços', screen: 'providerRequests' as Screen },
     ] : [
-      { id: 'myRequests', icon: 'assignment', label: 'Pedidos', screen: 'myRequests' as Screen },
+      { id: 'myRequests', icon: 'receipt_long', label: 'Serviços', screen: 'myRequests' as Screen },
     ]),
     { id: 'chatList', icon: 'chat', label: 'Chat', screen: 'chatList' as Screen, badge: unreadMessages },
     { id: 'notifications', icon: 'notifications', label: 'Avisos', screen: 'notifications' as Screen, badge: unreadNotifications },

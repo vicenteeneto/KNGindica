@@ -115,7 +115,7 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
-          <h1 className="text-xl font-bold tracking-tight">Meus Pedidos</h1>
+          <h1 className="text-xl font-bold tracking-tight">Serviços</h1>
         </div>
 
         {/* Tabs */}
