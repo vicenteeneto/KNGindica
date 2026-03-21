@@ -22,10 +22,15 @@ let DefaultIcon = L.icon({
 L.Marker.prototype.options.icon = DefaultIcon;
 
 interface ProfessionalProfileProps extends NavigationProps {
-  professionalId?: string;
+  params?: {
+    professionalId: string;
+    returnTo?: any;
+    [key: string]: any;
+  };
 }
 
-export default function ProfessionalProfileScreen({ onNavigate, professionalId }: ProfessionalProfileProps) {
+export default function ProfessionalProfileScreen({ onNavigate, params }: ProfessionalProfileProps) {
+  const professionalId = params?.professionalId || '1';
   const [realReviewsCount, setRealReviewsCount] = useState<number | null>(null);
   const [realAverage, setRealAverage] = useState<number | null>(null);
   const [dbReviews, setDbReviews] = useState<any[]>([]);
@@ -314,7 +319,13 @@ export default function ProfessionalProfileScreen({ onNavigate, professionalId }
       <div className="bg-white dark:bg-slate-900 sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-center p-4 pb-2 justify-between max-w-7xl mx-auto w-full">
           <button 
-            onClick={() => onNavigate('home')} 
+            onClick={() => {
+              if (params?.returnTo) {
+                onNavigate(params.returnTo);
+              } else {
+                onNavigate('home');
+              }
+            }} 
             className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-all shrink-0"
           >
             <span className="material-symbols-outlined">arrow_back</span>

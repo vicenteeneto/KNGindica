@@ -62,7 +62,7 @@ export default function WriteReviewScreen({ onNavigate, params }: WriteReviewScr
       {/* Header */}
       <header className="flex items-center p-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10 max-w-4xl mx-auto w-full">
         <button
-          onClick={() => onNavigate('myRequests')}
+          onClick={() => onNavigate(params?.returnTo || 'myRequests')}
           className="flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
         >
           <span className="material-symbols-outlined text-slate-700 dark:text-slate-300">close</span>
@@ -146,7 +146,7 @@ export default function WriteReviewScreen({ onNavigate, params }: WriteReviewScr
             </button>
             <button
               type="button"
-              onClick={() => onNavigate('myRequests')}
+              onClick={() => onNavigate(params?.returnTo || 'myRequests')}
               className="mt-2 text-sm font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-300"
             >
               Pular por enquanto

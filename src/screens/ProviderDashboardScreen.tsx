@@ -30,12 +30,24 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         const visits = leadData?.filter(l => l.type === 'profile_view').length || 0;
         const leads = leadData?.filter(l => l.type === 'whatsapp_click' || l.type === 'chat_start').length || 0;
 
-        // 2. Fetch active requests count (Aligned with ProviderRequestsScreen "Novos" + Others)
-        const { count: reqCount } = await supabase
+        // 2. Fetch active requests count - FILTER BY CATEGORY if open
+        const providerCategories = (profile as any)?.categories || [];
+        
+        // Base query for already assigned/interacted requests
+        let query = supabase
           .from('service_requests')
           .select('*', { count: 'exact', head: true })
-          .or(`provider_id.eq.${user.id},and(provider_id.is.null,status.eq.open)`)
           .not('status', 'in', '("completed","cancelled")');
+
+        if (providerCategories.length > 0) {
+          // If has categories, show assigned OR (open AND in categorical match)
+          query = query.or(`provider_id.eq.${user.id},and(provider_id.is.null,status.eq.open,category_id.in.(${providerCategories.map((c: any) => `"${c}"`).join(',')}))`);
+        } else {
+          // If no categories set, only show assigned ones
+          query = query.eq('provider_id', user.id);
+        }
+
+        const { count: reqCount } = await query;
           
         // 3. Fetch real rating average
         const { data: reviewsData } = await supabase
@@ -71,8 +83,8 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
           rating: Number(avg.toFixed(1))
         });
 
-        // 4. Fetch recent requests
-        const { data: recentReqs } = await supabase
+        // 4. Fetch recent requests with same category filter
+        let recentQuery = supabase
           .from('service_requests')
           .select(`
             id,
@@ -82,9 +94,17 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
             profiles!service_requests_client_id_fkey(full_name, avatar_url),
             service_categories(name, icon)
           `)
-          .or(`provider_id.is.null,provider_id.eq.${user.id}`)
+          .not('status', 'in', '("completed","cancelled")')
           .order('created_at', { ascending: false })
           .limit(3);
+
+        if (providerCategories.length > 0) {
+          recentQuery = recentQuery.or(`provider_id.eq.${user.id},and(provider_id.is.null,status.eq.open,category_id.in.(${providerCategories.map((c: any) => `"${c}"`).join(',')}))`);
+        } else {
+          recentQuery = recentQuery.eq('provider_id', user.id);
+        }
+
+        const { data: recentReqs } = await recentQuery;
 
         if (recentReqs) setRecentRequests(recentReqs);
 
@@ -155,7 +175,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
             </span>
           )}
         </button>
-        <button onClick={() => onNavigate('notifications')} className="flex size-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 relative hover:bg-slate-200 dark:hover:bg-slate-700 transition-all group" title="Notificações">
+        <button onClick={() => onNavigate('notifications', { returnTo: 'dashboard' })} className="flex size-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 relative hover:bg-slate-200 dark:hover:bg-slate-700 transition-all group" title="Notificações">
           <span className="material-symbols-outlined text-[22px] group-hover:scale-110 transition-transform">notifications</span>
           {unreadNotifications > 0 && (
             <span className="absolute -top-1 -right-1 flex h-5 min-w-5 px-1 items-center justify-center rounded-full bg-red-500 text-[10px] font-black text-white border-2 border-white dark:border-slate-900 shadow-lg animate-bounce">
@@ -396,7 +416,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
                   </div>
                </div>
             </div>
-            <div onClick={() => onNavigate('reviews', { professionalId: user.id })} className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center gap-3 cursor-pointer hover:border-primary transition-all group">
+            <div onClick={() => onNavigate('reviews', { professionalId: user.id, returnTo: 'dashboard' })} className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center gap-3 cursor-pointer hover:border-primary transition-all group">
                <div className="size-8 bg-amber-500/10 rounded-lg flex items-center justify-center text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-colors">
                   <span className="material-symbols-outlined text-sm">star</span>
                </div>
@@ -476,7 +496,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
                       </div>
                     </div>
                     <button 
-                      onClick={() => onNavigate('userProfile')}
+                      onClick={() => onNavigate('profile', { professionalId: user.id, returnTo: 'dashboard' })}
                       className="w-full py-3 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-xs uppercase tracking-widest transition-all"
                     >
                       Ver Perfil Público

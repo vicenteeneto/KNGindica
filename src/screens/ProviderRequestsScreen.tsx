@@ -44,7 +44,15 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
       if (activeTab !== 'Novos') {
         query = query.eq('provider_id', user.id);
       } else {
-        query = query.or(`provider_id.is.null,provider_id.eq.${user.id}`);
+        // Para 'Novos', mostramos apenas o que é da categoria do prestador
+        const { data: profile } = await supabase.from('profiles').select('categories').eq('id', user.id).single();
+        const cats = profile?.categories || [];
+        
+        if (cats.length > 0) {
+          query = query.or(`provider_id.eq.${user.id},and(provider_id.is.null,status.eq.open,category_id.in.(${cats.map((c: any) => `"${c}"`).join(',')}))`);
+        } else {
+          query = query.eq('provider_id', user.id);
+        }
       }
 
       const { data, error } = await query;

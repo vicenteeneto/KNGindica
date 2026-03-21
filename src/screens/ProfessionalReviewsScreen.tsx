@@ -58,7 +58,13 @@ export default function ProfessionalReviewsScreen({ onNavigate, params }: Profes
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-center p-4 gap-4 max-w-7xl mx-auto w-full">
           <button
-            onClick={() => onNavigate('profile', { professionalId })}
+            onClick={() => {
+              if (params?.returnTo) {
+                onNavigate(params.returnTo, { professionalId });
+              } else {
+                onNavigate('profile', { professionalId });
+              }
+            }}
             className="flex items-center justify-center size-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors"
           >
             <span className="material-symbols-outlined">arrow_back</span>
