@@ -325,6 +325,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       }
 
       await refreshProfile();
+      setShowProfileModal(false);
       showToast("Tudo pronto!", "Seus dados e endereço foram salvos.", "success");
     } catch (err: any) {
       showToast("Erro ao salvar", err.message, "error");
