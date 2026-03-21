@@ -188,7 +188,7 @@ function AppContent() {
     }
   };
 
-  if (loading) {
+  if (loading && !profile) {
     return (
       <div className="min-h-screen bg-white dark:bg-slate-900 flex items-center justify-center">
         <span className="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span>

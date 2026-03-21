@@ -29,7 +29,7 @@ interface AuthContextType {
   signInWithGoogle: (redirectTo?: string) => Promise<void>;
   setDevRole: (role: UserRole) => void;
   upgradeToProvider: () => Promise<boolean>;
-  refreshProfile: () => Promise<void>;
+  refreshProfile: (silent?: boolean) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -73,8 +73,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const fetchUserProfile = async (userId: string, userEmail?: string, userMetadata?: any) => {
-    setLoading(true);
+  const fetchUserProfile = async (userId: string, userEmail?: string, userMetadata?: any, silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -151,9 +151,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const refreshProfile = async () => {
+  const refreshProfile = async (silent = true) => {
     if (user?.id) {
-      await fetchUserProfile(user.id, user.email, user.user_metadata);
+      await fetchUserProfile(user.id, user.email, user.user_metadata, silent);
     }
   };
 

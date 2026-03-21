@@ -674,7 +674,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           </div>
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
             <button
-              onClick={() => onNavigate('ProviderWallet' as any)}
+              onClick={() => onNavigate('providerWallet' as any)}
               className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
             >
               <div className="flex items-center gap-4">
@@ -721,7 +721,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
 
 
             <button
-              onClick={() => onNavigate('HelpCenter' as any)}
+              onClick={() => onNavigate('helpCenter' as any)}
               className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
             >
               <div className="flex items-center gap-4">
@@ -1146,94 +1146,37 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   </div>
                 </div>
 
-                {/* 04. Regras do Negócio */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 mb-2 px-1">
-                    <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em]">04. Configurações de Atendimento</span>
-                    <div className="flex-1 h-[1px] bg-slate-100 dark:bg-slate-800"></div>
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Horário de Atendimento</label>
-                    <input
-                      type="text"
-                      value={businessInfo.opening_hours}
-                      onChange={(e) => setBusinessInfo({...businessInfo, opening_hours: e.target.value})}
-                      placeholder="Ex: Seg à Sex: 08:00 - 18:00"
-                      className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-medium text-slate-900 dark:text-white"
-                    />
-                  </div>
-
-                  <div className="bg-emerald-50 dark:bg-emerald-900/10 p-4 rounded-2xl border border-emerald-100 dark:border-emerald-800/30">
-                    <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-                          <span className="material-symbols-outlined text-[20px]">stars</span>
-                          <span className="text-[10px] font-black uppercase tracking-widest">Programa de Fidelidade</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setBusinessInfo({...businessInfo, loyalty_enabled: !businessInfo.loyalty_enabled})}
-                          className={`w-10 h-5 rounded-full transition-colors relative ${businessInfo.loyalty_enabled ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'}`}
-                        >
-                          <div className={`absolute top-1 size-3 bg-white rounded-full transition-all ${businessInfo.loyalty_enabled ? 'left-6' : 'left-1'}`} />
-                        </button>
-                    </div>
-                    {businessInfo.loyalty_enabled && (
-                      <div className="space-y-3 mt-3 animate-fade-in">
-                        <div>
-                          <label className="block text-[8px] font-black text-emerald-600/70 uppercase tracking-widest mb-1">Serviços até o prêmio</label>
-                          <input
-                            type="number"
-                            value={businessInfo.loyalty_required_services}
-                            onChange={(e) => setBusinessInfo({...businessInfo, loyalty_required_services: parseInt(e.target.value)})}
-                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-700/50 rounded-xl outline-none focus:ring-1 focus:ring-emerald-500 font-bold text-slate-900 dark:text-white"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-[8px] font-black text-emerald-600/70 uppercase tracking-widest mb-1">O que o cliente ganha?</label>
-                          <input
-                            type="text"
-                            value={businessInfo.loyalty_benefit_description}
-                            onChange={(e) => setBusinessInfo({...businessInfo, loyalty_benefit_description: e.target.value})}
-                            placeholder="Ex: 50% de desconto"
-                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-700/50 rounded-xl outline-none focus:ring-1 focus:ring-emerald-500 font-bold text-slate-900 dark:text-white"
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex gap-3 shrink-0">
-              <button 
-                type="button" 
-                disabled={isSaving} 
-                onClick={() => setShowProviderModal(false)}
-                className="flex-1 py-4 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-all uppercase tracking-widest text-[10px]"
-              >
-                Cancelar
-              </button>
-              <button 
-                type="button" 
-                disabled={isSaving} 
-                onClick={(e) => handleSaveProfessionalData(e as any)}
-                className="flex-2 py-4 bg-orange-600 text-white rounded-2xl font-black hover:bg-orange-700 transition-all disabled:opacity-50 flex justify-center items-center gap-2 uppercase tracking-widest text-xs shadow-lg shadow-orange-500/30"
-              >
-                {isSaving ? (
-                  <span className="material-symbols-outlined animate-spin text-[20px]">refresh</span>
-                ) : (
-                  <>
-                    <span className="material-symbols-outlined text-[18px]">check_circle</span>
-                    Atualizar Perfil Profissional
-                  </>
-                )}
-              </button>
+              <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex gap-3 shrink-0">
+                <button 
+                  type="button" 
+                  disabled={isSaving} 
+                  onClick={() => setShowProviderModal(false)}
+                  className="flex-1 py-4 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-all uppercase tracking-widest text-[10px]"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  type="button" 
+                  disabled={isSaving} 
+                  onClick={(e) => handleSaveProfessionalData(e as any)}
+                  className="flex-2 py-4 bg-orange-600 text-white rounded-2xl font-black hover:bg-orange-700 transition-all disabled:opacity-50 flex justify-center items-center gap-2 uppercase tracking-widest text-xs shadow-lg shadow-orange-500/30"
+                >
+                  {isSaving ? (
+                    <span className="material-symbols-outlined animate-spin text-[20px]">refresh</span>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                      Atualizar Perfil Profissional
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* Modal: Marcar Localização no Mapa (popup compacto) */}
       {showLocationPickerModal && (
