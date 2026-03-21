@@ -23,7 +23,6 @@ import MyRequestsScreen from './screens/MyRequestsScreen';
 import ProviderWalletScreen from './screens/ProviderWalletScreen';
 import AuthScreen from './screens/AuthScreen';
 import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
-import ProviderVerificationScreen from './screens/ProviderVerificationScreen';
 import HelpCenterScreen from './screens/HelpCenterScreen';
 import ProviderScheduleScreen from './screens/ProviderScheduleScreen';
 import WriteReviewScreen from './screens/WriteReviewScreen';
@@ -252,8 +251,6 @@ function AppContent() {
         return <CheckoutScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'providerWallet':
         return <ProviderWalletScreen onNavigate={handleNavigate} />;
-      case 'providerVerification':
-        return <ProviderVerificationScreen onNavigate={handleNavigate} />;
       case 'helpCenter':
         return <HelpCenterScreen onNavigate={handleNavigate} />;
       case 'ticketDetails':

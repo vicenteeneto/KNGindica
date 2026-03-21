@@ -130,6 +130,9 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
   const [newCategorySuggestion, setNewCategorySuggestion] = useState('');
   const [isSubmittingSuggestion, setIsSubmittingSuggestion] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<'none' | 'pending' | 'approved' | 'rejected'>('none');
+  const [docUrls, setDocUrls] = useState<{ front_id?: string; selfie?: string }>({});
+  const [uploadingDoc, setUploadingDoc] = useState<'front_id' | 'selfie' | null>(null);
+  const [isSyncingVerif, setIsSyncingVerif] = useState(false);
 
   // Keep form data synced when profile loads
   React.useEffect(() => {
@@ -203,14 +206,18 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
 
     const fetchVerificationStatus = async () => {
       if (!user) return;
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('provider_verifications')
-        .select('status')
+        .select('status, document_front_path, selfie_path')
         .eq('provider_id', user.id)
         .maybeSingle();
       
       if (data) {
         setVerificationStatus(data.status as any);
+        setDocUrls({ 
+          front_id: data.document_front_path || undefined, 
+          selfie: data.selfie_path || undefined 
+        });
       }
     };
     if (role === 'provider') fetchVerificationStatus();
@@ -240,6 +247,46 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       } finally {
         setIsFetchingCep(false);
       }
+    }
+  };
+
+  const handleDocUpload = async (file: File, type: 'front_id' | 'selfie') => {
+    if (!user) return;
+    setUploadingDoc(type);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const filePath = `verifications/${user.id}/${type}_${Date.now()}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('verifications')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Update local state
+      setDocUrls(prev => ({ ...prev, [type]: filePath }));
+
+      // Update provider_verifications table
+      const updateData: any = { 
+        provider_id: user.id, 
+        status: 'pending',
+        updated_at: new Date().toISOString()
+      };
+      if (type === 'front_id') updateData.document_front_path = filePath;
+      if (type === 'selfie') updateData.selfie_path = filePath;
+
+      const { error: dbError } = await supabase
+        .from('provider_verifications')
+        .upsert(updateData, { onConflict: 'provider_id' });
+
+      if (dbError) throw dbError;
+      
+      setVerificationStatus('pending');
+      showToast("Enviado!", "Seu documento foi enviado para análise.", "success");
+    } catch (err: any) {
+      alert("Erro ao enviar documento: " + err.message);
+    } finally {
+      setUploadingDoc(null);
     }
   };
 
@@ -707,52 +754,6 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           </div>
         </section>
 
-        {/* Grupo 4: Validação de Perfil (Apenas para Prestadores) */}
-        {role === 'provider' && (
-          <section className="mb-8">
-            <div className="flex items-center gap-2 mb-3 px-2">
-              <span className="size-1.5 rounded-full bg-emerald-500"></span>
-              <h2 className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Validação de Perfil</h2>
-            </div>
-            <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border-2 border-slate-100 dark:border-slate-800 overflow-hidden group">
-              <button
-                onClick={() => onNavigate('providerVerification')}
-                className="w-full flex items-center justify-between p-6 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all active:scale-[0.99]"
-              >
-                <div className="flex items-center gap-5">
-                  <div className={`size-14 rounded-2xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110 ${
-                    verificationStatus === 'approved' ? 'bg-emerald-500 text-white shadow-emerald-500/20' :
-                    verificationStatus === 'pending' ? 'bg-amber-500 text-white shadow-amber-500/20' :
-                    'bg-slate-500 text-white shadow-slate-500/20'
-                  }`}>
-                    <span className="material-symbols-outlined text-3xl">
-                      {verificationStatus === 'approved' ? 'verified' : 
-                       verificationStatus === 'pending' ? 'pending_actions' : 'badge'}
-                    </span>
-                  </div>
-                  <div className="text-left">
-                    <p className="text-lg font-black text-slate-900 dark:text-white tracking-tight italic">
-                      {verificationStatus === 'approved' ? 'Identidade Verificada' :
-                       verificationStatus === 'pending' ? 'Documentos em Análise' :
-                       verificationStatus === 'rejected' ? 'Verificação Recusada' : 'Verificar Identidade'}
-                    </p>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest">
-                      {verificationStatus === 'approved' ? 'SEU PERFIL POSSUI O SELO DE CONFIANÇA' :
-                       verificationStatus === 'pending' ? 'AGUARDE ATÉ 48H PARA A VALIDAÇÃO' :
-                       verificationStatus === 'rejected' ? 'ENVIE NOVOS DOCUMENTOS PARA CORREÇÃO' : 'ENVIE SEUS DOCUMENTOS PARA GANHAR O SELO'}
-                    </p>
-                  </div>
-                </div>
-                <div className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-emerald-500 group-hover:text-white transition-all">
-                  <span className="material-symbols-outlined">
-                    {verificationStatus === 'approved' ? 'check' : 'chevron_right'}
-                  </span>
-                </div>
-              </button>
-            </div>
-          </section>
-        )}
-
         {/* Configs Section */}
         <section className="mb-8">
           <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3 px-2">Configurações</h2>
@@ -991,9 +992,128 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                       {(profile as any)?.latitude ? 'Ajustar Localização no Mapa' : 'Marcar Meu Local no Mapa'}
                     </button>
                   )}
-                </div>
+                {/* Seção 03: Verificação de Identidade (Apenas para Prestadores) */}
+                {role === 'provider' && (
+                  <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <div className="flex items-center gap-2 mb-2 px-1">
+                      <span className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em]">03. Verificação de Identidade</span>
+                      <div className="flex-1 h-[1px] bg-slate-100 dark:bg-slate-800"></div>
+                    </div>
+
+                    <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 p-4 rounded-2xl flex gap-3 items-start">
+                      <span className="material-symbols-outlined text-amber-500 mt-0.5 text-sm">info</span>
+                      <p className="text-[10px] text-amber-700 dark:text-amber-400 font-bold uppercase tracking-widest leading-relaxed">
+                        Envie fotos nítidas para ganhar o selo de verificado. A análise leva até 48h.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Frente do Documento */}
+                      <div className="relative group">
+                         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Frente do Documento</label>
+                         <button
+                           type="button"
+                           disabled={!!uploadingDoc || verificationStatus === 'approved'}
+                           onClick={() => {
+                             const input = document.createElement('input');
+                             input.type = 'file';
+                             input.accept = 'image/*';
+                             input.onchange = (e) => {
+                               const file = (e.target as HTMLInputElement).files?.[0];
+                               if (file) handleDocUpload(file, 'front_id');
+                             };
+                             input.click();
+                           }}
+                           className={`w-full aspect-video rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all overflow-hidden relative ${
+                             docUrls.front_id ? 'border-emerald-500 bg-emerald-50/30' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800'
+                           } ${verificationStatus === 'approved' ? 'opacity-80' : 'hover:border-blue-500 active:scale-[0.98]'}`}
+                         >
+                           {uploadingDoc === 'front_id' ? (
+                             <div className="flex flex-col items-center gap-2">
+                               <span className="material-symbols-outlined animate-spin text-blue-500">progress_activity</span>
+                               <span className="text-[10px] font-black text-blue-500 uppercase">Enviando...</span>
+                             </div>
+                           ) : docUrls.front_id ? (
+                             <>
+                               <img 
+                                 src={supabase.storage.from('verifications').getPublicUrl(docUrls.front_id).data.publicUrl} 
+                                 className="absolute inset-0 w-full h-full object-cover opacity-20"
+                                 alt="Frente" 
+                               />
+                               <span className="material-symbols-outlined text-emerald-500 text-3xl">check_circle</span>
+                               <span className="text-[10px] font-black text-emerald-600 uppercase italic">Documento Enviado</span>
+                             </>
+                           ) : (
+                             <>
+                               <div className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-all">
+                                 <span className="material-symbols-outlined text-2xl">badge</span>
+                               </div>
+                               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Selecionar Foto</span>
+                             </>
+                           )}
+                         </button>
+                      </div>
+
+                      {/* Selfie com Documento */}
+                      <div className="relative group">
+                         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Selfie com Documento</label>
+                         <button
+                           type="button"
+                           disabled={!!uploadingDoc || verificationStatus === 'approved'}
+                           onClick={() => {
+                             const input = document.createElement('input');
+                             input.type = 'file';
+                             input.accept = 'image/*';
+                             input.onchange = (e) => {
+                               const file = (e.target as HTMLInputElement).files?.[0];
+                               if (file) handleDocUpload(file, 'selfie');
+                             };
+                             input.click();
+                           }}
+                           className={`w-full aspect-video rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all overflow-hidden relative ${
+                             docUrls.selfie ? 'border-emerald-500 bg-emerald-50/30' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800'
+                           } ${verificationStatus === 'approved' ? 'opacity-80' : 'hover:border-blue-500 active:scale-[0.98]'}`}
+                         >
+                           {uploadingDoc === 'selfie' ? (
+                             <div className="flex flex-col items-center gap-2">
+                               <span className="material-symbols-outlined animate-spin text-blue-500">progress_activity</span>
+                               <span className="text-[10px] font-black text-blue-500 uppercase">Enviando...</span>
+                             </div>
+                           ) : docUrls.selfie ? (
+                             <>
+                               <img 
+                                 src={supabase.storage.from('verifications').getPublicUrl(docUrls.selfie).data.publicUrl} 
+                                 className="absolute inset-0 w-full h-full object-cover opacity-20"
+                                 alt="Selfie" 
+                               />
+                               <span className="material-symbols-outlined text-emerald-500 text-3xl">check_circle</span>
+                               <span className="text-[10px] font-black text-emerald-600 uppercase italic">Selfie Enviada</span>
+                             </>
+                           ) : (
+                             <>
+                               <div className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-all">
+                                 <span className="material-symbols-outlined text-2xl">face</span>
+                               </div>
+                               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tirar Selfie</span>
+                             </>
+                           )}
+                         </button>
+                      </div>
+                    </div>
+
+                    {verificationStatus !== 'approved' && verificationStatus !== 'none' && (
+                      <div className="flex items-center gap-2 mt-2 px-1">
+                        <div className={`size-2 rounded-full ${verificationStatus === 'pending' ? 'bg-amber-500 animate-pulse' : 'bg-red-500'}`}></div>
+                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest italic">
+                          {verificationStatus === 'pending' ? 'DOCUMENTOS EM ANÁLISE PELA EQUIPE' : 'VERIFICAÇÃO RECUSADA - ENVIE NOVAS FOTOS'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
-            </form>
+            </div>
+          </form>
 
             <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex gap-3 shrink-0">
               <button 
