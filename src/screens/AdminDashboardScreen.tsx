@@ -240,6 +240,28 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
     });
   };
 
+  const handleDeleteOrder = async (orderId: string) => {
+    showModal({
+      title: "Excluir Pedido",
+      message: "Tem certeza que deseja excluir permanentemente este pedido? Isso também apagará o chat e avaliações vinculadas.",
+      confirmLabel: "Sim, Excluir",
+      cancelLabel: "Cancelar",
+      type: "danger",
+      onConfirm: async () => {
+        try {
+          const { error } = await supabase.from('service_requests').delete().eq('id', orderId);
+          if (error) throw error;
+          setOrdersList(prev => prev.filter(o => o.id !== orderId));
+          showToast("Sucesso", "Pedido removido com sucesso", "success");
+          fetchData();
+        } catch (e) {
+          console.error("Erro ao excluir pedido:", e);
+          showToast("Erro", "Não foi possível excluir o pedido. Verifique se há transações financeiras ligadas a ele.", "error");
+        }
+      }
+    });
+  };
+
   const handleResolveDispute = async (requestId: string, resolution: 'refund_client' | 'pay_provider' | 'resolved') => {
     try {
       const { error } = await supabase.from('service_requests').update({ status: resolution }).eq('id', requestId);
@@ -888,9 +910,20 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                         <p className="text-xs text-slate-500">{order.category?.name || 'Serviço'} • {order.price ? `R$ ${order.price.toLocaleString('pt-BR', {minimumFractionDigits: 2})}` : 'Em negociação'}</p>
                       </div>
                     </div>
-                    <span className={`px-2 py-1 text-[10px] font-bold rounded uppercase ${order.status === 'completed' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : order.status === 'canceled' ? 'bg-slate-100 dark:bg-slate-800 text-slate-500' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'}`}>
-                      {order.status === 'accepted' ? 'Aceito' : order.status === 'completed' ? 'Concluído' : order.status === 'canceled' ? 'Cancelado' : order.status}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-1 text-[10px] font-bold rounded uppercase ${order.status === 'completed' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : order.status === 'canceled' ? 'bg-slate-100 dark:bg-slate-800 text-slate-500' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'}`}>
+                        {order.status === 'accepted' ? 'Aceito' : order.status === 'completed' ? 'Concluído' : order.status === 'canceled' ? 'Cancelado' : order.status}
+                      </span>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteOrder(order.id);
+                        }}
+                        className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-lg">delete</span>
+                      </button>
+                    </div>
                   </div>
                 ))
               )}
@@ -1272,9 +1305,18 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors ml-auto" title="Ver Detalhes do Pedido">
-                        <span className="material-symbols-outlined text-[20px]">visibility</span>
-                      </button>
+                      <div className="flex gap-2 justify-end">
+                        <button className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Ver Detalhes do Pedido">
+                          <span className="material-symbols-outlined text-[20px]">visibility</span>
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteOrder(order.id)}
+                          className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" 
+                          title="Excluir Pedido"
+                        >
+                          <span className="material-symbols-outlined text-[20px]">delete</span>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
