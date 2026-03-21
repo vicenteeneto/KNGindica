@@ -255,7 +255,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
     setUploadingDoc(type);
     try {
       const fileExt = file.name.split('.').pop();
-      const filePath = `verifications/${user.id}/${type}_${Date.now()}.${fileExt}`;
+      const filePath = `${user.id}/${type}_${Date.now()}.${fileExt}`;
       
       const { error: uploadError } = await supabase.storage
         .from('verifications')
