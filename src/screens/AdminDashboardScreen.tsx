@@ -60,6 +60,8 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
   const [showProviderResults, setShowProviderResults] = useState(false);
   const [showReviewerResults, setShowReviewerResults] = useState(false);
   const [maintenanceSearchTerm, setMaintenanceSearchTerm] = useState('');
+  const [ordersFilter, setOrdersFilter] = useState<'all' | 'awaiting_payment' | 'scheduled' | 'in_progress' | 'completed' | 'disputed'>('all');
+
 
   const AVAILABLE_ICONS = [
     'handyman', 'bolt', 'plumbing', 'cleaning_services', 'yard', 'local_shipping', 'ac_unit', 'format_paint', 
@@ -301,7 +303,9 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
   const statusMap: Record<string, string> = {
     'open': 'Aberto',
     'proposed': 'Proposta',
+    'quoted': 'Orçado',
     'accepted': 'Aceito',
+    'scheduled': 'Agendado',
     'awaiting_payment': 'Aguard. Pagamento',
     'paid': 'Pago',
     'in_service': 'Em Execução',
@@ -1251,12 +1255,36 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
       {/* Orders Filters */}
       <div className="flex flex-wrap items-center gap-2">
-        <button className="px-4 py-1.5 rounded-full text-sm font-semibold bg-slate-800 text-white dark:bg-white dark:text-slate-900 transition-colors">Todos</button>
-        <button className="px-4 py-1.5 rounded-full text-sm font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">Aguardando Pagamento</button>
-        <button className="px-4 py-1.5 rounded-full text-sm font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">Agendados</button>
-        <button className="px-4 py-1.5 rounded-full text-sm font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">Em Andamento</button>
-        <button className="px-4 py-1.5 rounded-full text-sm font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">Concluídos</button>
-        <button className="px-4 py-1.5 rounded-full text-sm font-semibold border border-red-200 dark:border-red-900/40 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center gap-1">Disputas <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{ordersList.filter(o => o.status === 'disputed').length}</span></button>
+        <button 
+          onClick={() => setOrdersFilter('all')}
+          className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${ordersFilter === 'all' ? 'bg-slate-800 text-white dark:bg-white dark:text-slate-900' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+          Todos
+        </button>
+        <button 
+          onClick={() => setOrdersFilter('awaiting_payment')}
+          className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${ordersFilter === 'awaiting_payment' ? 'bg-slate-800 text-white dark:bg-white dark:text-slate-900' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+          Aguardando Pagamento
+        </button>
+        <button 
+          onClick={() => setOrdersFilter('scheduled')}
+          className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${ordersFilter === 'scheduled' ? 'bg-slate-800 text-white dark:bg-white dark:text-slate-900' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+          Agendados
+        </button>
+        <button 
+          onClick={() => setOrdersFilter('in_progress')}
+          className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${ordersFilter === 'in_progress' ? 'bg-slate-800 text-white dark:bg-white dark:text-slate-900' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+          Em Andamento
+        </button>
+        <button 
+          onClick={() => setOrdersFilter('completed')}
+          className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${ordersFilter === 'completed' ? 'bg-slate-800 text-white dark:bg-white dark:text-slate-900' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+          Concluídos
+        </button>
+        <button 
+          onClick={() => setOrdersFilter('disputed')}
+          className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors flex items-center gap-1 ${ordersFilter === 'disputed' ? 'bg-red-600 text-white' : 'border border-red-200 dark:border-red-900/40 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'}`}>
+          Disputas <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${ordersFilter === 'disputed' ? 'bg-white text-red-600' : 'bg-red-500 text-white'}`}>{ordersList.filter(o => o.status === 'disputed').length}</span>
+        </button>
       </div>
 
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
@@ -1275,10 +1303,28 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {loading ? (
                 <tr><td colSpan={6} className="p-6 text-center text-slate-500">Carregando...</td></tr>
-              ) : ordersList.length === 0 ? (
-                <tr><td colSpan={6} className="p-6 text-center text-slate-500">Nenhum pedido encontrado.</td></tr>
+              ) : ordersList.filter(order => {
+                if (ordersFilter === 'all') return true;
+                if (ordersFilter === 'awaiting_payment') return order.status === 'awaiting_payment';
+                if (ordersFilter === 'scheduled') return order.status === 'scheduled';
+                if (ordersFilter === 'in_progress') return ['proposed', 'quoted', 'accepted', 'in_service'].includes(order.status);
+                if (ordersFilter === 'completed') return order.status === 'completed';
+                if (ordersFilter === 'disputed') return order.status === 'disputed';
+                return true;
+              }).length === 0 ? (
+                <tr><td colSpan={6} className="p-6 text-center text-slate-500">Nenhum pedido encontrado para este filtro.</td></tr>
               ) : (
-                ordersList.map(order => (
+                ordersList
+                  .filter(order => {
+                    if (ordersFilter === 'all') return true;
+                    if (ordersFilter === 'awaiting_payment') return order.status === 'awaiting_payment';
+                    if (ordersFilter === 'scheduled') return order.status === 'scheduled';
+                    if (ordersFilter === 'in_progress') return ['proposed', 'quoted', 'accepted', 'in_service'].includes(order.status);
+                    if (ordersFilter === 'completed') return order.status === 'completed';
+                    if (ordersFilter === 'disputed') return order.status === 'disputed';
+                    return true;
+                  })
+                  .map(order => (
                   <tr key={order.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2 mb-1">
