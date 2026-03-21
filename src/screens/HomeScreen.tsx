@@ -74,6 +74,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   const [touchStartHero, setTouchStartHero] = useState<number | null>(null);
   const [touchEndHero, setTouchEndHero] = useState<number | null>(null);
   const [manualCityInput, setManualCityInput] = useState('');
+  const [availableCities, setAvailableCities] = useState<string[]>([]);
   const isManualLocation = useRef(false);
 
   // Geocodifica uma string de cidade para [lat, lng]
@@ -159,6 +160,30 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
     };
     updateLocation();
   }, [user, userCoords]);
+
+  // Fetch cities that have providers registered
+  useEffect(() => {
+    const fetchAvailableCities = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('city')
+          .eq('role', 'provider')
+          .not('city', 'is', null);
+        
+        if (error) throw error;
+        
+        if (data) {
+          // Extrai cidades únicas e remove strings vazias/whitespace
+          const cities = Array.from(new Set(data.map(d => d.city).filter(c => c && c.trim() !== ''))) as string[];
+          setAvailableCities(cities.sort());
+        }
+      } catch (err) {
+        console.error("Erro ao carregar cidades ativas:", err);
+      }
+    };
+    fetchAvailableCities();
+  }, []);
 
   // Fetch providers from Supabase instead of only relying on mock data
   useEffect(() => {
@@ -912,6 +937,35 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                   />
                 </div>
               </div>
+
+              {availableCities.length > 0 && (
+                <div className="mb-6">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 ml-1">Cidades com Atendimento:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {availableCities.map(city => (
+                      <button
+                        key={city}
+                        type="button"
+                        onClick={async () => {
+                          setManualCityInput(city);
+                          // Envia automaticamente ao clicar na cidade
+                          isManualLocation.current = true;
+                          setLocationName(city);
+                          setUserCoords(null);
+                          localStorage.setItem('KNGindica_manualCity', city);
+                          setShowLocationModal(false);
+                          const coords = await geocodeCidade(city);
+                          if (coords) setMapCenter(coords);
+                        }}
+                        className="px-4 py-2 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-bold hover:border-primary hover:text-primary transition-all flex items-center gap-2"
+                      >
+                        <span className="size-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                        {city}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div className="flex gap-3">
                 <button 
                   type="submit" 
