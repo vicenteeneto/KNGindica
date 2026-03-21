@@ -4,17 +4,17 @@ import React, { useState, useEffect } from 'react';
 let cachedCities: string[] = [];
 let citiesPromise: Promise<string[]> | null = null;
 
-// Lista de backup (Capitais e maiores cidades) para garantir que o componente funcione instantaneamente
+// Lista de backup (Capitais e maiores cidades de MT/Brasil) para garantir funcionamento instantâneo
 const fallbackCities = [
   "São Paulo/SP", "Rio de Janeiro/RJ", "Brasília/DF", "Salvador/BA", "Fortaleza/CE",
   "Belo Horizonte/MG", "Manaus/AM", "Curitiba/PR", "Recife/PE", "Goiânia/GO",
-  "Belém/PA", "Porto Alegre/RS", "Guarulhos/SP", "Campinas/SP", "São Luís/MA",
-  "São Gonçalo/RJ", "Maceió/AL", "Duque de Caxias/RJ", "Natal/RN", "Campo Grande/MS",
-  "Teresina/PI", "São Bernardo do Campo/SP", "Nova Iguaçu/RJ", "João Pessoa/PB",
-  "Santo André/SP", "Osasco/SP", "São José dos Campos/SP", "Jaboatão dos Guararapes/PE",
-  "Ribeirão Preto/SP", "Uberlândia/MG", "Contagem/MG", "Sorocaba/SP", "Aracaju/SE",
-  "Feira de Santana/BA", "Cuiabá/MT", "Joinville/SC", "Juiz de Fora/MG", "Londrina/PR",
-  "Aparecida de Goiânia/GO", "Ananindeua/PA", "Porto Velho/RO", "Rondonópolis/MT"
+  "Belém/PA", "Porto Alegre/RS", "Cuiabá/MT", "Rondonópolis/MT", "Várzea Grande/MT",
+  "Sinop/MT", "Sorriso/MT", "Tangará da Serra/MT", "Primavera do Leste/MT",
+  "Lucas do Rio Verde/MT", "Cáceres/MT", "Barra do Garças/MT", "Itiquira/MT",
+  "Nova Mutum/MT", "Campo Novo do Parecis/MT", "Juína/MT", "Pontes e Lacerda/MT",
+  "Alta Floresta/MT", "Guarantã do Norte/MT", "Poxoréu/MT", "Jaciara/MT",
+  "Sapezal/MT", "Querência/MT", "Juara/MT", "Peixoto de Azevedo/MT", "Barra do Bugres/MT",
+  "Colíder/MT", "Campo Verde/MT", "Poconé/MT", "Canarana/MT"
 ];
 
 interface CityAutocompleteProps {
@@ -41,34 +41,58 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
 
   // Função auxiliar de normalização robusta
   const normalize = (str: string) => 
-    str.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+    (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
   useEffect(() => {
-    // Se já estiver cacheado, não faz nada
+    // Tenta carregar do localStorage primeiro
+    if (cachedCities.length === 0) {
+      try {
+        const saved = localStorage.getItem('iservice_city_cache');
+        if (saved) {
+          cachedCities = JSON.parse(saved);
+          console.log("Cache de cidades carregado do localStorage");
+        }
+      } catch (e) { console.error("Erro ao ler cache local:", e); }
+    }
+
     if (cachedCities.length > 0) return;
 
-    // Se a promessa já existe, apenas espera por ela
     if (!citiesPromise) {
       setLoading(true);
       citiesPromise = fetch('https://servicodados.ibge.gov.br/api/v1/localidades/municipios?orderBy=nome')
         .then(res => res.json())
         .then(data => {
-          const list = data.map((m: any) => `${m.nome}/${m.microrregiao.mesorregiao.UF.sigla}`);
-          cachedCities = Array.from(new Set([...fallbackCities, ...list])); // Une e remove duplicatas
+          if (!Array.isArray(data)) throw new Error("Resposta inválida do IBGE");
+          
+          const list = data.map((m: any) => {
+            try {
+              const uf = m?.microrregiao?.mesorregiao?.UF?.sigla || 
+                         m?.['regiao-imediata']?.['regiao-intermediaria']?.UF?.sigla || 
+                         '??';
+              return `${m.nome}/${uf}`;
+            } catch (e) { return null; }
+          }).filter(Boolean) as string[];
+
+          cachedCities = Array.from(new Set([...fallbackCities, ...list]));
+          
+          // Salva no localStorage para uso futuro (persiste entre reloads)
+          try {
+            localStorage.setItem('iservice_city_cache', JSON.stringify(cachedCities));
+          } catch (e) { }
+
           setLoading(false);
           return cachedCities;
         })
         .catch(err => {
           console.error("Erro ao carregar cidades IBGE:", err);
-          cachedCities = fallbackCities; // Em caso de erro, usa o backup
+          cachedCities = fallbackCities;
           setLoading(false);
           return fallbackCities;
         });
     } else {
-      // Se já está carregando em outro componente, apenas marca como loading localmente se o cache estiver vazio
       if (cachedCities.length === 0) {
         setLoading(true);
-        citiesPromise.then(() => setLoading(false));
+        citiesPromise.then(() => setLoading(false)).catch(() => setLoading(false));
       }
     }
   }, []);
@@ -90,7 +114,7 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
       });
 
       // Combina priorizando ativas
-      const combined = [...activeMatch, ...ibgeMatch].slice(0, 8);
+      const combined = [...activeMatch, ...ibgeMatch].slice(0, 10);
       setSuggestions(combined);
     } else {
       setSuggestions([]);
@@ -106,6 +130,7 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
         onChange={handleInputChange}
         placeholder={placeholder}
         className={className}
+        onBlur={() => setTimeout(() => setSuggestions([]), 200)} // delay to allow clicks
         onKeyDown={(e) => {
           if (e.key === 'Enter' && suggestions.length > 0) {
             e.preventDefault();
@@ -117,11 +142,11 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
         }}
       />
       
-      {suggestions.length > 0 && (
+      {(suggestions.length > 0 || (loading && value.length >= 2)) && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl z-[1000] overflow-hidden animate-in fade-in slide-in-from-top-1">
           {suggestions.map((s, idx) => (
             <button
-              key={s}
+              key={s + idx}
               type="button"
               onClick={() => {
                 onChange(s);
@@ -142,12 +167,15 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
               )}
             </button>
           ))}
-        </div>
-      )}
-      
-      {loading && value.length >= 3 && cachedCities.length === 0 && (
-        <div className="absolute right-4 top-1/2 -translate-y-1/2">
-          <div className="size-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+          
+          {loading && (
+            <div className="px-4 py-3 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center gap-2">
+              <div className="size-3 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest animate-pulse">
+                Carregando base completa...
+              </span>
+            </div>
+          )}
         </div>
       )}
     </div>
