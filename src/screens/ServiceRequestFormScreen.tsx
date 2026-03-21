@@ -3,6 +3,7 @@ import { NavigationProps } from '../types';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
 import { CityAutocomplete } from '../components/CityAutocomplete';
+import { useNotifications } from '../NotificationContext';
 
 interface ServiceRequestFormScreenProps extends NavigationProps {
   params?: any;
@@ -10,13 +11,17 @@ interface ServiceRequestFormScreenProps extends NavigationProps {
 
 export default function ServiceRequestFormScreen({ onNavigate, params }: ServiceRequestFormScreenProps) {
   const { user } = useAuth();
+  const { showToast } = useNotifications();
   const [description, setDescription] = useState('');
   const [address, setAddress] = useState('');
+  const [addressComplement, setAddressComplement] = useState('');
   const [city, setCity] = useState('');
+  const [cep, setCep] = useState('');
   const [desiredDate, setDesiredDate] = useState('');
   const [desiredTime, setDesiredTime] = useState('09:00');
   const [photos, setPhotos] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isFetchingCep, setIsFetchingCep] = useState(false);
 
   const [categories, setCategories] = useState<{ id: string, name: string }[]>([]);
   const [activeCities, setActiveCities] = useState<string[]>([]);
@@ -109,6 +114,8 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
           description: fullDescription,
           address,
           city,
+          cep,
+          address_complement: addressComplement,
           status: 'open'
         })
         .select('id')
@@ -136,11 +143,46 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
         providerName: params?.providerName || 'Aguardando Atribuição',
         date: desiredDate ? desiredDate.split('-').reverse().join('/') : 'Em breve'
       });
-    } catch (err) {
-      console.error(err);
-      alert('Erro ao criar solicitação.');
+    } catch (err: any) {
+      console.error('Error creating request:', err);
+      showToast("Erro ao Enviar", "Não foi possível criar sua solicitação.", "error");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleFetchAddressFromProfile = async () => {
+    if (!user) return;
+    try {
+      const { data, error } = await supabase.from('profiles').select('address, city, cep, address_complement').eq('id', user.id).single();
+      if (data && !error) {
+        if (data.address) setAddress(data.address);
+        if (data.city) setCity(data.city);
+        if (data.cep) setCep(data.cep);
+        if (data.address_complement) setAddressComplement(data.address_complement);
+        showToast("Dados Importados", "Informações preenchidas com sucesso!", "notification");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleCepBlur = async () => {
+    const cleanCep = cep.replace(/\D/g, '');
+    if (cleanCep.length !== 8) return;
+
+    setIsFetchingCep(true);
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+      const data = await response.json();
+      if (!data.erro) {
+        setCity(`${data.localidade}/${data.uf}`);
+        setAddress(`${data.logradouro}, ${data.bairro}`);
+      }
+    } catch (e) {
+      console.error("Erro ao buscar CEP", e);
+    } finally {
+      setIsFetchingCep(false);
     }
   };
 
@@ -149,7 +191,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
     if (!files) return;
 
     if (photos.length + files.length > 5) {
-      alert('Máximo de 5 fotos permitidas.');
+      showToast("Limite de Fotos", "Máximo de 5 fotos permitidas.", "notification");
       return;
     }
 
@@ -197,13 +239,16 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
             
             {/* Left Column: Core Info */}
-            <div className="space-y-8">
+            <div className="space-y-6">
               {/* Section: Category */}
-              <section>
-                <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight mb-4">Qual a categoria do serviço?</h3>
+              <section className="bg-slate-50 dark:bg-white/5 p-4 rounded-2xl border border-slate-100 dark:border-white/5">
+                <h3 className="text-slate-900 dark:text-slate-100 text-base font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+                  <span className="size-2 bg-primary rounded-full"></span>
+                  Categoria
+                </h3>
                 <div className="flex flex-wrap gap-2">
                   {categories.length === 0 && (
                      <p className="text-sm text-slate-500">Nenhuma categoria correspondente encontrada.</p>
@@ -224,15 +269,18 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
               </section>
 
               {/* Section: Description */}
-              <section>
-                <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight mb-4">Com o que você precisa de ajuda?</h3>
+              <section className="bg-slate-50 dark:bg-white/5 p-4 rounded-2xl border border-slate-100 dark:border-white/5">
+                <h3 className="text-slate-900 dark:text-slate-100 text-base font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+                   <span className="size-2 bg-primary rounded-full"></span>
+                   Descrição do Pedido
+                </h3>
                 <div className="flex flex-col gap-4">
                   <label className="flex flex-col w-full">
                     <textarea
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
-                      className="form-input flex w-full resize-none overflow-hidden rounded-xl text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary focus:border-primary min-h-[160px] md:min-h-[224px] placeholder:text-slate-400 p-4 font-normal leading-normal"
-                      placeholder="Descreva o serviço em detalhes (ex: Preciso de um encanador para consertar uma torneira vazando na cozinha...)"
+                      className="form-input flex w-full resize-none overflow-hidden rounded-xl text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-primary focus:border-primary min-h-[120px] md:min-h-[180px] placeholder:text-slate-400 p-4 font-normal leading-normal shadow-inner"
+                      placeholder="Descreva o serviço em detalhes..."
                     ></textarea>
                   </label>
                 </div>
@@ -240,88 +288,131 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
             </div>
 
             {/* Right Column: Time, Location, Media */}
-            <div className="space-y-8">
+            <div className="space-y-6">
               {/* Section: Schedule (Date Picker) */}
-              <section className="grid grid-cols-2 gap-4">
-                <div>
-                  <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight mb-4">Data Desejada</h3>
-                  <div className="relative">
+              <section className="bg-slate-50 dark:bg-white/5 p-4 rounded-2xl border border-slate-100 dark:border-white/5">
+                 <h3 className="text-slate-900 dark:text-slate-100 text-base font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+                   <span className="size-2 bg-orange-500 rounded-full"></span>
+                   Agendamento
+                </h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Data Desejada</label>
                     <input
                       type="date"
                       value={desiredDate}
                       onChange={(e) => setDesiredDate(e.target.value)}
-                      className="form-input w-full p-4 flex items-center h-14 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary focus:border-primary text-slate-900 dark:text-slate-100"
+                      className="form-input w-full p-3 flex items-center h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-primary text-slate-900 dark:text-slate-100 text-sm font-bold"
                     />
                   </div>
-                </div>
-                <div>
-                  <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight mb-4">Horário Preferencial</h3>
-                  <div className="relative">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Horário</label>
                     <input
                       type="time"
                       value={desiredTime}
                       onChange={(e) => setDesiredTime(e.target.value)}
-                      className="form-input w-full p-4 flex items-center h-14 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary focus:border-primary text-slate-900 dark:text-slate-100"
+                      className="form-input w-full p-3 flex items-center h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-primary text-slate-900 dark:text-slate-100 text-sm font-bold"
                     />
                   </div>
                 </div>
               </section>
 
               {/* Section: Address */}
-              <section className="space-y-4">
-                <div>
-                  <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight mb-2">Cidade</h3>
-                   <CityAutocomplete
-                    value={city}
-                    onChange={(val) => setCity(val)}
-                    activeCities={activeCities}
-                    placeholder="Selecione a cidade do serviço..."
-                    className="w-full px-4 py-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-primary"
-                  />
+              <section className="bg-slate-50 dark:bg-white/5 p-4 rounded-2xl border border-slate-100 dark:border-white/5 space-y-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-slate-900 dark:text-slate-100 text-base font-black uppercase tracking-widest flex items-center gap-2">
+                    <span className="size-2 bg-emerald-500 rounded-full"></span>
+                    Localização
+                  </h3>
+                  <button 
+                    onClick={handleFetchAddressFromProfile}
+                    className="text-[10px] font-bold text-primary uppercase border border-primary/20 bg-primary/5 px-2 py-1 rounded-lg hover:bg-primary hover:text-white transition-all transition-colors"
+                  >
+                    Puxar meus dados
+                  </button>
                 </div>
-                <div>
-                  <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight mb-2">Endereço Detalhado</h3>
-                  <div className="relative">
-                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">location_on</span>
-                    <input
-                      type="text"
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      placeholder="Ex: Rua, número, bairro..."
-                      className="form-input w-full pl-12 pr-4 py-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-primary"
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">CEP</label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={cep}
+                        onChange={(e) => setCep(e.target.value)}
+                        onBlur={handleCepBlur}
+                        placeholder="00000-000"
+                        className="form-input w-full p-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-primary text-slate-900 dark:text-slate-100 text-sm font-bold"
+                      />
+                      {isFetchingCep && <span className="material-symbols-outlined animate-spin absolute right-3 top-1/2 -translate-y-1/2 text-primary text-sm">progress_activity</span>}
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Cidade/UF</label>
+                    <CityAutocomplete
+                      value={city}
+                      onChange={(val) => setCity(val)}
+                      activeCities={activeCities}
+                      placeholder="Cidade..."
+                      className="w-full px-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary"
                     />
                   </div>
-                  <p className="text-slate-400 text-xs mt-2 font-medium"><span className="material-symbols-outlined text-[14px] align-middle mr-1">info</span>O endereço exato só será visível ao prestador.</p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Endereço</label>
+                    <div className="relative">
+                      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">location_on</span>
+                      <input
+                        type="text"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        placeholder="Rua, número, bairro..."
+                        className="form-input w-full pl-10 pr-4 py-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Complemento</label>
+                    <input
+                      type="text"
+                      value={addressComplement}
+                      onChange={(e) => setAddressComplement(e.target.value)}
+                      placeholder="Ap, Bloco..."
+                      className="form-input w-full p-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
                 </div>
               </section>
 
               {/* Section: Photos */}
-              <section>
-                <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight mb-4">Adicionar Fotos (Opcional)</h3>
-                <div className="flex flex-wrap gap-4">
+              <section className="bg-slate-50 dark:bg-white/5 p-4 rounded-2xl border border-slate-100 dark:border-white/5">
+                <h3 className="text-slate-900 dark:text-slate-100 text-base font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+                   <span className="size-2 bg-amber-400 rounded-full"></span>
+                   Fotos (Opcional)
+                </h3>
+                <div className="flex flex-wrap gap-3">
                   {photos.length < 5 && (
-                    <label className="size-24 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 hover:border-primary dark:hover:border-primary cursor-pointer transition-colors group bg-slate-50 dark:bg-slate-800/50">
-                      <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">add_a_photo</span>
-                      <span className="text-[10px] font-bold text-slate-400 group-hover:text-primary mt-1 uppercase transition-colors">Enviar</span>
+                    <label className="size-16 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-primary cursor-pointer transition-colors bg-white dark:bg-slate-900">
+                      <span className="material-symbols-outlined text-slate-400 text-[20px]">add_a_photo</span>
                       <input type="file" accept="image/png, image/jpeg" className="hidden" multiple onChange={handlePhotoUpload} />
                     </label>
                   )}
 
                   {photos.map((photoUrl, idx) => (
-                    <div key={idx} className="size-24 rounded-xl overflow-hidden relative group border border-slate-200 dark:border-slate-700">
+                    <div key={idx} className="size-16 rounded-xl overflow-hidden relative group border border-slate-200 dark:border-slate-800">
                       <img className="w-full h-full object-cover" src={photoUrl} alt={`Photo ${idx + 1}`} />
                       <button 
                         onClick={() => removePhoto(idx)}
-                        className="absolute top-1 right-1 size-6 bg-black/50 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-8 bg-black/60 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"
                       >
-                        <span className="material-symbols-outlined text-sm">close</span>
+                        <span className="material-symbols-outlined text-sm">delete</span>
                       </button>
                     </div>
                   ))}
                 </div>
-                <p className="text-slate-400 text-xs mt-2 font-medium">Máximo de 5 fotos. Formato JPG ou PNG.</p>
               </section>
-
             </div>
           </div>
         </div>

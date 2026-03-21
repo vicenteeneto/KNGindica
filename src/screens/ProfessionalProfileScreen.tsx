@@ -619,29 +619,51 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
       </main>
 
       {/* Sticky Footer Action */}
-      <div className="fixed bottom-0 left-0 md:left-12 right-0 p-4 bg-white/80 dark:bg-black/95 backdrop-blur-lg border-t border-slate-200 dark:border-white/5 flex flex-col sm:flex-row justify-center gap-2 z-[60]">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-black/95 backdrop-blur-lg border-t border-slate-200 dark:border-white/5 flex flex-col md:flex-row justify-center gap-3 z-[60]">
         {professional.plan_type === 'plus' && professional.whatsapp && (
           <a
             href={`https://wa.me/55${professional.whatsapp.replace(/\D/g, '')}`}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackLead(professional.id, 'whatsapp_click')}
-            className="w-full max-w-2xl bg-emerald-500 hover:bg-emerald-600 text-white py-4 px-6 rounded-xl font-bold flex items-center justify-center gap-3 shadow-lg transition-transform active:scale-95"
+            className="w-full md:max-w-[200px] bg-emerald-500 hover:bg-emerald-600 text-white py-4 px-6 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-transform active:scale-95 shrink-0"
           >
-            <span className="material-symbols-outlined text-[24px]">chat</span>
-            Conversar no WhatsApp
+            <span className="material-symbols-outlined text-[20px]">chat</span>
+            WhatsApp
           </a>
         )}
-        <button
-          onClick={() => {
-             trackLead(professional.id, 'chat_start');
-             onNavigate('serviceRequestForm', { providerId: professional.id, providerName: professional.name });
-          }}
-          className="w-full max-w-2xl bg-primary hover:bg-primary/90 text-white py-4 px-6 rounded-xl font-bold flex items-center justify-center gap-3 shadow-xl transition-transform active:scale-95 shadow-primary/20"
-        >
-          <span className="material-symbols-outlined text-[24px]">design_services</span>
-          Solicitar Orçamento
-        </button>
+        <div className="flex w-full max-w-2xl gap-3">
+          <button
+            onClick={async () => {
+              if (!user) {
+                showToast("Acesso Restrito", "Faça login para enviar mensagens.", "notification");
+                return;
+              }
+              trackLead(professional.id, 'chat_start');
+              
+              // Tentar encontrar sala existente ou ir para o chat (o chat deve tratar a criação se não houver requestId)
+              onNavigate('chat', { 
+                opponentId: professional.id, 
+                opponentName: professional.name, 
+                opponentAvatar: professional.image 
+              });
+            }}
+            className="flex-1 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 py-4 px-6 rounded-xl font-bold flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-sm"
+          >
+            <span className="material-symbols-outlined text-[20px]">chat_bubble</span>
+            Mensagem
+          </button>
+          <button
+            onClick={() => {
+              trackLead(professional.id, 'chat_start');
+              onNavigate('serviceRequestForm', { providerId: professional.id, providerName: professional.name });
+            }}
+            className="flex-[2] bg-primary hover:bg-primary/90 text-white py-4 px-6 rounded-xl font-bold flex items-center justify-center gap-2 shadow-xl transition-transform active:scale-95 shadow-primary/20"
+          >
+            <span className="material-symbols-outlined text-[20px]">design_services</span>
+            Solicitar Orçamento
+          </button>
+        </div>
       </div>
 
       {/* Image Modal Lightbox with Navigation */}

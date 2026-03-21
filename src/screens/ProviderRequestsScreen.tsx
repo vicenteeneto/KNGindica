@@ -9,10 +9,19 @@ type Tab = 'Novos' | 'Orçados' | 'Aprovados' | 'Agendados' | 'Finalizados';
 export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) {
   const { user } = useAuth();
   const { showToast } = useNotifications();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('Novos');
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const tabs: Tab[] = ['Novos', 'Orçados', 'Aprovados', 'Agendados', 'Finalizados'];
+
+  // Custom Modals State
+  const [budgetModal, setBudgetModal] = useState<{ isOpen: boolean, requestId: string | null, requestTitle: string, currentAmount: string }>({ 
+    isOpen: false, requestId: null, requestTitle: '', currentAmount: '' 
+  });
+  const [scheduleModal, setScheduleModal] = useState<{ isOpen: boolean, requestId: string | null, requestTitle: string, date: string, time: string }>({
+    isOpen: false, requestId: null, requestTitle: '', date: '', time: '09:00'
+  });
 
   const fetchRequests = async () => {
     if (!user) return;
@@ -176,16 +185,25 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
     }
   };
 
-  const handleSendBudget = async (req: any) => {
-    const amountStr = window.prompt('Qual o valor do orçamento para este serviço? (Apenas números)', '');
-    if (amountStr === null) return;
+  const handleSendBudget = (id: string, currentAmount?: number, title?: string) => {
+    setBudgetModal({
+      isOpen: true,
+      requestId: id,
+      requestTitle: title || 'Serviço',
+      currentAmount: currentAmount ? currentAmount.toString().replace('.', ',') : ''
+    });
+  };
+
+  const confirmSendBudget = async () => {
+    if (!budgetModal.requestId) return;
+    const amount = parseFloat(budgetModal.currentAmount.replace(',', '.'));
     
-    const amount = parseFloat(amountStr.replace(',', '.'));
-    if (isNaN(amount)) {
+    if (isNaN(amount) || amount <= 0) {
       showToast('Por favor, insira um valor válido.', 'error');
       return;
     }
 
+    setIsSubmitting(true);
     try {
       const { error } = await supabase
         .from('service_requests')
@@ -194,40 +212,70 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
           budget_amount: amount,
           provider_id: user?.id
         })
-        .eq('id', req.id);
-      
+        .eq('id', budgetModal.requestId);
+
       if (error) throw error;
       
+      // Notify client
+      await supabase.from('notifications').insert({
+        user_id: requests.find(r => r.id === budgetModal.requestId)?.client_id,
+        title: 'Orçamento Recebido',
+        message: `O profissional enviou um orçamento de R$ ${amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} para o seu pedido.`,
+        type: 'order',
+        related_entity_id: budgetModal.requestId
+      });
+
       showToast('Orçamento enviado com sucesso!', 'success');
+      setBudgetModal({ isOpen: false, requestId: null, requestTitle: '', currentAmount: '' });
       fetchRequests();
       setActiveTab('Orçados');
     } catch (err: any) {
       console.error(err);
       showToast('Erro ao enviar orçamento: ' + err.message, 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleScheduleService = async (req: any) => {
-    const details = window.prompt('Informe a data e horário combinados (Ex: 25/03 às 14:00):', '');
-    if (details === null) return;
+  const handleScheduleService = (id: string, title?: string) => {
+    setScheduleModal({
+      isOpen: true,
+      requestId: id,
+      requestTitle: title || 'Serviço',
+      date: new Date().toISOString().split('T')[0],
+      time: '09:00'
+    });
+  };
 
+  const confirmScheduleService = async () => {
+    if (!scheduleModal.requestId) return;
+    if (!scheduleModal.date || !scheduleModal.time) {
+      showToast('Por favor, informe a data e o horário.', 'error');
+      return;
+    }
+
+    setIsSubmitting(true);
     try {
+      const scheduledAt = `${scheduleModal.date}T${scheduleModal.time}:00`;
       const { error } = await supabase
         .from('service_requests')
         .update({ 
-          status: 'scheduled',
-          address: (req.address || '') + ' | Agendado: ' + details
+            status: 'scheduled',
+            delivery_deadline: scheduledAt
         })
-        .eq('id', req.id);
-      
+        .eq('id', scheduleModal.requestId);
+
       if (error) throw error;
       
-      showToast('Serviço agendado!', 'success');
+      showToast('Serviço agendado com sucesso!', 'success');
+      setScheduleModal({ isOpen: false, requestId: null, requestTitle: '', date: '', time: '09:00' });
       fetchRequests();
       setActiveTab('Agendados');
     } catch (err: any) {
       console.error(err);
-      showToast('Erro ao agendar: ' + err.message, 'error');
+      showToast('Erro ao agendar serviço: ' + err.message, 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -277,6 +325,138 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
           </div>
         </div>
 
+      {/* Budget Modal */}
+      {budgetModal.isOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="size-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-primary text-2xl">payments</span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 leading-tight">Enviar Orçamento</h3>
+                  <p className="text-xs text-slate-500 font-medium line-clamp-1">{budgetModal.requestTitle}</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Valor do Serviço (R$)</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">R$</span>
+                    <input 
+                      type="text" // Changed to text to allow comma input
+                      inputMode="decimal" // Suggests numeric keyboard
+                      autoFocus
+                      value={budgetModal.currentAmount}
+                      onChange={(e) => setBudgetModal(prev => ({ ...prev, currentAmount: e.target.value }))}
+                      placeholder="0,00"
+                      className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold text-lg text-slate-900 dark:text-slate-100 focus:border-primary transition-colors outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-200/50 dark:border-amber-700/30">
+                  <p className="text-[10px] text-amber-700 dark:text-amber-400 leading-relaxed font-bold">
+                    <span className="material-symbols-outlined text-[14px] align-middle mr-1">info</span> 
+                    Lembre-se que o cliente pagará uma taxa de R$ 10,00 para liberar o contato direto após aprovar este orçamento.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 flex gap-3">
+              <button 
+                onClick={() => setBudgetModal({ isOpen: false, requestId: null, requestTitle: '', currentAmount: '' })}
+                className="flex-1 py-3.5 rounded-xl font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={confirmSendBudget}
+                disabled={isSubmitting}
+                className="flex-[1.5] py-3.5 bg-primary text-white rounded-xl font-bold shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+              >
+                {isSubmitting ? (
+                  <span className="material-symbols-outlined animate-spin text-lg">progress_activity</span>
+                ) : (
+                  <>
+                    <span>Confirmar</span>
+                    <span className="material-symbols-outlined text-lg">send</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Schedule Modal */}
+      {scheduleModal.isOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="size-12 rounded-2xl bg-orange-500/10 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-orange-500 text-2xl">calendar_today</span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 leading-tight">Agendar Serviço</h3>
+                  <p className="text-xs text-slate-500 font-medium line-clamp-1">{scheduleModal.requestTitle}</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Data</label>
+                    <input 
+                      type="date"
+                      value={scheduleModal.date}
+                      onChange={(e) => setScheduleModal(prev => ({ ...prev, date: e.target.value }))}
+                      className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold text-sm text-slate-900 dark:text-slate-100 focus:border-orange-500 transition-colors outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Horário</label>
+                    <input 
+                      type="time"
+                      value={scheduleModal.time}
+                      onChange={(e) => setScheduleModal(prev => ({ ...prev, time: e.target.value }))}
+                      className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold text-sm text-slate-900 dark:text-slate-100 focus:border-orange-500 transition-colors outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 flex gap-3">
+              <button 
+                onClick={() => setScheduleModal({ isOpen: false, requestId: null, requestTitle: '', date: '', time: '09:00' })}
+                className="flex-1 py-3.5 rounded-xl font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={confirmScheduleService}
+                disabled={isSubmitting}
+                className="flex-[1.5] py-3.5 bg-orange-500 text-white rounded-xl font-bold shadow-lg shadow-orange-500/20 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+              >
+                {isSubmitting ? (
+                  <span className="material-symbols-outlined animate-spin text-lg">progress_activity</span>
+                ) : (
+                  <>
+                    <span>Agendar</span>
+                    <span className="material-symbols-outlined text-lg">done</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-4 w-full">
           <div className="flex items-center justify-between mb-6">
@@ -324,10 +504,10 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                     {activeTab === 'Novos' && (
                       <div className="mt-4 flex flex-col gap-2">
                         <button
-                          onClick={() => handleSendBudget(req)}
+                          onClick={() => handleSendBudget(req.id, req.budget_amount, req.title)}
                           className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold shadow-md shadow-primary/20 hover:brightness-110 active:scale-[0.98] transition-all">
                           <span className="material-symbols-outlined text-[18px]">receipt_long</span>
-                          Enviar Valor do Orçamento
+                          {req.budget_amount > 0 ? 'Alterar Valor do Orçamento' : 'Enviar Valor do Orçamento'}
                         </button>
                         <div className="flex gap-2">
                           <button
@@ -372,7 +552,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                           <p className="text-xs text-indigo-700 dark:text-indigo-300 font-medium font-bold uppercase">Cliente Aprovou o Orçamento!</p>
                         </div>
                         <button
-                          onClick={() => handleScheduleService(req)}
+                          onClick={() => handleScheduleService(req.id, req.title)}
                           className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold shadow-md shadow-primary/20 hover:brightness-110 active:scale-[0.98] transition-all">
                           <span className="material-symbols-outlined text-[18px]">calendar_month</span>
                           Agendar Data/Hora

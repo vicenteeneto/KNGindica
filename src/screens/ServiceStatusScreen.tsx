@@ -213,11 +213,15 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                 <span className="material-symbols-outlined">payments</span>
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Valor Total</p>
-                <p className="text-slate-900 dark:text-slate-100 font-bold">R$ {displayData.budget_amount && displayData.budget_amount > 0 ? displayData.budget_amount.toFixed(2) : 'A definir'}</p>
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Valor do Serviço</p>
+                <p className="text-slate-900 dark:text-slate-100 font-bold text-lg">
+                  {displayData.budget_amount && displayData.budget_amount > 0 
+                    ? `R$ ${displayData.budget_amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` 
+                    : 'A definir'}
+                </p>
               </div>
-              <div className={`px-2 py-1 rounded text-xs font-bold uppercase ${displayData.status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
-                {displayData.status === 'paid' ? 'Pago' : displayData.status === 'awaiting_payment' ? 'Aguardando Pagamento' : 'Pendente'}
+              <div className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest ${displayData.status === 'paid' ? 'bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400' : 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400'}`}>
+                {displayData.status === 'paid' ? 'Pago' : displayData.status === 'proposed' ? 'Aprovar Orçamento' : displayData.status === 'awaiting_payment' ? 'Aguardando Pagamento' : 'Pendente'}
               </div>
             </div>
           </div>
