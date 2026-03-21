@@ -308,7 +308,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-white dark:bg-slate-900">
         <p className="text-slate-500 mb-4">Profissional não encontrado.</p>
-        <button className="bg-primary text-white px-6 py-2 rounded-xl font-bold" onClick={() => onNavigate('home')}>Voltar</button>
+        <button className="bg-primary text-white px-6 py-2 rounded-xl font-bold" onClick={() => onNavigate('back')}>Voltar</button>
       </div>
     );
   }
@@ -319,13 +319,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
       <div className="bg-white dark:bg-slate-900 sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-center p-4 pb-2 justify-between max-w-7xl mx-auto w-full">
           <button 
-            onClick={() => {
-              if (params?.returnTo) {
-                onNavigate(params.returnTo);
-              } else {
-                onNavigate('home');
-              }
-            }} 
+            onClick={() => onNavigate('back')} 
             className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-all shrink-0"
           >
             <span className="material-symbols-outlined">arrow_back</span>

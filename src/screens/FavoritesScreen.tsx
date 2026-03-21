@@ -65,7 +65,7 @@ export default function FavoritesScreen({ onNavigate, params }: FavoritesScreenP
       {/* Header */}
       <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 sticky top-0 z-10">
         <div className="flex items-center gap-3">
-          <button onClick={() => onNavigate(params?.returnTo || 'userProfile')} className="text-slate-600 dark:text-slate-400">
+          <button onClick={() => onNavigate('back')} className="text-slate-600 dark:text-slate-400">
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
           <h1 className="text-xl font-bold">Meus Favoritos</h1>

@@ -512,7 +512,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       <div className="bg-gradient-to-b from-primary/20 to-transparent dark:from-primary/10 pt-12 pb-6 px-4 shrink-0 shadow-sm border-b border-white/20 dark:border-slate-800/50 relative">
         {/* Back Button */}
         <button 
-          onClick={() => onNavigate('home')}
+          onClick={() => onNavigate('back')}
           className="absolute top-6 left-4 md:left-24 size-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-slate-700 dark:text-white hover:bg-white/40 transition-all z-10"
         >
           <span className="material-symbols-outlined">arrow_back</span>
@@ -544,7 +544,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
               accept="image/*"
               value="" // Reset value so onChange fires even for same file
               onChange={handleFileChange}
-            />
+          />
           </div>
 
           <div className="flex items-center gap-3">
@@ -579,8 +579,9 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         {/* Seção de Alerta de Perfil Incompleto (Apenas para Prestadores) */}
         {role === 'provider' && (() => {
           const missing = [];
+          if (!formData.full_name?.trim()) missing.push("Nome");
           if (!profile?.avatar_url) missing.push("Foto");
-          if (!formData.bio || formData.bio.length < 30) missing.push("Bio");
+          if (!formData.bio?.trim() || formData.bio.trim().length < 30) missing.push("Bio");
           if (!formData.categories || formData.categories.length === 0) missing.push("Serviços");
           if (!(profile as any)?.latitude) missing.push("Localização");
           if (!formData.price_value) missing.push("Preço");

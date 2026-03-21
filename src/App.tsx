@@ -167,7 +167,12 @@ function AppContent() {
     }
   }, [user, role, profile, loading, currentScreen]);
 
-  const handleNavigate = (screen: Screen, params?: any) => {
+  const handleNavigate = (screen: Screen | 'back', params?: any) => {
+    if (screen === 'back') {
+      window.history.back();
+      return;
+    }
+
     if (screen === 'chat') {
       setActiveChat(params);
       return;

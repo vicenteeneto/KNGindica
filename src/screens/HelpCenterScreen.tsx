@@ -67,7 +67,7 @@ export default function HelpCenterScreen({ onNavigate }: NavigationProps) {
       <header className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 h-16 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button 
-            onClick={() => onNavigate('home')}
+            onClick={() => onNavigate('back')}
             className="p-2 -ml-2 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
           >
             <span className="material-symbols-outlined">arrow_back</span>

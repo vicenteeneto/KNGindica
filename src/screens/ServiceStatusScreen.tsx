@@ -78,13 +78,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
       <header className="sticky top-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-center p-4 justify-between max-w-4xl mx-auto w-full">
           <button 
-            onClick={() => {
-              if (params?.returnTo) {
-                onNavigate(params.returnTo);
-              } else {
-                onNavigate('home');
-              }
-            }}
+            onClick={() => onNavigate('back')}
             className="text-slate-900 dark:text-slate-100 flex size-10 items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
           >
             <span className="material-symbols-outlined">arrow_back</span>

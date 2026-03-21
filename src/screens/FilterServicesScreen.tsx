@@ -60,7 +60,7 @@ export default function FilterServicesScreen({ onNavigate, params }: NavigationP
       {/* Top Bar */}
       <div className="flex items-center bg-white dark:bg-slate-900 p-4 border-b border-slate-200 dark:border-slate-800 justify-between sticky top-0 z-10">
         <div 
-          onClick={() => onNavigate('listing')}
+          onClick={() => onNavigate('back')}
           className="text-slate-900 dark:text-slate-100 flex size-10 shrink-0 items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors"
         >
           <span className="material-symbols-outlined">arrow_back</span>
