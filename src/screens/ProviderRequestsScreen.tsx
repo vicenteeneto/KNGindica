@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
 
-type Tab = 'Novos' | 'Orçados' | 'Agendados' | 'Em Andamento' | 'Finalizados';
+type Tab = 'Novos' | 'Orçados' | 'Aprovados' | 'Agendados' | 'Finalizados';
 
 export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) {
   const { user } = useAuth();
@@ -12,7 +12,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
   const [activeTab, setActiveTab] = useState<Tab>('Novos');
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const tabs: Tab[] = ['Novos', 'Orçados', 'Agendados', 'Em Andamento', 'Finalizados'];
+  const tabs: Tab[] = ['Novos', 'Orçados', 'Aprovados', 'Agendados', 'Finalizados'];
 
   const fetchRequests = async () => {
     if (!user) return;
@@ -29,6 +29,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
           created_at,
           client_id,
           category_id,
+          budget_amount,
           profiles!service_requests_client_id_fkey(full_name, avatar_url),
           service_categories(name, icon)
         `)
@@ -38,7 +39,6 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
 
       switch (activeTab) {
         case 'Novos':
-          // Tab Novos: Only 'open' requests.
           expectedStatuses = ['open'];
           const { data: profData } = await supabase.from('profiles').select('categories').eq('id', user.id).single();
           const myCats = profData?.categories || [];
@@ -57,18 +57,20 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
           break;
 
         case 'Orçados':
-          expectedStatuses = ['proposed', 'accepted', 'quoted', 'awaiting_payment'];
-          query = query.in('status', expectedStatuses).eq('provider_id', user.id);
+          // Awaiting client approval
+          expectedStatuses = ['proposed'];
+          query = query.eq('status', 'proposed').eq('provider_id', user.id);
+          break;
+
+        case 'Aprovados':
+          // Approved by client, needs scheduling
+          expectedStatuses = ['accepted'];
+          query = query.eq('status', 'accepted').eq('provider_id', user.id);
           break;
 
         case 'Agendados':
           expectedStatuses = ['scheduled'];
           query = query.eq('status', 'scheduled').eq('provider_id', user.id);
-          break;
-
-        case 'Em Andamento':
-          expectedStatuses = ['paid', 'in_service'];
-          query = query.in('status', expectedStatuses).eq('provider_id', user.id);
           break;
 
         case 'Finalizados':
@@ -77,7 +79,6 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
           break;
         
         default:
-          // Fallback safe: fetch nothing if tab unknown
           query = query.eq('id', '00000000-0000-0000-0000-000000000000');
       }
 
@@ -161,54 +162,82 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
   const updateRequestStatus = async (requestId: string, newStatus: string) => {
     if (!user) return;
     try {
-      const updateData: any = { status: newStatus };
-      if (newStatus === 'accepted' || newStatus === 'quoted') {
-        updateData.provider_id = user.id;
-      }
-
       const { error } = await supabase
         .from('service_requests')
-        .update(updateData)
+        .update({ status: newStatus })
         .eq('id', requestId);
 
       if (error) throw error;
-
-      if (newStatus === 'accepted' || newStatus === 'quoted') {
-        const { data: reqData } = await supabase
-          .from('service_requests')
-          .select('client_id')
-          .eq('id', requestId)
-          .single();
-
-        if (reqData?.client_id) {
-          await supabase
-            .from('chat_rooms')
-            .upsert({
-              request_id: requestId,
-              client_id: reqData.client_id,
-              provider_id: user.id
-            }, { onConflict: 'request_id' });
-        }
-      }
-
+      showToast('Status atualizado!', 'success');
       fetchRequests();
-      // Auto navigate to Orçados after moving from Novos
-      if (activeTab === 'Novos') {
-        setActiveTab('Orçados');
-      }
     } catch (err: any) {
       console.error(err);
       showToast('Erro ao atualizar status: ' + err.message, 'error');
     }
   };
 
+  const handleSendBudget = async (req: any) => {
+    const amountStr = window.prompt('Qual o valor do orçamento para este serviço? (Apenas números)', '');
+    if (amountStr === null) return;
+    
+    const amount = parseFloat(amountStr.replace(',', '.'));
+    if (isNaN(amount)) {
+      showToast('Por favor, insira um valor válido.', 'error');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('service_requests')
+        .update({ 
+          status: 'proposed', 
+          budget_amount: amount,
+          provider_id: user?.id
+        })
+        .eq('id', req.id);
+      
+      if (error) throw error;
+      
+      showToast('Orçamento enviado com sucesso!', 'success');
+      fetchRequests();
+      setActiveTab('Orçados');
+    } catch (err: any) {
+      console.error(err);
+      showToast('Erro ao enviar orçamento: ' + err.message, 'error');
+    }
+  };
+
+  const handleScheduleService = async (req: any) => {
+    const details = window.prompt('Informe a data e horário combinados (Ex: 25/03 às 14:00):', '');
+    if (details === null) return;
+
+    try {
+      const { error } = await supabase
+        .from('service_requests')
+        .update({ 
+          status: 'scheduled',
+          address: (req.address || '') + ' | Agendado: ' + details
+        })
+        .eq('id', req.id);
+      
+      if (error) throw error;
+      
+      showToast('Serviço agendado!', 'success');
+      fetchRequests();
+      setActiveTab('Agendados');
+    } catch (err: any) {
+      console.error(err);
+      showToast('Erro ao agendar: ' + err.message, 'error');
+    }
+  };
+
   const statusMap: Record<string, { label: string; color: string }> = {
-    'open': { label: 'Aguardando Orçamento', color: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' },
-    'proposed': { label: 'Proposta Enviada', color: 'bg-blue-500/10 text-blue-600 border-blue-500/20' },
-    'accepted': { label: 'Negociação / Chat', color: 'bg-indigo-500/10 text-indigo-600 border-indigo-500/20' },
+    'open': { label: 'Novo Pedido', color: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' },
+    'proposed': { label: 'Orçamento Enviado', color: 'bg-blue-500/10 text-blue-600 border-blue-500/20' },
+    'accepted': { label: 'Aprovado ✓', color: 'bg-indigo-500/10 text-indigo-600 border-indigo-500/20' },
     'quoted': { label: 'Orçamento Enviado', color: 'bg-amber-500/10 text-amber-600 border-amber-500/20' },
     'awaiting_payment': { label: 'Aguardando Pagamento', color: 'bg-purple-500/10 text-purple-600 border-purple-500/20' },
-    'scheduled': { label: 'Serviço Agendado ✓', color: 'bg-primary text-white border-primary/20 shadow-sm' },
+    'scheduled': { label: 'Agendado ✓', color: 'bg-primary text-white border-primary/20 shadow-sm' },
     'paid': { label: 'Pago', color: 'bg-emerald-600 text-white' },
     'in_service': { label: 'Em Execução...', color: 'bg-primary animate-pulse text-white' },
     'completed': { label: 'Finalizado', color: 'bg-slate-500 text-white' },
@@ -295,20 +324,21 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                     {activeTab === 'Novos' && (
                       <div className="mt-4 flex flex-col gap-2">
                         <button
-                          onClick={() => handleOpenChat(req)}
-                          className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 dark:text-emerald-500 text-sm font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/20 active:scale-[0.98] transition-colors border border-emerald-200 dark:border-emerald-800/30">
-                          <span className="material-symbols-outlined text-[18px]">chat</span>
-                          Conversar e Orçar
+                          onClick={() => handleSendBudget(req)}
+                          className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold shadow-md shadow-primary/20 hover:brightness-110 active:scale-[0.98] transition-all">
+                          <span className="material-symbols-outlined text-[18px]">receipt_long</span>
+                          Enviar Valor do Orçamento
                         </button>
                         <div className="flex gap-2">
                           <button
-                            onClick={() => updateRequestStatus(req.id, 'accepted')}
-                            className="flex-1 cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold transition-all hover:brightness-110 active:scale-[0.98] shadow-md shadow-primary/20">
-                            Aceitar Pedido
+                            onClick={() => handleOpenChat(req)}
+                            className="flex-1 cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-bold border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                            <span className="material-symbols-outlined text-[18px]">chat</span>
+                            Conversar
                           </button>
                           <button 
                             onClick={() => updateRequestStatus(req.id, 'cancelled')}
-                            className="flex-1 cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-500 text-sm font-bold hover:bg-red-100 dark:hover:bg-red-900/20 active:scale-[0.98] transition-colors border border-red-200 dark:border-red-800/30">
+                            className="w-24 cursor-pointer flex items-center justify-center rounded-lg h-10 px-4 bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-500 text-sm font-bold border border-red-200 dark:border-red-800/30">
                             Recusar
                           </button>
                         </div>
@@ -317,23 +347,39 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
 
                     {activeTab === 'Orçados' && (
                       <div className="mt-4 flex flex-col gap-2">
+                        <div className="bg-blue-50 dark:bg-blue-900/10 p-3 rounded-lg border border-blue-100 dark:border-blue-800/30 flex items-center gap-2">
+                          <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-[20px]">sync</span>
+                          <p className="text-xs text-blue-700 dark:text-blue-300 font-medium">Aguardando aprovação do cliente...</p>
+                        </div>
                         <div className="flex gap-2">
+                          <p className="flex-1 text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1">
+                            {req.budget_amount ? `R$ ${req.budget_amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'Valor não informado'}
+                          </p>
                           <button
-                            onClick={() => updateRequestStatus(req.id, 'quoted')}
-                            className="flex-1 cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold hover:brightness-110 active:scale-[0.98] transition-all shadow-md shadow-primary/20">
-                            <span className="material-symbols-outlined text-[18px]">receipt_long</span>
-                            Enviar Valor Final
-                          </button>
-                          <button
-                            onClick={() => updateRequestStatus(req.id, 'scheduled')}
-                            className="flex-1 cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-[0.98] transition-all border border-slate-200 dark:border-slate-700">
-                            <span className="material-symbols-outlined text-[18px]">calendar_month</span>
-                            Agendar
+                            onClick={() => handleOpenChat(req)}
+                            className="flex-1 cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 dark:text-emerald-500 text-sm font-bold border border-emerald-200 dark:border-emerald-800/30">
+                            <span className="material-symbols-outlined text-[18px]">chat</span>
+                            Conversar
                           </button>
                         </div>
+                      </div>
+                    )}
+
+                    {activeTab === 'Aprovados' && (
+                      <div className="mt-4 flex flex-col gap-2">
+                        <div className="bg-indigo-50 dark:bg-indigo-900/10 p-3 rounded-lg border border-indigo-100 dark:border-indigo-800/30 flex items-center gap-2">
+                          <span className="material-symbols-outlined text-indigo-600 dark:text-indigo-400 text-[20px]">check_circle</span>
+                          <p className="text-xs text-indigo-700 dark:text-indigo-300 font-medium font-bold uppercase">Cliente Aprovou o Orçamento!</p>
+                        </div>
+                        <button
+                          onClick={() => handleScheduleService(req)}
+                          className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold shadow-md shadow-primary/20 hover:brightness-110 active:scale-[0.98] transition-all">
+                          <span className="material-symbols-outlined text-[18px]">calendar_month</span>
+                          Agendar Data/Hora
+                        </button>
                         <button
                           onClick={() => handleOpenChat(req)}
-                          className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 dark:text-emerald-500 text-sm font-bold border border-emerald-200 dark:border-emerald-800/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/20 transition-colors">
+                          className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-bold border border-slate-200 dark:border-slate-700">
                           <span className="material-symbols-outlined text-[18px]">chat</span>
                           Falar com Cliente
                         </button>
@@ -343,34 +389,23 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                     {activeTab === 'Agendados' && (
                       <div className="mt-4 flex flex-col gap-2">
                         <button
-                          onClick={() => updateRequestStatus(req.id, 'in_service')}
-                          className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold hover:opacity-90 active:scale-[0.98] transition-all">
-                          <span className="material-symbols-outlined text-[18px]">play_circle</span>
-                          Iniciar Serviço Agora
+                          onClick={() => updateRequestStatus(req.id, 'completed')}
+                          className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-emerald-500 text-white text-sm font-bold hover:bg-emerald-600 active:scale-[0.98] transition-all shadow-md shadow-emerald-500/20">
+                          <span className="material-symbols-outlined text-[18px]">task_alt</span>
+                          Finalizar Serviço
                         </button>
                         <button
                           onClick={() => handleOpenChat(req)}
-                          className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 text-sm font-bold border border-slate-200 dark:border-slate-800">
+                          className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-bold border border-slate-200 dark:border-slate-700">
                           <span className="material-symbols-outlined text-[18px]">chat</span>
-                          Avisar Atraso/Dúvida
+                          Avisar algo ao Cliente
                         </button>
                       </div>
                     )}
 
-                    {activeTab === 'Em Andamento' && (
-                      <div className="mt-4 flex flex-col gap-2">
-                        <button
-                          onClick={() => updateRequestStatus(req.id, 'completed')}
-                          className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-emerald-500 text-white text-sm font-bold hover:bg-emerald-600 active:scale-[0.98] transition-all shadow-lg shadow-emerald-500/20">
-                          <span className="material-symbols-outlined text-[18px]">task_alt</span>
-                          Finalizar e Solicitar Pagamento
-                        </button>
-                        <button
-                          onClick={() => handleOpenChat(req)}
-                          className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 text-sm font-bold">
-                          <span className="material-symbols-outlined text-[18px]">chat</span>
-                          Enviar Foto/Relato
-                        </button>
+                    {activeTab === 'Finalizados' && (
+                      <div className="mt-4">
+                        <p className="text-xs text-slate-400 dark:text-slate-500 text-center italic">Pedido finalizado em {new Date(req.updated_at || req.created_at).toLocaleDateString()}</p>
                       </div>
                     )}
                   </div>
