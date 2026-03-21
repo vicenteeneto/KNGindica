@@ -70,7 +70,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   const [dynamicCategories, setDynamicCategories] = useState<{ name: string, icon: string }[]>([]);
   const [loadingProviders, setLoadingProviders] = useState(true);
   const [activeRequest, setActiveRequest] = useState<any>(null);
-  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [touchStartHero, setTouchStartHero] = useState<number | null>(null);
   const [touchEndHero, setTouchEndHero] = useState<number | null>(null);
   const [manualCityInput, setManualCityInput] = useState('');
@@ -434,7 +434,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
       setLocationName(city);
       setUserCoords(null); // Clear GPS since we are using explicit city
       localStorage.setItem('KNGindica_manualCity', city);
-      setShowLocationModal(false);
+      setShowLocationDropdown(false);
       
       // Geocodificar a cidade e centrar o mapa
       const coords = await geocodeCidade(city);
@@ -521,17 +521,90 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         <div className="flex items-center justify-between mx-auto max-w-7xl">
           <div className="flex items-center gap-3">
             <div 
-              className="flex items-center gap-1.5 cursor-pointer group"
-              onClick={() => setShowLocationModal(true)}
+              className="relative flex items-center gap-1.5 cursor-pointer group"
+              onClick={() => setShowLocationDropdown(!showLocationDropdown)}
             >
               <span className="material-symbols-outlined text-primary text-xl group-hover:scale-110 transition-transform">location_on</span>
               <div className="flex flex-col">
                 <span className="text-[9px] uppercase tracking-[0.2em] font-black text-slate-400">Localização</span>
                 <span className="text-sm font-bold flex items-center gap-1 group-hover:text-primary transition-colors">
                   {locationName}
-                  <span className="material-symbols-outlined text-[12px] opacity-0 group-hover:opacity-100 transition-opacity">expand_more</span>
+                  <span className={`material-symbols-outlined text-[16px] transition-transform duration-300 ${showLocationDropdown ? 'rotate-180 text-primary' : 'opacity-60'}`}>expand_more</span>
                 </span>
               </div>
+
+              {/* Box Dropdown de Localização */}
+              {showLocationDropdown && (
+                <div 
+                  className="absolute top-full left-0 mt-3 w-72 bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl p-5 animate-in fade-in slide-in-from-top-2 z-[60]"
+                  onClick={(e) => e.stopPropagation()} // Impede fechar ao clicar dentro
+                >
+                  <div className="mb-4">
+                    <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-3">Sua Cidade</p>
+                    <div className="relative">
+                      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">search</span>
+                      <input
+                        type="text"
+                        value={manualCityInput}
+                        onChange={(e) => setManualCityInput(e.target.value)}
+                        placeholder="Ex: Rondonópolis..."
+                        className="w-full pl-9 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:border-primary outline-none text-xs font-bold"
+                        onKeyDown={async (e) => {
+                          if (e.key === 'Enter') {
+                            setShowLocationDropdown(false);
+                            isManualLocation.current = true;
+                            setLocationName(manualCityInput);
+                            setUserCoords(null);
+                            localStorage.setItem('KNGindica_manualCity', manualCityInput);
+                            const coords = await geocodeCidade(manualCityInput);
+                            if (coords) setMapCenter(coords);
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {availableCities.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 ml-1">Cidades Ativas:</p>
+                      <div className="flex flex-col gap-1.5">
+                        {availableCities.map(city => (
+                          <button
+                            key={city}
+                            type="button"
+                            onClick={async () => {
+                              setManualCityInput(city);
+                              setShowLocationDropdown(false);
+                              isManualLocation.current = true;
+                              setLocationName(city);
+                              setUserCoords(null);
+                              localStorage.setItem('KNGindica_manualCity', city);
+                              const coords = await geocodeCidade(city);
+                              if (coords) setMapCenter(coords);
+                            }}
+                            className="w-full px-3 py-2 bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/10 rounded-xl text-xs font-bold transition-all flex items-center justify-between group/item"
+                          >
+                            <span className="flex items-center gap-2">
+                              <span className="size-1 bg-emerald-500 rounded-full animate-pulse"></span>
+                              {city}
+                            </span>
+                            <span className="material-symbols-outlined text-transparent group-hover/item:text-primary text-[16px] transition-colors">arrow_forward</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="mt-4 pt-4 border-t border-white/5">
+                    <button 
+                       onClick={() => setShowLocationDropdown(false)}
+                       className="w-full py-2 bg-primary/10 hover:bg-primary/20 text-primary text-[10px] font-black uppercase tracking-widest rounded-lg transition-colors"
+                    >
+                      Fechar
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -907,78 +980,6 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
       {/* Bottom Navigation (Mobile Only) */}
       <MobileNav onNavigate={onNavigate} currentScreen="home" role={useAuth().role} />
 
-       {/* Manual Location Modal */}
-       {showLocationModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 dark:bg-black/90 backdrop-blur-xl p-4">
-          <div className="bg-white dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/10 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in-up">
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-              <h3 className="font-black text-xl text-slate-900 dark:text-white flex items-center gap-2 italic uppercase tracking-tighter">
-                <span className="material-symbols-outlined text-primary">location_on</span>
-                Sua Cidade
-              </h3>
-              <button onClick={() => setShowLocationModal(false)} className="text-slate-400 hover:text-white size-10 rounded-full hover:bg-white/5 flex items-center justify-center">
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-            <form onSubmit={handleManualLocationSubmit} className="p-6">
-              <p className="text-sm text-slate-400 mb-6 font-medium">
-                Digite sua cidade para listarmos os melhores profissionais próximos a você.
-              </p>
-              <div className="mb-8">
-                <div className="relative">
-                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">search</span>
-                  <input
-                    type="text"
-                    value={manualCityInput}
-                    onChange={(e) => setManualCityInput(e.target.value)}
-                    placeholder="Ex: Rondonópolis, SP..."
-                    className="w-full pl-12 pr-4 py-4 bg-slate-100 dark:bg-white/5 border-2 border-slate-200 dark:border-white/10 rounded-2xl focus:border-primary outline-none transition-all text-slate-900 dark:text-white font-bold"
-                    autoFocus
-                  />
-                </div>
-              </div>
-
-              {availableCities.length > 0 && (
-                <div className="mb-6">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 ml-1">Cidades com Atendimento:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {availableCities.map(city => (
-                      <button
-                        key={city}
-                        type="button"
-                        onClick={async () => {
-                          setManualCityInput(city);
-                          // Envia automaticamente ao clicar na cidade
-                          isManualLocation.current = true;
-                          setLocationName(city);
-                          setUserCoords(null);
-                          localStorage.setItem('KNGindica_manualCity', city);
-                          setShowLocationModal(false);
-                          const coords = await geocodeCidade(city);
-                          if (coords) setMapCenter(coords);
-                        }}
-                        className="px-4 py-2 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-bold hover:border-primary hover:text-primary transition-all flex items-center gap-2"
-                      >
-                        <span className="size-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-                        {city}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-              <div className="flex gap-3">
-                <button 
-                  type="submit" 
-                  disabled={!manualCityInput.trim()} 
-                  className="w-full py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest hover:bg-primary/90 transition-all disabled:opacity-50 shadow-xl shadow-primary/20"
-                >
-                  Confirmar Localização
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* Custom Styles */}
       <style dangerouslySetInnerHTML={{
