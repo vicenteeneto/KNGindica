@@ -385,8 +385,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         .insert({
           provider_id: user.id,
           image_url: publicUrl,
-          title: 'Trabalho realizado',
-          description: ''
+          storage_path: filePath
         });
 
       if (dbError) throw dbError;
