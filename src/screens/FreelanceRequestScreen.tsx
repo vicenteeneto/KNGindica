@@ -8,6 +8,8 @@ import { CityAutocomplete } from '../components/CityAutocomplete';
 export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) {
   const { user } = useAuth();
   const [categories, setCategories] = useState<any[]>([]);
+  const [activeCities, setActiveCities] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   
@@ -29,6 +31,15 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
       setLoading(false);
     };
     fetchCategories();
+
+    const fetchActiveCities = async () => {
+      const { data } = await supabase.from('profiles').select('city').not('city', 'is', null).eq('role', 'provider');
+      if (data) {
+        const uniqueCities = Array.from(new Set(data.map(p => p.city))).filter(Boolean) as string[];
+        setActiveCities(uniqueCities);
+      }
+    };
+    fetchActiveCities();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -128,6 +139,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
               <CityAutocomplete
                 value={formData.city}
                 onChange={val => setFormData({...formData, city: val})}
+                activeCities={activeCities}
                 placeholder="Onde o serviço será realizado?"
                 className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium"
               />

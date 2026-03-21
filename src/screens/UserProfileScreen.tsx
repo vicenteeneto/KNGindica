@@ -122,6 +122,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
   });
 
   const [dbCategories, setDbCategories] = useState<any[]>([]);
+  const [activeCities, setActiveCities] = useState<string[]>([]);
   const [showSuggestionInput, setShowSuggestionInput] = useState(false);
   const [newCategorySuggestion, setNewCategorySuggestion] = useState('');
   const [isSubmittingSuggestion, setIsSubmittingSuggestion] = useState(false);
@@ -184,6 +185,15 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       setPortfolio(data || []);
     };
     if (role === 'provider') fetchPortfolio();
+
+    const fetchActiveCities = async () => {
+      const { data } = await supabase.from('profiles').select('city').not('city', 'is', null).eq('role', 'provider');
+      if (data) {
+        const uniqueCities = Array.from(new Set(data.map(p => p.city))).filter(Boolean) as string[];
+        setActiveCities(uniqueCities);
+      }
+    };
+    fetchActiveCities();
   }, [user, role]);
 
   const handleCepChange = async (cepValue: string) => {
@@ -1054,7 +1064,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
 
       {showAddressModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-fade-in-up">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md animate-fade-in-up">
             <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
               <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
                 <span className="material-symbols-outlined text-emerald-500">location_on</span>
@@ -1089,6 +1099,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   <CityAutocomplete
                     value={formData.city}
                     onChange={(val) => setFormData({...formData, city: val})}
+                    activeCities={activeCities}
                     placeholder="Ex: Rondonópolis/MT"
                     className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                   />

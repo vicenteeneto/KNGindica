@@ -19,6 +19,7 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [geoLoading, setGeoLoading] = useState(false);
   const [dbCategories, setDbCategories] = useState<any[]>([]);
+  const [activeCities, setActiveCities] = useState<string[]>([]);
 
   React.useEffect(() => {
     const fetchCategories = async () => {
@@ -26,6 +27,15 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
       if (data) setDbCategories(data);
     };
     fetchCategories();
+
+    const fetchActiveCities = async () => {
+      const { data } = await supabase.from('profiles').select('city').not('city', 'is', null).eq('role', 'provider');
+      if (data) {
+        const uniqueCities = Array.from(new Set(data.map(p => p.city))).filter(Boolean) as string[];
+        setActiveCities(uniqueCities);
+      }
+    };
+    fetchActiveCities();
   }, []);
 
   const handleGetLocation = () => {
@@ -133,7 +143,7 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
                 <img 
                   className="w-full h-full object-cover" 
                   alt="Default professional profile avatar placeholder" 
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwjaCpFDwnk_xuJ1s4cjK9FQ8HLdKZxeDgPO5zw2dd9bSh3wl-G0O2ZNFqKd_Ey6zkJLzgz4yFjh3AA25mnOdI2eLem-vsiprklKeEz_0SMVYkUH6OaYAZq_rLoco7UHbhHQjB6nrEad64IWmX412t5NzLc3H5dgtPbfEEwfzxuuJ2xShGkE3TPRBSz8_-clwCfOLvGuoHxpIwr5uYd0TxRmANgGBE-Uao0KotGyRhhbQdQ8Bt17QygQgkOmvGPI6orCDIpiBYBDc"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwjaCpFDwnk_xuJ1s4cjK9FQ8HLdKZxeDgPO5zw2dd9bSh3wl-G0O2ZNFqKd_Ey6zkJLzgz4yFjh3AA25mnOdI2eLem-vsiprklKeEz_0SMVYkUH6OaYAZq_rLoco7UHbhHQjB6nrEad64IWmX412t5NzLc3H5dgtPbfEEwfzxuuJ2xShGkE3TPRBSz8_-clwCfOLxGuoHxpIwr5uYd0TxRmANgGBE-Uao0KotGyRhhbQdQ8Bt17QygQgkOmvGPI6orCDIpiBYBDc"
                 />
               </div>
               <button className="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full shadow-lg hover:bg-primary/90 transition-transform active:scale-95 flex items-center justify-center" type="button">
@@ -230,6 +240,7 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
               <CityAutocomplete
                 value={formData.city}
                 onChange={val => setFormData({...formData, city: val})}
+                activeCities={activeCities}
                 placeholder="Ex: Rondonópolis/MT"
                 className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
               />

@@ -19,6 +19,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [categories, setCategories] = useState<{ id: string, name: string }[]>([]);
+  const [activeCities, setActiveCities] = useState<string[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
 
   // Load draft on mount
@@ -66,6 +67,17 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
     };
     fetchCategories();
   }, [params?.providerId]);
+
+  useEffect(() => {
+    const fetchActiveCities = async () => {
+      const { data } = await supabase.from('profiles').select('city').not('city', 'is', null).eq('role', 'provider');
+      if (data) {
+        const uniqueCities = Array.from(new Set(data.map(p => p.city))).filter(Boolean) as string[];
+        setActiveCities(uniqueCities);
+      }
+    };
+    fetchActiveCities();
+  }, []);
 
   const handleSendRequest = async () => {
     if (!user) {
@@ -259,9 +271,10 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
               <section className="space-y-4">
                 <div>
                   <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight mb-2">Cidade</h3>
-                  <CityAutocomplete
+                   <CityAutocomplete
                     value={city}
                     onChange={(val) => setCity(val)}
+                    activeCities={activeCities}
                     placeholder="Selecione a cidade do serviço..."
                     className="w-full px-4 py-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-primary"
                   />
