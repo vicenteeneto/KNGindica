@@ -8,7 +8,7 @@ import { supabase } from '../lib/supabase';
 export default function ProviderDashboardScreen({ onNavigate }: NavigationProps) {
   const { logout, profile, user } = useAuth();
   const { unreadNotifications, unreadMessages } = useNotifications();
-  const [stats, setStats] = useState({ requests: 0, visits: 0, leads: 0, earnings: 0, pending: 0 });
+  const [stats, setStats] = useState({ requests: 0, visits: 0, leads: 0, earnings: 0, rating: 0 });
   const [recentRequests, setRecentRequests] = useState<any[]>([]);
   const [portfolioCount, setPortfolioCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -30,14 +30,23 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         const visits = leadData?.filter(l => l.type === 'profile_view').length || 0;
         const leads = leadData?.filter(l => l.type === 'whatsapp_click' || l.type === 'chat_start').length || 0;
 
-        // 2. Fetch active requests count
+        // 2. Fetch active requests count (Aligned with ProviderRequestsScreen "Novos" + Others)
         const { count: reqCount } = await supabase
           .from('service_requests')
           .select('*', { count: 'exact', head: true })
-          .eq('provider_id', user.id)
-          .in('status', ['accepted', 'awaiting_payment', 'paid', 'in_service']);
+          .or(`provider_id.eq.${user.id},and(provider_id.is.null,status.eq.open)`)
+          .not('status', 'in', '("completed","cancelled")');
           
-        // 3. Fetch earnings
+        // 3. Fetch real rating average
+        const { data: reviewsData } = await supabase
+          .from('reviews')
+          .select('rating')
+          .eq('provider_id', user.id);
+        
+        const sum = reviewsData?.reduce((acc, r) => acc + r.rating, 0) || 0;
+        const avg = reviewsData?.length ? sum / reviewsData.length : 0;
+          
+        // 4. Fetch earnings
         const { data: walletData } = await supabase
           .from('provider_wallet_summary')
           .select('total_earnings')
@@ -58,7 +67,8 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
           visits: visits,
           leads: leads,
           earnings: walletData?.total_earnings || 0,
-          pending: pendingBalance
+          pending: pendingBalance,
+          rating: Number(avg.toFixed(1))
         });
 
         // 4. Fetch recent requests
@@ -379,20 +389,23 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
                   <span className="material-symbols-outlined text-sm">assignment</span>
                </div>
                <div>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Serviços Ativos</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pedidos e Serviços</p>
                   <div className="flex items-center gap-1.5">
                     <p className="text-lg font-black text-slate-900 dark:text-slate-100">{stats.requests}</p>
                     <span className="material-symbols-outlined text-slate-300 text-sm group-hover:translate-x-1 transition-transform">chevron_right</span>
                   </div>
                </div>
             </div>
-            <div onClick={() => onNavigate('reviews')} className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center gap-3 cursor-pointer hover:border-primary transition-colors">
-               <div className="size-8 bg-amber-500/10 rounded-lg flex items-center justify-center text-amber-500">
+            <div onClick={() => onNavigate('reviews', { professionalId: user.id })} className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center gap-3 cursor-pointer hover:border-primary transition-all group">
+               <div className="size-8 bg-amber-500/10 rounded-lg flex items-center justify-center text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-colors">
                   <span className="material-symbols-outlined text-sm">star</span>
                </div>
                <div>
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Média</p>
-                  <p className="text-lg font-black text-slate-900 dark:text-slate-100">{profile?.stats?.rating?.toFixed(1) || '0.0'}</p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-lg font-black text-slate-900 dark:text-slate-100">{stats.rating > 0 ? stats.rating.toFixed(1) : '0.0'}</p>
+                    <span className="material-symbols-outlined text-slate-300 text-sm group-hover:translate-x-1 transition-transform">chevron_right</span>
+                  </div>
                </div>
             </div>
          </div>

@@ -10,9 +10,9 @@ export default function ProfessionalReviewsScreen({ onNavigate, params }: Profes
   const professionalId = params?.professionalId || '1';
   const [reviews, setReviews] = useState<any[]>([]);
   const [stats, setStats] = useState({
-    average: 4.9,
-    total: 128,
-    distribution: { 5: 115, 4: 8, 3: 3, 2: 1, 1: 1 }
+    average: 0,
+    total: 0,
+    distribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
   });
   const [loading, setLoading] = useState(false);
 
