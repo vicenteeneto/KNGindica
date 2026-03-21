@@ -129,6 +129,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
   const [showSuggestionInput, setShowSuggestionInput] = useState(false);
   const [newCategorySuggestion, setNewCategorySuggestion] = useState('');
   const [isSubmittingSuggestion, setIsSubmittingSuggestion] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState<'none' | 'pending' | 'approved' | 'rejected'>('none');
 
   // Keep form data synced when profile loads
   React.useEffect(() => {
@@ -199,6 +200,20 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       }
     };
     fetchActiveCities();
+
+    const fetchVerificationStatus = async () => {
+      if (!user) return;
+      const { data, error } = await supabase
+        .from('provider_verifications')
+        .select('status')
+        .eq('provider_id', user.id)
+        .maybeSingle();
+      
+      if (data) {
+        setVerificationStatus(data.status as any);
+      }
+    };
+    if (role === 'provider') fetchVerificationStatus();
   }, [user, role]);
 
   const handleCepChange = async (cepValue: string) => {
@@ -583,8 +598,9 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           if (!formData.bio?.trim() || formData.bio.trim().length < 30) missing.push("Bio");
           if (!formData.categories || formData.categories.length === 0) missing.push("Serviços");
           if (!(profile as any)?.latitude) missing.push("Localização");
-          if (!formData.price_value) missing.push("Preço");
+          if (!formData.is_negotiable && !formData.price_value) missing.push("Preço");
           if (portfolio.length === 0) missing.push("Portfólio");
+          if (verificationStatus !== 'approved') missing.push("Documentos");
 
           if (missing.length === 0) return null;
 
@@ -690,6 +706,52 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
             </button>
           </div>
         </section>
+
+        {/* Grupo 4: Validação de Perfil (Apenas para Prestadores) */}
+        {role === 'provider' && (
+          <section className="mb-8">
+            <div className="flex items-center gap-2 mb-3 px-2">
+              <span className="size-1.5 rounded-full bg-emerald-500"></span>
+              <h2 className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Validação de Perfil</h2>
+            </div>
+            <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border-2 border-slate-100 dark:border-slate-800 overflow-hidden group">
+              <button
+                onClick={() => onNavigate('providerVerification')}
+                className="w-full flex items-center justify-between p-6 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all active:scale-[0.99]"
+              >
+                <div className="flex items-center gap-5">
+                  <div className={`size-14 rounded-2xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110 ${
+                    verificationStatus === 'approved' ? 'bg-emerald-500 text-white shadow-emerald-500/20' :
+                    verificationStatus === 'pending' ? 'bg-amber-500 text-white shadow-amber-500/20' :
+                    'bg-slate-500 text-white shadow-slate-500/20'
+                  }`}>
+                    <span className="material-symbols-outlined text-3xl">
+                      {verificationStatus === 'approved' ? 'verified' : 
+                       verificationStatus === 'pending' ? 'pending_actions' : 'badge'}
+                    </span>
+                  </div>
+                  <div className="text-left">
+                    <p className="text-lg font-black text-slate-900 dark:text-white tracking-tight italic">
+                      {verificationStatus === 'approved' ? 'Identidade Verificada' :
+                       verificationStatus === 'pending' ? 'Documentos em Análise' :
+                       verificationStatus === 'rejected' ? 'Verificação Recusada' : 'Verificar Identidade'}
+                    </p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest">
+                      {verificationStatus === 'approved' ? 'SEU PERFIL POSSUI O SELO DE CONFIANÇA' :
+                       verificationStatus === 'pending' ? 'AGUARDE ATÉ 48H PARA A VALIDAÇÃO' :
+                       verificationStatus === 'rejected' ? 'ENVIE NOVOS DOCUMENTOS PARA CORREÇÃO' : 'ENVIE SEUS DOCUMENTOS PARA GANHAR O SELO'}
+                    </p>
+                  </div>
+                </div>
+                <div className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                  <span className="material-symbols-outlined">
+                    {verificationStatus === 'approved' ? 'check' : 'chevron_right'}
+                  </span>
+                </div>
+              </button>
+            </div>
+          </section>
+        )}
 
         {/* Configs Section */}
         <section className="mb-8">

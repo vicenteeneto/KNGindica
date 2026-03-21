@@ -12,6 +12,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
   const [recentRequests, setRecentRequests] = useState<any[]>([]);
   const [portfolioCount, setPortfolioCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [verificationStatus, setVerificationStatus] = useState<'none' | 'pending' | 'approved' | 'rejected'>('none');
   const [categoriesMap, setCategoriesMap] = useState<Record<string, string>>({});
 
 
@@ -138,6 +139,15 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         
         setPortfolioCount(pCount || 0);
 
+        // 6. Fetch verification status
+        const { data: verifData } = await supabase
+          .from('provider_verifications')
+          .select('status')
+          .eq('provider_id', user.id)
+          .maybeSingle();
+        
+        if (verifData) setVerificationStatus(verifData.status as any);
+
       } catch (err) {
         console.error("Dashboard error", err);
       } finally {
@@ -243,8 +253,9 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         if (!(profile as any)?.bio || (profile as any)?.bio.length < 30) missing.push("Bio completa");
         if (!(profile as any)?.categories || (profile as any)?.categories.length === 0) missing.push("Categorias");
         if (!(profile as any)?.latitude || !(profile as any)?.longitude) missing.push("Localização (GPS)");
-        if (!(profile as any)?.price_value) missing.push("Preço do serviço");
+        if (!profile?.pricing_model || (profile.pricing_model !== 'negotiable' && !profile.price_value)) missing.push("Preço do serviço");
         if (portfolioCount === 0) missing.push("Fotos no Portfólio");
+        if (verificationStatus !== 'approved') missing.push("Documentos de Identidade");
 
         if (missing.length === 0) return null;
 
@@ -507,23 +518,38 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
                     <span className="material-symbols-outlined text-primary text-[18px]">verified</span>
                     Status da Conta
                   </h3>
-                  <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-xl mb-6">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500">
-                         <span className="material-symbols-outlined text-3xl">verified_user</span>
+                  {(() => {
+                    const missingForStatus = [];
+                    if (!profile?.avatar_url) missingForStatus.push("Foto");
+                    if (!(profile as any)?.bio || (profile as any)?.bio.length < 30) missingForStatus.push("Bio");
+                    if (!(profile as any)?.categories || (profile as any)?.categories.length === 0) missingForStatus.push("Categorias");
+                    if (!(profile as any)?.latitude || !(profile as any)?.longitude) missingForStatus.push("Localização");
+                    if (!(profile?.pricing_model === 'negotiable' || profile?.price_value)) missingForStatus.push("Preço");
+                    if (portfolioCount === 0) missingForStatus.push("Portfólio");
+                    if (verificationStatus !== 'approved') missingForStatus.push("Documentos");
+
+                    if (missingForStatus.length > 0) return null;
+
+                    return (
+                      <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-xl mb-6">
+                        <div className="flex items-center gap-4 mb-4">
+                          <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500">
+                             <span className="material-symbols-outlined text-3xl">verified_user</span>
+                          </div>
+                          <div>
+                            <p className="text-xs font-black uppercase tracking-tighter text-slate-900 dark:text-white">Perfil Verificado</p>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Selo de Confiança Ativo</p>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => onNavigate('profile', { professionalId: user.id, returnTo: 'dashboard' })}
+                          className="w-full py-3 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-xs uppercase tracking-widest transition-all"
+                        >
+                          Ver Perfil Público
+                        </button>
                       </div>
-                      <div>
-                        <p className="text-xs font-black uppercase tracking-tighter text-slate-900 dark:text-white">Perfil Verificado</p>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Selo de Confiança Ativo</p>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => onNavigate('profile', { professionalId: user.id, returnTo: 'dashboard' })}
-                      className="w-full py-3 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-xs uppercase tracking-widest transition-all"
-                    >
-                      Ver Perfil Público
-                    </button>
-                  </div>
+                    );
+                  })()}
 
                   <h3 className="font-black text-slate-900 dark:text-slate-100 mb-4 ml-1 flex items-center gap-2 text-[10px] uppercase tracking-widest">
                     <span className="material-symbols-outlined text-slate-400 text-[18px]">support_agent</span>
