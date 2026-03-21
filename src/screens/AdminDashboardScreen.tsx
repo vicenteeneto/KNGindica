@@ -378,13 +378,23 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         .order('created_at', { ascending: false });
       setCategoryRequests(requests_cats || []);
 
-      // 7. Fetch Pending Verifications
-      const { data: verifications } = await supabase
+      // 7. Fetch Pending Verifications (two-step to avoid RLS join issues)
+      const { data: rawVerifications, error: verifError } = await supabase
         .from('provider_verifications')
-        .select('*, provider:profiles(full_name, email, avatar_url, phone, service_category)')
+        .select('*')
         .eq('status', 'pending')
-        .order('created_at', { ascending: false });
-      setPendingVerifications(verifications || []);
+        .order('updated_at', { ascending: false });
+      
+      if (!verifError && rawVerifications) {
+        // Enrich with provider info already fetched
+        const enriched = rawVerifications.map((v: any) => {
+          const providerProfile = (profiles || []).find((p: any) => p.id === v.provider_id);
+          return { ...v, provider: providerProfile || null };
+        });
+        setPendingVerifications(enriched);
+      } else {
+        setPendingVerifications([]);
+      }
 
       // 8. Fetch Chat Rooms
       const { data: rooms } = await supabase
