@@ -8,24 +8,57 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
 
   useEffect(() => {
     const fetchRequest = async () => {
-      if (!params?.requestId) return;
-      const { data, error } = await supabase
-        .from('service_requests')
-        .select(`
-          *,
-          profiles:provider_id(full_name, avatar_url, rating, reviews),
-          service_categories(name, icon)
-        `)
-        .eq('id', params.requestId)
-        .single();
-      
-      if (!error) {
-        setRequest(data);
-        console.log("ServiceStatusScreen carregado:", data);
+      if (!params?.requestId) {
+        setLoading(false);
+        return;
       }
-      setLoading(false);
+      
+      try {
+        const { data, error } = await supabase
+          .from('service_requests')
+          .select(`
+            *,
+            profiles:provider_id(full_name, avatar_url, rating, reviews),
+            service_categories(name, icon)
+          `)
+          .eq('id', params.requestId)
+          .single();
+        
+        if (error) throw error;
+        
+        if (data) {
+          setRequest(data);
+          console.log("ServiceStatusScreen carregado:", data);
+        }
+      } catch (err: any) {
+        console.error("Erro ao buscar pedido:", err);
+      } finally {
+        setLoading(false);
+      }
     };
+
     fetchRequest();
+
+    // Inscrição em tempo real para atualizações do pedido (orçamento, status, etc)
+    if (params?.requestId) {
+      const subscription = supabase
+        .channel(`service_request_${params.requestId}`)
+        .on('postgres_changes', {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'service_requests',
+          filter: `id=eq.${params.requestId}`
+        }, (payload) => {
+          console.log("Pedido atualizado em tempo real:", payload.new);
+          // Recarregar dados completos para pegar os profiles/categories relacionados
+          fetchRequest();
+        })
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(subscription);
+      };
+    }
   }, [params?.requestId]);
 
   if (loading && params?.requestId) {

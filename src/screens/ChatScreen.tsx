@@ -54,15 +54,43 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
   };
 
   useEffect(() => {
-    if (!roomId || !user) return;
-
     const fetchMessages = async (silent = false) => {
       if (!silent) setLoading(true);
+      
+      let currentRoomId = roomId;
+
+      // Fallback: se não veio por parâmetro, busca da sala de chat pelo requestId
+      if (!currentRoomId && (params?.requestId || serviceRequest?.id)) {
+        try {
+          const rid = params?.requestId || serviceRequest?.id;
+          const { data: roomData, error: roomError } = await supabase
+            .from('chat_rooms')
+            .select('id')
+            .eq('request_id', rid)
+            .single();
+          
+          if (roomData?.id) {
+            currentRoomId = roomData.id;
+            // Update params so other functions can use it
+            if (params) params.roomId = currentRoomId;
+          } else {
+             console.error("Room count not found for request", rid);
+          }
+        } catch (e) {
+          console.error("Error fetching room for fallback:", e);
+        }
+      }
+
+      if (!currentRoomId || !user) {
+        if (!silent) setLoading(false);
+        return;
+      }
+
       try {
         const { data, error } = await supabase
           .from('chat_messages')
           .select('*')
-          .eq('room_id', roomId)
+          .eq('room_id', currentRoomId)
           .order('created_at', { ascending: true });
 
         if (error) throw error;
@@ -122,36 +150,41 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
     const interval = setInterval(() => fetchMessages(true), 3000);
 
     // Subscribe to real-time updates as primary driver
-    const messageSubscription = supabase
-      .channel(`chat_room_${roomId}`)
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'chat_messages',
-        filter: `room_id=eq.${roomId}`
-      }, (payload) => {
-        if (payload.new.content.startsWith('[PROPOSTA]')) {
-          fetchRequest();
-        }
-        setMessages((prev) => {
-          // remove temp message with same content if exists
-          const filtered = prev.filter(m => !(m.id?.toString().startsWith('temp-') && m.content === payload.new.content));
-          return [...filtered, payload.new];
-        });
-        scrollToBottom();
-        
-        // Se a mensagem for do oponente, marca como lida
-        if (payload.new.sender_id !== user.id) {
-          markMessagesAsRead();
-        }
-      })
-      .subscribe();
+    let messageSubscription: any = null;
+    
+    if (params?.roomId || roomId) {
+      const rid = params?.roomId || roomId;
+      messageSubscription = supabase
+        .channel(`chat_room_${rid}`)
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'chat_messages',
+          filter: `room_id=eq.${rid}`
+        }, (payload) => {
+          if (payload.new.content.startsWith('[PROPOSTA]')) {
+            fetchRequest();
+          }
+          setMessages((prev) => {
+            // remove temp message with same content if exists
+            const filtered = prev.filter(m => !(m.id?.toString().startsWith('temp-') && m.content === payload.new.content));
+            return [...filtered, payload.new];
+          });
+          scrollToBottom();
+          
+          // Se a mensagem for do oponente, marca como lida
+          if (payload.new.sender_id !== user.id) {
+            markMessagesAsRead();
+          }
+        })
+        .subscribe();
+    }
 
     return () => {
       clearInterval(interval);
-      supabase.removeChannel(messageSubscription);
+      if (messageSubscription) supabase.removeChannel(messageSubscription);
     };
-  }, [roomId, user]);
+  }, [roomId, user, params?.requestId]);
 
   const scrollToBottom = () => {
     setTimeout(() => {
@@ -539,10 +572,14 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
                   <input
                     type="text"
                     required
+                    inputMode="decimal"
                     value={proposalPrice}
-                    onChange={(e) => setProposalPrice(e.target.value)}
+                    onChange={(e) => {
+                      let val = e.target.value.replace(/[^\d,.]/g, '');
+                      setProposalPrice(val);
+                    }}
                     placeholder="0,00"
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                    className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all font-bold text-lg"
                   />
                 </div>
                 <p className="text-[10px] text-slate-500 mt-2">
