@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { NavigationProps } from '../types';
+import { CityAutocomplete } from '../components/CityAutocomplete';
 
 export default function FilterServicesScreen({ onNavigate, params }: NavigationProps) {
   const initialFilters = params?.filters || {};
@@ -10,6 +11,7 @@ export default function FilterServicesScreen({ onNavigate, params }: NavigationP
   const [tempRating, setTempRating] = useState<number>(initialFilters.minRating || 0);
   const [tempDistance, setTempDistance] = useState<number>(initialFilters.maxDistance || 50);
   const [tempAvailability, setTempAvailability] = useState<string | null>(initialFilters.availability || null);
+  const [tempCity, setTempCity] = useState<string>(initialFilters.city || '');
 
   const categories = ['Limpeza', 'Reformas', 'Elétrica', 'Jardim', 'Pintura', 'Montagem', 'Encanador', 'Frete'];
 
@@ -21,7 +23,8 @@ export default function FilterServicesScreen({ onNavigate, params }: NavigationP
         maxPrice: tempMaxPrice,
         minRating: tempRating,
         maxDistance: tempDistance,
-        availability: tempAvailability
+        availability: tempAvailability,
+        city: tempCity
       }
     });
   };
@@ -33,6 +36,7 @@ export default function FilterServicesScreen({ onNavigate, params }: NavigationP
     setTempRating(0);
     setTempDistance(50);
     setTempAvailability(null);
+    setTempCity('');
   };
 
   return (
@@ -57,6 +61,21 @@ export default function FilterServicesScreen({ onNavigate, params }: NavigationP
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto pb-32">
         <div className="px-4 space-y-8 py-6">
+          {/* City Section */}
+          <section>
+            <h3 className="text-slate-900 dark:text-slate-100 text-base font-bold mb-3">Cidade</h3>
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">location_on</span>
+              <CityAutocomplete
+                value={tempCity}
+                onChange={val => setTempCity(val)}
+                placeholder="Ex: Rondonópolis/MT"
+                className="w-full bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-800 rounded-2xl pl-12 pr-4 py-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none font-medium transition-all"
+              />
+            </div>
+            <p className="text-xs text-slate-500 mt-2">Filtre por uma cidade específica para ver prestadores locais.</p>
+          </section>
+
           {/* Categories Section */}
           <section>
             <h3 className="text-slate-900 dark:text-slate-100 text-base font-bold mb-3">Categorias</h3>

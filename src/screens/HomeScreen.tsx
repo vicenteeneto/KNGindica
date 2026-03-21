@@ -7,6 +7,7 @@ import { supabase } from '../lib/supabase';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { CityAutocomplete } from '../components/CityAutocomplete';
 
 // Fix Leaflet Default Icon issue in React
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
@@ -75,7 +76,6 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   const [touchEndHero, setTouchEndHero] = useState<number | null>(null);
   const [manualCityInput, setManualCityInput] = useState('');
   const [availableCities, setAvailableCities] = useState<string[]>([]);
-  const [brazilSuggestions, setBrazilSuggestions] = useState<string[]>([]);
   const isManualLocation = useRef(false);
 
   // Geocodifica uma string de cidade para [lat, lng]
@@ -97,7 +97,6 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
   const handleCitySelect = async (city: string) => {
     setManualCityInput(city);
-    setBrazilSuggestions([]);
     isManualLocation.current = true;
     setLocationName(city);
     setUserCoords(null);
@@ -268,11 +267,17 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         mapped.sort((a, b) => {
            if (userCoords) {
              return a.rawDistance - b.rawDistance;
-           } else if (locationName && locationName !== 'Brasil (Sem GPS)' && locationName !== 'Localização Indisponível (GPS Negado)') {
-             const aMatch = a.city?.toLowerCase().includes(locationName.toLowerCase()) ? -1 : 1;
-             const bMatch = b.city?.toLowerCase().includes(locationName.toLowerCase()) ? -1 : 1;
-             return aMatch - bMatch;
-           }
+            } else if (locationName && locationName !== 'Brasil (Sem GPS)' && locationName !== 'Localização Indisponível (GPS Negado)') {
+              // Comparação robusta (ignora acentos e foca no nome da cidade antes da UF)
+              const filterCity = locationName.split('/')[0].normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
+              
+              const aCity = (a.city || '').split('/')[0].normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
+              const bCity = (b.city || '').split('/')[0].normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+              const aMatch = aCity === filterCity ? -2 : 1;
+              const bMatch = bCity === filterCity ? -2 : 1;
+              return aMatch - bMatch;
+            }
            return 0;
         });
         
@@ -561,49 +566,14 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                   <div className="mb-4">
                     <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-3">Sua Cidade</p>
                     <div className="relative">
-                      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">search</span>
-                      <input
-                        type="text"
+                      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm z-10">search</span>
+                      <CityAutocomplete
                         value={manualCityInput}
-                        onChange={async (e) => {
-                          const val = e.target.value;
-                          setManualCityInput(val);
-                          // Lógica de sugestão (debounce vindo aí se necessário)
-                          if (val.length >= 3) {
-                             try {
-                               const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/municipios?nome=${val}&orderBy=nome`);
-                               const data = await res.json();
-                               // Filtra e limita a 5 sugestões
-                               const suggestions = data.slice(0, 5).map((m: any) => `${m.nome}/${m.microrregiao.mesorregiao.UF.sigla}`);
-                               setBrazilSuggestions(suggestions);
-                             } catch {}
-                          } else {
-                            setBrazilSuggestions([]);
-                          }
-                        }}
-                        placeholder="Ex: Rondonópolis..."
+                        onChange={(val) => setManualCityInput(val)}
+                        onSelect={(city) => handleCitySelect(city)}
+                        placeholder="Ex: Rondonópolis/MT..."
                         className="w-full pl-9 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:border-primary outline-none text-xs font-bold"
-                        onKeyDown={async (e) => {
-                          if (e.key === 'Enter' && manualCityInput) {
-                            handleCitySelect(manualCityInput);
-                          }
-                        }}
                       />
-                      
-                      {/* Lista de Sugestões IBGE */}
-                      {brazilSuggestions.length > 0 && (
-                        <div className="absolute top-full left-0 right-0 mt-1 bg-slate-900 border border-white/10 rounded-xl shadow-2xl z-70 overflow-hidden">
-                          {brazilSuggestions.map(s => (
-                            <button
-                              key={s}
-                              onClick={() => handleCitySelect(s)}
-                              className="w-full px-4 py-2 text-left text-[11px] font-bold text-slate-300 hover:bg-primary hover:text-white transition-colors border-b border-white/5 last:border-0"
-                            >
-                              {s}
-                            </button>
-                          ))}
-                        </div>
-                      )}
                     </div>
                   </div>
 

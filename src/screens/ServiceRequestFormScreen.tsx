@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
+import { CityAutocomplete } from '../components/CityAutocomplete';
 
 interface ServiceRequestFormScreenProps extends NavigationProps {
   params?: any;
@@ -11,6 +12,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
   const { user } = useAuth();
   const [description, setDescription] = useState('');
   const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
   const [desiredDate, setDesiredDate] = useState('');
   const [desiredTime, setDesiredTime] = useState('09:00');
   const [photos, setPhotos] = useState<string[]>([]);
@@ -27,6 +29,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
         const parsed = JSON.parse(saved);
         if (parsed.description) setDescription(parsed.description);
         if (parsed.address) setAddress(parsed.address);
+        if (parsed.city) setCity(parsed.city);
         if (parsed.desiredDate) setDesiredDate(parsed.desiredDate);
         if (parsed.desiredTime) setDesiredTime(parsed.desiredTime);
         if (parsed.selectedCategoryId) setSelectedCategoryId(parsed.selectedCategoryId);
@@ -41,7 +44,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
   useEffect(() => {
     const timer = setTimeout(() => {
       localStorage.setItem('draft_service_request', JSON.stringify({
-        description, address, desiredDate, desiredTime, selectedCategoryId, photos
+        description, address, city, desiredDate, desiredTime, selectedCategoryId, photos
       }));
     }, 500);
     return () => clearTimeout(timer);
@@ -73,8 +76,8 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
       alert('Por favor, selecione uma categoria.');
       return;
     }
-    if (!description || !address || !desiredDate) {
-      alert('Por favor, preencha a descrição, localização e a data desejada.');
+    if (!description || !city || !address || !desiredDate) {
+      alert('Por favor, preencha a descrição, cidade, endereço e a data desejada.');
       return;
     }
 
@@ -93,6 +96,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
           title: `Orçamento para ${categoryName}`,
           description: fullDescription,
           address,
+          city,
           status: 'open'
         })
         .select('id')
@@ -252,19 +256,30 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
               </section>
 
               {/* Section: Address */}
-              <section>
-                <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight mb-4">Localização</h3>
-                <div className="relative">
-                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">location_on</span>
-                  <input
-                    type="text"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder="Informe o endereço do serviço"
-                    className="form-input w-full pl-12 pr-4 py-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-primary"
+              <section className="space-y-4">
+                <div>
+                  <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight mb-2">Cidade</h3>
+                  <CityAutocomplete
+                    value={city}
+                    onChange={(val) => setCity(val)}
+                    placeholder="Selecione a cidade do serviço..."
+                    className="w-full px-4 py-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-primary"
                   />
                 </div>
-                <p className="text-slate-400 text-xs mt-2 font-medium"><span className="material-symbols-outlined text-[14px] align-middle mr-1">info</span>O endereço exato só será visível ao prestador.</p>
+                <div>
+                  <h3 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight mb-2">Endereço Detalhado</h3>
+                  <div className="relative">
+                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">location_on</span>
+                    <input
+                      type="text"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder="Ex: Rua, número, bairro..."
+                      className="form-input w-full pl-12 pr-4 py-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-primary"
+                    />
+                  </div>
+                  <p className="text-slate-400 text-xs mt-2 font-medium"><span className="material-symbols-outlined text-[14px] align-middle mr-1">info</span>O endereço exato só será visível ao prestador.</p>
+                </div>
               </section>
 
               {/* Section: Photos */}

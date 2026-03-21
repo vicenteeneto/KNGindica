@@ -3,6 +3,7 @@ import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
 import { parseCurrency, maskCurrency } from '../lib/formatters';
+import { CityAutocomplete } from '../components/CityAutocomplete';
 
 export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) {
   const { user } = useAuth();
@@ -14,7 +15,8 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
     title: '',
     description: '',
     budget: '',
-    category_id: ''
+    category_id: '',
+    city: ''
   });
 
   useEffect(() => {
@@ -33,6 +35,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
     e.preventDefault();
     if (!user) return alert("Você precisa estar logado.");
     if (!formData.category_id) return alert("Por favor, selecione uma categoria.");
+    if (!formData.city) return alert("Por favor, selecione a cidade do serviço.");
 
     setSending(true);
     try {
@@ -44,6 +47,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
           description: formData.description,
           budget: parseCurrency(formData.budget),
           category_id: formData.category_id,
+          city: formData.city,
           status: 'open'
         }])
         .select()
@@ -117,6 +121,16 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
                   <option key={cat.id} value={cat.id}>{cat.name}</option>
                 ))}
               </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold mb-2 uppercase tracking-widest text-slate-400">Cidade do Serviço</label>
+              <CityAutocomplete
+                value={formData.city}
+                onChange={val => setFormData({...formData, city: val})}
+                placeholder="Onde o serviço será realizado?"
+                className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium"
+              />
             </div>
 
             <div>

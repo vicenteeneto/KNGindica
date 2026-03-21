@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { NavigationProps, Professional, Screen } from '../types';
 import { professionals as mockProfessionals } from '../data/mockData';
+import { requestNotificationPermission } from '../lib/OneSignalService';
 import VerifiedBadge from '../components/VerifiedBadge';
 import { supabase } from '../lib/supabase';
-import { formatCurrency } from '../lib/formatters';
+import { maskCurrency, parseCurrency, formatCurrency } from '../lib/formatters';
+import { CityAutocomplete } from '../components/CityAutocomplete';
 
 interface ServiceListingProps extends NavigationProps {
   initialParams?: {
@@ -22,6 +24,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
   const [filteredProfessionals, setFilteredProfessionals] = useState<Professional[]>([]);
   const [dynamicCategories, setDynamicCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCity, setSelectedCity] = useState(initialParams?.filters?.city || '');
 
   useEffect(() => {
     const fetchProviders = async () => {
@@ -97,7 +100,14 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
       if (filters.maxDistance) {
         result = result.filter(p => p.distance <= filters.maxDistance);
       }
-      // Availability logic would go here if we had the data
+    }
+
+    if (selectedCity) {
+       const filter = selectedCity.split('/')[0].normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
+       result = result.filter(p => {
+         const pCity = (p.city || '').split('/')[0].normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
+         return pCity === filter;
+       });
     }
 
     if (sortBy) {
@@ -114,7 +124,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
     }
 
     setFilteredProfessionals(result);
-  }, [searchQuery, selectedCategory, sortBy, sortOrder, dbProfessionals, initialParams]);
+  }, [searchQuery, selectedCategory, sortBy, sortOrder, dbProfessionals, initialParams, selectedCity]);
 
   const handleSort = (type: 'price' | 'rating' | 'distance') => {
     if (sortBy === type) {
@@ -134,21 +144,36 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
             <button onClick={() => onNavigate('home')} className="text-primary cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 p-1 rounded-full transition-colors">
               <span className="material-symbols-outlined text-2xl">arrow_back</span>
             </button>
-            <h1 className="text-lg font-bold tracking-tight">Profissionais em Rondonópolis</h1>
+            <div className="flex-1 min-w-[200px]">
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                <input
+                  type="text"
+                  placeholder="O que você está procurando?"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl pl-12 pr-4 py-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none font-bold text-sm"
+                />
+              </div>
+            </div>
+            <div className="flex-1 min-w-[200px]">
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">location_on</span>
+                <CityAutocomplete
+                   value={selectedCity}
+                   onChange={val => setSelectedCity(val)}
+                   placeholder="Filtrar por cidade..."
+                   className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl pl-12 pr-4 py-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none font-bold text-sm"
+                />
+              </div>
+            </div>
           </div>
           <div className="flex items-center relative gap-2">
-             <input
-                type="text"
-                placeholder="Buscar..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="hidden md:block px-4 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-slate-500"
-             />
-            <button 
+            <button
               onClick={() => {
                 const input = document.getElementById('searchInputMobile');
                 if (input) input.focus();
-              }} 
+              }}
               className="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors md:hidden"
             >
               <span className="material-symbols-outlined">search</span>

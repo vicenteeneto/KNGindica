@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
+import { CityAutocomplete } from '../components/CityAutocomplete';
 
 export default function ProviderRegistrationScreen({ onNavigate }: NavigationProps) {
   const { user, refreshProfile } = useAuth();
@@ -226,17 +227,12 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
 
             <div className="space-y-1.5">
               <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Cidade de Atuação *</label>
-              <div className="flex items-center w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent transition-all">
-                <span className="material-symbols-outlined text-primary text-sm mr-2">location_city</span>
-                <input 
-                  type="text" 
-                  className="w-full bg-transparent outline-none" 
-                  placeholder="Ex: Rondonópolis - MT"
-                  value={formData.city}
-                  onChange={e => setFormData({...formData, city: e.target.value})}
-                  required
-                />
-              </div>
+              <CityAutocomplete
+                value={formData.city}
+                onChange={val => setFormData({...formData, city: val})}
+                placeholder="Ex: Rondonópolis/MT"
+                className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+              />
             </div>
           </div>
 
