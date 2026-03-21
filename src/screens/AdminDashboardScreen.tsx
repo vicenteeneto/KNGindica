@@ -2455,6 +2455,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           {activeTab === 'categories' && renderCategoriesTab()}
           {activeTab === 'chat_audit' && renderChatAuditTab()}
           {activeTab === 'disputes' && renderDisputesTab()}
+          {activeTab === 'verifications' && renderVerificationsTab()}
           {activeTab === 'finance' && renderFinanceTab()}
           {activeTab === 'settings' && renderSettingsTab()}
           {activeTab === 'maintenance' && renderMaintenanceTab()}
