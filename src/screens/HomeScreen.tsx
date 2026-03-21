@@ -8,6 +8,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { CityAutocomplete } from '../components/CityAutocomplete';
+import VerifiedBadge from '../components/VerifiedBadge';
 
 // Fix Leaflet Default Icon issue in React
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
@@ -707,7 +708,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                           <span className="bg-white/10 px-2 py-0.5 rounded text-[10px] font-black tracking-tighter italic text-gray-400 shadow-lg border border-white/5">DESTAQUE</span>
                         )}
                         {p.isVerified && (
-                          <span className="text-sm font-bold text-orange-200/80">Verificado KNGindica</span>
+                          <VerifiedBadge size="lg" />
                         )}
                       </div>
                       <h1 className="text-3xl md:text-6xl font-black text-slate-900 dark:text-white leading-[0.9] mb-3 drop-shadow-2xl">
