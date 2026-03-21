@@ -34,39 +34,68 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
         `)
         .order('created_at', { ascending: false });
 
-      if (activeTab === 'Novos') {
-        // Tab Novos: Only 'open' requests.
-        // Can be assigned to me OR unassigned but in my category.
-        const { data: profData } = await supabase.from('profiles').select('categories').eq('id', user.id).single();
-        const myCats = profData?.categories || [];
-        const { data: catData } = await supabase.from('service_categories').select('id, name');
-        let catIds: string[] = [];
-        if (catData) {
-          catIds = catData.filter(c => myCats.includes(c.name)).map(c => c.id);
-        }
+      let expectedStatuses: string[] = [];
 
-        if (catIds.length > 0) {
-          query = query.eq('status', 'open')
-            .or(`provider_id.eq.${user.id},and(provider_id.is.null,category_id.in.(${catIds.join(',')}))`);
-        } else {
-          query = query.eq('status', 'open').eq('provider_id', user.id);
-        }
-      } else if (activeTab === 'Orçados') {
-        query = query.in('status', ['proposed', 'accepted', 'quoted', 'awaiting_payment']).eq('provider_id', user.id);
-      } else if (activeTab === 'Agendados') {
-        query = query.eq('status', 'scheduled').eq('provider_id', user.id);
-      } else if (activeTab === 'Em Andamento') {
-        query = query.in('status', ['paid', 'in_service']).eq('provider_id', user.id);
-      } else if (activeTab === 'Finalizados') {
-        query = query.eq('status', 'completed').eq('provider_id', user.id);
+      switch (activeTab) {
+        case 'Novos':
+          // Tab Novos: Only 'open' requests.
+          expectedStatuses = ['open'];
+          const { data: profData } = await supabase.from('profiles').select('categories').eq('id', user.id).single();
+          const myCats = profData?.categories || [];
+          const { data: catData } = await supabase.from('service_categories').select('id, name');
+          let catIds: string[] = [];
+          if (catData) {
+            catIds = catData.filter(c => myCats.includes(c.name)).map(c => c.id);
+          }
+
+          if (catIds.length > 0) {
+            query = query.eq('status', 'open')
+              .or(`provider_id.eq.${user.id},and(provider_id.is.null,category_id.in.(${catIds.join(',')}))`);
+          } else {
+            query = query.eq('status', 'open').eq('provider_id', user.id);
+          }
+          break;
+
+        case 'Orçados':
+          expectedStatuses = ['proposed', 'accepted', 'quoted', 'awaiting_payment'];
+          query = query.in('status', expectedStatuses).eq('provider_id', user.id);
+          break;
+
+        case 'Agendados':
+          expectedStatuses = ['scheduled'];
+          query = query.eq('status', 'scheduled').eq('provider_id', user.id);
+          break;
+
+        case 'Em Andamento':
+          expectedStatuses = ['paid', 'in_service'];
+          query = query.in('status', expectedStatuses).eq('provider_id', user.id);
+          break;
+
+        case 'Finalizados':
+          expectedStatuses = ['completed'];
+          query = query.eq('status', 'completed').eq('provider_id', user.id);
+          break;
+        
+        default:
+          // Fallback safe: fetch nothing if tab unknown
+          query = query.eq('id', '00000000-0000-0000-0000-000000000000');
       }
 
       const { data, error } = await query;
-
       if (error) throw error;
-      setRequests(data || []);
-    } catch (err) {
+
+      // Secondary JS-side filter as a safety guard to prevent any leakage
+      const filteredData = (data || []).filter((req: any) => {
+        if (expectedStatuses.length > 0) {
+          return expectedStatuses.includes(req.status);
+        }
+        return true;
+      });
+
+      setRequests(filteredData);
+    } catch (err: any) {
       console.error("Error fetching requests:", err);
+      showToast('Erro ao carregar serviços: ' + err.message, 'error');
     } finally {
       setLoading(false);
     }
@@ -109,7 +138,12 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
           })
           .eq('id', req.id);
         if (updateError) throw updateError;
+        
         fetchRequests();
+        // Auto navigate to Orçados after starting chat on a New request
+        if (activeTab === 'Novos') {
+          setActiveTab('Orçados');
+        }
       }
 
       onNavigate('chat', { 
@@ -118,9 +152,9 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
         opponentAvatar: req.profiles?.avatar_url,
         requestId: req.id
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error opening chat:", err);
-      alert("Erro ao abrir chat.");
+      showToast("Erro ao abrir chat: " + err.message, "error");
     }
   };
 
