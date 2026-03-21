@@ -61,6 +61,8 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
   const [showReviewerResults, setShowReviewerResults] = useState(false);
   const [maintenanceSearchTerm, setMaintenanceSearchTerm] = useState('');
   const [ordersFilter, setOrdersFilter] = useState<'all' | 'awaiting_payment' | 'scheduled' | 'in_progress' | 'completed' | 'disputed'>('all');
+  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
+
 
 
   const AVAILABLE_ICONS = [
@@ -254,6 +256,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           const { error } = await supabase.from('service_requests').delete().eq('id', orderId);
           if (error) throw error;
           setOrdersList(prev => prev.filter(o => o.id !== orderId));
+          setSelectedOrders(prev => prev.filter(id => id !== orderId));
           showToast("Sucesso", "Pedido removido com sucesso", "success");
           fetchData();
         } catch (e) {
@@ -263,6 +266,48 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
       }
     });
   };
+
+  const handleBulkDelete = async () => {
+    if (selectedOrders.length === 0) return;
+
+    showModal({
+      title: "Exclusão em Massa",
+      message: `Tem certeza que deseja excluir permanentemente ${selectedOrders.length} pedidos selecionados? Esta ação não pode ser desfeita.`,
+      confirmLabel: `Sim, Excluir ${selectedOrders.length} Pedidos`,
+      cancelLabel: "Cancelar",
+      type: "danger",
+      onConfirm: async () => {
+        try {
+          const { error } = await supabase.from('service_requests').delete().in('id', selectedOrders);
+          if (error) throw error;
+          
+          showToast("Sucesso", `${selectedOrders.length} pedidos removidos com sucesso.`, "success");
+          setSelectedOrders([]);
+          fetchData();
+        } catch (e) {
+          console.error("Erro na exclusão em massa:", e);
+          showToast("Erro", "Falha ao excluir alguns pedidos. Verifique se há transações vinculadas.", "error");
+        }
+      }
+    });
+  };
+
+  const handleToggleOrderSelection = (orderId: string) => {
+    setSelectedOrders(prev => 
+      prev.includes(orderId) 
+        ? prev.filter(id => id !== orderId) 
+        : [...prev, orderId]
+    );
+  };
+
+  const handleToggleSelectAll = (visibleOrders: any[]) => {
+    if (selectedOrders.length === visibleOrders.length && visibleOrders.length > 0) {
+      setSelectedOrders([]);
+    } else {
+      setSelectedOrders(visibleOrders.map(o => o.id));
+    }
+  };
+
 
   const handleResolveDispute = async (requestId: string, resolution: 'refund_client' | 'pay_provider' | 'resolved') => {
     try {
@@ -1287,22 +1332,83 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         </button>
       </div>
 
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm relative">
+        {selectedOrders.length > 0 && (
+          <div className="absolute top-0 left-0 right-0 bg-primary/10 dark:bg-primary/20 backdrop-blur-sm border-b border-primary/20 px-6 py-2 flex items-center justify-between z-10 animate-in slide-in-from-top duration-300">
+            <p className="text-sm font-bold text-primary flex items-center gap-2">
+              <span className="material-symbols-outlined text-lg">check_circle</span>
+              {selectedOrders.length} pedido{selectedOrders.length > 1 ? 's' : ''} selecionado{selectedOrders.length > 1 ? 's' : ''}
+            </p>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => setSelectedOrders([])}
+                className="text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 px-3 py-1.5 rounded-lg transition-colors"
+                >
+                Limpar Seleção
+              </button>
+              <button 
+                onClick={handleBulkDelete}
+                className="bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-4 py-1.5 rounded-lg flex items-center gap-2 transition-all shadow-sm"
+              >
+                <span className="material-symbols-outlined text-[16px]">delete</span>
+                Excluir Selecionados
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse whitespace-nowrap">
             <thead>
               <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">ID Pedido / Data</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Cliente</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Prestador</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Valor / Taxa</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Ações</th>
+                <th className="px-4 py-2 w-10">
+                  <div className="flex items-center justify-center">
+                    <input 
+                      type="checkbox" 
+                      className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer"
+                      checked={
+                        ordersList.filter(order => {
+                          if (ordersFilter === 'all') return true;
+                          if (ordersFilter === 'awaiting_payment') return order.status === 'awaiting_payment';
+                          if (ordersFilter === 'scheduled') return order.status === 'scheduled';
+                          if (ordersFilter === 'in_progress') return ['proposed', 'quoted', 'accepted', 'in_service'].includes(order.status);
+                          if (ordersFilter === 'completed') return order.status === 'completed';
+                          if (ordersFilter === 'disputed') return order.status === 'disputed';
+                          return true;
+                        }).length > 0 && 
+                        selectedOrders.length === ordersList.filter(order => {
+                          if (ordersFilter === 'all') return true;
+                          if (ordersFilter === 'awaiting_payment') return order.status === 'awaiting_payment';
+                          if (ordersFilter === 'scheduled') return order.status === 'scheduled';
+                          if (ordersFilter === 'in_progress') return ['proposed', 'quoted', 'accepted', 'in_service'].includes(order.status);
+                          if (ordersFilter === 'completed') return order.status === 'completed';
+                          if (ordersFilter === 'disputed') return order.status === 'disputed';
+                          return true;
+                        }).length
+                      }
+                      onChange={() => handleToggleSelectAll(ordersList.filter(order => {
+                        if (ordersFilter === 'all') return true;
+                        if (ordersFilter === 'awaiting_payment') return order.status === 'awaiting_payment';
+                        if (ordersFilter === 'scheduled') return order.status === 'scheduled';
+                        if (ordersFilter === 'in_progress') return ['proposed', 'quoted', 'accepted', 'in_service'].includes(order.status);
+                        if (ordersFilter === 'completed') return order.status === 'completed';
+                        if (ordersFilter === 'disputed') return order.status === 'disputed';
+                        return true;
+                      }))}
+                    />
+                  </div>
+                </th>
+                <th className="px-4 py-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider">ID / Data</th>
+                <th className="px-4 py-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Cliente</th>
+                <th className="px-4 py-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Prestador / Serviço</th>
+                <th className="px-4 py-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Valor</th>
+                <th className="px-4 py-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                <th className="px-4 py-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider text-right">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {loading ? (
-                <tr><td colSpan={6} className="p-6 text-center text-slate-500">Carregando...</td></tr>
+                <tr><td colSpan={7} className="p-6 text-center text-slate-500">Carregando...</td></tr>
               ) : ordersList.filter(order => {
                 if (ordersFilter === 'all') return true;
                 if (ordersFilter === 'awaiting_payment') return order.status === 'awaiting_payment';
@@ -1312,7 +1418,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                 if (ordersFilter === 'disputed') return order.status === 'disputed';
                 return true;
               }).length === 0 ? (
-                <tr><td colSpan={6} className="p-6 text-center text-slate-500">Nenhum pedido encontrado para este filtro.</td></tr>
+                <tr><td colSpan={7} className="p-6 text-center text-slate-500">Nenhum pedido encontrado para este filtro.</td></tr>
               ) : (
                 ordersList
                   .filter(order => {
@@ -1325,42 +1431,58 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                     return true;
                   })
                   .map(order => (
-                  <tr key={order.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-bold text-sm text-slate-900 dark:text-white">{order.display_id || `#...${order.id.substring(0, 6)}`}</p>
-                        <button className="text-slate-400 hover:text-primary transition-colors" title="Copiar ID" onClick={() => navigator.clipboard.writeText(order.display_id || order.id)}>
-                          <span className="material-symbols-outlined text-[14px]">content_copy</span>
-                        </button>
-                      </div>
-                      <p className="text-xs text-slate-500 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">calendar_today</span> {new Date(order.created_at).toLocaleDateString('pt-BR')}</p>
+                  <tr 
+                    key={order.id} 
+                    className={`hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors ${selectedOrders.includes(order.id) ? 'bg-primary/5 dark:bg-primary/10' : ''}`}
+                    onClick={() => handleToggleOrderSelection(order.id)}
+                  >
+                    <td className="px-4 py-2 text-center" onClick={(e) => e.stopPropagation()}>
+                       <input 
+                        type="checkbox" 
+                        className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer"
+                        checked={selectedOrders.includes(order.id)}
+                        onChange={() => handleToggleOrderSelection(order.id)}
+                      />
                     </td>
-                    <td className="px-6 py-4">
-                      <p className="text-sm font-medium text-slate-900 dark:text-white">{order.client?.full_name || 'Cliente'}</p>
+                    <td className="px-4 py-2">
+                       <p className="font-bold text-xs text-slate-900 dark:text-white leading-tight">{order.display_id || `#...${order.id.substring(0, 4)}`}</p>
+                       <p className="text-[10px] text-slate-400 font-medium">{new Date(order.created_at).toLocaleDateString('pt-BR')}</p>
                     </td>
-                    <td className="px-6 py-4">
-                      <p className="text-sm font-medium text-slate-900 dark:text-white">{order.provider?.full_name || '-'}</p>
-                      <p className="text-xs text-slate-500">{order.category?.name || 'Serviço'}</p>
+                    <td className="px-4 py-2">
+                      <p className="text-xs font-semibold text-slate-900 dark:text-white">{order.client?.full_name?.split(' ')[0] || 'Cliente'}</p>
                     </td>
-                    <td className="px-6 py-4">
-                      <p className="text-sm font-bold text-slate-900 dark:text-white">{order.price ? `R$ ${order.price.toLocaleString('pt-BR', {minimumFractionDigits: 2})}` : 'Em negociação'}</p>
+                    <td className="px-4 py-2">
+                      <p className="text-xs font-semibold text-slate-900 dark:text-white leading-tight">{order.provider?.full_name?.split(' ')[0] || '-'}</p>
+                      <p className="text-[10px] text-slate-500 truncate max-w-[120px]">{order.category?.name || 'Serviço'}</p>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2 py-1 text-[10px] font-bold uppercase rounded-full shadow-sm ${order.status === 'completed' ? 'bg-green-100 dark:bg-green-900/40 text-green-700' : 'bg-blue-100 dark:bg-blue-900/40 text-blue-700'}`}>
+                    <td className="px-4 py-2">
+                      <p className="text-xs font-bold text-slate-900 dark:text-white">{order.price ? `R$ ${order.price.toLocaleString('pt-BR')}` : '---'}</p>
+                    </td>
+                    <td className="px-4 py-2">
+                      <span className={`px-2 py-0.5 text-[9px] font-extrabold rounded uppercase ${
+                        ['completed', 'paid'].includes(order.status) ? 'bg-green-100 text-green-700' : 
+                        ['cancelled', 'disputed'].includes(order.status) ? 'bg-red-100 text-red-700' : 
+                        'bg-blue-100 text-blue-700'
+                      }`}>
                         {statusMap[order.status] || order.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex gap-2 justify-end">
-                        <button className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Ver Detalhes do Pedido">
-                          <span className="material-symbols-outlined text-[20px]">visibility</span>
+                    <td className="px-4 py-2 text-right">
+                      <div className="flex gap-1 justify-end">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); /* detail logic */ }}
+                          className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-md transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">visibility</span>
                         </button>
                         <button 
-                          onClick={() => handleDeleteOrder(order.id)}
-                          className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" 
-                          title="Excluir Pedido"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteOrder(order.id);
+                          }}
+                          className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
                         >
-                          <span className="material-symbols-outlined text-[20px]">delete</span>
+                          <span className="material-symbols-outlined text-[18px]">delete</span>
                         </button>
                       </div>
                     </td>
