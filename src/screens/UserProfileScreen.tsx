@@ -223,22 +223,29 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
     }
   };
 
-  const handleSaveProfile = async (e: React.FormEvent) => {
+  const handleSavePersonalData = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
     try {
-      // Atualiza dados públicos
+      // 1. Atualizar Perfil Público (Nome, Telefone, Endereço)
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
           full_name: formData.full_name,
           phone: formData.phone,
+          address: formData.address,
+          neighborhood: formData.neighborhood,
+          city: formData.city,
+          state: formData.state,
+          zip_code: formData.zip_code,
+          latitude: formData.latitude,
+          longitude: formData.longitude,
         })
         .eq('id', user?.id);
 
       if (profileError) throw profileError;
 
-      // Atualiza CPF na tabela privada
+      // 2. Atualizar CPF (Tabela Privada)
       if (user?.id) {
         const { error: privateError } = await supabase
           .from('profiles_private')
@@ -251,58 +258,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       }
 
       await refreshProfile();
-      setShowProfileModal(false);
-      showToast("Perfil atualizado", "Seus dados foram salvos com sucesso.", "success");
-    } catch (err: any) {
-      showToast("Erro ao salvar", err.message, "error");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleSaveAddress = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSaving(true);
-    try {
-      // Geocodifica a cidade para salvar lat/lng automaticamente
-      let lat: number | null = null;
-      let lng: number | null = null;
-      const cityToGeocode = formData.city.trim();
-      if (cityToGeocode) {
-        try {
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityToGeocode)}&country=Brazil&format=json&limit=1`,
-            { headers: { 'Accept-Language': 'pt-BR' } }
-          );
-          const geoData = await res.json();
-          if (geoData.length > 0) {
-            lat = parseFloat(geoData[0].lat);
-            lng = parseFloat(geoData[0].lon);
-            updateMapCenter(lat, lng);
-          }
-        } catch {}
-      }
-
-      const updatePayload: any = {
-        cep: formData.cep,
-        city: formData.city,
-        address: formData.address,
-      };
-      // Só salva coords do geocoding se o prestador não tiver uma localização manual mais precisa
-      if (lat && lng && !(pickedLocation)) {
-        updatePayload.latitude = lat;
-        updatePayload.longitude = lng;
-      }
-
-      const { error } = await supabase
-        .from('profiles')
-        .update(updatePayload)
-        .eq('id', user?.id);
-
-      if (error) throw error;
-      await refreshProfile();
-      setShowAddressModal(false);
-      showToast("Endereço salvo", "Suas informações de localização foram atualizadas.", "success");
+      showToast("Tudo pronto!", "Seus dados e endereço foram salvos.", "success");
     } catch (err: any) {
       showToast("Erro ao salvar", err.message, "error");
     } finally {
@@ -329,10 +285,11 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
     }
   };
 
-  const handleSaveProviderProfile = async (e: React.FormEvent) => {
+  const handleSaveProfessionalData = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
     try {
+      // 1. Atualizar Perfil no Supabase
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -342,37 +299,36 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           pricing_model: formData.pricing_model,
           price_value: formData.price_value ? parseCurrency(formData.price_value) : null,
           show_price: formData.show_price,
+          opening_hours: businessInfo.opening_hours,
+          loyalty_enabled: businessInfo.loyalty_enabled,
+          loyalty_required_services: businessInfo.loyalty_required_services,
+          loyalty_benefit_description: businessInfo.loyalty_benefit_description
         })
         .eq('id', user?.id);
 
       if (error) throw error;
 
-      // Sincronizar com provider_services para a busca da Judite (n8n)
+      // 2. Sincronizar Categorias para Busca
       if (user && formData.categories.length > 0) {
-        // Limpar registros antigos para este prestador
         await supabase.from('provider_services').delete().eq('provider_id', user.id);
-        
-        // Criar novos links com base nos IDs reais das categorias
         const servicesToInsert = formData.categories.map((catName: string) => {
           const dbCat = dbCategories.find(c => c.name === catName);
-          if (!dbCat) return null;
-          return {
+          return dbCat ? {
             provider_id: user.id,
             category_id: dbCat.id,
             title: catName,
             description: formData.bio || `Serviço de ${catName}`
-          };
+          } : null;
         }).filter(Boolean);
 
         if (servicesToInsert.length > 0) {
-          const { error: serviceError } = await supabase.from('provider_services').insert(servicesToInsert);
-          if (serviceError) throw serviceError;
+          await supabase.from('provider_services').insert(servicesToInsert);
         }
       }
 
       await refreshProfile();
       setShowProviderModal(false);
-      showToast("Perfil profissional salvo", "Suas informações foram atualizadas.", "success");
+      showToast("Perfil Atualizado!", "Suas informações profissionais e do negócio foram salvas.", "success");
     } catch (err: any) {
       showToast("Erro ao salvar", err.message, "error");
     } finally {
@@ -389,13 +345,12 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         category_name: newCategorySuggestion.trim(),
         status: 'pending'
       });
-
       if (error) throw error;
-      showToast('Sugestão enviada com sucesso! Analisaremos em breve.', 'success');
+      showToast('Sugestão enviada!', 'Analisaremos sua sugestão em breve.', 'success');
       setNewCategorySuggestion('');
       setShowSuggestionInput(false);
     } catch (err: any) {
-      showToast('Erro ao enviar sugestão: ' + err.message, 'error');
+      showToast('Erro na sugestão', err.message, 'error');
     } finally {
       setIsSubmittingSuggestion(false);
     }
@@ -431,16 +386,15 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
 
       if (dbError) throw dbError;
 
-      // Update local state
       const { data } = await supabase
         .from('provider_portfolio')
         .select('*')
         .eq('provider_id', user.id)
         .order('created_at', { ascending: false });
       setPortfolio(data || []);
-      showToast('Imagem adicionada ao seu portfólio!', 'success');
+      showToast('Foto adicionada ao portfólio!', 'success');
     } catch (err: any) {
-      showToast('Erro ao enviar imagem: ' + err.message, 'error');
+      showToast('Erro no upload', err.message, 'error');
     } finally {
       setIsAddingImage(false);
     }
@@ -478,31 +432,6 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         }
       }
     });
-  };
-
-  const handleSaveBusinessSettings = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSavingSettings(true);
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          opening_hours: businessInfo.opening_hours,
-          loyalty_enabled: businessInfo.loyalty_enabled,
-          loyalty_benefit_description: businessInfo.loyalty_benefit_description,
-          loyalty_required_services: businessInfo.loyalty_required_services
-        })
-        .eq('id', user?.id);
-
-      if (error) throw error;
-      await refreshProfile();
-      setShowSettingsModal(false);
-      showToast('Configurações salvas com sucesso!', 'success');
-    } catch (err: any) {
-      showToast('Erro ao salvar: ' + err.message, 'error');
-    } finally {
-      setIsSavingSettings(false);
-    }
   };
 
   const handleLogout = () => {
@@ -682,37 +611,23 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
             <span className="size-1.5 rounded-full bg-blue-500"></span>
             <h2 className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Dados Pessoais & Endereço</h2>
           </div>
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border-2 border-slate-100 dark:border-slate-800 overflow-hidden group">
             <button
               onClick={() => setShowProfileModal(true)}
-              className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
+              className="w-full flex items-center justify-between p-6 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all active:scale-[0.99]"
             >
-              <div className="flex items-center gap-4">
-                <div className="size-10 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-500 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 transition-colors">
-                  <span className="material-symbols-outlined">person</span>
+              <div className="flex items-center gap-5">
+                <div className="size-14 rounded-2xl bg-blue-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
+                  <span className="material-symbols-outlined text-3xl">person_pin_circle</span>
                 </div>
                 <div className="text-left">
-                  <p className="font-bold text-slate-900 dark:text-white">Informações Pessoais</p>
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest">Nome, CPF e Telefone</p>
+                  <p className="text-lg font-black text-slate-900 dark:text-white tracking-tight italic">Editar Meus Dados</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest">NOME, CPF, TELEFONE E ENDEREÇO</p>
                 </div>
               </div>
-              <span className="material-symbols-outlined text-slate-400">chevron_right</span>
-            </button>
-
-            <button
-              onClick={() => setShowAddressModal(true)}
-              className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
-            >
-              <div className="flex items-center gap-4">
-                <div className="size-10 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500 flex items-center justify-center group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/40 transition-colors">
-                  <span className="material-symbols-outlined">location_on</span>
-                </div>
-                <div className="text-left">
-                  <p className="font-bold text-slate-900 dark:text-white">Meus Endereços</p>
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest">Localização e Mapa</p>
-                </div>
+              <div className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-blue-500 group-hover:text-white transition-all">
+                <span className="material-symbols-outlined">edit</span>
               </div>
-              <span className="material-symbols-outlined text-slate-400">chevron_right</span>
             </button>
           </div>
         </section>
@@ -724,53 +639,23 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
               <span className="size-1.5 rounded-full bg-orange-500"></span>
               <h2 className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Perfil Profissional & Negócio</h2>
             </div>
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border-2 border-slate-100 dark:border-slate-800 overflow-hidden group">
               <button
                 onClick={() => setShowProviderModal(true)}
-                className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
+                className="w-full flex items-center justify-between p-6 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all active:scale-[0.99]"
               >
-                <div className="flex items-center gap-4">
-                  <div className="size-10 rounded-full bg-orange-50 dark:bg-orange-900/20 text-orange-500 flex items-center justify-center group-hover:bg-orange-100 dark:group-hover:bg-orange-900/40 transition-colors">
-                    <span className="material-symbols-outlined">work</span>
+                <div className="flex items-center gap-5">
+                  <div className="size-14 rounded-2xl bg-orange-500 text-white flex items-center justify-center shadow-lg shadow-orange-500/20 group-hover:scale-110 transition-transform">
+                    <span className="material-symbols-outlined text-3xl">construction</span>
                   </div>
                   <div className="text-left">
-                    <p className="font-bold text-slate-900 dark:text-white">Configuração dos Serviços</p>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest">BIO, CATEGORIAS E WHATSAPP</p>
+                    <p className="text-lg font-black text-slate-900 dark:text-white tracking-tight italic">Editar Perfil de Trabalho</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest">BIO, SERVIÇOS, HORÁRIOS E PORTFÓLIO</p>
                   </div>
                 </div>
-                <span className="material-symbols-outlined text-slate-400">chevron_right</span>
-              </button>
-
-              <button
-                onClick={() => setShowPortfolioModal(true)}
-                className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="size-10 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-500 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 transition-colors">
-                    <span className="material-symbols-outlined">photo_library</span>
-                  </div>
-                  <div className="text-left">
-                    <p className="font-bold text-slate-900 dark:text-white">Meus Trabalhos</p>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest">FOTOS DO PORTFÓLIO</p>
-                  </div>
+                <div className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-orange-500 group-hover:text-white transition-all">
+                  <span className="material-symbols-outlined">edit</span>
                 </div>
-                <span className="material-symbols-outlined text-slate-400">chevron_right</span>
-              </button>
-
-              <button
-                onClick={() => setShowSettingsModal(true)}
-                className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="size-10 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-500 flex items-center justify-center group-hover:bg-purple-100 dark:group-hover:bg-purple-900/40 transition-colors">
-                    <span className="material-symbols-outlined">settings_heart</span>
-                  </div>
-                  <div className="text-left">
-                    <p className="font-bold text-slate-900 dark:text-white">Configurações Finais</p>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest">FIDELIDADE E HORÁRIOS</p>
-                  </div>
-                </div>
-                <span className="material-symbols-outlined text-slate-400">chevron_right</span>
               </button>
             </div>
           </section>
@@ -888,173 +773,6 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       </main>
 
 
-      {/* Modal: Portfólio de Trabalhos */}
-      {showPortfolioModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl w-full max-w-2xl overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]">
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center shrink-0">
-              <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
-                <span className="material-symbols-outlined text-blue-500">photo_library</span>
-                Meus Trabalhos
-              </h3>
-              <button onClick={() => setShowPortfolioModal(false)} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-            
-            <div className="p-6 overflow-y-auto flex-1">
-              <div className="mb-6">
-                <button
-                  onClick={() => document.getElementById('portfolio-upload')?.click()}
-                  disabled={isAddingImage}
-                  className="w-full py-8 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl flex flex-col items-center justify-center gap-2 hover:border-primary/50 hover:bg-primary/5 transition-all group"
-                >
-                  {isAddingImage ? (
-                    <span className="material-symbols-outlined animate-spin text-primary">progress_activity</span>
-                  ) : (
-                    <>
-                      <div className="size-12 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <span className="material-symbols-outlined text-2xl">add_a_photo</span>
-                      </div>
-                      <p className="font-bold text-slate-700 dark:text-slate-300">Adicionar nova foto</p>
-                      <p className="text-xs text-slate-500">JPG, PNG ou WEBP até 5MB</p>
-                    </>
-                  )}
-                </button>
-                <input
-                  id="portfolio-upload"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleAddPortfolioImage}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {portfolio.map((img) => (
-                  <div key={img.id} className="relative aspect-square rounded-xl overflow-hidden group border border-slate-100 dark:border-slate-800">
-                    <img src={img.image_url} alt="" className="size-full object-cover" />
-                    <button
-                      onClick={() => handleDeletePortfolioImage(img.id, img.image_url)}
-                      className="absolute top-2 right-2 size-8 bg-red-500 text-white rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
-                    >
-                      <span className="material-symbols-outlined text-sm">delete</span>
-                    </button>
-                  </div>
-                ))}
-                {portfolio.length === 0 && !isAddingImage && (
-                  <div className="col-span-full py-12 text-center text-slate-400">
-                    <span className="material-symbols-outlined text-4xl mb-2 opacity-20">image_not_supported</span>
-                    <p className="text-sm">Nenhuma foto adicionada ao seu portfólio.</p>
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="p-6 bg-slate-50 dark:bg-slate-850 shrink-0 border-t border-slate-100 dark:border-slate-800">
-              <button
-                onClick={() => setShowPortfolioModal(false)}
-                className="w-full py-3 bg-slate-900 dark:bg-slate-700 text-white rounded-xl font-bold hover:opacity-90 transition-all"
-              >
-                Concluído
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal: Configurações do Negócio */}
-      {showSettingsModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl w-full max-w-md overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]">
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center shrink-0">
-              <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
-                <span className="material-symbols-outlined text-purple-500">settings_heart</span>
-                Configurações do Negócio
-              </h3>
-              <button onClick={() => setShowSettingsModal(false)} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-            
-            <form onSubmit={handleSaveBusinessSettings} className="p-6 overflow-y-auto flex-1">
-              <div className="space-y-6">
-                {/* Horários */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">Horário de Atendimento</label>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400">schedule</span>
-                    <input
-                      type="text"
-                      value={businessInfo.opening_hours}
-                      onChange={(e) => setBusinessInfo({...businessInfo, opening_hours: e.target.value})}
-                      placeholder="Ex: Seg à Sex: 08:00 - 18:00"
-                      className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-primary"
-                    />
-                  </div>
-                </div>
-
-                {/* Programa de Fidelidade */}
-                <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h4 className="font-bold text-slate-900 dark:text-white">Programa de Fidelidade</h4>
-                      <p className="text-xs text-slate-500 leading-snug">Incentive clientes a voltarem mais vezes.</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setBusinessInfo({...businessInfo, loyalty_enabled: !businessInfo.loyalty_enabled})}
-                      className={`w-12 h-6 rounded-full transition-colors relative ${businessInfo.loyalty_enabled ? 'bg-primary' : 'bg-slate-200 dark:bg-slate-700'}`}
-                    >
-                      <div className={`absolute top-1 size-4 bg-white rounded-full transition-all ${businessInfo.loyalty_enabled ? 'left-7' : 'left-1'}`} />
-                    </button>
-                  </div>
-
-                  {businessInfo.loyalty_enabled && (
-                    <div className="space-y-4 animate-fade-in">
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Serviços Necessários</label>
-                        <input
-                          type="number"
-                          value={businessInfo.loyalty_required_services}
-                          onChange={(e) => setBusinessInfo({...businessInfo, loyalty_required_services: parseInt(e.target.value)})}
-                          className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-primary"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Recompensa</label>
-                        <input
-                          type="text"
-                          value={businessInfo.loyalty_benefit_description}
-                          onChange={(e) => setBusinessInfo({...businessInfo, loyalty_benefit_description: e.target.value})}
-                          placeholder="Ex: 50% de desconto no próximo"
-                          className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-primary"
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex gap-3 mt-8">
-                <button
-                  type="button"
-                  onClick={() => setShowSettingsModal(false)}
-                  className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSavingSettings}
-                  className="flex-1 py-3 bg-primary text-white rounded-xl font-bold flex justify-center items-center gap-2 shadow-lg shadow-primary/30"
-                >
-                  {isSavingSettings ? <span className="material-symbols-outlined animate-spin">refresh</span> : 'Salvar Alterações'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {selectedImageSrc && (
         <ImageCropper
@@ -1064,359 +782,395 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         />
       )}
 
-      {/* Modals for Editing Data */}
+      {/* Master Modal: Dados Pessoais & Endereço */}
       {showProfileModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-fade-in-up">
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-              <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary">person</span>
-                Dados Pessoais
-              </h3>
-              <button disabled={isSaving} onClick={() => setShowProfileModal(false)} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-lg my-auto animate-fade-in-up flex flex-col max-h-[90vh]">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-xl bg-blue-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/20">
+                  <span className="material-symbols-outlined text-2xl">person_pin_circle</span>
+                </div>
+                <div>
+                  <h3 className="font-black text-lg text-slate-900 dark:text-white uppercase tracking-tighter italic">Editar Meus Dados</h3>
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-none">Pessoais e Localização</p>
+                </div>
+              </div>
+              <button disabled={isSaving} onClick={() => setShowProfileModal(false)} className="size-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center text-slate-400 transition-colors">
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-            <form onSubmit={handleSaveProfile} className="p-6">
-              <div className="space-y-4 mb-6">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Nome Completo</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.full_name}
-                    onChange={(e) => setFormData({...formData, full_name: e.target.value})}
-                    placeholder="Seu nome"
-                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">CPF / CNPJ</label>
-                  <input
-                    type="text"
-                    required
-                    maxLength={18}
-                    value={formData.cpf}
-                    onChange={(e) => setFormData({...formData, cpf: formatCPF_CNPJ(e.target.value)})}
-                    placeholder="000.000.000-00 ou 00.000.000/0000-00"
-                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Telefone</label>
-                  <input
-                    type="tel"
-                    required
-                    maxLength={15}
-                    value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: formatPhone(e.target.value)})}
-                    placeholder="(00) 00000-0000"
-                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                  />
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <button type="button" disabled={isSaving} onClick={() => setShowProfileModal(false)} className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-                  Cancelar
-                </button>
-                <button type="submit" disabled={isSaving} className="flex-1 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-colors disabled:opacity-50 flex justify-center items-center gap-2">
-                  {isSaving ? <span className="material-symbols-outlined animate-spin text-[20px]">refresh</span> : 'Salvar Dados'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {showAddressModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md animate-fade-in-up">
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-              <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
-                <span className="material-symbols-outlined text-emerald-500">location_on</span>
-                Meus Endereços
-              </h3>
-              <button disabled={isSaving} onClick={() => setShowAddressModal(false)} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-            <form onSubmit={handleSaveAddress} className="p-6">
-              <div className="space-y-4 mb-6">
-                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">CEP</label>
-                  <div className="relative">
+            
+            <form onSubmit={handleSavePersonalData} className="flex-1 overflow-y-auto p-6 scrollbar-hide">
+              <div className="space-y-6">
+                {/* Seção: Identificação */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-2 px-1">
+                    <span className="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em]">01. Identificação</span>
+                    <div className="flex-1 h-[1px] bg-slate-100 dark:bg-slate-800"></div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Nome Completo</label>
                     <input
                       type="text"
-                      maxLength={9}
-                      value={formData.cep}
-                      onChange={(e) => handleCepChange(e.target.value)}
-                      placeholder="00000-000"
-                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all pr-12"
+                      required
+                      value={formData.full_name}
+                      onChange={(e) => setFormData({...formData, full_name: e.target.value})}
+                      placeholder="Seu nome completo"
+                      className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-medium text-slate-900 dark:text-white"
                     />
-                    {isFetchingCep && (
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-primary">
-                        <span className="material-symbols-outlined animate-spin">refresh</span>
-                      </div>
-                    )}
                   </div>
-                 </div>
-                <div className="relative">
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Cidade</label>
-                  <CityAutocomplete
-                    value={formData.city}
-                    onChange={(val) => setFormData({...formData, city: val})}
-                    activeCities={activeCities}
-                    placeholder="Ex: Rondonópolis/MT"
-                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                  />
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">CPF / CNPJ</label>
+                      <input
+                        type="text"
+                        required
+                        maxLength={18}
+                        value={formData.cpf}
+                        onChange={(e) => setFormData({...formData, cpf: formatCPF_CNPJ(e.target.value)})}
+                        placeholder="000.000.000-00"
+                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Telefone Celular</label>
+                      <input
+                        type="tel"
+                        required
+                        maxLength={15}
+                        value={formData.phone}
+                        onChange={(e) => setFormData({...formData, phone: formatPhone(e.target.value)})}
+                        placeholder="(00) 00000-0000"
+                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Endereço Completo</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.address}
-                    onChange={(e) => setFormData({...formData, address: e.target.value})}
-                    placeholder="Rua, Número, Bairro"
-                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                  />
-                </div>
-                {role === 'provider' && (
-                  <div className="mb-2">
+
+                {/* Seção: Endereço */}
+                <div className="space-y-4 pt-2">
+                  <div className="flex items-center gap-2 mb-2 px-1">
+                    <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em]">02. Localização</span>
+                    <div className="flex-1 h-[1px] bg-slate-100 dark:bg-slate-800"></div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="sm:col-span-1">
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">CEP</label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          maxLength={9}
+                          value={formData.cep}
+                          onChange={(e) => handleCepChange(e.target.value)}
+                          placeholder="00000-000"
+                          className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all pr-10 font-medium text-slate-900 dark:text-white"
+                        />
+                        {isFetchingCep && (
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500">
+                            <span className="material-symbols-outlined animate-spin text-[20px]">refresh</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Cidade / Estado</label>
+                      <CityAutocomplete
+                        value={formData.city}
+                        onChange={(val) => setFormData({...formData, city: val})}
+                        activeCities={activeCities}
+                        placeholder="Ex: Rondonópolis/MT"
+                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Rua, Número e Bairro</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.address}
+                      onChange={(e) => setFormData({...formData, address: e.target.value})}
+                      placeholder="Ex: Av. Brasil, 123 - Centro"
+                      className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
+                    />
+                  </div>
+
+                  {role === 'provider' && (
                     <button
                       type="button"
                       onClick={() => {
-                        setShowAddressModal(false);
+                        setShowProfileModal(false);
                         setShowLocationPickerModal(true);
                       }}
-                      className="w-full flex items-center justify-center gap-3 py-4 px-4 rounded-2xl bg-gradient-to-r from-primary to-blue-600 text-white font-bold text-base shadow-lg shadow-primary/30 hover:opacity-90 active:scale-[0.98] transition-all"
+                      className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-xs uppercase tracking-widest shadow-xl hover:opacity-90 active:scale-[0.98] transition-all"
                     >
-                      <span className="material-symbols-outlined text-2xl">pin_drop</span>
-                      <div className="text-left">
-                        <p className="font-bold text-base leading-tight">Marcar Meu Local no Mapa</p>
-                        <p className="text-xs text-white/80 font-normal">
-                          {(profile as any)?.latitude ? '✅ Localização já definida — clique para ajustar' : 'Aparecer para clientes perto de você'}
-                        </p>
-                      </div>
+                      <span className="material-symbols-outlined">pin_drop</span>
+                      {(profile as any)?.latitude ? 'Ajustar Localização no Mapa' : 'Marcar Meu Local no Mapa'}
                     </button>
-                  </div>
-                )}
-              </div>
-              <div className="flex gap-3">
-                <button type="button" disabled={isSaving} onClick={() => setShowAddressModal(false)} className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-                  Cancelar
-                </button>
-                <button type="submit" disabled={isSaving} className="flex-1 py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 transition-colors disabled:opacity-50 flex justify-center items-center gap-2">
-                  {isSaving ? <span className="material-symbols-outlined animate-spin text-[20px]">refresh</span> : 'Salvar Endereço'}
-                </button>
+                  )}
+                </div>
               </div>
             </form>
+
+            <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex gap-3 shrink-0">
+              <button 
+                type="button" 
+                disabled={isSaving} 
+                onClick={() => setShowProfileModal(false)}
+                className="flex-1 py-4 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-all uppercase tracking-widest text-[10px]"
+              >
+                Cancelar
+              </button>
+              <button 
+                type="submit" 
+                disabled={isSaving} 
+                onClick={(e) => handleSavePersonalData(e as any)}
+                className="flex-2 py-4 bg-blue-600 text-white rounded-2xl font-black hover:bg-blue-700 transition-all disabled:opacity-50 flex justify-center items-center gap-2 uppercase tracking-widest text-xs shadow-lg shadow-blue-500/30"
+              >
+                {isSaving ? (
+                  <span className="material-symbols-outlined animate-spin text-[20px]">refresh</span>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                    Salvar TUDO
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Provider Profile Modal */}
+      {/* Master Modal: Perfil Profissional & Negócio */}
       {showProviderModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]">
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center shrink-0">
-              <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
-                <span className="material-symbols-outlined text-orange-500">work</span>
-                Perfil Profissional
-              </h3>
-              <button disabled={isSaving} onClick={() => setShowProviderModal(false)} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-xl my-auto animate-fade-in-up flex flex-col max-h-[90vh]">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-xl bg-orange-500 text-white flex items-center justify-center shadow-lg shadow-orange-500/20">
+                  <span className="material-symbols-outlined text-2xl">construction</span>
+                </div>
+                <div>
+                  <h3 className="font-black text-lg text-slate-900 dark:text-white uppercase tracking-tighter italic">Perfil Profissional</h3>
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-none">Serviços, Bio e Configurações</p>
+                </div>
+              </div>
+              <button disabled={isSaving} onClick={() => setShowProviderModal(false)} className="size-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center text-slate-400 transition-colors">
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-            <form onSubmit={handleSaveProviderProfile} className="p-6 overflow-y-auto flex-1">
-              <div className="space-y-4 mb-6">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Sobre a Empresa / Profissional</label>
+
+            <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
+              <div className="space-y-8">
+                
+                {/* 01. Sobre Você */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-2 px-1">
+                    <span className="text-[10px] font-black text-orange-500 uppercase tracking-[0.2em]">01. Sobre Você (Bio)</span>
+                    <div className="flex-1 h-[1px] bg-slate-100 dark:bg-slate-800"></div>
+                  </div>
                   <textarea
-                    rows={4}
+                    required
                     value={formData.bio}
                     onChange={(e) => setFormData({...formData, bio: e.target.value})}
-                    placeholder="Conte um pouco sobre sua experiência, diferenciais e forma de trabalhar..."
-                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all resize-none"
+                    placeholder="Conte sobre sua experiência, especialidades e como você trabalha. Isso ajuda clientes a confiarem no seu serviço!"
+                    rows={4}
+                    className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none transition-all font-medium text-slate-900 dark:text-white resize-none"
                   />
+                  <p className="text-[10px] text-slate-400 font-medium px-1 uppercase tracking-widest text-right">Mínimo 30 caracteres recomendado</p>
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">WhatsApp para contato direto (Exclusivo PLUS)</label>
-                  <input
-                    type="tel"
-                    maxLength={15}
-                    disabled={formData.plan_type !== 'plus'}
-                    value={formData.whatsapp_number}
-                    onChange={(e) => setFormData({...formData, whatsapp_number: formatPhone(e.target.value)})}
-                    placeholder="(00) 00000-0000"
-                    className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all ${formData.plan_type === 'plus' ? 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700' : 'bg-slate-100 dark:bg-slate-850 border-transparent opacity-60 cursor-not-allowed'}`}
-                  />
-                  {formData.plan_type !== 'plus' && (
-                    <p className="text-[10px] text-amber-600 mt-1 font-medium italic">Disponível apenas para assinantes Plus.</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">Serviços Prestados (Selecione um ou mais)</label>
+
+                {/* 02. Serviços e Preços */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-2 px-1">
+                    <span className="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em]">02. Serviços & Preços</span>
+                    <div className="flex-1 h-[1px] bg-slate-100 dark:bg-slate-800"></div>
+                  </div>
                   
-                  {/* Precificação Flexível */}
-                  <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 mb-4 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tighter italic">Opções de Preço</h4>
-                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Ajuste como seu valor aparece</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Exibir</span>
-                        <button
-                          type="button"
-                          onClick={() => setFormData({...formData, show_price: !formData.show_price})}
-                          className={`w-10 h-5 rounded-full transition-colors relative ${formData.show_price ? 'bg-primary' : 'bg-slate-200 dark:bg-slate-700'}`}
-                        >
-                          <div className={`absolute top-0.5 size-4 bg-white rounded-full transition-all ${formData.show_price ? 'left-5.5' : 'left-0.5'}`} />
-                        </button>
-                      </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Categorias que Atua</label>
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {formData.categories.map(cat => (
+                        <span key={cat} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary text-[10px] font-black uppercase rounded-full border border-primary/20">
+                          {cat}
+                          <button type="button" onClick={() => setFormData({...formData, categories: formData.categories.filter(c => c !== cat)})} className="material-symbols-outlined text-[14px]">cancel</button>
+                        </span>
+                      ))}
                     </div>
-
-                    <div className="grid grid-cols-1 gap-4">
-                      <div>
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Modelo de Cobrança</label>
-                        <select 
-                          value={formData.pricing_model}
-                          onChange={(e) => setFormData({...formData, pricing_model: e.target.value})}
-                          className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm font-bold"
-                        >
-                          <option value="hourly">Por Hora (R$ X / hora)</option>
-                          <option value="fixed">Preço Fixo (R$ X)</option>
-                          <option value="starting_at">A Partir de (A partir de R$ X)</option>
-                          <option value="negotiable">A Combinar (Preço sob consulta)</option>
-                        </select>
-                      </div>
-
-                      {formData.pricing_model !== 'negotiable' && (
-                        <div className="animate-in fade-in slide-in-from-top-2">
-                          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Valor Base (R$)</label>
-                          <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">R$</span>
-                            <input
-                              type="text"
-                              value={formData.price_value}
-                              onChange={(e) => setFormData({...formData, price_value: maskCurrency(e.target.value)})}
-                              placeholder="0,00"
-                              className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm font-bold"
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                    <select
+                      onChange={(e) => {
+                        if (e.target.value && !formData.categories.includes(e.target.value)) {
+                          setFormData({...formData, categories: [...formData.categories, e.target.value]});
+                        }
+                        e.target.value = "";
+                      }}
+                      className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-slate-900 dark:text-white uppercase text-xs"
+                    >
+                      <option value="">+ Selecionar Serviço</option>
+                      {dbCategories.map(cat => (
+                        <option key={cat.id} value={cat.name}>{cat.name}</option>
+                      ))}
+                    </select>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 mb-4">
-                    {dbCategories.length > 0 ? (
-                      dbCategories.map(cat => (
-                        <label key={cat.id || cat.name} className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${formData.categories?.includes(cat.name) ? 'bg-orange-500/10 border-orange-500 text-orange-600 dark:text-orange-400' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'}`}>
-                          <input
-                            type="checkbox"
-                            className="hidden"
-                            checked={formData.categories?.includes(cat.name)}
-                            onChange={(e) => {
-                              const current = formData.categories || [];
-                              if (e.target.checked) {
-                                setFormData({...formData, categories: [...current, cat.name]});
-                              } else {
-                                setFormData({...formData, categories: current.filter((c: string) => c !== cat.name)});
-                              }
-                            }}
-                          />
-                          <span className="text-sm font-semibold">{cat.name}</span>
-                        </label>
-                      ))
-                    ) : (
-                      [
-                        'Limpeza Residencial', 'Limpeza Pós-Obra', 'Diarista', 'Passadeira',
-                        'Pedreiro', 'Pintor', 'Eletricista', 'Encanador', 'Marceneiro', 'Montador de Móveis',
-                        'Técnico de Informática', 'Conserto de Celular', 'Ar-condicionado',
-                        'Cabeleireiro', 'Barbeiro', 'Manicure', 'Maquiadora', 'Massagista',
-                        'Babá', 'Cuidador de Idosos', 'Passeador de Cães', 'Adestrador',
-                        'Fotógrafo', 'Cinegrafista', 'DJ', 'Segurança', 'Garçom',
-                        'Frete e Carreto', 'Mudanças', 'Guincho',
-                        'Professor Particular', 'Personal Trainer'
-                      ].map(cat => (
-                        <label key={cat} className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${formData.categories?.includes(cat) ? 'bg-orange-500/10 border-orange-500 text-orange-600 dark:text-orange-400' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'}`}>
-                          <input
-                            type="checkbox"
-                            className="hidden"
-                            checked={formData.categories?.includes(cat)}
-                            onChange={(e) => {
-                              const current = formData.categories || [];
-                              if (e.target.checked) {
-                                setFormData({...formData, categories: [...current, cat]});
-                              } else {
-                                setFormData({...formData, categories: current.filter((c: string) => c !== cat)});
-                              }
-                            }}
-                          />
-                          <span className="text-sm font-semibold">{cat}</span>
-                        </label>
-                      ))
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Preço Inicial (R$)</label>
+                      <input
+                        type="text"
+                        value={formData.price_value}
+                        onChange={(e) => setFormData({...formData, price_value: maskCurrency(e.target.value)})}
+                        placeholder="0,00"
+                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all font-black text-slate-900 dark:text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Unidade</label>
+                      <select
+                        value={formData.pricing_model}
+                        onChange={(e) => setFormData({...formData, pricing_model: e.target.value})}
+                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-slate-900 dark:text-white uppercase text-xs"
+                      >
+                        <option value="visit">Por Visita</option>
+                        <option value="hour">Por Hora</option>
+                        <option value="service">Por Serviço</option>
+                        <option value="quote">Sob Orçamento</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 03. Portfólio de Imagens */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-2 px-1">
+                    <span className="text-[10px] font-black text-purple-500 uppercase tracking-[0.2em]">03. Portfólio (Fotos)</span>
+                    <div className="flex-1 h-[1px] bg-slate-100 dark:bg-slate-800"></div>
+                  </div>
+                  
+                  <div className="grid grid-cols-4 gap-2">
+                    {portfolio.map((img) => (
+                      <div key={img.id} className="relative aspect-square rounded-xl overflow-hidden group border border-slate-100 dark:border-slate-800 bg-slate-100">
+                        <img src={img.image_url} alt="" className="size-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => handleDeletePortfolioImage(img.id, img.image_url)}
+                          className="absolute inset-0 bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <span className="material-symbols-outlined text-[20px]">delete</span>
+                        </button>
+                      </div>
+                    ))}
+                    {portfolio.length < 8 && (
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById('master-portfolio-upload')?.click()}
+                        disabled={isAddingImage}
+                        className="aspect-square rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center text-slate-400 hover:border-primary/50 hover:bg-primary/5 transition-all"
+                      >
+                        {isAddingImage ? (
+                          <span className="material-symbols-outlined animate-spin text-primary">progress_activity</span>
+                        ) : (
+                          <>
+                            <span className="material-symbols-outlined text-[24px]">add_a_photo</span>
+                            <span className="text-[8px] font-black uppercase mt-1">Add</span>
+                          </>
+                        )}
+                      </button>
                     )}
+                    <input id="master-portfolio-upload" type="file" accept="image/*" className="hidden" onChange={handleAddPortfolioImage} />
+                  </div>
+                </div>
+
+                {/* 04. Regras do Negócio */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-2 px-1">
+                    <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em]">04. Configurações de Atendimento</span>
+                    <div className="flex-1 h-[1px] bg-slate-100 dark:bg-slate-800"></div>
                   </div>
 
-                  {/* Sugestão de Categoria */}
-                  {role !== 'admin' && (
-                    <div className="border-t border-slate-100 dark:border-slate-800 pt-4">
-                      {!showSuggestionInput ? (
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Horário de Atendimento</label>
+                    <input
+                      type="text"
+                      value={businessInfo.opening_hours}
+                      onChange={(e) => setBusinessInfo({...businessInfo, opening_hours: e.target.value})}
+                      placeholder="Ex: Seg à Sex: 08:00 - 18:00"
+                      className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-medium text-slate-900 dark:text-white"
+                    />
+                  </div>
+
+                  <div className="bg-emerald-50 dark:bg-emerald-900/10 p-4 rounded-2xl border border-emerald-100 dark:border-emerald-800/30">
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                          <span className="material-symbols-outlined text-[20px]">stars</span>
+                          <span className="text-[10px] font-black uppercase tracking-widest">Programa de Fidelidade</span>
+                        </div>
                         <button
                           type="button"
-                          onClick={() => setShowSuggestionInput(true)}
-                          className="flex items-center gap-2 text-primary font-bold text-xs hover:underline"
+                          onClick={() => setBusinessInfo({...businessInfo, loyalty_enabled: !businessInfo.loyalty_enabled})}
+                          className={`w-10 h-5 rounded-full transition-colors relative ${businessInfo.loyalty_enabled ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'}`}
                         >
-                          <span className="material-symbols-outlined text-[16px]">add_circle</span>
-                          Sugerir nova categoria
+                          <div className={`absolute top-1 size-3 bg-white rounded-full transition-all ${businessInfo.loyalty_enabled ? 'left-6' : 'left-1'}`} />
                         </button>
-                      ) : (
-                        <div className="space-y-2">
+                    </div>
+                    {businessInfo.loyalty_enabled && (
+                      <div className="space-y-3 mt-3 animate-fade-in">
+                        <div>
+                          <label className="block text-[8px] font-black text-emerald-600/70 uppercase tracking-widest mb-1">Serviços até o prêmio</label>
+                          <input
+                            type="number"
+                            value={businessInfo.loyalty_required_services}
+                            onChange={(e) => setBusinessInfo({...businessInfo, loyalty_required_services: parseInt(e.target.value)})}
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-700/50 rounded-xl outline-none focus:ring-1 focus:ring-emerald-500 font-bold text-slate-900 dark:text-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[8px] font-black text-emerald-600/70 uppercase tracking-widest mb-1">O que o cliente ganha?</label>
                           <input
                             type="text"
-                            value={newCategorySuggestion}
-                            onChange={(e) => setNewCategorySuggestion(e.target.value)}
-                            placeholder="Ex: Passeador de Cães"
-                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary"
+                            value={businessInfo.loyalty_benefit_description}
+                            onChange={(e) => setBusinessInfo({...businessInfo, loyalty_benefit_description: e.target.value})}
+                            placeholder="Ex: 50% de desconto"
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-700/50 rounded-xl outline-none focus:ring-1 focus:ring-emerald-500 font-bold text-slate-900 dark:text-white"
                           />
-                          <div className="flex gap-2">
-                            <button
-                              type="button"
-                              onClick={handleSuggestCategory}
-                              disabled={isSubmittingSuggestion || !newCategorySuggestion.trim()}
-                              className="bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-primary/90 disabled:opacity-50"
-                            >
-                              {isSubmittingSuggestion ? 'Enviando...' : 'Enviar Sugestão'}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setShowSuggestionInput(false);
-                                setNewCategorySuggestion('');
-                              }}
-                              className="text-slate-500 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800"
-                            >
-                              Cancelar
-                            </button>
-                          </div>
                         </div>
-                      )}
-                    </div>
-                  )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-              <div className="flex gap-3 mt-4 shrink-0">
-                <button type="button" disabled={isSaving} onClick={() => setShowProviderModal(false)} className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-                  Cancelar
-                </button>
-                <button type="submit" disabled={isSaving} className="flex-1 py-3 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition-colors disabled:opacity-50 flex justify-center items-center gap-2">
-                  {isSaving ? <span className="material-symbols-outlined animate-spin text-[20px]">refresh</span> : 'Salvar Perfil'}
-                </button>
-              </div>
-            </form>
+            </div>
+
+            <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex gap-3 shrink-0">
+              <button 
+                type="button" 
+                disabled={isSaving} 
+                onClick={() => setShowProviderModal(false)}
+                className="flex-1 py-4 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-all uppercase tracking-widest text-[10px]"
+              >
+                Cancelar
+              </button>
+              <button 
+                type="button" 
+                disabled={isSaving} 
+                onClick={(e) => handleSaveProfessionalData(e as any)}
+                className="flex-2 py-4 bg-orange-600 text-white rounded-2xl font-black hover:bg-orange-700 transition-all disabled:opacity-50 flex justify-center items-center gap-2 uppercase tracking-widest text-xs shadow-lg shadow-orange-500/30"
+              >
+                {isSaving ? (
+                  <span className="material-symbols-outlined animate-spin text-[20px]">refresh</span>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                    Atualizar Perfil Profissional
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -84,10 +84,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const finalRole = isHardcodedAdmin ? 'admin' : (data.role as UserRole);
         setRole(finalRole);
         
-        // Flatten private data if exists
+        // Flatten private data if exists (can be object or array depending on relation)
         const profileData = { ...data };
-        if (data.profiles_private && data.profiles_private.length > 0) {
-          (profileData as any).cpf = data.profiles_private[0].cpf;
+        const privateData = data.profiles_private;
+        if (privateData) {
+          if (Array.isArray(privateData) && privateData.length > 0) {
+            (profileData as any).cpf = privateData[0].cpf;
+          } else if (!Array.isArray(privateData)) {
+            (profileData as any).cpf = (privateData as any).cpf;
+          }
         }
         setProfile(profileData as UserProfile);
 
