@@ -75,6 +75,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   const [touchEndHero, setTouchEndHero] = useState<number | null>(null);
   const [manualCityInput, setManualCityInput] = useState('');
   const [availableCities, setAvailableCities] = useState<string[]>([]);
+  const [brazilSuggestions, setBrazilSuggestions] = useState<string[]>([]);
   const isManualLocation = useRef(false);
 
   // Geocodifica uma string de cidade para [lat, lng]
@@ -92,6 +93,18 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
       console.warn('Geocoding falhou:', e);
     }
     return null;
+  };
+
+  const handleCitySelect = async (city: string) => {
+    setManualCityInput(city);
+    setBrazilSuggestions([]);
+    isManualLocation.current = true;
+    setLocationName(city);
+    setUserCoords(null);
+    localStorage.setItem('KNGindica_manualCity', city);
+    setShowLocationDropdown(false);
+    const coords = await geocodeCidade(city);
+    if (coords) setMapCenter(coords);
   };
 
   // Sistema de Rastreamento de Leads
@@ -174,9 +187,15 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         if (error) throw error;
         
         if (data) {
-          // Extrai cidades únicas e remove strings vazias/whitespace
-          const cities = Array.from(new Set(data.map(d => d.city).filter(c => c && c.trim() !== ''))) as string[];
-          setAvailableCities(cities.sort());
+          // Extrai cidades únicas, remove whitespace e garante unicidade real
+          const uniqueCitiesSet = new Set<string>();
+          data.forEach(d => {
+            if (d.city) {
+              const trimmed = d.city.trim();
+              if (trimmed !== '') uniqueCitiesSet.add(trimmed);
+            }
+          });
+          setAvailableCities(Array.from(uniqueCitiesSet).sort());
         }
       } catch (err) {
         console.error("Erro ao carregar cidades ativas:", err);
@@ -546,21 +565,45 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                       <input
                         type="text"
                         value={manualCityInput}
-                        onChange={(e) => setManualCityInput(e.target.value)}
+                        onChange={async (e) => {
+                          const val = e.target.value;
+                          setManualCityInput(val);
+                          // Lógica de sugestão (debounce vindo aí se necessário)
+                          if (val.length >= 3) {
+                             try {
+                               const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/municipios?nome=${val}&orderBy=nome`);
+                               const data = await res.json();
+                               // Filtra e limita a 5 sugestões
+                               const suggestions = data.slice(0, 5).map((m: any) => `${m.nome}/${m.microrregiao.mesorregiao.UF.sigla}`);
+                               setBrazilSuggestions(suggestions);
+                             } catch {}
+                          } else {
+                            setBrazilSuggestions([]);
+                          }
+                        }}
                         placeholder="Ex: Rondonópolis..."
                         className="w-full pl-9 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:border-primary outline-none text-xs font-bold"
                         onKeyDown={async (e) => {
-                          if (e.key === 'Enter') {
-                            setShowLocationDropdown(false);
-                            isManualLocation.current = true;
-                            setLocationName(manualCityInput);
-                            setUserCoords(null);
-                            localStorage.setItem('KNGindica_manualCity', manualCityInput);
-                            const coords = await geocodeCidade(manualCityInput);
-                            if (coords) setMapCenter(coords);
+                          if (e.key === 'Enter' && manualCityInput) {
+                            handleCitySelect(manualCityInput);
                           }
                         }}
                       />
+                      
+                      {/* Lista de Sugestões IBGE */}
+                      {brazilSuggestions.length > 0 && (
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-slate-900 border border-white/10 rounded-xl shadow-2xl z-70 overflow-hidden">
+                          {brazilSuggestions.map(s => (
+                            <button
+                              key={s}
+                              onClick={() => handleCitySelect(s)}
+                              className="w-full px-4 py-2 text-left text-[11px] font-bold text-slate-300 hover:bg-primary hover:text-white transition-colors border-b border-white/5 last:border-0"
+                            >
+                              {s}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
 

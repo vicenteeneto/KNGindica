@@ -103,8 +103,9 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
     plan_type: (profile as any)?.plan_type || 'basic',
     pricing_model: (profile as any)?.pricing_model || 'hourly',
     price_value: maskCurrency((profile as any)?.price_value?.toString() || ''),
-    show_price: (profile as any)?.show_price !== false,
+    show_price: (profile as any).show_price !== false,
   });
+  const [brazilSuggestions, setBrazilSuggestions] = useState<string[]>([]);
 
   const [isFetchingCep, setIsFetchingCep] = useState(false);
   const [portfolio, setPortfolio] = useState<any[]>([]);
@@ -1082,16 +1083,46 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                     )}
                   </div>
                  </div>
-                <div>
+                <div className="relative">
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Cidade</label>
                   <input
                     type="text"
                     required
                     value={formData.city}
-                    onChange={(e) => setFormData({...formData, city: e.target.value})}
-                    placeholder="Ex: Rondonópolis"
+                    onChange={async (e) => {
+                      const val = e.target.value;
+                      setFormData({...formData, city: val});
+                      if (val.length >= 3) {
+                         try {
+                           const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/municipios?nome=${val}&orderBy=nome`);
+                           const data = await res.json();
+                           const suggestions = data.slice(0, 5).map((m: any) => `${m.nome}/${m.microrregiao.mesorregiao.UF.sigla}`);
+                           setBrazilSuggestions(suggestions);
+                         } catch {}
+                      } else {
+                        setBrazilSuggestions([]);
+                      }
+                    }}
+                    placeholder="Ex: Rondonópolis/MT"
                     className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                   />
+                  {brazilSuggestions.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden">
+                      {brazilSuggestions.map(s => (
+                        <button
+                          key={s}
+                          type="button"
+                          onClick={() => {
+                            setFormData({...formData, city: s});
+                            setBrazilSuggestions([]);
+                          }}
+                          className="w-full px-4 py-2 text-left text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-primary hover:text-white transition-colors border-b border-slate-100 dark:border-white/5 last:border-0"
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Endereço Completo</label>
