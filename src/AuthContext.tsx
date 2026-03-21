@@ -11,6 +11,7 @@ export interface UserProfile {
   avatar_url: string | null;
   plan_type?: 'basic' | 'plus' | null;
   terms_accepted?: boolean;
+  profiles_private?: { cpf: string | null }[];
 }
 
 interface AuthContextType {
@@ -72,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('*, profiles_private(cpf)')
         .eq('id', userId)
         .single();
 
@@ -82,7 +83,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!error && data) {
         const finalRole = isHardcodedAdmin ? 'admin' : (data.role as UserRole);
         setRole(finalRole);
-        setProfile(data as UserProfile);
+        
+        // Flatten private data if exists
+        const profileData = { ...data };
+        if (data.profiles_private && data.profiles_private.length > 0) {
+          (profileData as any).cpf = data.profiles_private[0].cpf;
+        }
+        setProfile(profileData as UserProfile);
 
         // Se é um admin via e-mail mas o banco diz outra coisa, tenta atualizar no banco silenciosamente
         if (isHardcodedAdmin && data.role !== 'admin') {

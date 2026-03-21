@@ -227,16 +227,29 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
     e.preventDefault();
     setIsSaving(true);
     try {
-      const { error } = await supabase
+      // Atualiza dados públicos
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({
           full_name: formData.full_name,
           phone: formData.phone,
-          cpf: formData.cpf,
         })
         .eq('id', user?.id);
 
-      if (error) throw error;
+      if (profileError) throw profileError;
+
+      // Atualiza CPF na tabela privada
+      if (user?.id) {
+        const { error: privateError } = await supabase
+          .from('profiles_private')
+          .upsert({
+            id: user.id,
+            cpf: formData.cpf
+          }, { onConflict: 'id' });
+        
+        if (privateError) throw privateError;
+      }
+
       await refreshProfile();
       setShowProfileModal(false);
       showToast("Perfil atualizado", "Seus dados foram salvos com sucesso.", "success");
@@ -629,9 +642,46 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       <main className="flex-1 overflow-y-auto px-4 py-6 max-w-4xl mx-auto w-full pb-32">
         
 
-        {/* Account Info Section */}
+        {/* Seção de Alerta de Perfil Incompleto (Apenas para Prestadores) */}
+        {role === 'provider' && (() => {
+          const missing = [];
+          if (!profile?.avatar_url) missing.push("Foto");
+          if (!formData.bio || formData.bio.length < 30) missing.push("Bio");
+          if (!formData.categories || formData.categories.length === 0) missing.push("Serviços");
+          if (!(profile as any)?.latitude) missing.push("Localização");
+          if (!formData.price_value) missing.push("Preço");
+          if (portfolio.length === 0) missing.push("Portfólio");
+
+          if (missing.length === 0) return null;
+
+          return (
+            <div className="mb-6 animate-pulse-subtle">
+              <div className="bg-red-500 text-white rounded-2xl p-4 shadow-lg shadow-red-500/30 flex flex-col gap-3 border-2 border-red-400">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-2xl">warning</span>
+                  <div>
+                    <p className="font-black uppercase tracking-tighter text-sm italic">Perfil Incompleto!</p>
+                    <p className="text-[10px] font-medium opacity-90 uppercase tracking-widest">Complete os itens abaixo para atrair clientes</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {missing.map((item, idx) => (
+                    <span key={idx} className="bg-white/20 text-[9px] font-black px-2 py-0.5 rounded-full uppercase">
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Grupo 1: Dados Pessoais e Endereços */}
         <section className="mb-8">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3 px-2">Minha Conta</h2>
+          <div className="flex items-center gap-2 mb-3 px-2">
+            <span className="size-1.5 rounded-full bg-blue-500"></span>
+            <h2 className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Dados Pessoais & Endereço</h2>
+          </div>
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
             <button
               onClick={() => setShowProfileModal(true)}
@@ -642,8 +692,8 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   <span className="material-symbols-outlined">person</span>
                 </div>
                 <div className="text-left">
-                  <p className="font-semibold text-slate-900 dark:text-white">Dados Pessoais</p>
-                  <p className="text-xs text-slate-500">Nome, CPF, Telefone</p>
+                  <p className="font-bold text-slate-900 dark:text-white">Informações Pessoais</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest">Nome, CPF e Telefone</p>
                 </div>
               </div>
               <span className="material-symbols-outlined text-slate-400">chevron_right</span>
@@ -658,65 +708,81 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   <span className="material-symbols-outlined">location_on</span>
                 </div>
                 <div className="text-left">
-                  <p className="font-semibold text-slate-900 dark:text-white">Meus Endereços</p>
-                  <p className="text-xs text-slate-500">Casa, Trabalho e Localização</p>
+                  <p className="font-bold text-slate-900 dark:text-white">Meus Endereços</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest">Localização e Mapa</p>
                 </div>
               </div>
               <span className="material-symbols-outlined text-slate-400">chevron_right</span>
             </button>
+          </div>
+        </section>
 
-            {role === 'provider' && (
-              <>
-                <button
-                  onClick={() => setShowProviderModal(true)}
-                  className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="size-10 rounded-full bg-orange-50 dark:bg-orange-900/20 text-orange-500 flex items-center justify-center group-hover:bg-orange-100 dark:group-hover:bg-orange-900/40 transition-colors">
-                      <span className="material-symbols-outlined">work</span>
-                    </div>
-                    <div className="text-left">
-                      <p className="font-semibold text-slate-900 dark:text-white">Perfil Profissional</p>
-                      <p className="text-xs text-slate-500">Sobre, Serviços e WhatsApp</p>
-                    </div>
+        {/* Grupo 2: Perfil Profissional (Apenas para Prestadores) */}
+        {role === 'provider' && (
+          <section className="mb-8">
+            <div className="flex items-center gap-2 mb-3 px-2">
+              <span className="size-1.5 rounded-full bg-orange-500"></span>
+              <h2 className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Perfil Profissional & Negócio</h2>
+            </div>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+              <button
+                onClick={() => setShowProviderModal(true)}
+                className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="size-10 rounded-full bg-orange-50 dark:bg-orange-900/20 text-orange-500 flex items-center justify-center group-hover:bg-orange-100 dark:group-hover:bg-orange-900/40 transition-colors">
+                    <span className="material-symbols-outlined">work</span>
                   </div>
-                  <span className="material-symbols-outlined text-slate-400">chevron_right</span>
-                </button>
-
-                <button
-                  onClick={() => setShowPortfolioModal(true)}
-                  className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="size-10 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-500 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 transition-colors">
-                      <span className="material-symbols-outlined">photo_library</span>
-                    </div>
-                    <div className="text-left">
-                      <p className="font-semibold text-slate-900 dark:text-white">Meus Trabalhos</p>
-                      <p className="text-xs text-slate-500">Gerenciar fotos do portfólio</p>
-                    </div>
+                  <div className="text-left">
+                    <p className="font-bold text-slate-900 dark:text-white">Configuração dos Serviços</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest">BIO, CATEGORIAS E WHATSAPP</p>
                   </div>
-                  <span className="material-symbols-outlined text-slate-400">chevron_right</span>
-                </button>
+                </div>
+                <span className="material-symbols-outlined text-slate-400">chevron_right</span>
+              </button>
 
-                <button
-                  onClick={() => setShowSettingsModal(true)}
-                  className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="size-10 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-500 flex items-center justify-center group-hover:bg-purple-100 dark:group-hover:bg-purple-900/40 transition-colors">
-                      <span className="material-symbols-outlined">settings_heart</span>
-                    </div>
-                    <div className="text-left">
-                      <p className="font-semibold text-slate-900 dark:text-white">Configurações do Negócio</p>
-                      <p className="text-xs text-slate-500">Fidelidade e horários</p>
-                    </div>
+              <button
+                onClick={() => setShowPortfolioModal(true)}
+                className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="size-10 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-500 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 transition-colors">
+                    <span className="material-symbols-outlined">photo_library</span>
                   </div>
-                  <span className="material-symbols-outlined text-slate-400">chevron_right</span>
-                </button>
-              </>
-            )}
+                  <div className="text-left">
+                    <p className="font-bold text-slate-900 dark:text-white">Meus Trabalhos</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest">FOTOS DO PORTFÓLIO</p>
+                  </div>
+                </div>
+                <span className="material-symbols-outlined text-slate-400">chevron_right</span>
+              </button>
 
+              <button
+                onClick={() => setShowSettingsModal(true)}
+                className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="size-10 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-500 flex items-center justify-center group-hover:bg-purple-100 dark:group-hover:bg-purple-900/40 transition-colors">
+                    <span className="material-symbols-outlined">settings_heart</span>
+                  </div>
+                  <div className="text-left">
+                    <p className="font-bold text-slate-900 dark:text-white">Configurações Finais</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest">FIDELIDADE E HORÁRIOS</p>
+                  </div>
+                </div>
+                <span className="material-symbols-outlined text-slate-400">chevron_right</span>
+              </button>
+            </div>
+          </section>
+        )}
+
+        {/* Grupo 3: Pagamentos */}
+        <section className="mb-8">
+          <div className="flex items-center gap-2 mb-3 px-2">
+            <span className="size-1.5 rounded-full bg-purple-500"></span>
+            <h2 className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Pagamentos</h2>
+          </div>
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
             <button
               onClick={() => showToast("Em desenvolvimento", "A gestão de pagamentos estará disponível em breve.", "notification")}
               className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
@@ -726,8 +792,8 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   <span className="material-symbols-outlined">credit_card</span>
                 </div>
                 <div className="text-left">
-                  <p className="font-semibold text-slate-900 dark:text-white">Pagamentos</p>
-                  <p className="text-xs text-slate-500">Cartões salvos, Pix</p>
+                  <p className="font-bold text-slate-900 dark:text-white">Meus Cartões & Pix</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest">CONFIGURAÇÕES DE FATURAMENTO</p>
                 </div>
               </div>
               <span className="material-symbols-outlined text-slate-400">chevron_right</span>
