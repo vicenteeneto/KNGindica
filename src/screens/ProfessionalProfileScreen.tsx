@@ -442,7 +442,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
               </div>
               
               <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1.5">
-                {professional.category} • {professional.isAffiliate ? 'Afiliado Verificado' : 'Profissional'}
+                {professional.category} • {professional.isAffiliate ? (professional.isVerified ? 'Afiliado Verificado' : 'Afiliado') : 'Profissional'}
               </p>
 
               <p className="text-slate-500 dark:text-slate-400 text-[11px] font-bold leading-normal flex items-center gap-1">

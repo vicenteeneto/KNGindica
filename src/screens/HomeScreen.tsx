@@ -256,7 +256,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             longitude: p.longitude,
             image: p.avatar_url || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
             isAffiliate: p.plan_type === 'plus',
-            isVerified: true,
+            isVerified: p.is_verified,
             plan_type: p.plan_type || 'basic',
             rawDistance: distanceStr === 'N/A' || distanceStr.includes('N/A') ? 999999 : parseFloat(distanceStr)
           };

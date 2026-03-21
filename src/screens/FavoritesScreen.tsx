@@ -32,7 +32,8 @@ export default function FavoritesScreen({ onNavigate, params }: FavoritesScreenP
               full_name,
               avatar_url,
               categories,
-              plan_type
+              plan_type,
+              is_verified
             )
           `)
           .eq('user_id', user.id)
@@ -109,7 +110,7 @@ export default function FavoritesScreen({ onNavigate, params }: FavoritesScreenP
                         <h3 className="font-bold text-slate-900 dark:text-white truncate group-hover:text-primary transition-colors">
                           {provider.full_name}
                         </h3>
-                        {provider.plan_type === 'plus' && <VerifiedBadge />}
+                        {provider.is_verified && <VerifiedBadge />}
                       </div>
                       <button 
                         onClick={(e) => {
