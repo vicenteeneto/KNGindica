@@ -374,6 +374,26 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
       setLoading(false);
     }
   };
+  const handleArchiveChat = async () => {
+    if (!roomId || !user) return;
+    try {
+      const { data: roomData } = await supabase.from('chat_rooms').select('client_id').eq('id', roomId).single();
+      if (!roomData) return;
+      
+      const isClient = roomData.client_id === user.id;
+      const updateData = isClient ? { client_archived: true } : { provider_archived: true };
+      
+      const { error } = await supabase.from('chat_rooms').update(updateData).eq('id', roomId);
+      if (error) throw error;
+      
+      showToast("Sucesso", "Conversa arquivada com sucesso.", "success");
+      onNavigate('chatList');
+    } catch (err: any) {
+      console.error("Erro ao arquivar:", err);
+      showToast("Erro", "Não foi possível arquivar a conversa.", "error");
+    }
+  };
+
   return (
     <>
     {selectedImage && (
@@ -414,6 +434,9 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
             <span className="text-xs text-primary font-medium">Online</span>
           </div>
         </div>
+        <button onClick={handleArchiveChat} className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" title="Arquivar conversa">
+          <span className="material-symbols-outlined">inventory_2</span>
+        </button>
       </nav>
 
       {/* Chat Area */}

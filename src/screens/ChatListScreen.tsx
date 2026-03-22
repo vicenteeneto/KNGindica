@@ -10,6 +10,7 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
 
   const [rooms, setRooms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'Todas' | 'Serviços' | 'Suporte' | 'Arquivadas'>('Todas');
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -22,9 +23,11 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
             request_id,
             client_id,
             provider_id,
+            client_archived,
+            provider_archived,
             client:profiles!chat_rooms_client_id_fkey(full_name, avatar_url),
             provider:profiles!chat_rooms_provider_id_fkey(full_name, avatar_url),
-            service_requests(title)
+            service_requests(title, status)
           `)
           .or(`client_id.eq.${user.id},provider_id.eq.${user.id}`);
 
@@ -102,10 +105,10 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
         </div>
         {/* Categories / Tabs */}
         <div className="flex gap-6 mt-4 overflow-x-auto no-scrollbar max-w-7xl mx-auto w-full px-4 md:px-0">
-          <button className="pb-2 border-b-2 border-primary text-primary font-semibold text-sm whitespace-nowrap">Todas</button>
-          <button className="pb-2 border-b-2 border-transparent text-slate-500 dark:text-slate-400 font-medium text-sm whitespace-nowrap hover:text-slate-700">Serviços</button>
-          <button className="pb-2 border-b-2 border-transparent text-slate-500 dark:text-slate-400 font-medium text-sm whitespace-nowrap hover:text-slate-700">Suporte</button>
-          <button className="pb-2 border-b-2 border-transparent text-slate-500 dark:text-slate-400 font-medium text-sm whitespace-nowrap hover:text-slate-700">Arquivadas</button>
+          <button onClick={() => setActiveTab('Todas')} className={`pb-2 border-b-2 font-semibold text-sm whitespace-nowrap transition-colors ${activeTab === 'Todas' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700'}`}>Todas</button>
+          <button onClick={() => setActiveTab('Serviços')} className={`pb-2 border-b-2 font-semibold text-sm whitespace-nowrap transition-colors ${activeTab === 'Serviços' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700'}`}>Serviços</button>
+          <button onClick={() => setActiveTab('Suporte')} className={`pb-2 border-b-2 font-semibold text-sm whitespace-nowrap transition-colors ${activeTab === 'Suporte' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700'}`}>Suporte</button>
+          <button onClick={() => setActiveTab('Arquivadas')} className={`pb-2 border-b-2 font-semibold text-sm whitespace-nowrap transition-colors ${activeTab === 'Arquivadas' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700'}`}>Arquivadas</button>
         </div>
       </header>
 
@@ -122,9 +125,33 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
               <p className="text-lg">Você não possui nenhuma conversa.</p>
             </div>
           ) : (
-            rooms.map((room) => {
-              // Unified logic: opponent is whoever is NOT the current user
-              const profile = room.provider_id === user?.id ? room.client : room.provider;
+            (() => {
+              const filteredRooms = rooms.filter(room => {
+                const isClient = user?.id === room.client_id;
+                const isArchived = isClient ? room.client_archived : room.provider_archived;
+                const isSupport = room.service_requests?.status === 'disputed';
+                
+                if (activeTab === 'Arquivadas') return isArchived;
+                if (isArchived) return false; // Hide archived from other tabs
+                
+                if (activeTab === 'Todas') return true;
+                if (activeTab === 'Suporte') return isSupport;
+                if (activeTab === 'Serviços') return !isSupport;
+                return true;
+              });
+
+              if (filteredRooms.length === 0) {
+                return (
+                  <div className="flex flex-col items-center justify-center py-20 text-center text-slate-500">
+                    <span className="material-symbols-outlined text-6xl mb-4 opacity-50">search_off</span>
+                    <p className="text-lg">Nenhuma conversa encontrada nesta aba.</p>
+                  </div>
+                );
+              }
+
+              return filteredRooms.map((room) => {
+                // Unified logic: opponent is whoever is NOT the current user
+                const profile = room.provider_id === user?.id ? room.client : room.provider;
               const title = room.service_requests?.title || 'Serviço';
               const latestMessage = room.latestMessage?.message || 'Inicie a conversa!';
               const time = room.latestMessage ? new Date(room.latestMessage.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
@@ -160,6 +187,7 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
                 </div>
               );
             })
+            })()
           )}
         </div>
       </main>
