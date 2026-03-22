@@ -185,7 +185,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
           <span className="material-symbols-outlined">arrow_back</span>
         </button>
         <div className="flex-1 min-w-0">
-          <h2 className="text-lg font-black uppercase tracking-tighter truncate text-slate-800 dark:text-slate-100">Sala de Disputa</h2>
+          <h2 className="text-lg font-black uppercase tracking-tighter truncate text-slate-800 dark:text-slate-100">Sala de Freelance</h2>
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">{order.title}</p>
         </div>
         <div className={`px-3 py-1.5 rounded-full flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-black shrink-0 ${isExpired ? 'bg-red-50 text-red-500 dark:bg-red-500/10' : 'bg-primary/10 text-primary'}`}>
@@ -315,7 +315,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
               onNavigate('back');
             }
           }} className="text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 px-4 py-2 rounded-xl text-sm font-bold transition-colors">
-            Encerrar Disputa Antecipadamente
+            Encerrar Freelance Antecipadamente
           </button>
         </div>
       )}

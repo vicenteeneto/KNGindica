@@ -196,7 +196,7 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
                     <div className="flex items-center justify-between text-primary font-bold bg-primary/5 hover:bg-primary/10 rounded-2xl p-4 transition-colors">
                       <div className="flex items-center gap-2">
                         <span className="material-symbols-outlined">forum</span>
-                        <span>Ver Sala de Disputa</span>
+                        <span>Ver Sala de Freelance</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-black bg-primary text-white px-2 py-1 rounded-full">{order.freelance_bids?.length || 0} Lances</span>

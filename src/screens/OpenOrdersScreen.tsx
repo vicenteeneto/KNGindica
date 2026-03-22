@@ -122,7 +122,7 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
-          <h2 className="text-xl font-black tracking-tighter italic uppercase text-primary">Oportunidades Alvo</h2>
+          <h2 className="text-xl font-black tracking-tighter italic uppercase text-primary">Freelance</h2>
           <button onClick={fetchOrders} className="size-10 flex items-center justify-center text-slate-400 hover:text-primary transition-colors">
             <span className="material-symbols-outlined">refresh</span>
           </button>

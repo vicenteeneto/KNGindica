@@ -174,7 +174,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
             </div>
 
             <div>
-              <label className="block text-sm font-bold mb-2 uppercase tracking-widest text-slate-400">Duração do Leilão</label>
+              <label className="block text-sm font-bold mb-2 uppercase tracking-widest text-slate-400">Duração do Freelance</label>
               <select 
                 required
                 className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium appearance-none"

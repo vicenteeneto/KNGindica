@@ -423,7 +423,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
               Oportunidades KNGindica
             </h3>
             <p className="text-emerald-50/80 text-[11px] font-medium leading-tight max-w-[200px]">
-              Novos pedidos freelance abertos na sua região disponível para disputa.
+              Novos pedidos freelance abertos na sua região disponíveis.
             </p>
             <div className="mt-4 flex items-center gap-2">
               <span className="text-[10px] font-black text-white uppercase tracking-widest bg-emerald-400/20 px-3 py-1.5 rounded-xl border border-white/20">Ver Ordens Disponíveis</span>

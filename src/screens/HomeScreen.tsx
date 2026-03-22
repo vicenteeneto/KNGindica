@@ -817,7 +817,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                   Você define o <span className="text-emerald-300">preço!</span>
                 </h2>
                 <p className="text-emerald-100/60 text-[10px] md:text-sm font-medium max-w-lg leading-snug">
-                  Poste o que você precisa e os profissionais disputam sua ordem.
+                  Poste o que você precisa e os profissionais farão suas ofertas.
                 </p>
               </div>
               <button 
