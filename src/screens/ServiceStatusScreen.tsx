@@ -19,7 +19,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
         // Tentamos primeiro por UUID, depois por display_id se falhar ou for formato de ORD-
         let query = supabase.from('service_requests').select(`
           *,
-          provider:profiles!service_requests_provider_id_fkey(full_name, avatar_url, rating, reviews),
+          provider:profiles!service_requests_provider_id_fkey(full_name, avatar_url),
           category:service_categories(name, icon)
         `);
 
@@ -38,7 +38,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                 .from('service_requests')
                 .select(`
                   *,
-                  provider:profiles!service_requests_provider_id_fkey(full_name, avatar_url, rating, reviews),
+                  provider:profiles!service_requests_provider_id_fkey(full_name, avatar_url),
                   category:service_categories(name, icon)
                 `)
                 .eq('display_id', params.requestId)
