@@ -14,17 +14,44 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
       }
       
       try {
-        const { data, error } = await supabase
-          .from('service_requests')
-          .select(`
-            *,
-            profiles:provider_id(full_name, avatar_url, rating, reviews),
-            service_categories(name, icon)
-          `)
-          .eq('id', params.requestId)
-          .single();
+        console.log("Buscando pedido com ID:", params.requestId);
         
-        if (error) throw error;
+        // Tentamos primeiro por UUID, depois por display_id se falhar ou for formato de ORD-
+        let query = supabase.from('service_requests').select(`
+          *,
+          provider:profiles!service_requests_provider_id_fkey(full_name, avatar_url, rating, reviews),
+          category:service_categories(name, icon)
+        `);
+
+        if (params.requestId.startsWith('ORD-')) {
+          query = query.eq('display_id', params.requestId);
+        } else {
+          query = query.eq('id', params.requestId);
+        }
+
+        const { data, error } = await query.single();
+        
+        if (error) {
+           // Se deu erro buscando por ID e não era ORD-, tenta por display_id como fallback
+           if (!params.requestId.startsWith('ORD-')) {
+              const { data: fallbackData, error: fallbackError } = await supabase
+                .from('service_requests')
+                .select(`
+                  *,
+                  provider:profiles!service_requests_provider_id_fkey(full_name, avatar_url, rating, reviews),
+                  category:service_categories(name, icon)
+                `)
+                .eq('display_id', params.requestId)
+                .single();
+              
+              if (!fallbackError && fallbackData) {
+                setRequest(fallbackData);
+                setLoading(false);
+                return;
+              }
+           }
+           throw error;
+        }
         
         if (data) {
           setRequest(data);
@@ -71,8 +98,8 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
 
   const displayData = request || {
     title: 'Carregando...',
-    service_categories: { name: 'Serviço', icon: 'work' },
-    profiles: { full_name: 'Aguardando Atribuição', avatar_url: '' },
+    category: { name: 'Serviço', icon: 'work' },
+    provider: { full_name: 'Aguardando Atribuição', avatar_url: '' },
     budget_amount: 0,
     created_at: new Date().toISOString(),
     status: 'open'
@@ -154,9 +181,9 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                   onClick={() => onNavigate('writeReview', {
                     requestId: displayData.id,
                     providerId: displayData.provider_id,
-                    providerName: displayData.profiles?.full_name,
-                    providerAvatar: displayData.profiles?.avatar_url,
-                    serviceTitle: displayData.title || displayData.service_categories?.name || 'Serviço'
+                    providerName: displayData.provider?.full_name,
+                    providerAvatar: displayData.provider?.avatar_url,
+                    serviceTitle: displayData.title || displayData.category?.name || 'Serviço'
                   })}
                   className="mt-4 px-8 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-lg shadow-amber-500/30 transition-all flex items-center gap-2 animate-bounce"
                 >
@@ -167,40 +194,46 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
             </div>
             
             <div className="w-full bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm cursor-pointer hover:border-primary/50 transition-colors" onClick={() => displayData.provider_id && onNavigate('profile', { professionalId: displayData.provider_id })}>
-              <div className="flex items-center gap-4">
-                <div className="size-14 rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden shrink-0">
-                  <img className="w-full h-full object-cover" src={displayData.profiles?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} alt="Profile photo" />
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-bold text-slate-900 dark:text-slate-100">{displayData.profiles?.full_name || 'Aguardando Profissional'}</h4>
-                  <div className="flex items-center gap-1 text-amber-500">
-                    <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                    <span className="text-xs font-semibold">{displayData.profiles?.rating || 'Novo'} ({displayData.profiles?.reviews || 0} avaliações)</span>
+              <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="size-16 rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden border-2 border-white dark:border-slate-800 shadow-sm">
+                      <img 
+                        src={displayData.provider?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} 
+                        className="w-full h-full object-cover" 
+                        alt="" 
+                      />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-slate-900 dark:text-white">{displayData.provider?.full_name || 'Aguardando Profissional'}</h3>
+                      <div className="flex items-center gap-1 text-amber-500">
+                        <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                        <span className="text-xs font-bold">{displayData.provider?.rating || '5.0'}</span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="flex gap-2">
-                  <button className="size-10 flex items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors" onClick={(e) => { e.stopPropagation(); alert('Iniciando chamada...'); }}>
-                    <span className="material-symbols-outlined">call</span>
-                  </button>
-                  <button className="size-10 flex items-center justify-center rounded-full bg-primary text-white hover:bg-primary/90 transition-colors" onClick={async (e) => { 
-                    e.stopPropagation(); 
-                    if (!displayData.provider_id) {
-                      alert("Aguarde um profissional aceitar seu pedido para iniciar o chat.");
-                      return;
-                    }
-                    const { data: room } = await supabase.from('chat_rooms').select('id').eq('request_id', params?.requestId).single();
-                    if (room) {
-                      onNavigate('chat', { 
-                        roomId: room.id, 
-                        opponentName: displayData.profiles?.full_name, 
-                        opponentAvatar: displayData.profiles?.avatar_url,
-                        requestId: params?.requestId
-                      });
-                    }
-                  }}>
-                    <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>chat</span>
-                  </button>
-                </div>
+                  <div className="flex gap-2">
+                    <button className="size-10 flex items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors" onClick={(e) => { e.stopPropagation(); alert('Iniciando chamada...'); }}>
+                      <span className="material-symbols-outlined">call</span>
+                    </button>
+                    <button className="size-10 flex items-center justify-center rounded-full bg-primary text-white hover:bg-primary/90 transition-colors" onClick={async (e) => { 
+                      e.stopPropagation(); 
+                      if (!displayData.provider_id) {
+                        alert("Aguarde um profissional aceitar seu pedido para iniciar o chat.");
+                        return;
+                      }
+                      const { data: room } = await supabase.from('chat_rooms').select('id').eq('request_id', params?.requestId).single();
+                      if (room) {
+                        onNavigate('chat', { 
+                          roomId: room.id, 
+                          opponentName: displayData.provider?.full_name, 
+                          opponentAvatar: displayData.provider?.avatar_url,
+                          requestId: params?.requestId
+                        });
+                      }
+                    }}>
+                      <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>chat</span>
+                    </button>
+                  </div>
               </div>
             </div>
           </div>
@@ -212,13 +245,15 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
           
           <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 divide-y divide-slate-100 dark:divide-slate-700 overflow-hidden shadow-sm">
             <div className="flex items-center gap-4 p-4">
-              <div className="size-10 flex items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <span className="material-symbols-outlined">{displayData.service_categories?.icon || 'cleaning_services'}</span>
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Serviço</p>
-                <p className="text-slate-900 dark:text-slate-100 font-semibold">{displayData.title || displayData.service_categories?.name}</p>
-              </div>
+                  <div className="size-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                    <span className="material-symbols-outlined">{displayData.category?.icon || 'work'}</span>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Serviço</p>
+                    <p className="font-bold text-sm text-slate-900 dark:text-white capitalize">
+                      {displayData.title || displayData.category?.name || 'Carregando...'}
+                    </p>
+                  </div>
             </div>
             
             <div className="flex items-center gap-4 p-4">
