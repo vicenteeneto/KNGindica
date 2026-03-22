@@ -135,10 +135,31 @@ export default function HelpCenterScreen({ onNavigate, params }: NavigationProps
         return <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase">Aberto</span>;
       case 'in_review':
         return <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase">Em Análise</span>;
+      case 'answered':
+        return <span className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase">Respondido</span>;
       case 'resolved':
         return <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase">Resolvido</span>;
       case 'closed':
         return <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase">Fechado</span>;
+    }
+  };
+
+  const handleResolveTicket = async (ticketId: string) => {
+    try {
+      const { error } = await supabase
+        .from('support_tickets')
+        .update({ status: 'resolved' })
+        .eq('id', ticketId);
+
+      if (error) throw error;
+
+      setTickets(prev => prev.map(t => t.id === ticketId ? { ...t, status: 'resolved' } : t));
+      if (selectedTicket?.id === ticketId) {
+        setSelectedTicket(prev => prev ? { ...prev, status: 'resolved' } : null);
+      }
+      showToast("Sucesso", "Chamado marcado como resolvido.", "success");
+    } catch (err: any) {
+      showToast("Erro", err.message || "Erro ao resolver chamado.", "error");
     }
   };
 
@@ -452,6 +473,19 @@ export default function HelpCenterScreen({ onNavigate, params }: NavigationProps
                 <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/30">
                   <span className="material-symbols-outlined text-blue-500 animate-pulse">schedule</span>
                   <p className="text-xs text-blue-700 dark:text-blue-400 font-medium">Sua solicitação está na fila e será analisada em breve por nossos especialistas.</p>
+                </div>
+              )}
+
+              {selectedTicket.status !== 'resolved' && (
+                <div className="pt-2">
+                  <button 
+                    onClick={() => handleResolveTicket(selectedTicket.id)}
+                    className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2"
+                  >
+                    <span className="material-symbols-outlined">check_circle</span>
+                    Marcar como Resolvido
+                  </button>
+                  <p className="text-[10px] text-slate-400 text-center mt-2 px-6">Ao clicar aqui, você confirma que sua dúvida foi Sanada ou o problema resolvido.</p>
                 </div>
               )}
             </div>
