@@ -155,15 +155,24 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
     if (!user) return;
     try {
       const { data, error } = await supabase.from('profiles').select('address, city, cep, address_complement').eq('id', user.id).single();
-      if (data && !error) {
+      
+      if (error) {
+        showToast("Erro", "Não foi possível buscar seus dados", "error");
+        return;
+      }
+
+      if (data && (data.address || data.city || data.cep || data.address_complement)) {
         if (data.address) setAddress(data.address);
         if (data.city) setCity(data.city);
         if (data.cep) setCep(data.cep);
         if (data.address_complement) setAddressComplement(data.address_complement);
         showToast("Dados Importados", "Informações preenchidas com sucesso!", "notification");
+      } else {
+         showToast("Perfil Incompleto", "Não há endereço salvo no seu perfil. Por favor, digite manualmente.", "error");
       }
     } catch (e) {
       console.error(e);
+      showToast("Erro", "Ocorreu um erro ao importar dados.", "error");
     }
   };
 

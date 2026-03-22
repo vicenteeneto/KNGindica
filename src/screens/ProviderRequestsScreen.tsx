@@ -177,12 +177,19 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
         .eq('id', requestId);
 
       if (error) throw error;
-      showToast('Status atualizado!', 'success');
-      fetchRequests();
     } catch (err: any) {
       console.error(err);
       showToast('Erro ao atualizar status: ' + err.message, 'error');
     }
+  };
+
+  const formatCurrency = (value: string) => {
+    let v = value.replace(/\D/g, '');
+    if (v.length === 0) return '';
+    v = (parseInt(v, 10) / 100).toFixed(2);
+    v = v.replace('.', ',');
+    v = v.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+    return v;
   };
 
   const handleSendBudget = (id: string, currentAmount?: number, title?: string) => {
@@ -190,13 +197,14 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
       isOpen: true,
       requestId: id,
       requestTitle: title || 'Serviço',
-      currentAmount: currentAmount ? currentAmount.toString().replace('.', ',') : ''
+      currentAmount: currentAmount ? formatCurrency(currentAmount.toFixed(2).replace('.', '')) : ''
     });
   };
 
   const confirmSendBudget = async () => {
     if (!budgetModal.requestId) return;
-    const amount = parseFloat(budgetModal.currentAmount.replace(',', '.'));
+    const rawValue = budgetModal.currentAmount.replace(/\./g, '').replace(',', '.');
+    const amount = parseFloat(rawValue);
     
     if (isNaN(amount) || amount <= 0) {
       showToast('Por favor, insira um valor válido.', 'error');
@@ -346,11 +354,15 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">R$</span>
                     <input 
-                      type="text" // Changed to text to allow comma input
-                      inputMode="decimal" // Suggests numeric keyboard
+                      type="text"
+                      inputMode="decimal"
                       autoFocus
+                      required
                       value={budgetModal.currentAmount}
-                      onChange={(e) => setBudgetModal(prev => ({ ...prev, currentAmount: e.target.value }))}
+                      onChange={(e) => {
+                        const val = formatCurrency(e.target.value);
+                        setBudgetModal(prev => ({ ...prev, currentAmount: val }))
+                      }}
                       placeholder="0,00"
                       className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold text-lg text-slate-900 dark:text-slate-100 focus:border-primary transition-colors outline-none"
                     />
