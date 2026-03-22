@@ -29,6 +29,7 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'unread'>('all');
+  const [showPushBanner, setShowPushBanner] = useState(() => localStorage.getItem('KNGindica_dismissed_push_prompt') !== 'true');
 
   useEffect(() => {
     if (!user) return;
@@ -77,6 +78,11 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
       setNotifications([]);
       refreshCounts();
     }
+  };
+
+  const handleDismissPushBanner = () => {
+    setShowPushBanner(false);
+    localStorage.setItem('KNGindica_dismissed_push_prompt', 'true');
   };
 
   const handleMarkAsRead = async (id: string) => {
@@ -166,41 +172,46 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
       {/* Main Content */}
       <main className="flex-1 max-w-2xl mx-auto w-full pb-24">
         {/* Push Notifications Opt-in */}
-        <section className="px-4 py-4">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm">
-            <div className="flex items-center gap-4">
-              <div className={`size-12 rounded-xl flex items-center justify-center shrink-0 ${push.permission === 'granted' ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-primary/10'}`}>
-                <span className={`material-symbols-outlined ${push.permission === 'granted' ? 'text-emerald-600' : 'text-primary'}`}>
-                  {push.permission === 'granted' ? 'notifications_active' : 'notifications'}
-                </span>
+        {(showPushBanner && push.permission !== 'granted') && (
+          <section className="px-4 py-4 relative">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm relative overflow-hidden">
+              <button onClick={handleDismissPushBanner} className="absolute top-2 right-2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors z-10" title="Dispensar">
+                <span className="material-symbols-outlined text-sm">close</span>
+              </button>
+              <div className="flex items-center gap-4">
+                <div className={`size-12 rounded-xl flex items-center justify-center shrink-0 ${push.permission === 'granted' ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-primary/10'}`}>
+                  <span className={`material-symbols-outlined ${push.permission === 'granted' ? 'text-emerald-600' : 'text-primary'}`}>
+                    {push.permission === 'granted' ? 'notifications_active' : 'notifications'}
+                  </span>
+                </div>
+                <div className="flex-1 pr-4">
+                  <h3 className="font-bold text-slate-900 dark:text-white text-sm">Alertas no Celular</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    {push.permission === 'granted' 
+                      ? 'Você receberá avisos mesmo com o app fechado.' 
+                      : 'Receba avisos de novos pedidos instantaneamente.'}
+                  </p>
+                </div>
+                {push.permission !== 'granted' ? (
+                  <button
+                    onClick={push.subscribeUser}
+                    disabled={push.loading}
+                    className="bg-primary text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm hover:bg-primary/90 transition-all active:scale-95 disabled:opacity-50"
+                  >
+                    {push.loading ? '...' : 'Ativar'}
+                  </button>
+                ) : (
+                  <span className="text-emerald-600 material-symbols-outlined">check_circle</span>
+                )}
               </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-slate-900 dark:text-white text-sm">Alertas no Celular</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  {push.permission === 'granted' 
-                    ? 'Você receberá avisos mesmo com o app fechado.' 
-                    : 'Receba avisos de novos pedidos instantaneamente.'}
+              {push.permission === 'denied' && (
+                <p className="text-[10px] text-red-500 mt-2 text-center">
+                  As notificações foram bloqueadas no navegador. Por favor, ative nas configurações do site.
                 </p>
-              </div>
-              {push.permission !== 'granted' ? (
-                <button
-                  onClick={push.subscribeUser}
-                  disabled={push.loading}
-                  className="bg-primary text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm hover:bg-primary/90 transition-all active:scale-95 disabled:opacity-50"
-                >
-                  {push.loading ? '...' : 'Ativar'}
-                </button>
-              ) : (
-                <span className="text-emerald-600 material-symbols-outlined">check_circle</span>
               )}
             </div>
-            {push.permission === 'denied' && (
-              <p className="text-[10px] text-red-500 mt-2 text-center">
-                As notificações foram bloqueadas no navegador. Por favor, ative nas configurações do site.
-              </p>
-            )}
-          </div>
-        </section>
+          </section>
+        )}
 
         {loading ? (
           <div className="p-8 text-center text-slate-500">
