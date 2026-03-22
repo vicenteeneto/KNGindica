@@ -7,6 +7,7 @@ import { useNotifications } from '../NotificationContext';
 export default function HelpCenterScreen({ onNavigate, params }: NavigationProps) {
   const [activeTab, setActiveTab] = useState<'faq' | 'tickets'>('tickets');
   const [isCreatingTicket, setIsCreatingTicket] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState<any>(null);
 
   const { user } = useAuth();
   const { showToast } = useNotifications();
@@ -41,7 +42,23 @@ export default function HelpCenterScreen({ onNavigate, params }: NavigationProps
   const [newSubject, setNewSubject] = useState('');
   const [newDescription, setNewDescription] = useState('');
   const [newRelatedOrder, setNewRelatedOrder] = useState('');
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      setSelectedFiles(prev => [...prev, ...files]);
+      const newPreviews = files.map((f: File) => URL.createObjectURL(f));
+      setPreviews(prev => [...prev, ...newPreviews]);
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    setPreviews(prev => prev.filter((_, i) => i !== index));
+  };
 
   const handleCreateTicket = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,12 +70,30 @@ export default function HelpCenterScreen({ onNavigate, params }: NavigationProps
     
     setSubmitting(true);
     try {
+      const uploadedUrls = [];
+      for (const file of selectedFiles) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user.id}/${Math.random()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from('support-attachments')
+          .upload(fileName, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('support-attachments')
+          .getPublicUrl(fileName);
+        
+        uploadedUrls.push(publicUrl);
+      }
+
       const { data, error } = await supabase.from('support_tickets').insert({
         user_id: user.id,
         category: newCategory,
         subject: newSubject,
         description: newDescription,
         related_order_id: newCategory === 'dispute' ? newRelatedOrder : null,
+        attachments: uploadedUrls
       }).select().single();
       
       if (error) throw error;
@@ -74,6 +109,8 @@ export default function HelpCenterScreen({ onNavigate, params }: NavigationProps
       setNewDescription('');
       setNewCategory('question');
       setNewRelatedOrder('');
+      setSelectedFiles([]);
+      setPreviews([]);
       showToast("Chamado Aberto", "Sua solicitação foi enviada à nossa equipe.", "success");
     } catch (err: any) {
       showToast("Erro", err.message || "Erro ao abrir chamado.", "error");
@@ -178,7 +215,11 @@ export default function HelpCenterScreen({ onNavigate, params }: NavigationProps
                       <span className="material-symbols-outlined animate-spin text-4xl text-slate-300">progress_activity</span>
                     </div>
                   ) : tickets.map(ticket => (
-                    <div key={ticket.id} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                    <div 
+                      key={ticket.id} 
+                      onClick={() => setSelectedTicket(ticket)}
+                      className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                    >
                       <div className="flex justify-between items-start mb-2">
                         <div>
                           <p className="text-xs text-slate-500 font-bold mb-0.5 flex gap-2 items-center">
@@ -280,10 +321,38 @@ export default function HelpCenterScreen({ onNavigate, params }: NavigationProps
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Anexar Provas (Opcional)</label>
-                      <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg p-4 text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
+                      <input 
+                        type="file" 
+                        id="ticket-files" 
+                        multiple 
+                        accept="image/*" 
+                        className="hidden" 
+                        onChange={handleFileSelect} 
+                      />
+                      <label 
+                        htmlFor="ticket-files"
+                        className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg p-4 text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors block"
+                      >
                         <span className="material-symbols-outlined text-slate-400 mb-1">add_a_photo</span>
                         <p className="text-xs text-slate-500">Clique para enviar fotos ou vídeos do problema detectado.</p>
-                      </div>
+                      </label>
+
+                      {previews.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-3">
+                          {previews.map((url, idx) => (
+                            <div key={idx} className="relative size-16 rounded-lg overflow-hidden border border-slate-200">
+                              <img src={url} className="w-full h-full object-cover" alt="" />
+                              <button 
+                                type="button"
+                                onClick={() => removeFile(idx)}
+                                className="absolute top-0 right-0 bg-red-500 text-white size-5 flex items-center justify-center rounded-bl-lg"
+                              >
+                                <span className="material-symbols-outlined text-[12px]">close</span>
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <div className="pt-2 flex gap-2">
                       <button 
@@ -324,6 +393,80 @@ export default function HelpCenterScreen({ onNavigate, params }: NavigationProps
 
         </div>
       </main>
+
+      {/* Ticket Detail Modal Alternative View */}
+      {selectedTicket && (
+        <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col animate-in slide-in-from-bottom-10 duration-300">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white dark:bg-slate-900 z-10">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{selectedTicket.id.substring(0, 8)}</span>
+                <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                {getStatusBadge(selectedTicket.status)}
+              </div>
+              <button onClick={() => setSelectedTicket(null)} className="size-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto space-y-6">
+              <div>
+                <p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">{getCategoryLabel(selectedTicket.category)}</p>
+                <h3 className="text-2xl font-black tracking-tight leading-tight">{selectedTicket.subject}</h3>
+                <p className="text-xs text-slate-400 mt-2 font-medium italic">Aberto em {new Date(selectedTicket.created_at).toLocaleString('pt-BR')}</p>
+              </div>
+
+              <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl">
+                <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">{selectedTicket.description}</p>
+              </div>
+
+              {selectedTicket.attachments && selectedTicket.attachments.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-bold mb-3 uppercase tracking-widest text-slate-500">Anexos</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedTicket.attachments.map((url: string, idx: number) => (
+                      <a href={url} target="_blank" rel="noreferrer" key={idx} className="size-24 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 block hover:opacity-80 transition-opacity">
+                        <img src={url} className="w-full h-full object-cover" alt="" />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {selectedTicket.admin_response && (
+                <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 p-5 rounded-2xl md:p-6 transition-all ring-1 ring-primary/10">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="size-8 rounded-full bg-primary flex items-center justify-center text-white">
+                      <span className="material-symbols-outlined text-[18px]">support_agent</span>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-primary leading-none">Resposta da Equipe</h4>
+                      <p className="text-[10px] text-primary/60 font-medium uppercase tracking-widest mt-1">Oficial iService</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">{selectedTicket.admin_response}</p>
+                </div>
+              )}
+
+              {selectedTicket.status === 'open' && !selectedTicket.admin_response && (
+                <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/30">
+                  <span className="material-symbols-outlined text-blue-500 animate-pulse">schedule</span>
+                  <p className="text-xs text-blue-700 dark:text-blue-400 font-medium">Sua solicitação está na fila e será analisada em breve por nossos especialistas.</p>
+                </div>
+              )}
+            </div>
+
+            <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
+              <button 
+                onClick={() => setSelectedTicket(null)}
+                className="w-full py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all"
+              >
+                Voltar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -64,6 +64,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [supportTickets, setSupportTickets] = useState<any[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<any | null>(null);
+  const [adminResponseText, setAdminResponseText] = useState('');
 
   const ticketCategoryLabels: Record<string, string> = {
     dispute: 'Disputa Financeira',
@@ -377,6 +378,30 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
     } catch (e) {
       console.error("Erro ao atualizar ticket:", e);
       showToast("Erro", "Falha ao atualizar ticket.", "error");
+    }
+  };
+
+  const handleSendAdminResponse = async () => {
+    if (!selectedTicket || !adminResponseText.trim()) return;
+    
+    try {
+      const { error } = await supabase
+        .from('support_tickets')
+        .update({ 
+          admin_response: adminResponseText,
+          status: 'resolved'
+        })
+        .eq('id', selectedTicket.id);
+
+      if (error) throw error;
+
+      setSupportTickets(prev => prev.map(t => t.id === selectedTicket.id ? { ...t, admin_response: adminResponseText, status: 'resolved' } : t));
+      showToast("Sucesso", "Resposta enviada e ticket resolvido.", "success");
+      setAdminResponseText('');
+      setSelectedTicket(null);
+    } catch (e) {
+      console.error(e);
+      showToast("Erro", "Erro ao enviar resposta.", "error");
     }
   };
 
@@ -3047,6 +3072,39 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                    <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl text-slate-700 dark:text-slate-300 whitespace-pre-wrap text-sm border border-slate-100 dark:border-slate-700 leading-relaxed font-medium">
                      {selectedTicket.description}
                    </div>
+
+                   {selectedTicket.attachments && selectedTicket.attachments.length > 0 && (
+                      <div className="mt-6">
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3 ml-1">Anexos do Usuário</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedTicket.attachments.map((url: string, idx: number) => (
+                            <a href={url} target="_blank" rel="noreferrer" key={idx} className="size-24 rounded-2xl overflow-hidden border-2 border-slate-100 dark:border-slate-800 hover:border-primary/30 transition-all shadow-sm">
+                              <img src={url} className="w-full h-full object-cover" alt="" />
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
+                       <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-3">Enviar Resposta Oficial</h4>
+                       <textarea 
+                         value={adminResponseText}
+                         onChange={(e) => setAdminResponseText(e.target.value)}
+                         placeholder="Escreva aqui a resposta que o usuário verá na Central de Ajuda..."
+                         className="w-full h-32 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm focus:ring-2 focus:ring-primary/20 outline-none resize-none shadow-inner"
+                       />
+                       <div className="flex justify-end mt-3">
+                         <button 
+                           onClick={handleSendAdminResponse}
+                           disabled={!adminResponseText.trim()}
+                           className="px-6 py-2.5 bg-primary text-white font-black rounded-xl hover:bg-primary-hover transition-all shadow-lg shadow-primary/20 flex items-center gap-2 disabled:opacity-50"
+                         >
+                           <span className="material-symbols-outlined text-[20px]">send</span>
+                           Responder via Sistema
+                         </button>
+                       </div>
+                    </div>
                 </div>
 
                 {selectedTicket.related_order_id && (
@@ -3089,9 +3147,9 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                  </div>
                  <button onClick={() => {
                     handleStartAdminChat(selectedTicket);
-                 }} className="w-full sm:w-auto px-6 py-2.5 bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-bold rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-lg">
+                 }} className="w-full sm:w-auto px-6 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-200 transition-all flex items-center justify-center gap-2">
                    <span className="material-symbols-outlined text-[18px]">chat</span>
-                   Responder
+                   Iniciar Chat
                  </button>
               </div>
             </div>
