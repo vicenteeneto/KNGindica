@@ -9,9 +9,7 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
   const { showToast } = useNotifications();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [bidding, setBidding] = useState<string | null>(null);
-  const [bidAmount, setBidAmount] = useState('');
-  const [bidMessage, setBidMessage] = useState('');
+  const [activeTab, setActiveTab] = useState<'available' | 'bidded'>('available');
   
   // Track dismissed orders
   const dismissedKeys = user ? `kngindica_dismissed_orders_${user.id}` : null;
@@ -32,9 +30,9 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
     const channel = supabase
       .channel('freelance_orders_changes')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'freelance_orders' }, payload => {
-        // Only add if not dismissed and not already bid on
         if (!dismissed.includes(payload.new.id)) {
-          setOrders(prev => [payload.new, ...prev]);
+          // If active tab is available, just refetch to be safe with DB relations
+          if (activeTab === 'available') fetchOrders();
         }
       })
       .subscribe();
@@ -42,85 +40,67 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, dismissed]);
+  }, [user, dismissed, activeTab]);
 
   const fetchOrders = async () => {
     if (!user) return;
     setLoading(true);
     
     // Find orders the user already bid on
-    const { data: userBids } = await supabase.from('freelance_bids').select('order_id').eq('provider_id', user.id);
+    const { data: userBids } = await supabase.from('freelance_bids').select('order_id, amount').eq('provider_id', user.id);
     const bidOrderIds = userBids?.map(b => b.order_id) || [];
     
-    // Combine with dismissed orders
-    const toExclude = [...bidOrderIds, ...dismissed];
+    if (activeTab === 'available') {
+      const toExclude = [...bidOrderIds, ...dismissed];
+      let query = supabase
+        .from('freelance_orders')
+        .select(`
+          *,
+          profiles:client_id(full_name, avatar_url),
+          service_categories(name, icon)
+        `)
+        .eq('status', 'open')
+        .order('created_at', { ascending: false });
+        
+      if (toExclude.length > 0) {
+         query = query.not('id', 'in', `(${toExclude.join(',')})`);
+      }
 
-    let query = supabase
-      .from('freelance_orders')
-      .select(`
-        *,
-        profiles:client_id(full_name, avatar_url),
-        service_categories(name, icon)
-      `)
-      .eq('status', 'open')
-      .order('created_at', { ascending: false });
-      
-    if (toExclude.length > 0) {
-       // Filter out excluded orders (limit chunking if large, but assuming small list for now)
-       query = query.not('id', 'in', `(${toExclude.join(',')})`);
+      const { data, error } = await query;
+      if (!error) setOrders(data || []);
+    } else {
+      // Bidded tab
+      if (bidOrderIds.length === 0) {
+        setOrders([]);
+      } else {
+        const { data, error } = await supabase
+          .from('freelance_orders')
+          .select(`
+            *,
+            profiles:client_id(full_name, avatar_url),
+            service_categories(name, icon)
+          `)
+          .in('id', bidOrderIds)
+          .order('created_at', { ascending: false });
+        if (!error) {
+           // Attach user's bid amount locally
+           const enhanced = data.map((o: any) => ({
+             ...o,
+             myBidAmount: userBids?.find(b => b.order_id === o.id)?.amount
+           }));
+           setOrders(enhanced || []);
+        }
+      }
     }
-
-    const { data, error } = await query;
-    if (!error) setOrders(data || []);
     setLoading(false);
   };
 
-  const handeDismiss = (orderId: string) => {
+  const handeDismiss = (e: React.MouseEvent, orderId: string) => {
+    e.stopPropagation();
     const updated = [...dismissed, orderId];
     setDismissed(updated);
     if (dismissedKeys) localStorage.setItem(dismissedKeys, JSON.stringify(updated));
     setOrders(prev => prev.filter(o => o.id !== orderId));
-  };
-
-  const handlePlaceBid = async (orderId: string) => {
-    if (!user) return showToast("Acesso Negado", "Erro de autenticação.", "error");
-    if (!bidAmount) return showToast("Atenção", "Insira um valor.", "warning");
-
-    try {
-      const { error } = await supabase
-        .from('freelance_bids')
-        .insert([{
-          order_id: orderId,
-          provider_id: user.id,
-          amount: parseFloat(bidAmount),
-          message: bidMessage,
-          status: 'pending'
-        }]);
-
-      if (error) {
-        if (error.code === '23505') showToast("Atenção", "Você já fez um lance para esta ordem.", "warning");
-        else throw error;
-      } else {
-        // Send notification to client
-        await supabase.from('notifications').insert({
-          user_id: orders.find(o => o.id === orderId)?.client_id,
-          title: "Novo Lance Recebido!",
-          message: `Um profissional deu um lance de R$ ${parseFloat(bidAmount).toFixed(2)} em sua ordem: ${orders.find(o => o.id === orderId)?.title}`,
-          type: 'new_bid',
-          related_entity_id: orderId
-        });
-
-        showToast("Sucesso", "Lance enviado com sucesso!", "success");
-        setBidding(null);
-        setBidAmount('');
-        setBidMessage('');
-        
-        // Exclude from feed automatically
-        setOrders(prev => prev.filter(o => o.id !== orderId));
-      }
-    } catch (err: any) {
-      showToast("Erro", "Erro ao enviar lance: " + err.message, "error");
-    }
   };
 
   if (loading) {
@@ -147,6 +127,22 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
             <span className="material-symbols-outlined">refresh</span>
           </button>
         </div>
+        
+        {/* Tabs */}
+        <div className="flex border-b border-slate-200 dark:border-slate-800">
+          <button 
+            onClick={() => setActiveTab('available')}
+            className={`flex-1 py-3 text-sm font-bold tracking-widest uppercase transition-colors ${activeTab === 'available' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600'}`}
+          >
+            Disponíveis
+          </button>
+          <button 
+            onClick={() => setActiveTab('bidded')}
+            className={`flex-1 py-3 text-sm font-bold tracking-widest uppercase transition-colors ${activeTab === 'bidded' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600'}`}
+          >
+            Meus Lances
+          </button>
+        </div>
       </header>
 
       <main className="flex-1 max-w-4xl mx-auto w-full p-4 lg:p-8 space-y-4">
@@ -155,20 +151,28 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
             <div className="size-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
               <span className="material-symbols-outlined text-4xl text-slate-300">search_off</span>
             </div>
-            <h3 className="text-xl font-bold">Nenhuma ordem aberta</h3>
-            <p className="text-slate-500 max-w-[250px] mx-auto">Fique ligado! Novas oportunidades podem aparecer a qualquer momento.</p>
+            <h3 className="text-xl font-bold">{activeTab === 'available' ? 'Nenhuma ordem aberta' : 'Nenhum lance feito'}</h3>
+            <p className="text-slate-500 max-w-[250px] mx-auto">
+              {activeTab === 'available' ? 'Fique ligado! Novas oportunidades podem aparecer a qualquer momento.' : 'Você ainda não enviou propostas para ordens freelance.'}
+            </p>
           </div>
         ) : (
           orders.map(order => (
-            <div key={order.id} className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden relative group transition-all hover:shadow-xl hover:border-primary/20">
-              {/* Dismiss Button */}
-              <button 
-                onClick={() => handeDismiss(order.id)}
-                className="absolute top-4 right-4 size-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center justify-center transition-colors shadow-sm"
-                title="Não tenho interesse"
-              >
-                <span className="material-symbols-outlined text-[18px]">close</span>
-              </button>
+            <div 
+              key={order.id} 
+              onClick={() => onNavigate('bidRoom', { orderId: order.id })}
+              className="cursor-pointer bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden relative group transition-all hover:shadow-xl hover:border-primary/20 hover:-translate-y-1 block"
+            >
+              {/* Dismiss Button - Só em disponíveis */}
+              {activeTab === 'available' && (
+                <button 
+                  onClick={(e) => handeDismiss(e, order.id)}
+                  className="absolute top-4 right-4 size-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center justify-center transition-colors shadow-sm"
+                  title="Não tenho interesse"
+                >
+                  <span className="material-symbols-outlined text-[18px]">close</span>
+                </button>
+              )}
               
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3 pr-10">
@@ -182,12 +186,20 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
                 </div>
               </div>
               
-              <div className="mb-4">
+              <div className="flex justify-between items-end mb-4 pr-1">
+                <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Budget Cliente</p>
                   <p className="text-xl font-black text-emerald-500 leading-none">R$ {order.budget?.toFixed(2)}</p>
+                </div>
+                {activeTab === 'bidded' && order.myBidAmount && (
+                  <div className="text-right">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Seu Lance</p>
+                    <p className="text-lg font-black text-primary leading-none">R$ {order.myBidAmount?.toFixed(2)}</p>
+                  </div>
+                )}
               </div>
 
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl leading-relaxed">
+              <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl leading-relaxed line-clamp-3">
                 {order.description}
               </p>
 
@@ -199,36 +211,10 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
                   <p className="text-xs font-bold text-slate-500">{order.profiles?.full_name?.split(' ')[0]}</p>
                 </div>
 
-                {bidding === order.id ? (
-                  <div className="flex-1 ml-4 flex gap-2 animate-in slide-in-from-right-2">
-                    <input 
-                      type="number"
-                      placeholder="Valor R$"
-                      className="w-24 bg-slate-100 dark:bg-slate-900 border-none rounded-xl px-3 text-sm font-bold"
-                      value={bidAmount}
-                      onChange={e => setBidAmount(e.target.value)}
-                    />
-                    <button 
-                      onClick={() => handlePlaceBid(order.id)}
-                      className="bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-emerald-600"
-                    >
-                      Enviar
-                    </button>
-                    <button onClick={() => setBidding(null)} className="text-slate-400">
-                      <span className="material-symbols-outlined">close</span>
-                    </button>
-                  </div>
-                ) : (
-                  <button 
-                    onClick={() => {
-                      setBidding(order.id);
-                      setBidAmount(order.budget.toString());
-                    }}
-                    className="bg-primary text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                  >
-                    Disputar Ordem
-                  </button>
-                )}
+                <div className="flex items-center gap-1 text-primary text-sm font-bold">
+                  <span>Entrar na Sala</span>
+                  <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                </div>
               </div>
             </div>
           ))

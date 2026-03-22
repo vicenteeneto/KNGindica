@@ -14,13 +14,13 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
-  
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     budget: '',
     category_id: '',
-    city: ''
+    city: '',
+    expiresInHours: '24'
   });
 
   useEffect(() => {
@@ -52,6 +52,9 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
 
     setSending(true);
     try {
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + parseInt(formData.expiresInHours));
+
       const { data, error } = await supabase
         .from('freelance_orders')
         .insert([{
@@ -61,7 +64,8 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
           budget: parseCurrency(formData.budget),
           category_id: formData.category_id,
           city: formData.city,
-          status: 'open'
+          status: 'open',
+          expires_at: expiresAt.toISOString()
         }])
         .select()
         .single();
@@ -167,6 +171,22 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
                   }}
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold mb-2 uppercase tracking-widest text-slate-400">Duração do Leilão</label>
+              <select 
+                required
+                className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium appearance-none"
+                value={formData.expiresInHours}
+                onChange={e => setFormData({...formData, expiresInHours: e.target.value})}
+              >
+                <option value="6">Expira em 6 Horas</option>
+                <option value="12">Expira em 12 Horas</option>
+                <option value="24">Expira em 24 Horas (1 dia)</option>
+                <option value="48">Expira em 48 Horas (2 dias)</option>
+                <option value="168">Expira em 7 Dias</option>
+              </select>
             </div>
 
             <div>

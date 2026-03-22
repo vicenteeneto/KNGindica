@@ -31,6 +31,7 @@ import FreelanceRequestScreen from './screens/FreelanceRequestScreen';
 import OpenOrdersScreen from './screens/OpenOrdersScreen';
 import WhatsAppSearchScreen from './screens/WhatsAppSearchScreen';
 import TermsConsentScreen from './screens/TermsConsentScreen';
+import BidRoomScreen from './screens/BidRoomScreen';
 import { initOneSignal } from './lib/OneSignalService';
 import { Screen } from './types';
 import { ThemeProvider, useTheme } from './ThemeContext';
@@ -44,7 +45,7 @@ const STORAGE_KEY = 'KNGindica_currentScreen';
 const STORAGE_PARAMS_KEY = 'KNGindica_navParams';
 
 // Telas que nunca devem ser persistidas (sensíveis ou de sessão)
-const NON_PERSISTENT_SCREENS = ['auth', 'forgotPassword', 'chat', 'termsConsent'];
+const NON_PERSISTENT_SCREENS = ['auth', 'forgotPassword', 'chat', 'termsConsent', 'bidRoom'];
 
 const ADMIN_TABS = [
   { id: 'dashboard', icon: 'grid_view', label: 'Dashboard' },
@@ -273,6 +274,8 @@ function AppContent() {
         return <CategoriesScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'termsConsent':
         return <TermsConsentScreen onNavigate={handleNavigate} />;
+      case 'bidRoom':
+        return <BidRoomScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'whatsappSearch':
         return <WhatsAppSearchScreen onNavigate={handleNavigate} params={navigationParams} />;
       default:

@@ -191,88 +191,18 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
                     </div>
                   </div>
 
-                  {/* Bids List */}
-                  <div className="space-y-3 mt-6">
-                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-700 pb-2">Lances Recebidos ({order.freelance_bids?.length || 0})</h4>
-                    {order.freelance_bids?.length === 0 ? (
-                      <p className="text-xs text-slate-400 italic py-2">Aguardando prestadores interessados...</p>
-                    ) : (
-                      order.freelance_bids.map((bid: any) => (
-                        <div key={bid.id} className="flex items-center justify-between bg-slate-50 dark:bg-slate-900/50 p-3 rounded-2xl border border-transparent hover:border-primary/20 transition-all">
-                          <div className="flex items-center gap-3">
-                            <div className="size-10 rounded-full bg-slate-200 overflow-hidden">
-                              <img src={bid.profiles?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} className="w-full h-full object-cover" alt="" />
-                            </div>
-                            <div>
-                              <p className="text-sm font-bold">{bid.profiles?.full_name}</p>
-                              <div className="flex items-center gap-1 text-amber-500 text-[10px] font-black">
-                                <span className="material-symbols-outlined text-[12px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                {bid.profiles?.rating || '5.0'}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <div className="text-right mr-2">
-                              <p className="text-xs font-black text-slate-900 dark:text-white leading-none">R$ {bid.amount?.toFixed(2)}</p>
-                            </div>
-                            <button 
-                              onClick={async () => {
-                                if(!window.confirm(`Deseja aceitar o lance de ${bid.profiles?.full_name}? Uma sala de chat será aberta.`)) return;
-                                try {
-                                  // 1. Update order
-                                  const { error: orderError } = await supabase
-                                    .from('freelance_orders')
-                                    .update({ status: 'assigned', assigned_provider_id: bid.provider_id })
-                                    .eq('id', order.id);
-                                  if (orderError) throw orderError;
-
-                                  // 2. Create service request record to link to existing system
-                                  const { data: request, error: requestError } = await supabase
-                                    .from('service_requests')
-                                    .insert([{
-                                      client_id: user.id,
-                                      provider_id: bid.provider_id,
-                                      title: `Freelance: ${order.title}`,
-                                      description: order.description,
-                                      budget_amount: bid.amount,
-                                      status: 'accepted',
-                                      category_id: order.category_id
-                                    }])
-                                    .select()
-                                    .single();
-                                  if (requestError) throw requestError;
-
-                                  // 3. Create chat room
-                                  const { data: room, error: roomError } = await supabase
-                                    .from('chat_rooms')
-                                    .insert([{
-                                      request_id: request.id,
-                                      client_id: user.id,
-                                      provider_id: bid.provider_id
-                                    }])
-                                    .select()
-                                    .single();
-                                  if (roomError) throw roomError;
-
-                                  showToast("Sucesso", "Parabéns! Você escolheu seu prestador. O chat já está aberto.", "success");
-                                  onNavigate('chat', { 
-                                    roomId: room.id, 
-                                    opponentName: bid.profiles?.full_name, 
-                                    opponentAvatar: bid.profiles?.avatar_url,
-                                    requestId: request.id
-                                  });
-                                } catch (err: any) {
-                                  showToast("Erro", "Erro ao aceitar lance: " + err.message, "error");
-                                }
-                              }}
-                              className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20"
-                            >
-                              Aceitar
-                            </button>
-                          </div>
-                        </div>
-                      ))
-                    )}
+                  {/* Bids Link */}
+                  <div className="mt-6 border-t border-slate-100 dark:border-slate-700 pt-4 cursor-pointer" onClick={() => onNavigate('bidRoom', { orderId: order.id })}>
+                    <div className="flex items-center justify-between text-primary font-bold bg-primary/5 hover:bg-primary/10 rounded-2xl p-4 transition-colors">
+                      <div className="flex items-center gap-2">
+                        <span className="material-symbols-outlined">forum</span>
+                        <span>Ver Sala de Disputa</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-black bg-primary text-white px-2 py-1 rounded-full">{order.freelance_bids?.length || 0} Lances</span>
+                        <span className="material-symbols-outlined">arrow_forward</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
