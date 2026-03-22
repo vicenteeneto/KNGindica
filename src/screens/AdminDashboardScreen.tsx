@@ -389,19 +389,39 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         .from('support_tickets')
         .update({ 
           admin_response: adminResponseText,
-          status: 'resolved'
+          status: 'answered'
         })
         .eq('id', selectedTicket.id);
 
       if (error) throw error;
 
-      setSupportTickets(prev => prev.map(t => t.id === selectedTicket.id ? { ...t, admin_response: adminResponseText, status: 'resolved' } : t));
-      showToast("Sucesso", "Resposta enviada e ticket resolvido.", "success");
+      setSupportTickets(prev => prev.map(t => t.id === selectedTicket.id ? { ...t, admin_response: adminResponseText, status: 'answered' } : t));
+      showToast("Sucesso", "Resposta enviada. O ticket agora está como respondido.", "success");
       setAdminResponseText('');
       setSelectedTicket(null);
     } catch (e) {
       console.error(e);
       showToast("Erro", "Erro ao enviar resposta.", "error");
+    }
+  };
+
+  const handleResolveTicket = async (ticketId: string) => {
+    try {
+      const { error } = await supabase
+        .from('support_tickets')
+        .update({ status: 'resolved' })
+        .eq('id', ticketId);
+
+      if (error) throw error;
+
+      setSupportTickets(prev => prev.map(t => t.id === ticketId ? { ...t, status: 'resolved' } : t));
+      if (selectedTicket?.id === ticketId) {
+        setSelectedTicket(prev => prev ? { ...prev, status: 'resolved' } : null);
+      }
+      showToast("Sucesso", "Ticket marcado como resolvido.", "success");
+    } catch (e) {
+      console.error(e);
+      showToast("Erro", "Erro ao resolver ticket.", "error");
     }
   };
 
@@ -2287,7 +2307,8 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
   };
 
   const renderTicketsTab = () => {
-    const openTickets = supportTickets.filter(t => t.status === 'open' || t.status === 'in_progress');
+    const openTickets = supportTickets.filter(t => t.status === 'open' || t.status === 'in_progress' || t.status === 'in_review');
+    const answeredTickets = supportTickets.filter(t => t.status === 'answered');
     const resolvedTickets = supportTickets.filter(t => t.status === 'resolved' || t.status === 'closed');
 
     return (
@@ -2306,12 +2327,17 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm text-center border-t-4 border-t-amber-500">
             <span className="material-symbols-outlined text-4xl text-amber-500 mb-2">support_agent</span>
             <h3 className="text-3xl font-black text-slate-900 dark:text-white">{openTickets.length}</h3>
-            <p className="text-sm text-slate-500 font-bold uppercase tracking-wider">Tickets Abertos</p>
+            <p className="text-sm text-slate-500 font-bold uppercase tracking-wider">Abertos</p>
+          </div>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm text-center border-t-4 border-t-blue-500">
+            <span className="material-symbols-outlined text-4xl text-blue-500 mb-2">quickreply</span>
+            <h3 className="text-3xl font-black text-slate-900 dark:text-white">{answeredTickets.length}</h3>
+            <p className="text-sm text-slate-500 font-bold uppercase tracking-wider">Respondidos</p>
           </div>
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm text-center border-t-4 border-t-green-500">
             <span className="material-symbols-outlined text-4xl text-green-500 mb-2">check_circle</span>
             <h3 className="text-3xl font-black text-slate-900 dark:text-white">{resolvedTickets.length}</h3>
-            <p className="text-sm text-slate-500 font-bold uppercase tracking-wider">Tickets Resolvidos</p>
+            <p className="text-sm text-slate-500 font-bold uppercase tracking-wider">Resolvidos</p>
           </div>
         </div>
 
@@ -2345,9 +2371,15 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       <div className="flex items-center gap-2 mb-1">
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${
                           ticket.status === 'open' ? 'bg-amber-100 text-amber-700' :
-                          ticket.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
+                          ticket.status === 'in_progress' ? 'bg-indigo-100 text-indigo-700' :
+                          ticket.status === 'answered' ? 'bg-blue-100 text-blue-700' :
                           'bg-green-100 text-green-700'
-                        }`}>{ticket.status === 'open' ? 'ABERTO' : ticket.status === 'in_progress' ? 'EM ESPERA' : 'RESOLVIDO'}</span>
+                        }`}>{
+                          ticket.status === 'open' ? 'ABERTO' : 
+                          ticket.status === 'in_progress' ? 'EM ESPERA' : 
+                          ticket.status === 'answered' ? 'RESPONDIDO' :
+                          'RESOLVIDO'
+                        }</span>
                         <p className="font-bold text-slate-900 dark:text-white truncate lg:max-w-md">{ticket.subject}</p>
                       </div>
                       <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
@@ -3101,7 +3133,16 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                          placeholder="Escreva aqui a resposta que o usuário verá na Central de Ajuda..."
                          className="w-full h-32 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm focus:ring-2 focus:ring-primary/20 outline-none resize-none shadow-inner"
                        />
-                       <div className="flex justify-end mt-3">
+                     <div className="flex justify-between items-center mt-3">
+                         {selectedTicket.status !== 'resolved' && (
+                           <button 
+                             onClick={() => handleResolveTicket(selectedTicket.id)}
+                             className="px-4 py-2 border-2 border-green-200 text-green-600 font-bold rounded-xl hover:bg-green-50 transition-all text-xs flex items-center gap-2"
+                           >
+                             <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                             Marcar como Resolvido
+                           </button>
+                         )}
                          <button 
                            onClick={handleSendAdminResponse}
                            disabled={!adminResponseText.trim()}
