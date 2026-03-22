@@ -62,6 +62,15 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
   const [maintenanceSearchTerm, setMaintenanceSearchTerm] = useState('');
   const [ordersFilter, setOrdersFilter] = useState<'all' | 'awaiting_payment' | 'scheduled' | 'in_progress' | 'completed' | 'disputed'>('all');
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
+  const [supportTickets, setSupportTickets] = useState<any[]>([]);
+  const [selectedTicket, setSelectedTicket] = useState<any | null>(null);
+
+  const ticketCategoryLabels: Record<string, string> = {
+    dispute: 'Disputa Financeira',
+    question: 'Dúvida Geral',
+    suggestion: 'Sugestão',
+    account: 'Problemas de Conta',
+  };
 
 
 
@@ -308,13 +317,81 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
     }
   };
 
+  const handleStartAdminChat = async (ticket: any) => {
+    try {
+      const adminId = user?.id;
+      if (!adminId) return;
+
+      // Verifica se já existe uma sala entre Admin e Cliente para esse contexto
+      const { data: existingRooms, error: searchError } = await supabase
+        .from('chat_rooms')
+        .select('id')
+        .eq('client_id', ticket.user_id)
+        .eq('provider_id', adminId);
+
+      let roomId;
+      if (existingRooms && existingRooms.length > 0) {
+        roomId = existingRooms[0].id;
+        // Se for disputa e a sala não tinha o request_id, podemos atualizar opcionalmente
+        if (ticket.related_order_id) {
+            await supabase.from('chat_rooms').update({ request_id: ticket.related_order_id }).eq('id', roomId);
+        }
+      } else {
+        const { data: newRoom, error: insertError } = await supabase
+          .from('chat_rooms')
+          .insert({ 
+             client_id: ticket.user_id, 
+             provider_id: adminId,
+             request_id: ticket.related_order_id || null
+          })
+          .select('id')
+          .single();
+        
+        if (insertError) throw insertError;
+        roomId = newRoom?.id;
+      }
+
+      onNavigate('chat', { 
+         roomId, 
+         opponentName: ticket.user?.full_name || 'Usuário', 
+         opponentAvatar: ticket.user?.avatar_url,
+         requestId: ticket.related_order_id || undefined
+      });
+      setSelectedTicket(null); // Fecha o modal
+    } catch (e) {
+      console.error("Erro ao iniciar chat admin:", e);
+      showToast("Erro", "Falha ao iniciar chat", "error");
+    }
+  };
+
+
+  const handleUpdateTicketStatus = async (ticketId: string, status: 'open' | 'in_progress' | 'resolved' | 'closed') => {
+    try {
+      const { error } = await supabase.from('support_tickets').update({ status }).eq('id', ticketId);
+      if (error) throw error;
+      setSupportTickets(prev => prev.map(t => t.id === ticketId ? { ...t, status } : t));
+      if (selectedTicket?.id === ticketId) {
+        setSelectedTicket(prev => prev ? { ...prev, status } : null);
+      }
+      showToast("Sucesso", "Status atualizado.", "success");
+    } catch (e) {
+      console.error("Erro ao atualizar ticket:", e);
+      showToast("Erro", "Falha ao atualizar ticket.", "error");
+    }
+  };
 
   const handleResolveDispute = async (requestId: string, resolution: 'refund_client' | 'pay_provider' | 'resolved') => {
     try {
       const { error } = await supabase.from('service_requests').update({ status: resolution }).eq('id', requestId);
       if (error) throw error;
       setOrdersList(prev => prev.map(o => o.id === requestId ? { ...o, status: resolution } : o));
+      
+      // Atualiza automaticamente tickets de disputa relacionados
+      await supabase.from('support_tickets').update({ status: 'resolved' }).eq('related_order_id', requestId).eq('category', 'dispute');
+      setSupportTickets(prev => prev.map(t => t.related_order_id === requestId && t.category === 'dispute' ? { ...t, status: 'resolved' } : t));
+
       setSelectedDispute(null);
+      showToast("Sucesso", "Disputa resolvida.", "success");
     } catch (e) {
       console.error("Erro ao resolver disputa", e);
       showToast("Erro", "Erro ao resolver disputa. Verifique as permissões de banco.", "error");
@@ -473,6 +550,16 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         .select('*, client:profiles!chat_rooms_client_id_fkey(full_name, avatar_url), provider:profiles!chat_rooms_provider_id_fkey(full_name, avatar_url), request:service_requests(title, status)')
         .order('updated_at', { ascending: false });
       setChatRoomsList(rooms || []);
+
+      // 9. Fetch Support Tickets
+      const { data: tickets } = await supabase
+        .from('support_tickets')
+        .select('*, user:profiles!support_tickets_user_id_fkey(full_name, email, avatar_url)')
+        .order('created_at', { ascending: false });
+      
+      // We will map request object if related_order_id exists from ordersList
+      // Because referencing service_requests in support_tickets table might hit RLS or constraints if not defined right.
+      setSupportTickets(tickets || []);
 
     } catch (err) {
       console.error("Error fetching admin data:", err);
@@ -2169,8 +2256,9 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
     );
   };
 
-  const renderDisputesTab = () => {
-    const disputedOrders = ordersList.filter(o => o.status === 'disputed' || o.status === 'conflict');
+  const renderTicketsTab = () => {
+    const openTickets = supportTickets.filter(t => t.status === 'open' || t.status === 'in_progress');
+    const resolvedTickets = supportTickets.filter(t => t.status === 'resolved' || t.status === 'closed');
 
     return (
       <div className="animate-in fade-in duration-500 space-y-6">
@@ -2179,59 +2267,78 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             <button onClick={() => setActiveTab('dashboard')} className="flex items-center gap-1 text-slate-500 hover:text-primary transition-colors text-sm mb-2 font-medium">
               <span className="material-symbols-outlined text-[16px]">arrow_back</span> Voltar ao Dashboard
             </button>
-            <h2 className="text-xl font-bold text-red-600 dark:text-red-400">Central de Disputas</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Mediação de conflitos entre clientes e prestadores</p>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white">Central de Resoluções</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Atendimento aos usuários e mediação de conflitos</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white dark:bg-slate-900 border border-red-200 dark:border-red-900/50 p-4 rounded-xl shadow-sm text-center">
-            <span className="material-symbols-outlined text-4xl text-red-500 mb-2">gavel</span>
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{disputedOrders.length}</h3>
-            <p className="text-sm text-slate-500">Disputas Abertas</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm text-center border-t-4 border-t-amber-500">
+            <span className="material-symbols-outlined text-4xl text-amber-500 mb-2">support_agent</span>
+            <h3 className="text-3xl font-black text-slate-900 dark:text-white">{openTickets.length}</h3>
+            <p className="text-sm text-slate-500 font-bold uppercase tracking-wider">Tickets Abertos</p>
           </div>
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm text-center">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm text-center border-t-4 border-t-green-500">
             <span className="material-symbols-outlined text-4xl text-green-500 mb-2">check_circle</span>
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
-              {ordersList.filter(o => o.status === 'resolved' || o.status === 'pay_provider' || o.status === 'refund_client').length}
-            </h3>
-            <p className="text-sm text-slate-500">Disputas Resolvidas</p>
+            <h3 className="text-3xl font-black text-slate-900 dark:text-white">{resolvedTickets.length}</h3>
+            <p className="text-sm text-slate-500 font-bold uppercase tracking-wider">Tickets Resolvidos</p>
           </div>
         </div>
 
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
           <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/30">
-            <h3 className="font-bold">Aguardando Avaliação ({disputedOrders.length})</h3>
+            <h3 className="font-bold">Tickets Recentes</h3>
           </div>
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
-            {disputedOrders.length === 0 ? (
+            {supportTickets.length === 0 ? (
               <div className="p-8 text-center text-slate-500">
                 <span className="material-symbols-outlined text-4xl mb-2 text-slate-300">task_alt</span>
-                <p>Nenhuma disputa aberta no momento. Tudo limpo!</p>
+                <p>Nenhum ticket encontrado.</p>
               </div>
             ) : (
-              disputedOrders.map(dispute => (
-                <div key={dispute.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-                  <div className="flex gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/40 text-red-600 flex flex-col items-center justify-center shrink-0">
-                      <span className="material-symbols-outlined">warning</span>
+              supportTickets.map(ticket => (
+                <div key={ticket.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors flex flex-col md:flex-row gap-4 items-start md:items-center justify-between group">
+                  <div className="flex gap-4 items-start">
+                    <div className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center shrink-0 ${
+                      ticket.category === 'dispute' ? 'bg-red-100 dark:bg-red-900/40 text-red-600' :
+                      ticket.category === 'suggestion' ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-600' :
+                      ticket.category === 'question' ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-600' :
+                      'bg-slate-100 dark:bg-slate-800 text-slate-600'
+                    }`}>
+                      <span className="material-symbols-outlined text-2xl">
+                        {ticket.category === 'dispute' ? 'warning' :
+                         ticket.category === 'suggestion' ? 'lightbulb' :
+                         ticket.category === 'question' ? 'help' : 'account_circle'}
+                      </span>
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-bold px-2 py-0.5 bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 rounded">URGENTE</span>
-                        <p className="font-bold text-slate-900 dark:text-white">Pedido #{dispute.id.split('-')[0].toUpperCase()}</p>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${
+                          ticket.status === 'open' ? 'bg-amber-100 text-amber-700' :
+                          ticket.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
+                          'bg-green-100 text-green-700'
+                        }`}>{ticket.status === 'open' ? 'ABERTO' : ticket.status === 'in_progress' ? 'EM ESPERA' : 'RESOLVIDO'}</span>
+                        <p className="font-bold text-slate-900 dark:text-white truncate lg:max-w-md">{ticket.subject}</p>
                       </div>
                       <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
-                        <span className="font-medium text-slate-800 dark:text-slate-200">{dispute.client?.full_name}</span> relata problemas no serviço de <span className="font-medium text-slate-800 dark:text-slate-200">{dispute.provider?.full_name}</span>.
+                        Enviado por <span className="font-semibold text-slate-800 dark:text-slate-200">{ticket.user?.full_name || 'Usuário'}</span>
                       </p>
-                      <p className="text-xs text-slate-500">Valor Retido: R$ {dispute.price ? dispute.price.toLocaleString('pt-BR') : '0,00'}</p>
+                      <p className="text-[10px] text-slate-400 font-mono tracking-wider">TICKET-ID: {ticket.id.split('-')[0].toUpperCase()} • {new Date(ticket.created_at).toLocaleDateString('pt-BR')}</p>
                     </div>
                   </div>
                   <button
-                    onClick={() => setSelectedDispute(dispute)}
-                    className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 hover:border-red-200 dark:hover:border-red-800 font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 w-full md:w-auto"
+                    onClick={() => {
+                        if (ticket.category === 'dispute' && ticket.related_order_id) {
+                            const order = ordersList.find(o => o.id === ticket.related_order_id);
+                            if (order) setSelectedDispute(order);
+                            else showToast("Aviso", "O pedido relacionado não foi encontrado.", "notification");
+                        } else {
+                            setSelectedTicket(ticket);
+                        }
+                    }}
+                    className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 group-hover:bg-primary group-hover:text-white group-hover:border-primary font-bold rounded-xl transition-all flex items-center justify-center gap-2 w-full md:w-auto shadow-sm"
                   >
-                    Examinar Caso <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                    Examinar <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
                   </button>
                 </div>
               ))
@@ -2576,7 +2683,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
       case 'reviews': return renderReviewsTab();
       case 'categories': return renderCategoriesTab();
       case 'chat_audit': return renderChatAuditTab();
-      case 'disputes': return renderDisputesTab();
+      case 'tickets': return renderTicketsTab();
       case 'verifications': return renderVerificationsTab();
       case 'finance': return renderFinanceTab();
       case 'settings': return renderSettingsTab();
@@ -2592,7 +2699,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
     { id: 'orders', icon: 'receipt', label: 'Pedidos' },
     { id: 'reviews', icon: 'reviews', label: 'Reviews' },
     { id: 'categories', icon: 'category', label: 'Categorias' },
-    { id: 'disputes', icon: 'gavel', label: 'Disputas', badge: ordersList.filter(o => o.status === 'disputed').length },
+    { id: 'tickets', icon: 'support_agent', label: 'Resoluções', badge: supportTickets.filter(t => t.status === 'open' || t.status === 'in_progress').length },
     { id: 'verifications', icon: 'verified_user', label: 'Verificações', badge: pendingVerifications.length },
     { id: 'finance', icon: 'payments', label: 'Financeiro' },
     { id: 'settings', icon: 'settings', label: 'Configurações' },
@@ -2674,7 +2781,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           {activeTab === 'reviews' && renderReviewsTab()}
           {activeTab === 'categories' && renderCategoriesTab()}
           {activeTab === 'chat_audit' && renderChatAuditTab()}
-          {activeTab === 'disputes' && renderDisputesTab()}
+          {activeTab === 'tickets' && renderTicketsTab()}
           {activeTab === 'verifications' && renderVerificationsTab()}
           {activeTab === 'finance' && renderFinanceTab()}
           {activeTab === 'settings' && renderSettingsTab()}
@@ -2900,6 +3007,87 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
               <div className="p-6 border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row gap-3 bg-slate-50 dark:bg-slate-800/30 justify-end">
                 <button onClick={() => handleResolveDispute(selectedDispute.id, 'refund_client')} className="px-6 py-3 bg-white dark:bg-slate-800 border-2 border-red-200 text-red-600 font-bold rounded-xl hover:bg-red-50 transition-all">Estornar Cliente</button>
                 <button onClick={() => handleResolveDispute(selectedDispute.id, 'pay_provider')} className="px-6 py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition-all shadow-lg">Pagar Prestador</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {selectedTicket && (
+          <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+              <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white dark:bg-slate-900 z-10">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-primary text-3xl">local_activity</span>
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">Detalhes do Ticket</h3>
+                    <p className="text-sm text-slate-500 font-medium">{ticketCategoryLabels[selectedTicket.category] || 'Suporte Geral'}</p>
+                  </div>
+                </div>
+                <button onClick={() => setSelectedTicket(null)} className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+              
+              <div className="p-6 space-y-6">
+                <div className="flex gap-4 items-center bg-slate-50 dark:bg-slate-800/30 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                   <img src={selectedTicket.user?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} alt="" className="w-12 h-12 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-200" />
+                   <div>
+                     <p className="font-bold text-lg">{selectedTicket.user?.full_name || 'Usuário Sem Nome'}</p>
+                     <p className="text-sm text-slate-500">{selectedTicket.user?.email || 'Sem email associado'}</p>
+                   </div>
+                </div>
+
+                <div>
+                   <h4 className="text-lg font-bold mb-2 break-words">{selectedTicket.subject}</h4>
+                   <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl text-slate-700 dark:text-slate-300 whitespace-pre-wrap text-sm border border-slate-100 dark:border-slate-700 leading-relaxed font-medium">
+                     {selectedTicket.description}
+                   </div>
+                </div>
+
+                {selectedTicket.related_order_id && (
+                  <div className="bg-blue-50 dark:bg-blue-900/10 p-5 rounded-xl border border-blue-100 dark:border-blue-900/30 flex items-center justify-between">
+                     <div>
+                       <p className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">Link com Pedido</p>
+                       <p className="font-semibold text-slate-800 dark:text-slate-200">ID: {selectedTicket.related_order_id.split('-')[0].toUpperCase()}</p>
+                     </div>
+                     <button 
+                       onClick={() => {
+                         const order = ordersList.find(o => o.id === selectedTicket.related_order_id);
+                         if (order) {
+                           setSelectedTicket(null);
+                           setSelectedDispute(order);
+                         } else {
+                           showToast("Erro", "Detalhes do pedido não encontrados.", "error");
+                         }
+                       }}
+                       className="px-4 py-2 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-bold rounded-lg text-sm hover:bg-blue-200 transition-colors"
+                     >
+                       Ver Pedido
+                     </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="p-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row gap-4 bg-slate-50 dark:bg-slate-800/30 justify-between items-center">
+                 <div className="flex items-center gap-3 w-full sm:w-auto">
+                   <p className="text-sm font-semibold text-slate-500 hidden sm:block">Status:</p>
+                   <select 
+                      value={selectedTicket.status}
+                      onChange={(e) => handleUpdateTicketStatus(selectedTicket.id, e.target.value as any)}
+                      className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-bold text-slate-700 dark:text-slate-300 px-4 py-2 outline-none focus:ring-2 focus:ring-primary/20 w-full sm:w-auto"
+                   >
+                     <option value="open">Aberto</option>
+                     <option value="in_progress">Em Andamento</option>
+                     <option value="resolved">Resolvido</option>
+                     <option value="closed">Fechado</option>
+                   </select>
+                 </div>
+                 <button onClick={() => {
+                    handleStartAdminChat(selectedTicket);
+                 }} className="w-full sm:w-auto px-6 py-2.5 bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-bold rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-lg">
+                   <span className="material-symbols-outlined text-[18px]">chat</span>
+                   Responder
+                 </button>
               </div>
             </div>
           </div>

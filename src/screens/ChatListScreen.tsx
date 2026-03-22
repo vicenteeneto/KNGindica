@@ -129,7 +129,7 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
               const filteredRooms = rooms.filter(room => {
                 const isClient = user?.id === room.client_id;
                 const isArchived = isClient ? room.client_archived : room.provider_archived;
-                const isSupport = room.service_requests?.status === 'disputed';
+                const isSupport = room.service_requests?.status === 'disputed' || room.provider?.role === 'admin' || room.client?.role === 'admin';
                 
                 if (activeTab === 'Arquivadas') return isArchived;
                 if (isArchived) return false; // Hide archived from other tabs

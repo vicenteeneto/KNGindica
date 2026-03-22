@@ -1,53 +1,92 @@
-import React, { useState } from 'react';
-import { NavigationProps, Ticket } from '../types';
+import React, { useState, useEffect } from 'react';
+import { NavigationProps } from '../types';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
+import { useNotifications } from '../contexts/NotificationContext';
 
 export default function HelpCenterScreen({ onNavigate }: NavigationProps) {
   const [activeTab, setActiveTab] = useState<'faq' | 'tickets'>('tickets');
   const [isCreatingTicket, setIsCreatingTicket] = useState(false);
 
-  // Mock tickets
-  const [tickets, setTickets] = useState<Ticket[]>([
-    {
-      id: 'TCK-892',
-      serviceId: 'SRV-1029',
-      professionalName: 'Ana Oliveira',
-      status: 'in_review',
-      createdAt: '2023-10-24T10:30:00Z',
-      subject: 'Problema com serviço elétrico',
-      description: 'O prestador não finalizou a instalação do chuveiro como combinado.',
-    },
-    {
-      id: 'TCK-741',
-      serviceId: 'SRV-0988',
-      professionalName: 'Marcos Santos',
-      status: 'resolved',
-      createdAt: '2023-09-15T14:20:00Z',
-      subject: 'Atraso na entrega',
-      description: 'Prestador chegou 3 horas atrasado sem avisar.',
-    }
-  ]);
+  const { user } = useAuth();
+  const { showToast } = useNotifications();
 
+  const [tickets, setTickets] = useState<any[]>([]);
+  const [userOrders, setUserOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchSupportData = async () => {
+      setLoading(true);
+      const [ticketsRes, ordersRes] = await Promise.all([
+        supabase.from('support_tickets').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
+        supabase.from('service_requests').select('id, title, status').or(`client_id.eq.${user.id},provider_id.eq.${user.id}`).order('created_at', { ascending: false }).limit(30)
+      ]);
+      
+      if (ticketsRes.data) setTickets(ticketsRes.data);
+      if (ordersRes.data) setUserOrders(ordersRes.data);
+      setLoading(false);
+    };
+    fetchSupportData();
+  }, [user]);
+
+  const [newCategory, setNewCategory] = useState('question');
   const [newSubject, setNewSubject] = useState('');
   const [newDescription, setNewDescription] = useState('');
+  const [newRelatedOrder, setNewRelatedOrder] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleCreateTicket = (e: React.FormEvent) => {
+  const handleCreateTicket = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newTicket: Ticket = {
-      id: `TCK-${Math.floor(Math.random() * 1000)}`,
-      serviceId: `SRV-${Math.floor(Math.random() * 1000)}`,
-      professionalName: 'Prestador Selecionado',
-      status: 'open',
-      createdAt: new Date().toISOString(),
-      subject: newSubject,
-      description: newDescription,
-    };
-    setTickets([newTicket, ...tickets]);
-    setIsCreatingTicket(false);
-    setNewSubject('');
-    setNewDescription('');
+    if (!user) return;
+    if (newCategory === 'dispute' && !newRelatedOrder) {
+      showToast("Atenção", "Selecione a ordem que deseja disputar.", "error");
+      return;
+    }
+    
+    setSubmitting(true);
+    try {
+      const { data, error } = await supabase.from('support_tickets').insert({
+        user_id: user.id,
+        category: newCategory,
+        subject: newSubject,
+        description: newDescription,
+        related_order_id: newCategory === 'dispute' ? newRelatedOrder : null,
+      }).select().single();
+      
+      if (error) throw error;
+      
+      if (newCategory === 'dispute' && newRelatedOrder) {
+        // Freeze order
+        await supabase.from('service_requests').update({ status: 'disputed' }).eq('id', newRelatedOrder);
+      }
+      
+      setTickets([data, ...tickets]);
+      setIsCreatingTicket(false);
+      setNewSubject('');
+      setNewDescription('');
+      setNewCategory('question');
+      setNewRelatedOrder('');
+      showToast("Chamado Aberto", "Sua solicitação foi enviada à nossa equipe.", "success");
+    } catch (err: any) {
+      showToast("Erro", err.message || "Erro ao abrir chamado.", "error");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const getStatusBadge = (status: Ticket['status']) => {
+  const getCategoryLabel = (cat: string) => {
+    switch (cat) {
+      case 'dispute': return 'Disputa de Serviço';
+      case 'question': return 'Dúvida Geral';
+      case 'suggestion': return 'Sugestão';
+      case 'account': return 'Problema na Conta';
+      default: return 'Suporte';
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
     switch (status) {
       case 'open':
         return <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase">Aberto</span>;
@@ -128,27 +167,35 @@ export default function HelpCenterScreen({ onNavigate }: NavigationProps) {
                     </button>
                   </div>
 
-                  {tickets.map(ticket => (
+                  {loading ? (
+                    <div className="flex justify-center p-8">
+                      <span className="material-symbols-outlined animate-spin text-4xl text-slate-300">progress_activity</span>
+                    </div>
+                  ) : tickets.map(ticket => (
                     <div key={ticket.id} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer">
                       <div className="flex justify-between items-start mb-2">
                         <div>
-                          <p className="text-xs text-slate-500 font-bold mb-0.5">{ticket.id} • {ticket.professionalName}</p>
+                          <p className="text-xs text-slate-500 font-bold mb-0.5 flex gap-2 items-center">
+                            {ticket.id.substring(0, 8).toUpperCase()} 
+                            <span className="w-1 h-1 bg-slate-400 rounded-full"></span> 
+                            {getCategoryLabel(ticket.category)}
+                          </p>
                           <h4 className="font-bold text-slate-900 dark:text-white leading-tight">{ticket.subject}</h4>
                         </div>
                         {getStatusBadge(ticket.status)}
                       </div>
                       <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 mt-2">{ticket.description}</p>
                       
-                      {ticket.status === 'in_review' && (
+                      {ticket.category === 'dispute' && ticket.status !== 'closed' && ticket.status !== 'resolved' && (
                         <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700 flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/10 p-2 rounded-lg">
                           <span className="material-symbols-outlined text-[16px]">lock</span>
-                          Seu pagamento está seguro. Nossa equipe de mediação está analisando o caso com o prestador.
+                          Pagamento retido temporariamente. Mediação em análise.
                         </div>
                       )}
                     </div>
                   ))}
 
-                  {tickets.length === 0 && (
+                  {!loading && tickets.length === 0 && (
                     <div className="text-center py-12 text-slate-500">
                       <span className="material-symbols-outlined text-4xl mb-2">check_circle</span>
                       <p>Você não tem nenhuma disputa em aberto.</p>
@@ -169,13 +216,46 @@ export default function HelpCenterScreen({ onNavigate }: NavigationProps) {
 
                   <form onSubmit={handleCreateTicket} className="space-y-4">
                     <div>
+                      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Categoria</label>
+                      <select 
+                        value={newCategory}
+                        onChange={(e) => setNewCategory(e.target.value)}
+                        className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      >
+                        <option value="question">Dúvida / Ajuda com uso</option>
+                        <option value="suggestion">Sugerir Melhoria</option>
+                        <option value="account">Problema na Conta / Dados</option>
+                        <option value="dispute">Causar Disputa / Problema com Serviço</option>
+                      </select>
+                    </div>
+
+                    {newCategory === 'dispute' && (
+                      <div className="animate-in fade-in slide-in-from-top-2">
+                        <label className="block text-sm font-bold text-red-600 dark:text-red-400 mb-1">Qual ordem causou problema?</label>
+                        <select 
+                          required
+                          value={newRelatedOrder}
+                          onChange={(e) => setNewRelatedOrder(e.target.value)}
+                          className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-red-200 dark:border-red-900/40 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                        >
+                          <option value="">Selecione um serviço recente...</option>
+                          {userOrders.map(order => (
+                            <option key={order.id} value={order.id}>
+                              {order.title} ({order.status})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    <div>
                       <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Motivo / Assunto</label>
                       <input 
                         type="text" 
                         required
                         value={newSubject}
                         onChange={(e) => setNewSubject(e.target.value)}
-                        placeholder="Ex: Serviço incompleto"
+                        placeholder="Ex: Não consigo trocar minha foto"
                         className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                       />
                     </div>
@@ -185,7 +265,7 @@ export default function HelpCenterScreen({ onNavigate }: NavigationProps) {
                         required
                         value={newDescription}
                         onChange={(e) => setNewDescription(e.target.value)}
-                        placeholder="Explique o que aconteceu..."
+                        placeholder="Explique o que aconteceu da forma mais clara possível..."
                         rows={4}
                         className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
                       />
@@ -207,9 +287,10 @@ export default function HelpCenterScreen({ onNavigate }: NavigationProps) {
                       </button>
                       <button 
                         type="submit" 
-                        className="flex-1 py-2 font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors shadow-sm"
+                        disabled={submitting}
+                        className="flex-1 py-2 font-bold text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors shadow-sm disabled:opacity-50"
                       >
-                        Abrir Disputa
+                        {submitting ? '...' : 'Enviar Chamado'}
                       </button>
                     </div>
                   </form>
