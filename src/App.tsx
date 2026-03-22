@@ -55,7 +55,7 @@ const ADMIN_TABS = [
   { id: 'orders', icon: 'receipt', label: 'Serviços' },
   { id: 'reviews', icon: 'reviews', label: 'Reviews' },
   { id: 'categories', icon: 'category', label: 'Categorias' },
-  { id: 'referrals', icon: 'share', label: 'Indicações' },
+  { id: 'referrals', icon: 'share', label: 'Auditoria de Indicações' },
   { id: 'chat_audit', icon: 'forum', label: 'Auditoria' },
   { id: 'tickets', icon: 'support_agent', label: 'Resoluções' },
   { id: 'verifications', icon: 'verified_user', label: 'Verificações' },

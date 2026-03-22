@@ -858,6 +858,24 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             <p className="text-2xl font-bold">{stats.clients}</p>
           </div>
 
+          {/* Card: Referrals Audit - Clickable */}
+          <div 
+            onClick={() => setActiveTab('referrals')}
+            className="group cursor-pointer bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-primary/50 hover:shadow-lg transition-all active:scale-95"
+          >
+            <div className="flex justify-between items-start mb-4">
+              <div className="p-2 bg-orange-50 dark:bg-orange-900/20 text-orange-600 group-hover:bg-primary group-hover:text-white rounded-lg flex items-center justify-center transition-colors">
+                <span className="material-symbols-outlined">share</span>
+              </div>
+              <div className="flex flex-col items-end">
+                 <span className="text-[10px] font-bold text-slate-400">{referralsHistory.length} registros</span>
+                 <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">arrow_forward_ios</span>
+              </div>
+            </div>
+            <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Auditoria de Indicações</p>
+            <p className="text-2xl font-bold">{referralsHistory.length}</p>
+          </div>
+
           <div 
             onClick={() => setActiveTab('verifications')}
             className="group cursor-pointer bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-amber-500/50 hover:shadow-lg transition-all active:scale-95"
@@ -2892,7 +2910,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
     { id: 'orders', icon: 'receipt', label: 'Pedidos' },
     { id: 'reviews', icon: 'reviews', label: 'Reviews' },
     { id: 'categories', icon: 'category', label: 'Categorias' },
-    { id: 'referrals', icon: 'share', label: 'Indicações' },
+    { id: 'referrals', icon: 'share', label: 'Auditoria de Indicações' },
     { id: 'tickets', icon: 'support_agent', label: 'Resoluções', badge: supportTickets.filter(t => t.status === 'open' || t.status === 'in_progress').length },
     { id: 'verifications', icon: 'verified_user', label: 'Verificações', badge: pendingVerifications.length },
     { id: 'finance', icon: 'payments', label: 'Financeiro' },

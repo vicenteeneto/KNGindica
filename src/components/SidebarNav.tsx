@@ -26,7 +26,9 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
     ]),
     { id: 'chatList', icon: 'chat', label: 'Chat', screen: 'chatList' as Screen, badge: unreadMessages },
     { id: 'notifications', icon: 'notifications', label: 'Avisos', screen: 'notifications' as Screen, badge: unreadNotifications },
-    { id: 'rewards', icon: 'redeem', label: 'Indique e Ganhe', screen: 'rewards' as Screen },
+    ...(role !== 'admin' ? [
+      { id: 'rewards', icon: 'redeem', label: 'Indique e Ganhe', screen: 'rewards' as Screen }
+    ] : []),
     { 
       id: 'profile', 
       icon: 'person', 
