@@ -19,6 +19,7 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
     { id: 'home', icon: 'home', label: 'Início', screen: 'home' as Screen },
     ...(role === 'provider' ? [
       { id: 'dashboard', icon: 'pie_chart', label: 'Painel', screen: 'dashboard' as Screen },
+      { id: 'openOrders', icon: 'gavel', label: 'Leilões', screen: 'openOrders' as Screen },
       { id: 'providerRequests', icon: 'assignment', label: 'Serviços', screen: 'providerRequests' as Screen },
     ] : [
       { id: 'myRequests', icon: 'receipt_long', label: 'Serviços', screen: 'myRequests' as Screen },

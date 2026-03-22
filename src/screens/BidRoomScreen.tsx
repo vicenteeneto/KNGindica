@@ -33,7 +33,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
         .from('freelance_orders')
         .select(`
           *,
-          profiles(full_name, avatar_url),
+          profiles:client_id(full_name, avatar_url),
           service_categories(name, icon)
         `)
         .eq('id', params.orderId)

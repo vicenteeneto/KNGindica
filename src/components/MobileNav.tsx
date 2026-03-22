@@ -21,13 +21,23 @@ export default function MobileNav({ onNavigate, currentScreen, role }: MobileNav
       </button>
 
       {role === 'provider' && (
-        <button
-          onClick={() => onNavigate('dashboard')}
-          className={`flex flex-1 flex-col items-center justify-end gap-1 group transition-colors ${currentScreen === 'dashboard' ? 'text-primary' : 'text-slate-400 hover:text-primary'}`}
-        >
-          <span className="material-symbols-outlined text-[24px]">pie_chart</span>
-          <span className="text-[10px] font-medium leading-normal">Painel</span>
-        </button>
+        <>
+          <button
+            onClick={() => onNavigate('dashboard')}
+            className={`flex flex-1 flex-col items-center justify-end gap-1 group transition-colors ${currentScreen === 'dashboard' ? 'text-primary' : 'text-slate-400 hover:text-primary'}`}
+          >
+            <span className="material-symbols-outlined text-[24px]">pie_chart</span>
+            <span className="text-[10px] font-medium leading-normal">Painel</span>
+          </button>
+          
+          <button
+            onClick={() => onNavigate('openOrders')}
+            className={`flex flex-1 flex-col items-center justify-end gap-1 group transition-colors ${currentScreen === 'openOrders' ? 'text-primary' : 'text-slate-400 hover:text-primary'}`}
+          >
+            <span className="material-symbols-outlined text-[24px]">gavel</span>
+            <span className="text-[10px] font-medium leading-normal">Leilões</span>
+          </button>
+        </>
       )}
       
       <button
