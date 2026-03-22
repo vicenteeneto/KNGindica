@@ -37,6 +37,7 @@ import { ThemeProvider, useTheme } from './ThemeContext';
 import { AuthProvider, useAuth } from './AuthContext';
 import { NotificationProvider } from './NotificationContext';
 import SidebarNav from './components/SidebarNav';
+import PullToRefresh from './components/PullToRefresh';
 
 // ThemeToggle foi movido para o UserProfileScreen
 const STORAGE_KEY = 'KNGindica_currentScreen';
@@ -307,10 +308,12 @@ function AppContent() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        <AppContent />
-      </ThemeProvider>
-    </AuthProvider>
+    <PullToRefresh>
+      <AuthProvider>
+        <ThemeProvider>
+          <AppContent />
+        </ThemeProvider>
+      </AuthProvider>
+    </PullToRefresh>
   );
 }
