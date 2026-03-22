@@ -22,6 +22,19 @@ interface NotificationsScreenProps extends NavigationProps {
   };
 }
 
+// Utility to fix American currency formatting to Brazilian BRL
+const formatNotificationText = (text: string) => {
+  if (!text) return text;
+  return text.replace(/R\$\s*([\d.,]+)/g, (match, value) => {
+    const cleanValue = value.replace(/,/g, ''); // remove thousands separators if any
+    const num = parseFloat(cleanValue);
+    if (!isNaN(num)) {
+      return `R$ ${num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+    return match;
+  });
+};
+
 export default function NotificationsScreen({ onNavigate, params }: NotificationsScreenProps) {
   const { role, user } = useAuth();
   const { refreshCounts } = useNotifications();
@@ -244,13 +257,13 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
 
                 <div className="flex-1 flex flex-col gap-1 pr-6">
                   <div className="flex justify-between items-start">
-                    <h3 className={`font-bold ${isUnread ? 'text-slate-900 dark:text-white' : 'text-slate-800 dark:text-slate-200'}`}>{notification.title}</h3>
+                    <h3 className={`font-bold ${isUnread ? 'text-slate-900 dark:text-white' : 'text-slate-800 dark:text-slate-200'}`}>{formatNotificationText(notification.title)}</h3>
                     <span className="text-[11px] text-slate-500 dark:text-slate-400 whitespace-nowrap ml-2">
                       {new Date(notification.created_at).toLocaleDateString()}
                     </span>
                   </div>
                   <p className={`text-sm leading-relaxed ${isUnread ? 'text-slate-700 dark:text-slate-300 font-medium' : 'text-slate-600 dark:text-slate-400'}`}>
-                    {notification.message}
+                    {formatNotificationText(notification.message)}
                   </p>
                 </div>
               </div>
