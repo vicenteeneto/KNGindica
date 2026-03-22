@@ -2819,19 +2819,26 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         </main>
 
         {/* Bottom Navigation Bar - Mobile ONLY */}
-        <nav className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 fixed bottom-0 left-0 right-0 z-20 md:hidden">
-          <div className="max-w-7xl mx-auto flex justify-around p-2">
+        <nav className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 fixed bottom-0 left-0 right-0 z-50 md:hidden h-16 flex items-center shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+          <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar px-4 w-full">
             {adminTabs.map((tab) => (
               <button 
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)} 
-                className={`flex flex-col items-center justify-center p-2 rounded-lg transition-colors ${activeTab === tab.id ? 'text-primary bg-primary/10' : 'text-slate-500 hover:text-primary'}`}
+                className={`flex flex-col items-center justify-center min-w-[50px] aspect-square rounded-2xl transition-all shrink-0 ${
+                  activeTab === tab.id 
+                    ? 'text-primary bg-primary/10 shadow-sm scale-105' 
+                    : 'text-slate-400 hover:text-primary active:scale-95'
+                }`}
               >
                 <span 
-                  className="material-symbols-outlined text-[20px]" 
+                  className="material-symbols-outlined text-[22px]" 
                   style={activeTab === tab.id ? { fontVariationSettings: "'FILL' 1" } : {}}
                 >
                   {tab.icon}
+                </span>
+                <span className="text-[8px] font-black uppercase tracking-tighter mt-0.5 opacity-80">
+                  {tab.label.substring(0, 5)}
                 </span>
               </button>
             ))}
