@@ -3,6 +3,7 @@ import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
+import { formatCurrency } from '../lib/formatters';
 
 export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
   const { user, role } = useAuth();
@@ -187,7 +188,7 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
                     </div>
                     <div className="text-right">
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Seu Orçamento</p>
-                      <p className="text-xl font-black text-emerald-500 leading-none">R$ {order.budget?.toFixed(2)}</p>
+                      <p className="text-xl font-black text-emerald-500 leading-none">{formatCurrency(order.budget || 0)}</p>
                     </div>
                   </div>
 

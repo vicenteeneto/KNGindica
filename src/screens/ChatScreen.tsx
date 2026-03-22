@@ -316,7 +316,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
       }
 
       // 2. Enviar mensagem especial de proposta
-      const content = `[PROPOSTA]Valor: R$ ${price.toFixed(2)} | Clique para ver detalhes e aceitar.`;
+      const content = `[PROPOSTA]Valor: ${formatCurrency(price)} | Clique para ver detalhes e aceitar.`;
       const { error: msgError } = await supabase.from('chat_messages').insert({
         room_id: roomId,
         sender_id: user.id,

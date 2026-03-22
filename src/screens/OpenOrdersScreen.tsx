@@ -3,6 +3,7 @@ import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
+import { formatCurrency } from '../lib/formatters';
 
 export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
   const { user } = useAuth();
@@ -189,12 +190,12 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
               <div className="flex justify-between items-end mb-4 pr-1">
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Budget Cliente</p>
-                  <p className="text-xl font-black text-emerald-500 leading-none">R$ {order.budget?.toFixed(2)}</p>
+                  <p className="text-xl font-black text-emerald-500 leading-none">{formatCurrency(order.budget || 0)}</p>
                 </div>
                 {activeTab === 'bidded' && order.myBidAmount && (
                   <div className="text-right">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Seu Lance</p>
-                    <p className="text-lg font-black text-primary leading-none">R$ {order.myBidAmount?.toFixed(2)}</p>
+                    <p className="text-lg font-black text-primary leading-none">{formatCurrency(order.myBidAmount || 0)}</p>
                   </div>
                 )}
               </div>
