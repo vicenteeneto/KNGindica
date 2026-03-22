@@ -3,6 +3,7 @@ import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
+import { formatCurrency, maskCurrency, parseCurrency } from '../lib/formatters';
 
 interface ChatScreenProps extends NavigationProps {
   params?: any;
@@ -593,18 +594,17 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
               <div className="mb-4">
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">Valor Total do Serviço (R$)</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">R$</span>
+
                   <input
                     type="text"
                     required
                     inputMode="decimal"
                     value={proposalPrice}
                     onChange={(e) => {
-                      let val = e.target.value.replace(/[^\d,.]/g, '');
-                      setProposalPrice(val);
+                      setProposalPrice(maskCurrency(e.target.value));
                     }}
                     placeholder="0,00"
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all font-bold text-lg"
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all font-bold text-lg"
                   />
                 </div>
                 <p className="text-[10px] text-slate-500 mt-2">

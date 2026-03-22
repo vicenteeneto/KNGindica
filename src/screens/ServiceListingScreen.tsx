@@ -334,7 +334,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
                       ) : (
                         <>
                           {(professional as any).pricing_model === 'starting_at' && <span className="text-[10px] text-slate-500 font-normal">A partir de</span>}
-                          <span>R$ {formatCurrency((professional as any).price || 0)}</span>
+                          <span>{formatCurrency((professional as any).price || 0)}</span>
                           <span className="text-[10px] text-slate-500 font-normal">
                             {(professional as any).pricing_model === 'hourly' ? '/ h' : 
                              (professional as any).pricing_model === 'fixed' ? '(Fixo)' : ''}

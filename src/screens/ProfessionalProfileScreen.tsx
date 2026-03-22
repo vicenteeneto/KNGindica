@@ -12,6 +12,7 @@ import 'leaflet/dist/leaflet.css';
 import { useNotifications } from '../NotificationContext';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import { formatCurrency } from '../lib/formatters';
 
 let DefaultIcon = L.icon({
   iconUrl: markerIcon,
@@ -411,7 +412,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                         ) : (
                           <>
                             {professional.pricing_model === 'starting_at' && <span className="text-[9px] mr-1 opacity-50">A partir</span>}
-                            R$ {parseFloat(professional.price || '0').toLocaleString('pt-BR')}
+                            {formatCurrency(parseFloat(professional.price || '0'))}
                           </>
                         )}
                       </p>

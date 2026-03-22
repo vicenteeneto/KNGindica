@@ -3,7 +3,7 @@ import { NavigationProps } from '../types';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
 import { useNotifications } from '../NotificationContext';
-import { formatCurrency } from '../lib/formatters';
+import { formatCurrency, maskCurrency } from '../lib/formatters';
 
 interface AdminProps extends NavigationProps {
   activeTab: string;
@@ -808,7 +808,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
               <span className="material-symbols-outlined text-slate-300 group-hover:text-orange-500 transition-colors">arrow_forward_ios</span>
             </div>
             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Receita Estimada</p>
-            <p className="text-2xl font-bold">R$ {formatCurrency(stats.revenue)}</p>
+            <p className="text-2xl font-bold">{formatCurrency(stats.revenue)}</p>
           </div>
         </div>
       </section>
@@ -1043,7 +1043,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-slate-900 dark:text-white mb-0.5">{order.display_id || `#...${order.id.substring(0, 6)}`}</p>
-                        <p className="text-xs text-slate-500">{order.category?.name || 'Serviço'} • {order.price ? `R$ ${order.price.toLocaleString('pt-BR', {minimumFractionDigits: 2})}` : 'Em negociação'}</p>
+                        <p className="text-xs text-slate-500">{order.category?.name || 'Serviço'} • {order.price ? formatCurrency(order.price) : 'Em negociação'}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -1177,7 +1177,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                     </td>
                     <td className="px-6 py-4">
                       <p className="text-sm font-medium text-slate-900 dark:text-white">{provider.service_category || 'Prestador de Serviços'}</p>
-                      <p className="text-xs text-slate-500">{provider.completed_services || 0} concluídos • <span className="text-green-600 font-semibold">R$ {provider.earnings ? provider.earnings.toLocaleString('pt-BR', {minimumFractionDigits: 2}) : '0,00'}</span></p>
+                      <p className="text-xs text-slate-500">{provider.completed_services || 0} concluídos • <span className="text-green-600 font-semibold">{provider.earnings ? formatCurrency(provider.earnings) : 'R$ 0,00'}</span></p>
                     </td>
                     <td className="px-6 py-4">
                       <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold uppercase rounded-full">Básico</span>
@@ -1365,14 +1365,14 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center">
           <p className="text-xs text-slate-500 font-medium mb-1">Volume Transacionado (GMV)</p>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">R$ {(ordersList.reduce((acc, order) => acc + (order.price || 0), 0)).toLocaleString('pt-BR')}</h3>
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{formatCurrency(ordersList.reduce((acc, order) => acc + (order.price || 0), 0))}</h3>
             <span className="text-xs text-green-500 font-bold"></span>
           </div>
         </div>
         <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-primary">
           <p className="text-xs text-slate-500 font-medium mb-1">Receita da Plataforma</p>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">R$ {(ordersList.reduce((acc, order) => acc + ((order.price || 0) * 0.15), 0)).toLocaleString('pt-BR')}</h3>
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{formatCurrency(ordersList.reduce((acc, order) => acc + ((order.price || 0) * 0.15), 0))}</h3>
             <span className="text-xs text-green-500 font-bold"></span>
           </div>
         </div>
@@ -1543,7 +1543,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       <p className="text-[10px] text-slate-500 truncate max-w-[120px]">{order.category?.name || 'Serviço'}</p>
                     </td>
                     <td className="px-4 py-2">
-                      <p className="text-xs font-bold text-slate-900 dark:text-white">{order.price ? `R$ ${order.price.toLocaleString('pt-BR')}` : '---'}</p>
+                      <p className="text-xs font-bold text-slate-900 dark:text-white">{order.price ? formatCurrency(order.price) : '---'}</p>
                     </td>
                     <td className="px-4 py-2">
                       <span className={`px-2 py-0.5 text-[9px] font-extrabold rounded uppercase ${
@@ -1766,8 +1766,13 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             <div>
               <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Mensalidade Assinatura VIP Ouro</label>
               <div className="relative">
-                <span className="absolute left-3 top-2.5 text-slate-500 font-medium">R$</span>
-                <input type="number" defaultValue={49.90} className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all" />
+
+                <input 
+                  type="text" 
+                  defaultValue={formatCurrency(49.90)} 
+                  onChange={(e) => e.target.value = maskCurrency(e.target.value)}
+                  className="w-full px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all font-bold" 
+                />
               </div>
             </div>
 
@@ -2378,7 +2383,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             </div>
             <p className="text-sm text-slate-500 font-medium">Volume Bruto Transacionado</p>
             <h3 className="text-3xl font-black text-slate-900 dark:text-white mt-1">
-              R$ {grossVolume.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {formatCurrency(grossVolume)}
             </h3>
           </div>
 
@@ -2388,7 +2393,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             </div>
             <p className="text-sm text-white/80 font-medium">Receita da Plataforma (15%)</p>
             <h3 className="text-3xl font-black mt-1">
-              R$ {platformRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {formatCurrency(platformRevenue)}
             </h3>
           </div>
 
@@ -2398,7 +2403,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             </div>
             <p className="text-sm text-slate-500 font-medium">Ticket Médio por Serviço</p>
             <h3 className="text-3xl font-black text-slate-900 dark:text-white mt-1">
-              R$ {avgTicket.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {formatCurrency(avgTicket)}
             </h3>
           </div>
         </div>
@@ -2534,7 +2539,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       {cat.description || '-'}
                     </td>
                     <td className="px-6 py-4 text-sm font-semibold text-slate-900 dark:text-white">
-                      {cat.base_price ? `R$ ${cat.base_price.toLocaleString('pt-BR')}` : '-'}
+                      {cat.base_price ? formatCurrency(cat.base_price) : '-'}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex gap-2 justify-end">
@@ -2999,7 +3004,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                  <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-900/50">
                     <div className="flex justify-between items-center">
                       <p className="text-sm font-bold text-amber-800 dark:text-amber-500">Valor em Disputa</p>
-                      <p className="text-2xl font-black text-amber-600">R$ {selectedDispute.price?.toLocaleString('pt-BR') || '0,00'}</p>
+                      <p className="text-2xl font-black text-amber-600">{formatCurrency(selectedDispute.price || 0)}</p>
                     </div>
                  </div>
               </div>

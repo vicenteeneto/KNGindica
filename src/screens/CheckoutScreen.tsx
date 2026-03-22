@@ -133,15 +133,15 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
             <div className="space-y-2 text-sm">
               <div className="flex justify-between text-slate-600 dark:text-slate-300">
                 <span>Valor do Orçamento (A pagar ao prestador)</span>
-                <span>R$ {formatCurrency(displayData.budget_amount || 0)}</span>
+                <span>{formatCurrency(displayData.budget_amount || 0)}</span>
               </div>
               <div className="flex justify-between text-slate-600 dark:text-slate-300 font-bold">
                 <span>Taxa de Intermediação (Agora)</span>
-                <span>R$ {formatCurrency(PLATFORM_FEE)}</span>
+                <span>{formatCurrency(PLATFORM_FEE)}</span>
               </div>
               <div className="flex justify-between font-bold text-lg pt-2 mt-2 border-t border-slate-100 dark:border-slate-700">
                 <span>Total a pagar via App</span>
-                <span className="text-primary">R$ {formatCurrency(PLATFORM_FEE)}</span>
+                <span className="text-primary">{formatCurrency(PLATFORM_FEE)}</span>
               </div>
               <p className="text-[10px] text-slate-400 mt-2">* O valor do serviço será pago diretamente ao profissional após a conclusão.</p>
             </div>
@@ -222,7 +222,7 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
         <div className="max-w-4xl mx-auto w-full flex items-center gap-4">
           <div className="flex-col hidden sm:flex">
             <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Total Taxa</span>
-            <span className="text-xl font-black text-slate-900 dark:text-white leading-none">R$ {formatCurrency(PLATFORM_FEE)}</span>
+            <span className="text-xl font-black text-slate-900 dark:text-white leading-none">{formatCurrency(PLATFORM_FEE)}</span>
           </div>
           <button 
             type={paymentMethod === 'credit' ? 'submit' : 'button'}

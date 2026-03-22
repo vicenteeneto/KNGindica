@@ -4,6 +4,7 @@ import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
 import { useNotifications } from '../NotificationContext';
 import { usePushNotifications } from '../hooks/usePushNotifications';
+import { formatCurrency } from '../lib/formatters';
 
 interface Notification {
   id: string;
@@ -25,11 +26,23 @@ interface NotificationsScreenProps extends NavigationProps {
 // Utility to fix American currency formatting to Brazilian BRL
 const formatNotificationText = (text: string) => {
   if (!text) return text;
-  return text.replace(/R\$\s*([\d.,]+)/g, (match, value) => {
-    const cleanValue = value.replace(/,/g, ''); // remove thousands separators if any
-    const num = parseFloat(cleanValue);
+  // Regex to catch R$ values or raw values that look like currency
+  return text.replace(/R\$\s*([\d.,\s]+)/g, (match, value) => {
+    let clean = value.replace(/[^\d.,]/g, '');
+    let num;
+    if (clean.includes(',') && clean.includes('.')) {
+       if (clean.lastIndexOf(',') > clean.lastIndexOf('.')) {
+         num = parseFloat(clean.replace(/\./g, '').replace(',', '.'));
+       } else {
+         num = parseFloat(clean.replace(/,/g, ''));
+       }
+    } else if (clean.includes(',')) {
+      num = parseFloat(clean.replace(',', '.'));
+    } else {
+      num = parseFloat(clean);
+    }
     if (!isNaN(num)) {
-      return `R$ ${num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      return formatCurrency(num);
     }
     return match;
   });

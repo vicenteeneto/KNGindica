@@ -3,6 +3,7 @@ import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
+import { formatCurrency, maskCurrency } from '../lib/formatters';
 
 type Tab = 'Novos' | 'Orçados' | 'Aprovados' | 'Agendados' | 'Finalizados';
 
@@ -183,21 +184,14 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
     }
   };
 
-  const formatCurrency = (value: string) => {
-    let v = value.replace(/\D/g, '');
-    if (v.length === 0) return '';
-    v = (parseInt(v, 10) / 100).toFixed(2);
-    v = v.replace('.', ',');
-    v = v.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
-    return v;
-  };
+
 
   const handleSendBudget = (id: string, currentAmount?: number, title?: string) => {
     setBudgetModal({
       isOpen: true,
       requestId: id,
       requestTitle: title || 'Serviço',
-      currentAmount: currentAmount ? formatCurrency(currentAmount.toFixed(2).replace('.', '')) : ''
+      currentAmount: currentAmount ? formatCurrency(currentAmount) : ''
     });
   };
 
@@ -228,7 +222,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
       await supabase.from('notifications').insert({
         user_id: requests.find(r => r.id === budgetModal.requestId)?.client_id,
         title: 'Orçamento Recebido',
-        message: `O profissional enviou um orçamento de R$ ${amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} para o seu pedido.`,
+        message: `O profissional enviou um orçamento de ${formatCurrency(amount)} para o seu pedido.`,
         type: 'order',
         related_entity_id: budgetModal.requestId
       });
@@ -352,7 +346,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                 <div>
                   <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Valor do Serviço (R$)</label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">R$</span>
+
                     <input 
                       type="text"
                       inputMode="decimal"
@@ -360,7 +354,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                       required
                       value={budgetModal.currentAmount}
                       onChange={(e) => {
-                        const val = formatCurrency(e.target.value);
+                        const val = maskCurrency(e.target.value);
                         setBudgetModal(prev => ({ ...prev, currentAmount: val }))
                       }}
                       placeholder="0,00"
@@ -545,7 +539,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                         </div>
                         <div className="flex gap-2">
                           <p className="flex-1 text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1">
-                            {req.budget_amount ? `R$ ${req.budget_amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'Valor não informado'}
+                            {req.budget_amount ? formatCurrency(req.budget_amount) : 'Valor não informado'}
                           </p>
                           <button
                             onClick={() => handleOpenChat(req)}

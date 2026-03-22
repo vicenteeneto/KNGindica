@@ -3,7 +3,7 @@ import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
-import { maskCurrency, parseCurrency } from '../lib/formatters';
+import { formatCurrency, maskCurrency, parseCurrency } from '../lib/formatters';
 
 interface BidRoomScreenProps extends NavigationProps {
   params?: any;
@@ -208,7 +208,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
           <div className="flex gap-4 border-t border-slate-100 dark:border-slate-700 pt-4">
             <div>
               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Budget</p>
-              <p className="text-lg font-black text-emerald-500">R$ {order.budget?.toFixed(2)}</p>
+              <p className="text-lg font-black text-emerald-500">{formatCurrency(order.budget || 0)}</p>
             </div>
             <div>
               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Cidade</p>
@@ -252,7 +252,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
                           </p>
                         </div>
                       </div>
-                      <p className={`text-lg font-black ${isMine ? 'text-primary' : 'text-emerald-500'}`}>R$ {bid.amount?.toFixed(2)}</p>
+                      <p className={`text-lg font-black ${isMine ? 'text-primary' : 'text-emerald-500'}`}>{formatCurrency(bid.amount || 0)}</p>
                     </div>
                     {bid.message && (
                       <p className="text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50 p-2 rounded-xl mt-1">
@@ -280,7 +280,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
         <form onSubmit={handleSendBid} className="shrink-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 p-4 pb-safe z-20">
           <div className="max-w-4xl mx-auto flex gap-2 items-center">
             <div className="flex-1 bg-slate-50 dark:bg-slate-900 rounded-2xl border-2 border-transparent focus-within:border-primary/30 flex items-center px-4 py-2 transition-colors">
-              <span className="text-slate-400 font-black mr-2">R$</span>
+
               <input 
                 type="text" 
                 placeholder="Seu valor..."

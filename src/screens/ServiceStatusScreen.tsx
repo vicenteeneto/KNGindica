@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useNotifications } from '../NotificationContext';
+import { formatCurrency } from '../lib/formatters';
 
 export default function ServiceStatusScreen({ onNavigate, params }: NavigationProps) {
   const { showToast } = useNotifications();
@@ -286,7 +287,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                 <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Valor do Serviço</p>
                 <p className="text-slate-900 dark:text-slate-100 font-bold text-lg">
                   {displayData.budget_amount && displayData.budget_amount > 0 
-                    ? `R$ ${displayData.budget_amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` 
+                    ? formatCurrency(displayData.budget_amount) 
                     : 'A definir'}
                 </p>
               </div>

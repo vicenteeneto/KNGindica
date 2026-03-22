@@ -158,12 +158,12 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
             <div>
               <label className="block text-sm font-bold mb-2 uppercase tracking-widest text-slate-400">Quanto deseja pagar? (R$)</label>
               <div className="relative">
-                <span className="absolute left-5 top-1/2 -translate-y-1/2 font-bold text-slate-400">R$</span>
+
                 <input 
                   type="text" 
                   required
                   placeholder="0,00"
-                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl pl-12 pr-5 py-4 transition-all outline-none font-black text-xl"
+                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-black text-xl"
                   value={formData.budget}
                   onChange={e => {
                     const masked = maskCurrency(e.target.value);
