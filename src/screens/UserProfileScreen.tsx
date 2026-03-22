@@ -571,7 +571,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
     email: user?.email || "",
     avatar: profile?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png",
     joinDate: `Membro desde ${new Date(user?.created_at || Date.now()).getFullYear()}`,
-    points: 0
+    points: profile?.reward_points || 0
   };
 
   return (
@@ -758,6 +758,33 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 </div>
               </div>
               <span className="material-symbols-outlined text-slate-400">chevron_right</span>
+            </button>
+          </div>
+        </section>
+
+        {/* Grupo 4: Recompensas */}
+        <section className="mb-8">
+          <div className="flex items-center gap-2 mb-3 px-2">
+            <span className="size-1.5 rounded-full bg-primary"></span>
+            <h2 className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Fidelidade & Prêmios</h2>
+          </div>
+          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border-2 border-slate-100 dark:border-slate-800 overflow-hidden group">
+            <button
+              onClick={() => onNavigate('rewards')}
+              className="w-full flex items-center justify-between p-6 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all active:scale-[0.99]"
+            >
+              <div className="flex items-center gap-5">
+                <div className="size-14 rounded-2xl bg-gradient-to-br from-primary to-orange-600 text-white flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
+                  <span className="material-symbols-outlined text-3xl">workspace_premium</span>
+                </div>
+                <div className="text-left">
+                  <p className="text-lg font-black text-slate-900 dark:text-white tracking-tight italic">Indique e Ganhe</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest">MEUS PONTOS, LINK DE CONVITE E PRÊMIOS</p>
+                </div>
+              </div>
+              <div className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white transition-all">
+                <span className="material-symbols-outlined">redeem</span>
+              </div>
             </button>
           </div>
         </section>

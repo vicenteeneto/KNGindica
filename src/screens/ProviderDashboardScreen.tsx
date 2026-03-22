@@ -405,6 +405,37 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         ))}
       </section>
 
+
+      {/* Indique e Ganhe - Referral System */}
+      <section className="px-4 pt-6">
+        <div 
+          onClick={() => onNavigate('rewards')}
+          className="bg-gradient-to-br from-primary to-orange-600 rounded-3xl p-5 shadow-lg border border-white/10 relative overflow-hidden cursor-pointer group hover:scale-[1.02] active:scale-[0.98] transition-all"
+        >
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+            <span className="material-symbols-outlined text-7xl text-white">workspace_premium</span>
+          </div>
+          <div className="relative z-10">
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-2 py-1 rounded-full text-[9px] font-black tracking-widest uppercase mb-3 text-white">
+              <span className="material-symbols-outlined text-xs">share</span>
+              Ganhe Prêmios Indicando
+            </div>
+            <h3 className="text-xl font-black text-white uppercase tracking-tighter italic leading-none mb-1">
+              Indique e Ganhe
+            </h3>
+            <p className="text-white/80 text-[11px] font-medium leading-tight max-w-[200px]">
+              Seu link de convite vale pontos que podem ser trocados por KNG Premium e mais.
+            </p>
+            <div className="mt-4 flex items-center gap-2">
+              <span className="text-[10px] font-black text-white uppercase tracking-widest bg-white/20 px-3 py-1.5 rounded-xl border border-white/20 flex items-center gap-2">
+                Ver Meus Pontos ({profile?.reward_points || 0} pts)
+                <span className="material-symbols-outlined text-xs">chevron_right</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Oportunidades KNGindica - Freelance Feed */}
       <section className="px-4 pt-6 pb-6">
         <div 
