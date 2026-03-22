@@ -68,12 +68,12 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
 
       if (error) throw error;
 
-      showModal(
+      showToast(
         "Sucesso",
         "Ordem publicada com sucesso! Os prestadores profissionais serão notificados e em breve entrarão em contato.",
-        "success",
-        () => onNavigate('home')
+        "success"
       );
+      onNavigate('home');
     } catch (err: any) {
       showToast("Erro ao publicar", err.message, "error");
     } finally {
