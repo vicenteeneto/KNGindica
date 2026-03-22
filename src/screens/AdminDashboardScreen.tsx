@@ -1341,7 +1341,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             <span className="material-symbols-outlined text-[16px]">arrow_back</span> Voltar ao Dashboard
           </button>
           <h2 className="text-xl font-bold">Gestão Operacional e Financeira</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Acompanhe os pedidos, fluxo de caixa e disputas ativas</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Acompanhe os pedidos, fluxo de caixa e chamados de suporte</p>
         </div>
         <div className="flex gap-2">
           <button className="flex items-center justify-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
@@ -1376,11 +1376,11 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             <span className="text-xs text-green-500 font-bold"></span>
           </div>
         </div>
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-red-500 cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
-          <p className="text-xs text-slate-500 font-medium mb-1 text-red-600 dark:text-red-400">Disputas Abertas</p>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-primary cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/10 transition-colors">
+          <p className="text-xs text-slate-500 font-medium mb-1 text-primary">Chamados em Aberto</p>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-2xl font-bold text-red-600 dark:text-red-400">{ordersList.filter(o => o.status === 'disputed').length}</h3>
-            <span className="material-symbols-outlined text-sm text-red-500">warning</span>
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{supportTickets.filter(t => (t.status === 'open' || t.status === 'in_progress')).length}</h3>
+            <span className="material-symbols-outlined text-sm text-primary">support_agent</span>
           </div>
         </div>
       </div>
@@ -1414,8 +1414,8 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         </button>
         <button 
           onClick={() => setOrdersFilter('disputed')}
-          className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors flex items-center gap-1 ${ordersFilter === 'disputed' ? 'bg-red-600 text-white' : 'border border-red-200 dark:border-red-900/40 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'}`}>
-          Disputas <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${ordersFilter === 'disputed' ? 'bg-white text-red-600' : 'bg-red-500 text-white'}`}>{ordersList.filter(o => o.status === 'disputed').length}</span>
+          className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors flex items-center gap-1 ${ordersFilter === 'disputed' ? 'bg-primary text-white' : 'border border-primary/20 text-primary hover:bg-primary/5'}`}>
+          Em Disputa <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${ordersFilter === 'disputed' ? 'bg-white text-primary' : 'bg-primary text-white'}`}>{ordersList.filter(o => o.status === 'disputed').length}</span>
         </button>
       </div>
 

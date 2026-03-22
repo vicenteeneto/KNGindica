@@ -312,20 +312,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
               Ver Meus Agendamentos
             </button>
             <button 
-              onClick={async () => {
-                if (!window.confirm("Deseja abrir uma disputa para este pedido? Um administrador analisará o caso.")) return;
-                try {
-                  const { error } = await supabase
-                    .from('service_requests')
-                    .update({ status: 'disputed' })
-                    .eq('id', params?.requestId);
-                  if (error) throw error;
-                  showToast("Disputa", "Disputa aberta com sucesso. Aguarde o contato da nossa equipe.", "success");
-                  onNavigate('myRequests');
-                } catch (err: any) {
-                  showToast("Erro", "Erro ao abrir disputa: " + err.message, "error");
-                }
-              }}
+              onClick={() => onNavigate('helpCenter', { requestId: params?.requestId })}
               className="w-full h-12 bg-transparent text-slate-500 hover:text-red-500 font-bold rounded-xl transition-colors text-sm"
             >
               Tive um problema / Abrir Disputa

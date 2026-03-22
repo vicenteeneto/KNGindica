@@ -55,7 +55,7 @@ const ADMIN_TABS = [
   { id: 'reviews', icon: 'reviews', label: 'Reviews' },
   { id: 'categories', icon: 'category', label: 'Categorias' },
   { id: 'chat_audit', icon: 'forum', label: 'Auditoria' },
-  { id: 'disputes', icon: 'gavel', label: 'Disputas' },
+  { id: 'tickets', icon: 'support_agent', label: 'Resoluções' },
   { id: 'verifications', icon: 'verified_user', label: 'Verificações' },
   { id: 'finance', icon: 'payments', label: 'Financeiro' },
   { id: 'settings', icon: 'settings', label: 'Admin Settings' },

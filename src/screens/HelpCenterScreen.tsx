@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../contexts/AuthContext';
-import { useNotifications } from '../contexts/NotificationContext';
+import { useAuth } from '../AuthContext';
+import { useNotifications } from '../NotificationContext';
 
-export default function HelpCenterScreen({ onNavigate }: NavigationProps) {
+export default function HelpCenterScreen({ onNavigate, params }: NavigationProps) {
   const [activeTab, setActiveTab] = useState<'faq' | 'tickets'>('tickets');
   const [isCreatingTicket, setIsCreatingTicket] = useState(false);
 
@@ -29,7 +29,13 @@ export default function HelpCenterScreen({ onNavigate }: NavigationProps) {
       setLoading(false);
     };
     fetchSupportData();
-  }, [user]);
+
+    if (params?.requestId) {
+      setIsCreatingTicket(true);
+      setNewCategory('dispute');
+      setNewRelatedOrder(params.requestId);
+    }
+  }, [user, params]);
 
   const [newCategory, setNewCategory] = useState('question');
   const [newSubject, setNewSubject] = useState('');
@@ -122,7 +128,7 @@ export default function HelpCenterScreen({ onNavigate }: NavigationProps) {
           {/* Hero */}
           <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-6 text-white mb-6">
             <h2 className="text-2xl font-bold mb-2">Como podemos ajudar?</h2>
-            <p className="text-slate-300 text-sm mb-4">Caso tenha tido problemas com um serviço, você pode abrir uma disputa. O pagamento ficará retido até a resolução.</p>
+            <p className="text-slate-300 text-sm mb-4">Seja para tirar uma dúvida ou resolver um problema com seu pedido, nossa equipe está pronta para atender você.</p>
             
             <div className="relative">
               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
@@ -140,7 +146,7 @@ export default function HelpCenterScreen({ onNavigate }: NavigationProps) {
               onClick={() => setActiveTab('tickets')}
               className={`pb-3 px-4 text-sm font-bold flex-1 text-center ${activeTab === 'tickets' ? 'border-b-2 border-primary text-primary' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
             >
-              Meus Chamados (Disputas)
+              Meus Chamados
             </button>
             <button 
               onClick={() => setActiveTab('faq')}
@@ -163,7 +169,7 @@ export default function HelpCenterScreen({ onNavigate }: NavigationProps) {
                       className="bg-primary hover:bg-primary/90 text-white px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-1 transition-colors shadow-sm"
                     >
                       <span className="material-symbols-outlined text-[18px]">add</span>
-                      Abrir Disputa
+                      Abrir Chamado
                     </button>
                   </div>
 
@@ -198,21 +204,23 @@ export default function HelpCenterScreen({ onNavigate }: NavigationProps) {
                   {!loading && tickets.length === 0 && (
                     <div className="text-center py-12 text-slate-500">
                       <span className="material-symbols-outlined text-4xl mb-2">check_circle</span>
-                      <p>Você não tem nenhuma disputa em aberto.</p>
+                      <p>Você não tem nenhum chamado em aberto.</p>
                     </div>
                   )}
                 </>
               ) : (
                 <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-5 rounded-xl shadow-sm animate-in fade-in slide-in-from-bottom-4">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-bold text-lg">Nova Disputa</h3>
+                    <h3 className="font-bold text-lg">Novo Chamado</h3>
                     <button onClick={() => setIsCreatingTicket(false)} className="text-slate-400 hover:text-slate-600"><span className="material-symbols-outlined">close</span></button>
                   </div>
                   
-                  <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 text-xs p-3 rounded-lg flex gap-2 mb-4">
-                    <span className="material-symbols-outlined text-[16px]">info</span>
-                    <p>Ao abrir uma disputa, transferimos o valor retido do serviço para uma conta garantia (Escrow) até que o problema seja resolvido.</p>
-                  </div>
+                  {newCategory === 'dispute' && (
+                    <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-200 text-xs p-3 rounded-lg flex gap-2 mb-4 border border-amber-200 dark:border-amber-900/30">
+                      <span className="material-symbols-outlined text-[16px]">info</span>
+                      <p>Ao abrir uma disputa, transferimos o valor retido do serviço para uma conta garantia (Escrow) até que o problema seja resolvido por nossa equipe.</p>
+                    </div>
+                  )}
 
                   <form onSubmit={handleCreateTicket} className="space-y-4">
                     <div>
