@@ -175,10 +175,10 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
         {(showPushBanner && push.permission !== 'granted') && (
           <section className="px-4 py-4 relative">
             <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm relative overflow-hidden">
-              <button onClick={handleDismissPushBanner} className="absolute top-2 right-2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors z-10" title="Dispensar">
-                <span className="material-symbols-outlined text-sm">close</span>
+              <button onClick={handleDismissPushBanner} className="absolute top-3 right-3 p-1 rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-200 transition-colors z-10" title="Dispensar">
+                <span className="material-symbols-outlined text-[18px]">close</span>
               </button>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 pr-8">
                 <div className={`size-12 rounded-xl flex items-center justify-center shrink-0 ${push.permission === 'granted' ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-primary/10'}`}>
                   <span className={`material-symbols-outlined ${push.permission === 'granted' ? 'text-emerald-600' : 'text-primary'}`}>
                     {push.permission === 'granted' ? 'notifications_active' : 'notifications'}
