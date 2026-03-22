@@ -15,31 +15,31 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
   const { unreadNotifications, unreadMessages } = useNotifications();
   const { user } = useAuth();
 
-  const navItems = [
-    { id: 'home', icon: 'home', label: 'Início', screen: 'home' as Screen },
-    ...(role === 'provider' ? [
-      { id: 'dashboard', icon: 'pie_chart', label: 'Painel', screen: 'dashboard' as Screen },
-      { id: 'openOrders', icon: 'gavel', label: 'Freelance', screen: 'openOrders' as Screen },
-      { id: 'providerRequests', icon: 'assignment', label: 'Serviços', screen: 'providerRequests' as Screen },
-    ] : [
-      { id: 'myRequests', icon: 'receipt_long', label: 'Serviços', screen: 'myRequests' as Screen },
-    ]),
-    { id: 'chatList', icon: 'chat', label: 'Chat', screen: 'chatList' as Screen, badge: unreadMessages },
-    { id: 'notifications', icon: 'notifications', label: 'Avisos', screen: 'notifications' as Screen, badge: unreadNotifications },
-    ...(role !== 'admin' ? [
-      { id: 'rewards', icon: 'redeem', label: 'Indique e Ganhe', screen: 'rewards' as Screen }
-    ] : []),
-    { 
-      id: 'profile', 
-      icon: 'person', 
-      label: 'Perfil', 
-      screen: (role === 'provider' ? 'profile' : 'userProfile') as Screen,
-      params: role === 'provider' ? { professionalId: user?.id } : undefined
-    },
-    ...(role === 'admin' ? [
-      { id: 'adminDashboard', icon: 'admin_panel_settings', label: 'Admin', screen: 'adminDashboard' as Screen },
-    ] : []),
-  ];
+  const navItems = role === 'admin' 
+    ? [
+        { id: 'adminDashboard', icon: 'admin_panel_settings', label: 'Painel Admin', screen: 'adminDashboard' as Screen },
+        { id: 'userProfile', icon: 'person', label: 'Perfil Admin', screen: 'userProfile' as Screen },
+      ]
+    : [
+        { id: 'home', icon: 'home', label: 'Início', screen: 'home' as Screen },
+        ...(role === 'provider' ? [
+          { id: 'dashboard', icon: 'pie_chart', label: 'Painel', screen: 'dashboard' as Screen },
+          { id: 'openOrders', icon: 'gavel', label: 'Freelance', screen: 'openOrders' as Screen },
+          { id: 'providerRequests', icon: 'assignment', label: 'Serviços', screen: 'providerRequests' as Screen },
+        ] : [
+          { id: 'myRequests', icon: 'receipt_long', label: 'Serviços', screen: 'myRequests' as Screen },
+        ]),
+        { id: 'chatList', icon: 'chat', label: 'Chat', screen: 'chatList' as Screen, badge: unreadMessages },
+        { id: 'notifications', icon: 'notifications', label: 'Avisos', screen: 'notifications' as Screen, badge: unreadNotifications },
+        { id: 'rewards', icon: 'redeem', label: 'Indique e Ganhe', screen: 'rewards' as Screen },
+        { 
+          id: 'profile', 
+          icon: 'person', 
+          label: 'Perfil', 
+          screen: (role === 'provider' ? 'profile' : 'userProfile') as Screen,
+          params: role === 'provider' ? { professionalId: user?.id } : undefined
+        },
+      ];
 
   return (
     <nav className="hidden md:flex fixed left-0 top-0 bottom-0 w-12 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-r border-slate-200 dark:border-white/10 flex-col items-center py-2 z-50 shadow-lg overflow-hidden">

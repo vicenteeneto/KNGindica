@@ -2943,35 +2943,12 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
               </div>
             </div>
             <div className="flex items-center gap-2 md:gap-4">
-              <button 
-                onClick={() => setActiveTab('chat_audit')}
-                className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${activeTab === 'chat_audit' ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'}`}
-              >
-                <span className="material-symbols-outlined text-[18px]">forum</span>
-                <span>Auditoria de Chat</span>
-              </button>
               <button
                 onClick={handleLogout}
                 className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-sm font-semibold transition-colors"
               >
                 <span className="material-symbols-outlined text-[18px]">logout</span>
                 <span>Sair</span>
-              </button>
-              <button onClick={() => onNavigate('chatList')} className="relative p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors" title="Mensagens">
-                <span className="material-symbols-outlined">chat</span>
-                {unreadMessages > 0 && (
-                  <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-primary animate-pulse"></span>
-                )}
-              </button>
-              <button 
-                onClick={() => onNavigate('notifications')}
-                className="relative p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors" 
-                title="Notificações"
-              >
-                <span className="material-symbols-outlined">notifications</span>
-                {unreadNotifications > 0 && (
-                  <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
-                )}
               </button>
               <div className={`h-10 w-10 rounded-full overflow-hidden border-2 flex items-center justify-center transition-all ${
                 isPremiumUser 

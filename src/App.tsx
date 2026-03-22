@@ -206,6 +206,12 @@ function AppContent() {
   }
 
   const renderScreen = () => {
+    // Exclusive Admin View: Force AdminDashboard if user is admin
+    // Always allow auth screen and profile screen for basic management
+    if (role === 'admin' && !['auth', 'profile', 'adminDashboard'].includes(currentScreen)) {
+      return <AdminDashboardScreen onNavigate={handleNavigate} activeTab={adminTab} setActiveTab={setAdminTab} />;
+    }
+
     switch (currentScreen) {
       case 'home':
         return <HomeScreen onNavigate={handleNavigate} />;
