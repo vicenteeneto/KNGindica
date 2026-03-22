@@ -65,6 +65,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
   const [supportTickets, setSupportTickets] = useState<any[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<any | null>(null);
   const [adminResponseText, setAdminResponseText] = useState('');
+  const [referralsHistory, setReferralsHistory] = useState<any[]>([]);
 
   const ticketCategoryLabels: Record<string, string> = {
     dispute: 'Disputa Financeira',
@@ -228,6 +229,36 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         } catch (e) {
           console.error("Erro ao excluir review:", e);
           showToast("Erro", "Não foi possível excluir", "error");
+        }
+      }
+    });
+  };
+
+  const handleRemoveReferralPoint = async (historyId: string, referrerEmail: string) => {
+    if (!historyId) {
+      showToast("Aviso", "Não foi possível encontrar o registro de pontos para esta indicação.", "notification");
+      return;
+    }
+
+    showModal({
+      title: "Remover Pontos de Indicação",
+      message: `Deseja realmente remover o ponto creditado para ${referrerEmail}? Esta ação irá decrementar o saldo do indicador.`,
+      confirmLabel: "Sim, Remover Ponto",
+      cancelLabel: "Cancelar",
+      type: "danger",
+      onConfirm: async () => {
+        setMaintenanceLoading(true);
+        try {
+          const { error } = await supabase.rpc('admin_remove_reward_points', { history_id: historyId });
+          if (error) throw error;
+          
+          showToast("Sucesso", "Ponto removido com sucesso.", "success");
+          fetchData();
+        } catch (e: any) {
+          console.error("Erro ao remover ponto:", e);
+          showToast("Erro", "Falha ao remover ponto.", "error");
+        } finally {
+          setMaintenanceLoading(false);
         }
       }
     });
@@ -604,6 +635,26 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
       
       // We will map request object if related_order_id exists from ordersList
       // Because referencing service_requests in support_tickets table might hit RLS or constraints if not defined right.
+      // 10. Fetch Referrals History
+      const { data: referrals, error: refError } = await supabase
+        .from('profiles')
+        .select(`
+          id, full_name, email, created_at, referred_by,
+          referrer:profiles!profiles_referred_by_fkey(id, full_name, email, reward_points)
+        `)
+        .not('referred_by', 'is', null)
+        .order('created_at', { ascending: false });
+      
+      if (!refError && referrals) {
+        // Enriquecer com o ID do item no histórico de recompensas se existir
+        const { data: history } = await supabase.from('reward_history').select('*');
+        const enriched = referrals.map(ref => {
+          const histItem = history?.find(h => h.user_id === ref.referred_by && h.description.includes(ref.email));
+          return { ...ref, history_id: histItem?.id, points_given: histItem?.amount || 1 };
+        });
+        setReferralsHistory(enriched);
+      }
+
       setSupportTickets(tickets || []);
 
     } catch (err) {
@@ -2689,6 +2740,85 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
     </div>
   );
 
+  const renderReferralsTab = () => (
+    <div className="animate-in fade-in duration-500 space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">Auditoria de Indicações</h2>
+          <p className="text-sm text-slate-500 font-medium">Controle de quem indicou quem e gerenciamento de pontos.</p>
+        </div>
+        <div className="flex items-center gap-2">
+           <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-xs font-bold tracking-widest uppercase">
+             {referralsHistory.length} INDICAÇÕES TOTAIS
+           </span>
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse whitespace-nowrap">
+            <thead>
+              <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Novo Usuário (Indicado)</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Indicador</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Pontos</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              {referralsHistory.length === 0 ? (
+                <tr><td colSpan={4} className="p-12 text-center text-slate-500 italic">Nenhuma indicação registrada.</td></tr>
+              ) : (
+                referralsHistory.map((ref, idx) => (
+                  <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="size-8 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-600 flex items-center justify-center font-bold text-xs">
+                          {ref.full_name?.substring(0, 1).toUpperCase() || 'U'}
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold">{ref.full_name || 'Usuário Indicado'}</p>
+                          <p className="text-[10px] text-slate-500 font-medium">{ref.email}</p>
+                          <p className="text-[9px] text-slate-400">Entrou em {new Date(ref.created_at).toLocaleDateString('pt-BR')}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="size-8 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center font-bold text-xs">
+                          {ref.referrer?.full_name?.substring(0, 1).toUpperCase() || 'I'}
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold">{ref.referrer?.full_name || 'Indicador'}</p>
+                          <p className="text-[10px] text-slate-500 font-medium">{ref.referrer?.email}</p>
+                          <p className="text-[9px] text-primary font-bold">Saldo Atual: {ref.referrer?.reward_points || 0} pts</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <span className="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-black rounded-lg">
+                        +{ref.points_given}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                       <button
+                         onClick={() => handleRemoveReferralPoint(ref.history_id, ref.referrer?.email)}
+                         disabled={!ref.history_id || maintenanceLoading}
+                         className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all title='Remover Pontos'"
+                       >
+                         <span className="material-symbols-outlined text-[20px]">delete_sweep</span>
+                       </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderChatAuditTab = () => (
     <div className="animate-in fade-in duration-500 space-y-6">
       <h2 className="text-xl font-bold">Auditoria de Conversas</h2>
@@ -2749,6 +2879,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
       case 'verifications': return renderVerificationsTab();
       case 'finance': return renderFinanceTab();
       case 'settings': return renderSettingsTab();
+      case 'referrals': return renderReferralsTab();
       case 'maintenance': return renderMaintenanceTab();
       default: return renderDashboardTab();
     }
@@ -2761,6 +2892,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
     { id: 'orders', icon: 'receipt', label: 'Pedidos' },
     { id: 'reviews', icon: 'reviews', label: 'Reviews' },
     { id: 'categories', icon: 'category', label: 'Categorias' },
+    { id: 'referrals', icon: 'share', label: 'Indicações' },
     { id: 'tickets', icon: 'support_agent', label: 'Resoluções', badge: supportTickets.filter(t => t.status === 'open' || t.status === 'in_progress').length },
     { id: 'verifications', icon: 'verified_user', label: 'Verificações', badge: pendingVerifications.length },
     { id: 'finance', icon: 'payments', label: 'Financeiro' },
@@ -2843,6 +2975,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           {activeTab === 'reviews' && renderReviewsTab()}
           {activeTab === 'categories' && renderCategoriesTab()}
           {activeTab === 'chat_audit' && renderChatAuditTab()}
+          {activeTab === 'referrals' && renderReferralsTab()}
           {activeTab === 'tickets' && renderTicketsTab()}
           {activeTab === 'verifications' && renderVerificationsTab()}
           {activeTab === 'finance' && renderFinanceTab()}
