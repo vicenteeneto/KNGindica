@@ -302,7 +302,9 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
       
       if (reqError) {
         if (reqError.message.includes('invalid input value for enum request_status')) {
-          alert("ERRO DE BANCO: O status 'proposed' não existe no banco de dados. Você PRECISA rodar o script SQL de correção (sql_v6_enum_fix.sql) no editor do Supabase.");
+          console.error("Status 'proposed' inesistente.");
+          showToast("Erro", "ERRO DE BANCO: O status 'proposed' não existe no banco de dados. Você PRECISA rodar o script SQL de correção (sql_v6_enum_fix.sql) no editor do Supabase.", "error");
+          setIsSendingProposal(false);
         }
         throw reqError;
       }

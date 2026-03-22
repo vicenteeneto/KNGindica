@@ -255,7 +255,6 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         if (!(profile as any)?.latitude || !(profile as any)?.longitude) missing.push("Localização (GPS)");
         if (!profile?.pricing_model || (profile.pricing_model !== 'negotiable' && !profile.price_value)) missing.push("Preço do serviço");
         if (portfolioCount === 0) missing.push("Fotos no Portfólio");
-        if (verificationStatus !== 'approved') missing.push("Documentos de Identidade");
 
         if (missing.length === 0) return null;
 
@@ -526,7 +525,6 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
                     if (!(profile as any)?.latitude || !(profile as any)?.longitude) missingForStatus.push("Localização");
                     if (!(profile?.pricing_model === 'negotiable' || profile?.price_value)) missingForStatus.push("Preço");
                     if (portfolioCount === 0) missingForStatus.push("Portfólio");
-                    if (verificationStatus !== 'approved') missingForStatus.push("Documentos");
 
                     if (missingForStatus.length > 0) return null;
 

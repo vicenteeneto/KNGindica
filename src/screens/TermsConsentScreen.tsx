@@ -2,9 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
+import { useNotifications } from '../NotificationContext';
 
 export default function TermsConsentScreen({ onNavigate }: NavigationProps) {
   const { user, profile } = useAuth();
+  const { showToast } = useNotifications();
   const [isScrolledToEnd, setIsScrolledToEnd] = useState(false);
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -38,7 +40,7 @@ export default function TermsConsentScreen({ onNavigate }: NavigationProps) {
       window.location.reload(); // Force refresh context
     } catch (e) {
       console.error("Erro ao aceitar termos:", e);
-      alert("Houve um problema ao salvar seu aceite. Tente novamente.");
+      showToast("Erro", "Houve um problema ao salvar seu aceite. Tente novamente.", "error");
     } finally {
       setLoading(false);
     }

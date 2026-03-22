@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { NavigationProps } from '../types';
+import { useNotifications } from '../NotificationContext';
 
 export default function MaiaAssistantScreen({ onNavigate }: NavigationProps) {
+  const { showToast } = useNotifications();
   const [inputText, setInputText] = useState('');
 
   return (
@@ -29,19 +31,19 @@ export default function MaiaAssistantScreen({ onNavigate }: NavigationProps) {
         <div className="flex items-center gap-4">
           <span 
             className="material-symbols-outlined cursor-pointer text-2xl hover:bg-white/10 p-1 rounded-full transition-colors"
-            onClick={() => alert('Iniciar chamada de vídeo com assistente?')}
+            onClick={() => showToast('Chamada', 'Iniciar chamada de vídeo com assistente?', 'info')}
           >
             videocam
           </span>
           <span 
             className="material-symbols-outlined cursor-pointer text-2xl hover:bg-white/10 p-1 rounded-full transition-colors"
-            onClick={() => alert('Iniciar chamada de voz com assistente?')}
+            onClick={() => showToast('Ligação', 'Iniciar chamada de voz com assistente?', 'info')}
           >
             call
           </span>
           <span 
             className="material-symbols-outlined cursor-pointer text-2xl hover:bg-white/10 p-1 rounded-full transition-colors"
-            onClick={() => alert('Opções da MAIA: Limpar chat, etc')}
+            onClick={() => showToast('Opções', 'Opções da MAIA: Limpar chat, etc', 'info')}
           >
             more_vert
           </span>
@@ -174,7 +176,7 @@ export default function MaiaAssistantScreen({ onNavigate }: NavigationProps) {
         <div className="flex flex-1 items-center bg-white dark:bg-slate-800 rounded-full px-3 py-2 gap-2 shadow-sm focus-within:ring-2 focus-within:ring-primary/50 transition-shadow">
           <span 
             className="material-symbols-outlined text-slate-500 cursor-pointer hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
-            onClick={() => alert('Abrir janela de emojis')}
+            onClick={() => showToast('Emojis', 'Abrir janela de emojis', 'info')}
           >
             mood
           </span>
@@ -186,20 +188,20 @@ export default function MaiaAssistantScreen({ onNavigate }: NavigationProps) {
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && inputText.trim() !== '') {
-                alert(`Mensagem enviada para MAIA: ${inputText}`);
+                showToast('Mensagem', `Mensagem enviada para MAIA: ${inputText}`, 'success');
                 setInputText('');
               }
             }}
           />
           <span 
             className="material-symbols-outlined text-slate-500 cursor-pointer hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
-            onClick={() => alert('Anexar arquivo para a MAIA')}
+            onClick={() => showToast('Anexo', 'Anexar arquivo para a MAIA', 'info')}
           >
             attach_file
           </span>
           <span 
             className="material-symbols-outlined text-slate-500 cursor-pointer hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
-            onClick={() => alert('Tirar foto e enviar para a MAIA')}
+            onClick={() => showToast('Câmera', 'Tirar foto e enviar para a MAIA', 'info')}
           >
             photo_camera
           </span>
@@ -207,10 +209,10 @@ export default function MaiaAssistantScreen({ onNavigate }: NavigationProps) {
         <button 
           onClick={() => {
             if (inputText.trim() !== '') {
-              alert(`Mensagem enviada para MAIA: ${inputText}`);
+              showToast('Mensagem', `Mensagem enviada para MAIA: ${inputText}`, 'success');
               setInputText('');
             } else {
-              alert('Pressione e segure para enviar uma mensagem de áudio.');
+              showToast('Microfone', 'Pressione e segure para enviar uma mensagem de áudio.', 'info');
             }
           }}
           className="flex size-10 items-center justify-center rounded-full bg-primary text-white shadow-md active:scale-90 transition-transform shrink-0"

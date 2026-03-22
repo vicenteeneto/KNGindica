@@ -86,15 +86,15 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
 
   const handleSendRequest = async () => {
     if (!user) {
-      alert('Você precisa estar logado para fazer um pedido.');
+      showToast("Ops!", 'Você precisa estar logado para fazer um pedido.', "error");
       return;
     }
     if (!selectedCategoryId) {
-      alert('Por favor, selecione uma categoria.');
+      showToast("Atenção", 'Por favor, selecione uma categoria.', "warning");
       return;
     }
     if (!description || !city || !address || !desiredDate) {
-      alert('Por favor, preencha a descrição, cidade, endereço e a data desejada.');
+      showToast("Atenção", 'Por favor, preencha a descrição, cidade, endereço e a data desejada.', "warning");
       return;
     }
 

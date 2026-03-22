@@ -2,34 +2,60 @@ import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
+import { useNotifications } from '../NotificationContext';
 
 export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
   const { user } = useAuth();
+  const { showToast } = useNotifications();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [bidding, setBidding] = useState<string | null>(null);
   const [bidAmount, setBidAmount] = useState('');
   const [bidMessage, setBidMessage] = useState('');
+  
+  // Track dismissed orders
+  const dismissedKeys = user ? `kngindica_dismissed_orders_${user.id}` : null;
+  const [dismissed, setDismissed] = useState<string[]>([]);
 
   useEffect(() => {
+    if (dismissedKeys) {
+      const stored = localStorage.getItem(dismissedKeys);
+      if (stored) setDismissed(JSON.parse(stored));
+    }
+  }, [dismissedKeys]);
+
+  useEffect(() => {
+    if (!user) return;
     fetchOrders();
     
     // Subscribe to new orders
     const channel = supabase
       .channel('freelance_orders_changes')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'freelance_orders' }, payload => {
-        setOrders(prev => [payload.new, ...prev]);
+        // Only add if not dismissed and not already bid on
+        if (!dismissed.includes(payload.new.id)) {
+          setOrders(prev => [payload.new, ...prev]);
+        }
       })
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [user, dismissed]);
 
   const fetchOrders = async () => {
+    if (!user) return;
     setLoading(true);
-    const { data, error } = await supabase
+    
+    // Find orders the user already bid on
+    const { data: userBids } = await supabase.from('freelance_bids').select('order_id').eq('provider_id', user.id);
+    const bidOrderIds = userBids?.map(b => b.order_id) || [];
+    
+    // Combine with dismissed orders
+    const toExclude = [...bidOrderIds, ...dismissed];
+
+    let query = supabase
       .from('freelance_orders')
       .select(`
         *,
@@ -38,14 +64,27 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
       `)
       .eq('status', 'open')
       .order('created_at', { ascending: false });
-    
+      
+    if (toExclude.length > 0) {
+       // Filter out excluded orders (limit chunking if large, but assuming small list for now)
+       query = query.not('id', 'in', `(${toExclude.join(',')})`);
+    }
+
+    const { data, error } = await query;
     if (!error) setOrders(data || []);
     setLoading(false);
   };
 
+  const handeDismiss = (orderId: string) => {
+    const updated = [...dismissed, orderId];
+    setDismissed(updated);
+    if (dismissedKeys) localStorage.setItem(dismissedKeys, JSON.stringify(updated));
+    setOrders(prev => prev.filter(o => o.id !== orderId));
+  };
+
   const handlePlaceBid = async (orderId: string) => {
-    if (!user) return alert("Erro de autenticação.");
-    if (!bidAmount) return alert("Insira um valor.");
+    if (!user) return showToast("Acesso Negado", "Erro de autenticação.", "error");
+    if (!bidAmount) return showToast("Atenção", "Insira um valor.", "warning");
 
     try {
       const { error } = await supabase
@@ -59,7 +98,7 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
         }]);
 
       if (error) {
-        if (error.code === '23505') alert("Você já fez um lance para esta ordem.");
+        if (error.code === '23505') showToast("Atenção", "Você já fez um lance para esta ordem.", "warning");
         else throw error;
       } else {
         // Send notification to client
@@ -71,13 +110,16 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
           related_entity_id: orderId
         });
 
-        alert("Lance enviado com sucesso!");
+        showToast("Sucesso", "Lance enviado com sucesso!", "success");
         setBidding(null);
         setBidAmount('');
         setBidMessage('');
+        
+        // Exclude from feed automatically
+        setOrders(prev => prev.filter(o => o.id !== orderId));
       }
     } catch (err: any) {
-      alert("Erro ao enviar lance: " + err.message);
+      showToast("Erro", "Erro ao enviar lance: " + err.message, "error");
     }
   };
 
@@ -119,8 +161,17 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
         ) : (
           orders.map(order => (
             <div key={order.id} className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden relative group transition-all hover:shadow-xl hover:border-primary/20">
+              {/* Dismiss Button */}
+              <button 
+                onClick={() => handeDismiss(order.id)}
+                className="absolute top-4 right-4 size-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center justify-center transition-colors shadow-sm"
+                title="Não tenho interesse"
+              >
+                <span className="material-symbols-outlined text-[18px]">close</span>
+              </button>
+              
               <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 pr-10">
                   <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
                     <span className="material-symbols-outlined">{order.service_categories?.icon || 'work'}</span>
                   </div>
@@ -129,10 +180,11 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
                     <p className="text-xs font-bold text-primary uppercase tracking-widest">{order.service_categories?.name}</p>
                   </div>
                 </div>
-                <div className="text-right">
+              </div>
+              
+              <div className="mb-4">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Budget Cliente</p>
                   <p className="text-xl font-black text-emerald-500 leading-none">R$ {order.budget?.toFixed(2)}</p>
-                </div>
               </div>
 
               <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl leading-relaxed">

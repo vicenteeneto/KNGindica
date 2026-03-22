@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import Cropper from 'react-easy-crop';
 import { getCroppedImg } from '../utils/cropImage';
+import { useNotifications } from '../NotificationContext';
 
 interface ImageCropperProps {
     imageSrc: string;
@@ -9,6 +10,7 @@ interface ImageCropperProps {
 }
 
 export default function ImageCropper({ imageSrc, onCropSave, onCropCancel }: ImageCropperProps) {
+    const { showToast } = useNotifications();
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
@@ -27,7 +29,7 @@ export default function ImageCropper({ imageSrc, onCropSave, onCropCancel }: Ima
             }
         } catch (e) {
             console.error(e);
-            alert('Erro ao processar imagem');
+            showToast("Erro", 'Erro ao processar imagem', "error");
         } finally {
             setIsProcessing(false);
         }

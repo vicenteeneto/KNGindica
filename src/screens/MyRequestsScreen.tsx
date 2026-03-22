@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
+import { useNotifications } from '../NotificationContext';
 
 export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
   const { user, role } = useAuth();
+  const { showToast } = useNotifications();
   const [activeTab, setActiveTab] = useState<'ativos' | 'concluidos' | 'cancelados' | 'freelance'>('ativos');
   const [requests, setRequests] = useState<any[]>([]);
   const [freelanceOrders, setFreelanceOrders] = useState<any[]>([]);
@@ -56,7 +58,7 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
       }
     } catch (err: any) {
       console.error("Erro ao buscar pedidos:", err);
-      alert("Erro ao buscar pedidos: " + err.message);
+      showToast("Erro", "Erro ao buscar pedidos: " + err.message, "error");
     } finally {
       setLoading(false);
     }
@@ -95,7 +97,7 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
       });
     } catch (err) {
       console.error("Error opening chat:", err);
-      alert("Erro ao abrir chat.");
+      showToast("Erro", "Erro ao abrir chat.", "error");
     }
   };
 
@@ -252,7 +254,7 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
                                     .single();
                                   if (roomError) throw roomError;
 
-                                  alert("Parabéns! Você escolheu seu prestador. O chat já está aberto.");
+                                  showToast("Sucesso", "Parabéns! Você escolheu seu prestador. O chat já está aberto.", "success");
                                   onNavigate('chat', { 
                                     roomId: room.id, 
                                     opponentName: bid.profiles?.full_name, 
@@ -260,7 +262,7 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
                                     requestId: request.id
                                   });
                                 } catch (err: any) {
-                                  alert("Erro ao aceitar lance: " + err.message);
+                                  showToast("Erro", "Erro ao aceitar lance: " + err.message, "error");
                                 }
                               }}
                               className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20"

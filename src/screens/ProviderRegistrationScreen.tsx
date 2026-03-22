@@ -2,10 +2,12 @@ import React, { useState, useRef } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
+import { useNotifications } from '../NotificationContext';
 import { CityAutocomplete } from '../components/CityAutocomplete';
 
 export default function ProviderRegistrationScreen({ onNavigate }: NavigationProps) {
   const { user, refreshProfile } = useAuth();
+  const { showToast } = useNotifications();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -40,7 +42,7 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
 
   const handleGetLocation = () => {
     if (!navigator.geolocation) {
-      alert("Geolocalização não é suportada pelo seu navegador.");
+      showToast("Ops!", "Geolocalização não é suportada pelo seu navegador.", "error");
       return;
     }
     
@@ -57,7 +59,7 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
       },
       (error) => {
         console.error("Erro GPS:", error);
-        alert("Não foi possível acessar a localização. Por favor, libere a permissão ou digite a cidade manualmente.");
+        showToast("Atenção", "Não foi possível acessar a localização. Por favor, libere a permissão ou digite a cidade manualmente.", "warning");
         setGeoLoading(false);
       }
     );
@@ -66,11 +68,11 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
-      alert("Usuário não autenticado");
+      showToast("Ops!", "Usuário não autenticado", "error");
       return;
     }
     if (!formData.name || !formData.category || !formData.city) {
-      alert("Por favor, preencha pelo menos Nome, Categoria e Cidade.");
+      showToast("Atenção", "Por favor, preencha pelo menos Nome, Categoria e Cidade.", "warning");
       return;
     }
 
@@ -108,7 +110,7 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
       onNavigate('plan');
     } catch (e: any) {
       console.error(e);
-      alert("Erro ao salvar cadastro: " + e.message);
+      showToast("Erro", "Erro ao salvar cadastro: " + e.message, "error");
     } finally {
       setIsSubmitting(false);
     }

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
+import { useNotifications } from '../NotificationContext';
 
 export default function ServiceStatusScreen({ onNavigate, params }: NavigationProps) {
+  const { showToast } = useNotifications();
   const [request, setRequest] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -125,7 +127,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
             Chat
           </button>
           <button 
-            onClick={() => alert(`Ligando para o profissional...`)}
+            onClick={() => showToast("Ligação", `Ligando para o profissional...`, "info")}
             className="flex-1 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300 font-bold py-3.5 px-6 rounded-xl transition-all flex justify-center items-center gap-2"
           >
             <span className="material-symbols-outlined">call</span>
@@ -212,13 +214,13 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <button className="size-10 flex items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors" onClick={(e) => { e.stopPropagation(); alert('Iniciando chamada...'); }}>
+                    <button className="size-10 flex items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors" onClick={(e) => { e.stopPropagation(); showToast("Ligação", 'Iniciando chamada...', 'info'); }}>
                       <span className="material-symbols-outlined">call</span>
                     </button>
                     <button className="size-10 flex items-center justify-center rounded-full bg-primary text-white hover:bg-primary/90 transition-colors" onClick={async (e) => { 
                       e.stopPropagation(); 
                       if (!displayData.provider_id) {
-                        alert("Aguarde um profissional aceitar seu pedido para iniciar o chat.");
+                        showToast("Atenção", "Aguarde um profissional aceitar seu pedido para iniciar o chat.", "warning");
                         return;
                       }
                       const { data: room } = await supabase.from('chat_rooms').select('id').eq('request_id', params?.requestId).single();
@@ -318,10 +320,10 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                     .update({ status: 'disputed' })
                     .eq('id', params?.requestId);
                   if (error) throw error;
-                  alert("Disputa aberta com sucesso. Aguarde o contato da nossa equipe.");
+                  showToast("Disputa", "Disputa aberta com sucesso. Aguarde o contato da nossa equipe.", "success");
                   onNavigate('myRequests');
                 } catch (err: any) {
-                  alert("Erro ao abrir disputa: " + err.message);
+                  showToast("Erro", "Erro ao abrir disputa: " + err.message, "error");
                 }
               }}
               className="w-full h-12 bg-transparent text-slate-500 hover:text-red-500 font-bold rounded-xl transition-colors text-sm"

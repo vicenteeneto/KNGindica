@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
+import { useNotifications } from '../NotificationContext';
 
 export default function ChatListScreen({ onNavigate }: NavigationProps) {
   const { user, role } = useAuth();
+  const { showToast } = useNotifications();
 
   const [rooms, setRooms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -164,7 +166,7 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
 
 
       {/* Action Button */}
-      <button onClick={() => alert('Abrir lista de contatos para novo chat')} className="absolute bottom-24 right-6 w-14 h-14 bg-primary text-white rounded-full shadow-lg flex items-center justify-center hover:scale-105 transition-transform z-40">
+      <button onClick={() => showToast('Novo Chat', 'Funcionalidade de contatos em breve.', 'info')} className="absolute bottom-24 right-6 w-14 h-14 bg-primary text-white rounded-full shadow-lg flex items-center justify-center hover:scale-105 transition-transform z-40">
         <span className="material-symbols-outlined text-3xl">add_comment</span>
       </button>
     </div>

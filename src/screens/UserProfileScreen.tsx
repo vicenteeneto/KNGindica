@@ -291,7 +291,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       setVerificationStatus('pending');
       showToast("Enviado!", "Seu documento foi enviado para análise.", "success");
     } catch (err: any) {
-      alert("Erro ao enviar documento: " + err.message);
+      showToast("Erro", "Erro ao enviar documento: " + err.message, "error");
     } finally {
       setUploadingDoc(null);
     }
@@ -559,7 +559,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       // Refresh to get new avatar URL
       await refreshProfile();
     } catch (error: any) {
-      alert(error.message);
+      showToast("Erro", error.message, "error");
     } finally {
       setIsUploading(false);
     }

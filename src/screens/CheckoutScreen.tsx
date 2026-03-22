@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
+import { useNotifications } from '../NotificationContext';
 import { formatCurrency } from '../lib/formatters';
 
 interface CheckoutScreenProps extends NavigationProps {
@@ -10,6 +11,7 @@ interface CheckoutScreenProps extends NavigationProps {
 
 export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenProps) {
   const { user } = useAuth();
+  const { showToast } = useNotifications();
   const [request, setRequest] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState<'credit' | 'pix'>('credit');
@@ -71,10 +73,10 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
         });
       }
 
-      alert("Pagamento confirmado com sucesso!");
+      showToast("Sucesso", "Pagamento confirmado com sucesso!", "success");
       onNavigate('serviceStatus', { requestId: params.requestId });
     } catch (err: any) {
-      alert("Erro ao processar pagamento: " + err.message);
+      showToast("Erro", "Erro ao processar pagamento: " + err.message, "error");
     } finally {
       setIsProcessing(false);
     }
@@ -205,7 +207,7 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
               <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-[250px]">
                 Abra o app do seu banco e escaneie o código acima para pagar a taxa de intermediação de R$ 10,00.
               </p>
-              <button onClick={() => alert('Código Copiado!')} className="flex items-center gap-2 font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-6 py-3 rounded-full hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors">
+              <button onClick={() => showToast('Copiado', 'Código Copiado!', 'success')} className="flex items-center gap-2 font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-6 py-3 rounded-full hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors">
                 <span className="material-symbols-outlined">content_copy</span>
                 Copiar Código Pix
               </button>

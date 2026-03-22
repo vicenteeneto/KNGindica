@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
+import { useNotifications } from '../NotificationContext';
 
 interface ProfessionalReviewsProps extends NavigationProps {
   params?: any;
 }
 
 export default function ProfessionalReviewsScreen({ onNavigate, params }: ProfessionalReviewsProps) {
+  const { showToast } = useNotifications();
   const professionalId = params?.professionalId || '1';
   const [reviews, setReviews] = useState<any[]>([]);
   const [stats, setStats] = useState({
@@ -109,7 +111,7 @@ export default function ProfessionalReviewsScreen({ onNavigate, params }: Profes
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-lg font-bold">Comentários recentes</h3>
               <button
-                onClick={() => alert('Abrir modal de filtro de avaliações (por classificação, data, etc)')}
+                onClick={() => showToast('Em breve', 'Filtro de avaliações ficará disponível em breve.', 'info')}
                 className="text-primary text-sm font-semibold flex items-center gap-1 hover:opacity-80 transition-opacity"
               >
                 Filtrar <span className="material-symbols-outlined text-sm">tune</span>

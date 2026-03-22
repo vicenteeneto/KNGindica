@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
+import { useNotifications } from '../NotificationContext';
 import { formatCurrency } from '../lib/formatters';
 
 export default function ProviderWalletScreen({ onNavigate }: NavigationProps) {
   const { user } = useAuth();
+  const { showToast } = useNotifications();
   const [loading, setLoading] = useState(true);
   const [balance, setBalance] = useState({ available: 0, pending: 0, monthTotal: 0 });
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -91,7 +93,7 @@ export default function ProviderWalletScreen({ onNavigate }: NavigationProps) {
             
             <div className="flex gap-4 mt-6 w-full max-w-sm">
               <button 
-                onClick={() => alert('Abrir fluxo de saque (Transferência/Pix)')}
+                onClick={() => showToast("Em Breve", 'Abrir fluxo de saque (Transferência/Pix)', "info")}
                 className="flex-1 bg-white text-primary font-bold py-3.5 px-4 rounded-2xl shadow-lg flex items-center justify-center gap-2 hover:bg-slate-50 active:scale-95 transition-all"
               >
                 <span className="material-symbols-outlined">account_balance</span>

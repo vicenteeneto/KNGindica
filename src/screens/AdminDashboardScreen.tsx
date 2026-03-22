@@ -532,7 +532,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
       setEditingCategory(null);
     } catch (e) {
       console.error("Erro ao salvar categoria", e);
-      alert("Erro ao salvar categoria");
+      showToast("Erro", "Erro ao salvar categoria", "error");
     }
   };
 
@@ -544,7 +544,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
       setCategoriesList(prev => prev.filter(c => c.id !== id));
     } catch (e) {
       console.error("Erro ao excluir categoria", e);
-      alert("Erro ao excluir. Pode haver serviços vinculados a ela.");
+      showToast("Erro", "Erro ao excluir. Pode haver serviços vinculados a ela.", "error");
     }
   };
 
