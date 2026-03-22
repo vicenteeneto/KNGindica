@@ -82,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .eq('id', userId)
         .single();
 
-      const adminEmails = ['offkngpublicidade@gmail.com', 'netu.araujo@gmail.com'];
+      const adminEmails = ['offkngpublicidade@gmail.com'];
       const isHardcodedAdmin = !!(userEmail && adminEmails.includes(userEmail.toLowerCase()));
 
       if (!error && data) {
@@ -142,8 +142,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Error fetching profile:', error);
       // Última tentativa para admins hardcoded não ficarem presos
-      const adminEmails = ['offkngpublicidade@gmail.com', 'netu.araujo@gmail.com'];
-      if (userEmail && adminEmails.includes(userEmail.toLowerCase())) {
+      if (userEmail && userEmail.toLowerCase() === 'offkngpublicidade@gmail.com') {
         setRole('admin');
       }
     } finally {

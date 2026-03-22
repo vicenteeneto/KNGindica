@@ -144,7 +144,7 @@ function AppContent() {
           return;
         }
         const adminEmail = user?.email?.toLowerCase();
-        const isAdmin = adminEmail === 'offkngpublicidade@gmail.com' || adminEmail === 'netu.araujo@gmail.com' || role === 'admin';
+        const isAdmin = adminEmail === 'offkngpublicidade@gmail.com' || role === 'admin';
         
         // NOVO: Redirecionar para termos se não aceitou (admins também passam pelo filtro para aceitação oficial)
         // Se currentScreen for auth ou forgotPassword, não atrapalha o fluxo de login

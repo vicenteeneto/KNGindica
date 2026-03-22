@@ -636,23 +636,32 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
       // We will map request object if related_order_id exists from ordersList
       // Because referencing service_requests in support_tickets table might hit RLS or constraints if not defined right.
       // 10. Fetch Referrals History
-      const { data: referrals, error: refError } = await supabase
-        .from('profiles')
-        .select(`
-          id, full_name, email, created_at, referred_by,
-          referrer:profiles!profiles_referred_by_fkey(id, full_name, email, reward_points)
-        `)
-        .not('referred_by', 'is', null)
-        .order('created_at', { ascending: false });
-      
-      if (!refError && referrals) {
-        // Enriquecer com o ID do item no histórico de recompensas se existir
-        const { data: history } = await supabase.from('reward_history').select('*');
-        const enriched = referrals.map(ref => {
-          const histItem = history?.find(h => h.user_id === ref.referred_by && h.description.includes(ref.email));
-          return { ...ref, history_id: histItem?.id, points_given: histItem?.amount || 1 };
-        });
-        setReferralsHistory(enriched);
+      try {
+        const { data: allProfiles, error: pError } = await supabase
+          .from('profiles')
+          .select('id, full_name, email, created_at, referred_by, reward_points');
+        
+        if (!pError && allProfiles) {
+          const referredUsers = allProfiles.filter(p => p.referred_by !== null);
+          const { data: history } = await supabase.from('reward_history').select('*');
+          
+          const enriched = referredUsers.map(ref => {
+            const referrerProfile = allProfiles.find(p => p.id === ref.referred_by);
+            const histItem = history?.find(h => h.user_id === ref.referred_by && (h.description?.includes(ref.email) || h.description?.includes(ref.full_name || '')));
+            return { 
+              ...ref, 
+              referrer: referrerProfile || null,
+              history_id: histItem?.id, 
+              points_given: histItem?.amount || 1 
+            };
+          }).filter(item => item.referrer !== null); // Only show if we found the referrer (safety)
+          
+          setReferralsHistory(enriched);
+        } else if (pError) {
+          console.error("Profile fetch error for referrals:", pError);
+        }
+      } catch (refErr) {
+        console.error("Critical error fetching referrals:", refErr);
       }
 
       setSupportTickets(tickets || []);
