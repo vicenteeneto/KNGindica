@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
+import { useNotifications } from '../NotificationContext';
 import { parseCurrency, maskCurrency } from '../lib/formatters';
 import { CityAutocomplete } from '../components/CityAutocomplete';
 
 export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) {
   const { user } = useAuth();
+  const { showToast, showModal } = useNotifications();
   const [categories, setCategories] = useState<any[]>([]);
   const [activeCities, setActiveCities] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,9 +46,9 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return alert("Você precisa estar logado.");
-    if (!formData.category_id) return alert("Por favor, selecione uma categoria.");
-    if (!formData.city) return alert("Por favor, selecione a cidade do serviço.");
+    if (!user) return showToast("Acesso Negado", "Você precisa estar logado para publicar uma ordem.", "error");
+    if (!formData.category_id) return showToast("Atenção", "Por favor, selecione uma categoria.", "warning");
+    if (!formData.city) return showToast("Atenção", "Por favor, selecione a cidade do serviço.", "warning");
 
     setSending(true);
     try {
@@ -66,10 +68,14 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
 
       if (error) throw error;
 
-      alert("Ordem publicada com sucesso! Os prestadores serão notificados.");
-      onNavigate('home');
+      showModal(
+        "Sucesso",
+        "Ordem publicada com sucesso! Os prestadores profissionais serão notificados e em breve entrarão em contato.",
+        "success",
+        () => onNavigate('home')
+      );
     } catch (err: any) {
-      alert("Erro ao publicar: " + err.message);
+      showToast("Erro ao publicar", err.message, "error");
     } finally {
       setSending(false);
     }

@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from './lib/supabase';
 import { useAuth } from './AuthContext';
 import { Screen } from './types';
@@ -287,55 +288,71 @@ export function NotificationProvider({ children, onNavigate }: { children: React
 
       {/* Toast Container */}
       <div className="fixed top-4 right-4 left-4 md:left-auto md:w-[380px] z-[9999] flex flex-col gap-3 pointer-events-none">
-        {toasts.map(toast => (
-          <div 
-            key={toast.id}
-            className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-white/20 dark:border-slate-800 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] p-4 flex gap-4 items-center animate-in slide-in-from-right-full duration-500 pointer-events-auto cursor-pointer hover:scale-[1.02] active:scale-95 transition-all group"
-            onClick={() => {
-              if (toast.targetScreen && onNavigate) {
-                onNavigate(toast.targetScreen, toast.params);
-              }
-              removeToast(toast.id);
-            }}
-          >
-            <div className="relative shrink-0">
-               {toast.avatar ? (
-                 <img src={toast.avatar} className="size-12 rounded-full border-2 border-primary shadow-sm" alt="Avatar" />
-               ) : (
-                 <div className={`size-12 rounded-full flex items-center justify-center ${toast.type === 'message' ? 'bg-primary text-white' : 'bg-amber-500 text-white shadow-lg shadow-amber-500/20'}`}>
-                   <span className="material-symbols-outlined text-2xl">
+        <AnimatePresence>
+          {toasts.map(toast => (
+            <motion.div 
+              key={toast.id}
+              layout
+              initial={{ opacity: 0, x: 50, scale: 0.95 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 100, scale: 0.95 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={{ right: 0.5, left: 0 }}
+              onDragEnd={(e, { offset, velocity }) => {
+                if (offset.x > 80 || velocity.x > 400) {
+                  removeToast(toast.id);
+                }
+              }}
+              className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-white/20 dark:border-slate-800 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] p-4 flex gap-4 items-center pointer-events-auto cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all group"
+              style={{ touchAction: 'none' }}
+              onClick={() => {
+                if (toast.targetScreen && onNavigate) {
+                  onNavigate(toast.targetScreen, toast.params);
+                }
+                removeToast(toast.id);
+              }}
+            >
+              <div className="relative shrink-0">
+                 {toast.avatar ? (
+                   <img src={toast.avatar} className="size-12 rounded-full border-2 border-primary shadow-sm" alt="Avatar" />
+                 ) : (
+                   <div className={`size-12 rounded-full flex items-center justify-center ${toast.type === 'message' ? 'bg-primary text-white' : 'bg-amber-500 text-white shadow-lg shadow-amber-500/20'}`}>
+                     <span className="material-symbols-outlined text-2xl">
+                       {toast.type === 'message' ? 'chat' : 'notifications'}
+                     </span>
+                   </div>
+                 )}
+                 <div className="absolute -bottom-1 -right-1 size-5 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-sm">
+                   <span className={`material-symbols-outlined text-[10px] ${toast.type === 'message' ? 'text-primary' : 'text-amber-500'}`}>
                      {toast.type === 'message' ? 'chat' : 'notifications'}
                    </span>
                  </div>
-               )}
-               <div className="absolute -bottom-1 -right-1 size-5 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-sm">
-                 <span className={`material-symbols-outlined text-[10px] ${toast.type === 'message' ? 'text-primary' : 'text-amber-500'}`}>
-                   {toast.type === 'message' ? 'chat' : 'notifications'}
-                 </span>
-               </div>
-            </div>
-            
-            <div className="flex-1 min-w-0">
-              <h4 className="font-black text-sm text-slate-900 dark:text-white truncate flex items-center gap-2 italic uppercase tracking-tighter">
-                {toast.title}
-                <span className="size-1.5 rounded-full bg-primary animate-pulse"></span>
-              </h4>
-              <p className="text-xs font-bold text-slate-500 dark:text-slate-400 line-clamp-2 mt-0.5 leading-snug">
-                {toast.message}
-              </p>
-            </div>
-            
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                removeToast(toast.id);
-              }}
-              className="size-8 rounded-full flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              <span className="material-symbols-outlined text-base">close</span>
-            </button>
-          </div>
-        ))}
+              </div>
+              
+              <div className="flex-1 min-w-0 pointer-events-none">
+                <h4 className="font-black text-sm text-slate-900 dark:text-white truncate flex items-center gap-2 italic uppercase tracking-tighter">
+                  {toast.title}
+                  <span className="size-1.5 rounded-full bg-primary animate-pulse"></span>
+                </h4>
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 line-clamp-2 mt-0.5 leading-snug">
+                  {toast.message}
+                </p>
+              </div>
+              
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeToast(toast.id);
+                }}
+                className="size-8 rounded-full flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <span className="material-symbols-outlined text-base">close</span>
+              </button>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </NotificationContext.Provider>
   );
