@@ -2819,26 +2819,26 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         </main>
 
         {/* Bottom Navigation Bar - Mobile ONLY */}
-        <nav className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 fixed bottom-0 left-0 right-0 z-50 md:hidden h-16 flex items-center shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
-          <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar px-4 w-full">
+        <nav className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 fixed bottom-0 left-0 right-0 z-50 md:hidden h-14 flex items-center shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+          <div className="flex items-center gap-0.5 overflow-x-auto hide-scrollbar px-2 w-full touch-pan-x" style={{ overscrollBehaviorX: 'contain' }}>
             {adminTabs.map((tab) => (
               <button 
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)} 
-                className={`flex flex-col items-center justify-center min-w-[50px] aspect-square rounded-2xl transition-all shrink-0 ${
+                className={`flex flex-col items-center justify-center min-w-[44px] h-12 rounded-xl transition-all shrink-0 ${
                   activeTab === tab.id 
-                    ? 'text-primary bg-primary/10 shadow-sm scale-105' 
-                    : 'text-slate-400 hover:text-primary active:scale-95'
+                    ? 'text-primary bg-primary/10 scale-105' 
+                    : 'text-slate-400 active:scale-95'
                 }`}
               >
                 <span 
-                  className="material-symbols-outlined text-[22px]" 
+                  className="material-symbols-outlined text-[18px]" 
                   style={activeTab === tab.id ? { fontVariationSettings: "'FILL' 1" } : {}}
                 >
                   {tab.icon}
                 </span>
-                <span className="text-[8px] font-black uppercase tracking-tighter mt-0.5 opacity-80">
-                  {tab.label.substring(0, 5)}
+                <span className="text-[7px] font-black uppercase tracking-tighter mt-0.5 opacity-70">
+                  {tab.label.substring(0, 4)}
                 </span>
               </button>
             ))}
