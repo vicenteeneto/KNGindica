@@ -32,6 +32,7 @@ import OpenOrdersScreen from './screens/OpenOrdersScreen';
 import WhatsAppSearchScreen from './screens/WhatsAppSearchScreen';
 import TermsConsentScreen from './screens/TermsConsentScreen';
 import BidRoomScreen from './screens/BidRoomScreen';
+import RewardsScreen from './screens/RewardsScreen';
 import { initOneSignal } from './lib/OneSignalService';
 import { Screen } from './types';
 import { ThemeProvider, useTheme } from './ThemeContext';
@@ -242,10 +243,12 @@ function AppContent() {
         return <ServiceRequestFormScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'writeReview':
         return <WriteReviewScreen onNavigate={handleNavigate} params={navigationParams} />;
-      case 'auth':
-        return <AuthScreen onNavigate={handleNavigate} />;
-      case 'forgotPassword':
-        return <ForgotPasswordScreen onNavigate={handleNavigate} />;
+       case 'auth':
+         return <AuthScreen onNavigate={handleNavigate} />;
+       case 'rewards':
+         return <RewardsScreen onNavigate={handleNavigate} />;
+       case 'forgotPassword':
+         return <ForgotPasswordScreen onNavigate={handleNavigate} />;
       case 'userProfile':
         return <UserProfileScreen onNavigate={handleNavigate} />;
       case 'adminDashboard':

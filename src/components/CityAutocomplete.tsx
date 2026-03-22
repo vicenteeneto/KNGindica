@@ -47,7 +47,7 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
     // Tenta carregar do localStorage primeiro
     if (cachedCities.length === 0) {
       try {
-        const saved = localStorage.getItem('iservice_city_cache');
+        const saved = localStorage.getItem('kngindica_city_cache');
         if (saved) {
           cachedCities = JSON.parse(saved);
           console.log("Cache de cidades carregado do localStorage");
@@ -77,7 +77,7 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
           
           // Salva no localStorage para uso futuro (persiste entre reloads)
           try {
-            localStorage.setItem('iservice_city_cache', JSON.stringify(cachedCities));
+            localStorage.setItem('kngindica_city_cache', JSON.stringify(cachedCities));
           } catch (e) { }
 
           setLoading(false);

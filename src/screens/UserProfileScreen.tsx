@@ -632,7 +632,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 ? 'bg-orange-500 text-black border-orange-400' 
                 : 'bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-gray-400 border-slate-200 dark:border-white/5'
             }`}>
-              {formData.plan_type === 'plus' ? 'PLUS' : 'BÁSICO'}
+              {formData.plan_type === 'plus' ? 'PREMIUM' : 'BÁSICO'}
             </span>
             <span className="bg-amber-500 text-black px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter border border-amber-400 shadow-sm">
               {displayUser.points} PTS

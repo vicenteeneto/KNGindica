@@ -462,7 +462,7 @@ export default function HelpCenterScreen({ onNavigate, params }: NavigationProps
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-primary leading-none">Resposta da Equipe</h4>
-                      <p className="text-[10px] text-primary/60 font-medium uppercase tracking-widest mt-1">Oficial iService</p>
+                      <p className="text-[10px] text-primary/60 font-medium uppercase tracking-widest mt-1">Oficial KNGindica</p>
                     </div>
                   </div>
                   <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">{selectedTicket.admin_response}</p>

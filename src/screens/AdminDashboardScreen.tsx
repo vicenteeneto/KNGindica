@@ -2528,7 +2528,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       <td className="py-3 font-medium">{m.provider_name}</td>
                       <td className="py-3">
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${m.plan_type === 'plus' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>
-                          {m.plan_type}
+                          {m.plan_type === 'plus' ? 'PREMIUM' : 'BÁSICO'}
                         </span>
                       </td>
                       <td className="py-3 text-center">{m.total_leads}</td>

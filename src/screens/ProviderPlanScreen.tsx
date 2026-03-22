@@ -27,7 +27,7 @@ const PLANS = [
   },
   {
     id: 'plus' as PlanType,
-    name: 'Prestador Plus',
+    name: 'Prestador Premium',
     subtitle: 'Para quem quer escala total',
     price: 'R$ 49,90',
     period: '/mês',
@@ -41,7 +41,7 @@ const PLANS = [
       { text: 'Avaliações em destaque nos resultados', active: true },
       { text: 'Suporte prioritário 24h', active: true },
     ],
-    cta: 'Assinar Plus',
+    cta: 'Assinar Premium',
     recommended: true,
   },
 ];
@@ -70,7 +70,7 @@ export default function ProviderPlanScreen({ onNavigate }: NavigationProps) {
       await refreshProfile();
       showToast(
         planId === 'plus'
-          ? '🎉 Bem-vindo ao Plus! Agora você tem visibilidade máxima.'
+          ? '🎉 Bem-vindo ao Premium! Agora você tem visibilidade máxima.'
           : 'Plano atualizado para Free.',
         'success'
       );
@@ -114,7 +114,7 @@ export default function ProviderPlanScreen({ onNavigate }: NavigationProps) {
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 bg-primary/10 text-primary text-xs font-bold px-3 py-1.5 rounded-full mb-3">
             <span className="material-symbols-outlined text-[14px]">bolt</span>
-            Plano atual: <span className="capitalize">{currentPlan === 'plus' ? 'Plus ✨' : 'Free'}</span>
+            Plano atual: <span className="capitalize">{currentPlan === 'plus' ? 'Premium ✨' : 'Free'}</span>
           </div>
           <h2 className="text-2xl font-bold leading-tight">Cresça mais com o Alvo</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">Escolha o plano que melhor se encaixa no seu negócio.</p>

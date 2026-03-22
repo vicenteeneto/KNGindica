@@ -703,7 +703,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                     <div className="max-w-2xl animate-fade-in-up">
                       <div className="flex items-center gap-2 mb-3">
                         {p.plan_type === 'plus' ? (
-                          <span className="bg-primary px-2 py-0.5 rounded text-[10px] font-black tracking-tighter italic text-white shadow-lg">PLUS</span>
+                          <span className="bg-primary px-2 py-0.5 rounded text-[10px] font-black tracking-tighter italic text-white shadow-lg">PREMIUM</span>
                         ) : (
                           <span className="bg-white/10 px-2 py-0.5 rounded text-[10px] font-black tracking-tighter italic text-gray-400 shadow-lg border border-white/5">DESTAQUE</span>
                         )}

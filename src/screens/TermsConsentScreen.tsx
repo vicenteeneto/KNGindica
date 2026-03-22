@@ -123,7 +123,7 @@ export default function TermsConsentScreen({ onNavigate }: NavigationProps) {
                     <strong>Plano Básico:</strong> acesso ao cadastro e chat interno
                   </li>
                   <li className="bg-slate-50 dark:bg-slate-800 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
-                    <strong>Plano Plus:</strong> mediante assinatura mensal, com benefícios adicionais como maior visibilidade e contato direto via WhatsApp
+                    <strong>KNGindica Premium:</strong> mediante assinatura mensal, com benefícios adicionais como maior visibilidade e contato direto via WhatsApp
                   </li>
                 </ul>
               </div>
@@ -167,7 +167,7 @@ export default function TermsConsentScreen({ onNavigate }: NavigationProps) {
           <section>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-3">8. PLANOS, PAGAMENTOS E ASSINATURAS</h2>
             <p>
-              Prestadores que aderirem ao plano Plus concordam com pagamento recorrente (mensal), possibilidade de alteração de valores mediante aviso prévio e cancelamento conforme regras definidas.
+              Prestadores que aderirem ao KNGindica Premium concordam com pagamento recorrente (mensal), possibilidade de alteração de valores mediante aviso prévio e cancelamento conforme regras definidas.
             </p>
           </section>
 

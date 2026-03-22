@@ -3,6 +3,7 @@ import { NavigationProps } from '../types';
 import { useAuth, UserRole } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
 import { supabase } from '../lib/supabase';
+import { useEffect } from 'react';
 
 export default function AuthScreen({ onNavigate }: NavigationProps) {
   const [isLogin, setIsLogin] = useState(true);
@@ -14,6 +15,20 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [signUpRole, setSignUpRole] = useState<UserRole>('client');
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if (ref) {
+      setReferralCode(ref);
+      // Optional: Store it in localStorage to persist if they browse around then come back
+      localStorage.setItem('kng_referral', ref);
+    } else {
+      const storedRef = localStorage.getItem('kng_referral');
+      if (storedRef) setReferralCode(storedRef);
+    }
+  }, []);
 
   const { setDevRole, signInWithGoogle } = useAuth();
   const { showModal } = useNotifications();
@@ -38,6 +53,7 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
             data: {
               full_name: fullName,
               role: signUpRole,
+              referred_by_code: referralCode,
             }
           }
         });
