@@ -845,7 +845,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                   </div>
                   <input
                     type="text"
-                    placeholder="Pergunte algo ou busque serviços..."
+                    placeholder="Busque por serviço ou cidade..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && onNavigate('listing', { searchQuery })}

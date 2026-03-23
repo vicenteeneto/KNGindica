@@ -82,7 +82,8 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
         (p) =>
           p.name.toLowerCase().includes(query) ||
           p.service.toLowerCase().includes(query) ||
-          p.category.toLowerCase().includes(query)
+          p.category.toLowerCase().includes(query) ||
+          (p.city && p.city.toLowerCase().includes(query))
       );
     }
 
@@ -150,7 +151,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
                 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
                 <input
                   type="text"
-                  placeholder="O que você está procurando?"
+                  placeholder="Busque por serviço ou cidade..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl pl-12 pr-4 py-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none font-bold text-sm"
