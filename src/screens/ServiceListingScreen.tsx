@@ -4,7 +4,7 @@ import { professionals as mockProfessionals } from '../data/mockData';
 import { requestNotificationPermission } from '../lib/OneSignalService';
 import VerifiedBadge from '../components/VerifiedBadge';
 import { supabase } from '../lib/supabase';
-import { maskCurrency, parseCurrency, formatCurrency } from '../lib/formatters';
+import { maskCurrency, parseCurrency, formatCurrency, normalizeText } from '../lib/formatters';
 import { CityAutocomplete } from '../components/CityAutocomplete';
 
 interface ServiceListingProps extends NavigationProps {
@@ -77,13 +77,13 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
     const filters = initialParams?.filters;
 
     if (searchQuery) {
-      const query = searchQuery.toLowerCase();
+      const query = normalizeText(searchQuery);
       result = result.filter(
         (p) =>
-          p.name.toLowerCase().includes(query) ||
-          p.service.toLowerCase().includes(query) ||
-          p.category.toLowerCase().includes(query) ||
-          (p.city && p.city.toLowerCase().includes(query))
+          normalizeText(p.name).includes(query) ||
+          normalizeText(p.service).includes(query) ||
+          normalizeText(p.category).includes(query) ||
+          (p.city && normalizeText(p.city).includes(query))
       );
     }
 
@@ -105,9 +105,9 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
     }
 
     if (selectedCity) {
-       const filter = selectedCity.split('/')[0].normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
+       const filter = normalizeText(selectedCity.split('/')[0]);
        result = result.filter(p => {
-         const pCity = (p.city || '').split('/')[0].normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
+         const pCity = normalizeText((p.city || '').split('/')[0]);
          return pCity === filter;
        });
     }

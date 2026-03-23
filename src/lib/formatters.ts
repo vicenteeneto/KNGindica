@@ -22,3 +22,11 @@ export const maskCurrency = (value: string): string => {
   const num = parseInt(cleanValue) / 100;
   return formatCurrency(num);
 };
+
+export const normalizeText = (text: string): string => {
+  if (!text) return '';
+  return text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+};
