@@ -265,22 +265,16 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
         // Sort by distance if we have GPS
         // If not GPS, prioritize the matched city
-        mapped.sort((a, b) => {
-           if (userCoords) {
-             return a.rawDistance - b.rawDistance;
-            } else if (locationName && locationName !== 'Brasil (Sem GPS)' && locationName !== 'Localização Indisponível (GPS Negado)') {
-              // Comparação robusta (ignora acentos e foca no nome da cidade antes da UF)
-              const filterCity = locationName.split('/')[0].normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
-              
-              const aCity = (a.city || '').split('/')[0].normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
-              const bCity = (b.city || '').split('/')[0].normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        // Filter by City if manual location is set
+        if (locationName && locationName !== 'Brasil (Sem GPS)' && locationName !== 'Localização Indisponível (GPS Negado)') {
+           const filterCity = locationName.split('/')[0].normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
+           mapped = mapped.filter(p => {
+             const pCity = (p.city || '').split('/')[0].normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
+             return pCity === filterCity;
+           });
+        }
 
-              const aMatch = aCity === filterCity ? -2 : 1;
-              const bMatch = bCity === filterCity ? -2 : 1;
-              return aMatch - bMatch;
-            }
-           return 0;
-        });
+        return 0;
         
         // Blend in mock ones if we have none, just to avoid empty UI for the demo
         if (mapped.length === 0) {
@@ -964,7 +958,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                   {/* Row: All Providers (Fallback/Discovery) */}
                   <CollectionRow 
                     title="KNGindica" 
-                    subtitle="Explore todos os prestadores em Rondonópolis e região."
+                    subtitle="Explore todos os prestadores em sua região."
                     providers={providers} 
                     onNavigate={onNavigate}
                   />

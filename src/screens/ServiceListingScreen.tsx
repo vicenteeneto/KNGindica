@@ -52,6 +52,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
             image: p.avatar_url || 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a',
             isVerified: p.is_verified,
             distance: p.city ? 0 : 99, // Basic distance mock
+            city: p.city,
             description: p.bio || 'Sem descrição.',
             isAffiliate: p.plan_type === 'plus',
           }));
@@ -229,7 +230,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
 
       {/* Filter Section */}
       <section className="border-b border-slate-100 dark:border-slate-800">
-        <div className="px-4 py-3 overflow-x-auto max-w-7xl mx-auto w-full">
+        <div className="px-4 py-3 overflow-x-auto max-w-7xl mx-auto w-full custom-scrollbar">
           <div className="flex gap-2 whitespace-nowrap items-center">
             {/* Sort Buttons */}
             <div className="flex gap-2 pr-4 border-r border-slate-200 dark:border-slate-700 mr-2">
