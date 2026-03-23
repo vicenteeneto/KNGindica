@@ -13,6 +13,7 @@ import { useNotifications } from '../NotificationContext';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { formatCurrency } from '../lib/formatters';
+import { ProviderHeader } from '../components/ProviderHeader';
 
 let DefaultIcon = L.icon({
   iconUrl: markerIcon,
@@ -42,7 +43,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const { showToast, showModal } = useNotifications();
 
   const minSwipeDistance = 50;
@@ -317,49 +318,70 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
   return (
     <div className="w-full bg-white dark:bg-slate-900 min-h-screen shadow-xl flex flex-col font-display text-slate-900 dark:text-slate-100 antialiased">
       {/* Header */}
-      <div className="bg-white dark:bg-slate-900 sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800">
-        <div className="flex items-center p-4 pb-2 justify-between max-w-7xl mx-auto w-full">
-          <button 
-            onClick={() => onNavigate('home')} 
-            className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-all shrink-0 z-[100]"
-          >
-            <span className="material-symbols-outlined">arrow_back</span>
-          </button>
-          <h2 className="text-slate-900 dark:text-slate-100 text-base font-bold leading-tight tracking-[-0.015em] flex-1 text-center">
-            Perfil do Profissional
-          </h2>
-          <div className="flex items-center justify-end gap-2">
+      {user?.id === professionalId && role === 'provider' ? (
+        <div className="bg-white dark:bg-slate-900 sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800">
+          <ProviderHeader 
+            title="Perfil" 
+            onBack={() => onNavigate('dashboard')} 
+            onNavigate={onNavigate} 
+            rightActions={
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={toggleFavorite}
+                  className={`flex items-center justify-center rounded-lg h-10 w-10 bg-transparent p-0 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${isFavorite ? 'text-red-500' : 'text-slate-900 dark:text-slate-100'}`}
+                  title={isFavorite ? "Remover dos Favoritos" : "Adicionar aos Favoritos"}
+                >
+                  <span className="material-symbols-outlined" style={{ fontVariationSettings: isFavorite ? "'FILL' 1" : "'FILL' 0" }}>
+                    favorite
+                  </span>
+                </button>
+                <button 
+                  onClick={handleShare}
+                  className="flex items-center justify-center rounded-lg h-10 w-10 bg-transparent text-slate-900 dark:text-slate-100 p-0 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  title="Compartilhar"
+                >
+                  <span className="material-symbols-outlined">share</span>
+                </button>
+              </div>
+            }
+          />
+        </div>
+      ) : (
+        <div className="bg-white dark:bg-slate-900 sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800">
+          <div className="flex items-center p-4 pb-2 justify-between max-w-7xl mx-auto w-full">
             <button 
-              onClick={toggleFavorite}
-              className={`flex items-center justify-center rounded-lg h-10 w-10 bg-transparent p-0 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${isFavorite ? 'text-red-500' : 'text-slate-900 dark:text-slate-100'}`}
-              title={isFavorite ? "Remover dos Favoritos" : "Adicionar aos Favoritos"}
+              onClick={() => onNavigate('back')} 
+              className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-all shrink-0 z-[100]"
             >
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: isFavorite ? "'FILL' 1" : "'FILL' 0" }}>
-                favorite
-              </span>
+              <span className="material-symbols-outlined">arrow_back</span>
             </button>
-            {user?.id === professionalId && (
+            <h2 className="text-slate-900 dark:text-slate-100 text-base font-bold leading-tight tracking-[-0.015em] flex-1 text-center">
+              Perfil do Profissional
+            </h2>
+            <div className="flex items-center justify-end gap-2">
               <button 
-                onClick={() => onNavigate('userProfile')}
-                className="flex items-center gap-2 bg-primary text-white px-3 py-1.5 rounded-lg font-bold text-xs hover:brightness-110 active:scale-95 transition-all shadow-sm"
+                onClick={toggleFavorite}
+                className={`flex items-center justify-center rounded-lg h-10 w-10 bg-transparent p-0 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${isFavorite ? 'text-red-500' : 'text-slate-900 dark:text-slate-100'}`}
+                title={isFavorite ? "Remover dos Favoritos" : "Adicionar aos Favoritos"}
               >
-                <span className="material-symbols-outlined text-[18px]">edit</span>
-                <span className="hidden sm:inline">Editar Perfil</span>
+                <span className="material-symbols-outlined" style={{ fontVariationSettings: isFavorite ? "'FILL' 1" : "'FILL' 0" }}>
+                  favorite
+                </span>
               </button>
-            )}
-            <button 
-              onClick={handleShare}
-              className="flex items-center justify-center rounded-lg h-10 w-10 bg-transparent text-slate-900 dark:text-slate-100 p-0 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              title="Compartilhar"
-            >
-              <span className="material-symbols-outlined">share</span>
-            </button>
-            <button onClick={() => onNavigate('home')} className="flex items-center justify-center rounded-lg h-10 w-10 bg-transparent text-slate-900 dark:text-slate-100 p-0 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="Início">
-              <span className="material-symbols-outlined">home</span>
-            </button>
+              <button 
+                onClick={handleShare}
+                className="flex items-center justify-center rounded-lg h-10 w-10 bg-transparent text-slate-900 dark:text-slate-100 p-0 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                title="Compartilhar"
+              >
+                <span className="material-symbols-outlined">share</span>
+              </button>
+              <button onClick={() => onNavigate('home')} className="flex items-center justify-center rounded-lg h-10 w-10 bg-transparent text-slate-900 dark:text-slate-100 p-0 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="Início">
+                <span className="material-symbols-outlined">home</span>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <main className="flex-1 overflow-y-auto pb-24">
         {/* Hero Section / Gallery */}

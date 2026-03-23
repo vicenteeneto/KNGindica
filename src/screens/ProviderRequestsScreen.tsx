@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
 import { formatCurrency, maskCurrency } from '../lib/formatters';
+import { ProviderHeader } from '../components/ProviderHeader';
 
 type Tab = 'Novos' | 'Orçados' | 'Aprovados' | 'Agendados' | 'Finalizados';
 
@@ -298,34 +299,30 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
     <div className="flex flex-col min-h-screen bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
       <div className="relative flex min-h-screen w-full flex-col bg-white dark:bg-slate-900 shadow-xl overflow-x-hidden">
 
-        {/* Header */}
-        <div className="flex items-center bg-white dark:bg-slate-900 p-4 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10 transition-colors">
-          <button onClick={() => onNavigate('dashboard')} className="text-primary flex size-10 shrink-0 items-center justify-center cursor-pointer rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-            <span className="material-symbols-outlined text-[24px]">arrow_back</span>
-          </button>
-          <h2 className="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight flex-1 ml-2">Serviços</h2>
-          <button onClick={() => onNavigate('notifications')} className="text-slate-500 dark:text-slate-400 flex size-10 shrink-0 items-center justify-center cursor-pointer rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-            <span className="material-symbols-outlined text-[24px]">notifications</span>
-          </button>
-        </div>
-
+      {/* Header & Tabs */}
+      <div className="sticky top-0 z-40 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+        <ProviderHeader 
+          title="Serviços" 
+          onBack={() => onNavigate('dashboard')} 
+          onNavigate={onNavigate} 
+        />
+        
         {/* Status Tabs */}
-        <div className="bg-white dark:bg-slate-900 sticky top-[73px] z-10 transition-colors">
-          <div className="flex justify-center border-b border-slate-200 dark:border-slate-800 px-4 overflow-x-auto no-scrollbar gap-6 sm:gap-12">
-            {tabs.map(tab => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`flex flex-col items-center justify-center border-b-2 pb-3 pt-4 whitespace-nowrap transition-colors ${activeTab === tab
-                  ? 'border-primary text-primary font-bold'
-                  : 'border-transparent text-slate-500 dark:text-slate-400 font-medium hover:text-slate-700 dark:hover:text-slate-300'
-                  }`}
-              >
-                <p className="text-sm">{tab}</p>
-              </button>
-            ))}
-          </div>
+        <div className="flex justify-center px-4 overflow-x-auto no-scrollbar gap-6 sm:gap-12 max-w-7xl mx-auto">
+          {tabs.map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`flex flex-col items-center justify-center border-b-2 pb-3 pt-4 whitespace-nowrap transition-colors ${activeTab === tab
+                ? 'border-primary text-primary font-bold'
+                : 'border-transparent text-slate-500 dark:text-slate-400 font-medium hover:text-slate-700 dark:hover:text-slate-300'
+                }`}
+            >
+              <p className="text-sm">{tab}</p>
+            </button>
+          ))}
         </div>
+      </div>
 
       {/* Budget Modal */}
       {budgetModal.isOpen && (
@@ -464,7 +461,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
       )}
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-4 w-full">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-4 w-full max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-slate-900 dark:text-white text-lg font-bold">
               {loading ? 'Carregando...' : `${activeTab} (${requests.length})`}

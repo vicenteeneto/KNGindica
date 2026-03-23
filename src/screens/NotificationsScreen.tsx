@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import { useNotifications } from '../NotificationContext';
 import { usePushNotifications } from '../hooks/usePushNotifications';
 import { formatCurrency } from '../lib/formatters';
+import { ProviderHeader } from '../components/ProviderHeader';
 
 interface Notification {
   id: string;
@@ -167,36 +168,66 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
   return (
     <div className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
       {/* Header Section */}
-      <header className="sticky top-0 z-10 bg-white dark:bg-background-dark border-b border-slate-200 dark:border-slate-800">
-        <div className="flex items-center px-4 h-16 max-w-2xl mx-auto w-full gap-4">
-          <button 
-            onClick={() => {
+      {role === 'provider' ? (
+        <div className="sticky top-0 z-40 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+          <ProviderHeader 
+            title="Notificações" 
+            onBack={() => {
               if (params?.returnTo) {
                 onNavigate(params.returnTo);
               } else {
-                onNavigate(role === 'provider' ? 'dashboard' : 'userProfile');
+                onNavigate('dashboard');
               }
             }}
-            className="flex items-center justify-center size-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          >
-            <span className="material-symbols-outlined text-slate-700 dark:text-slate-300">arrow_back</span>
-          </button>
-          <h1 className="text-xl font-bold flex-1">Notificações</h1>
-          <button onClick={handleClearAll} className="text-primary font-medium text-sm px-2">Limpar tudo</button>
+            onNavigate={onNavigate} 
+            rightActions={
+              <button onClick={handleClearAll} className="text-primary font-bold text-sm px-4 hover:brightness-110 transition-all uppercase tracking-widest italic">
+                Limpar tudo
+              </button>
+            }
+          />
+          {/* Tab Navigation */}
+          <div className="flex px-4 max-w-7xl mx-auto w-full">
+            <button onClick={() => setActiveTab('all')} className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'all' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'}`}>
+              Todas
+            </button>
+            <button onClick={() => setActiveTab('unread')} className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'unread' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'}`}>
+              Não lidas ({notifications.filter(n => !n.is_read).length})
+            </button>
+          </div>
         </div>
-        {/* Tab Navigation */}
-        <div className="flex px-4 max-w-2xl mx-auto w-full">
-          <button onClick={() => setActiveTab('all')} className={`flex-1 py-3 text-sm font-bold border-b-2 ${activeTab === 'all' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'}`}>
-            Todas
-          </button>
-          <button onClick={() => setActiveTab('unread')} className={`flex-1 py-3 text-sm font-bold border-b-2 ${activeTab === 'unread' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'}`}>
-            Não lidas ({notifications.filter(n => !n.is_read).length})
-          </button>
-        </div>
-      </header>
+      ) : (
+        <header className="sticky top-0 z-10 bg-white dark:bg-background-dark border-b border-slate-200 dark:border-slate-800">
+          <div className="flex items-center px-4 h-16 max-w-7xl mx-auto w-full gap-4">
+            <button 
+              onClick={() => {
+                if (params?.returnTo) {
+                  onNavigate(params.returnTo);
+                } else {
+                  onNavigate('userProfile');
+                }
+              }}
+              className="flex items-center justify-center size-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <span className="material-symbols-outlined text-slate-700 dark:text-slate-300">arrow_back</span>
+            </button>
+            <h1 className="text-xl font-bold flex-1">Notificações</h1>
+            <button onClick={handleClearAll} className="text-primary font-medium text-sm px-2">Limpar tudo</button>
+          </div>
+          {/* Tab Navigation */}
+          <div className="flex px-4 max-w-7xl mx-auto w-full">
+            <button onClick={() => setActiveTab('all')} className={`flex-1 py-3 text-sm font-bold border-b-2 ${activeTab === 'all' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'}`}>
+              Todas
+            </button>
+            <button onClick={() => setActiveTab('unread')} className={`flex-1 py-3 text-sm font-bold border-b-2 ${activeTab === 'unread' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'}`}>
+              Não lidas ({notifications.filter(n => !n.is_read).length})
+            </button>
+          </div>
+        </header>
+      )}
 
       {/* Main Content */}
-      <main className="flex-1 max-w-2xl mx-auto w-full pb-24">
+      <main className="flex-1 max-w-7xl mx-auto w-full pb-24">
         {/* Push Notifications Opt-in */}
         {(showPushBanner && push.permission !== 'granted') && (
           <section className="px-4 py-4 relative">

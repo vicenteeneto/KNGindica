@@ -4,6 +4,7 @@ import { useAuth } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
 import { formatCurrency } from '../lib/formatters';
 import { supabase } from '../lib/supabase';
+import { ProviderHeader } from '../components/ProviderHeader';
 
 export default function ProviderDashboardScreen({ onNavigate }: NavigationProps) {
   const { logout, profile, user } = useAuth();
@@ -178,52 +179,38 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
   };
 
   const renderHeader = () => (
-    <header className="flex items-center bg-white dark:bg-slate-900 p-3 border-b border-slate-100 dark:border-slate-800 justify-between sticky top-0 z-10 transition-all">
-      <div className="flex items-center">
-        <button 
-          onClick={() => onNavigate('home')}
-          className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-all mr-3 shrink-0"
-          title="Voltar para Home"
-        >
-          <span className="material-symbols-outlined">arrow_back</span>
-        </button>
-        <div className="flex size-9 shrink-0 items-center overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" onClick={() => onNavigate('profile', { professionalId: user?.id })}>
-          <div className="bg-center bg-no-repeat aspect-square bg-cover size-full cursor-pointer" style={{ backgroundImage: `url('${profile?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"}')` }}></div>
+    <ProviderHeader 
+      title="Dashboard" 
+      onBack={() => onNavigate('home')} 
+      onNavigate={onNavigate} 
+      rightActions={
+        <div className="flex gap-1.5 mt-1 sm:mt-0">
+          <button onClick={() => onNavigate('chatList')} className="flex size-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 relative hover:bg-slate-200 dark:hover:bg-slate-700 transition-all group" title="Mensagens">
+            <span className="material-symbols-outlined text-[22px] group-hover:scale-110 transition-transform">chat</span>
+            {unreadMessages > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-5 min-w-5 px-1 items-center justify-center rounded-full bg-primary text-[10px] font-black text-white border-2 border-white dark:border-slate-900 shadow-lg animate-bounce">
+                {unreadMessages > 9 ? '9+' : unreadMessages}
+              </span>
+            )}
+          </button>
+          <button onClick={() => onNavigate('notifications', { returnTo: 'dashboard' })} className="flex size-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 relative hover:bg-slate-200 dark:hover:bg-slate-700 transition-all group" title="Notificações">
+            <span className="material-symbols-outlined text-[22px] group-hover:scale-110 transition-transform">notifications</span>
+            {unreadNotifications > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-5 min-w-5 px-1 items-center justify-center rounded-full bg-red-500 text-[10px] font-black text-white border-2 border-white dark:border-slate-900 shadow-lg animate-bounce">
+                {unreadNotifications > 9 ? '9+' : unreadNotifications}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={handleLogout}
+            className="flex size-10 items-center justify-center rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all group"
+            title="Sair"
+          >
+            <span className="material-symbols-outlined text-[22px] group-hover:rotate-12 transition-transform">logout</span>
+          </button>
         </div>
-      </div>
-      <div className="flex flex-col ml-3 flex-1 cursor-pointer">
-        <h2 className="text-slate-900 dark:text-slate-100 text-base font-black leading-tight tracking-tight">Dashboard</h2>
-        <div className="flex items-center gap-1">
-          <span className="size-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-          <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest italic">Modo Prestador</span>
-        </div>
-      </div>
-      <div className="flex gap-1.5 mt-1 sm:mt-0">
-        <button onClick={() => onNavigate('chatList')} className="flex size-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 relative hover:bg-slate-200 dark:hover:bg-slate-700 transition-all group" title="Mensagens">
-          <span className="material-symbols-outlined text-[22px] group-hover:scale-110 transition-transform">chat</span>
-          {unreadMessages > 0 && (
-            <span className="absolute -top-1 -right-1 flex h-5 min-w-5 px-1 items-center justify-center rounded-full bg-primary text-[10px] font-black text-white border-2 border-white dark:border-slate-900 shadow-lg animate-bounce">
-              {unreadMessages > 9 ? '9+' : unreadMessages}
-            </span>
-          )}
-        </button>
-        <button onClick={() => onNavigate('notifications', { returnTo: 'dashboard' })} className="flex size-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 relative hover:bg-slate-200 dark:hover:bg-slate-700 transition-all group" title="Notificações">
-          <span className="material-symbols-outlined text-[22px] group-hover:scale-110 transition-transform">notifications</span>
-          {unreadNotifications > 0 && (
-            <span className="absolute -top-1 -right-1 flex h-5 min-w-5 px-1 items-center justify-center rounded-full bg-red-500 text-[10px] font-black text-white border-2 border-white dark:border-slate-900 shadow-lg animate-bounce">
-              {unreadNotifications > 9 ? '9+' : unreadNotifications}
-            </span>
-          )}
-        </button>
-        <button
-          onClick={handleLogout}
-          className="flex size-10 items-center justify-center rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all group"
-          title="Sair"
-        >
-          <span className="material-symbols-outlined text-[22px] group-hover:rotate-12 transition-transform">logout</span>
-        </button>
-      </div>
-    </header>
+      }
+    />
   );
 
   const getGreetingName = () => {

@@ -3,6 +3,7 @@ import { NavigationProps } from '../types';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
 import { useNotifications } from '../NotificationContext';
+import { ProviderHeader } from '../components/ProviderHeader';
 
 export default function ChatListScreen({ onNavigate }: NavigationProps) {
   const { user, role } = useAuth();
@@ -93,24 +94,46 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
   return (
     <div className="flex flex-col min-h-screen w-full bg-white dark:bg-slate-900 shadow-xl relative font-display text-slate-900 dark:text-slate-100">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-4">
-        <div className="flex items-center justify-between max-w-7xl mx-auto w-full">
-          <div className="flex items-center gap-3">
-            <button onClick={() => onNavigate('home')} className="material-symbols-outlined text-slate-600 dark:text-slate-400 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 p-1 rounded-full transition-colors">arrow_back</button>
-            <h1 className="text-xl font-bold tracking-tight">Mensagens</h1>
+      {role === 'provider' ? (
+        <div className="sticky top-0 z-40 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+          <ProviderHeader 
+            title="Mensagens" 
+            onBack={() => onNavigate('dashboard')} 
+            onNavigate={onNavigate} 
+            rightActions={
+              <button className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                <span className="material-symbols-outlined text-slate-600 dark:text-slate-400">search</span>
+              </button>
+            }
+          />
+          {/* Categories / Tabs */}
+          <div className="flex gap-6 mt-2 overflow-x-auto no-scrollbar max-w-7xl mx-auto w-full px-4 md:px-0">
+            <button onClick={() => setActiveTab('Todas')} className={`pb-2 border-b-2 font-semibold text-sm whitespace-nowrap transition-colors ${activeTab === 'Todas' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700'}`}>Todas</button>
+            <button onClick={() => setActiveTab('Serviços')} className={`pb-2 border-b-2 font-semibold text-sm whitespace-nowrap transition-colors ${activeTab === 'Serviços' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700'}`}>Serviços</button>
+            <button onClick={() => setActiveTab('Suporte')} className={`pb-2 border-b-2 font-semibold text-sm whitespace-nowrap transition-colors ${activeTab === 'Suporte' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700'}`}>Suporte</button>
+            <button onClick={() => setActiveTab('Arquivadas')} className={`pb-2 border-b-2 font-semibold text-sm whitespace-nowrap transition-colors ${activeTab === 'Arquivadas' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700'}`}>Arquivadas</button>
           </div>
-          <button className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-            <span className="material-symbols-outlined text-slate-600 dark:text-slate-400">search</span>
-          </button>
         </div>
-        {/* Categories / Tabs */}
-        <div className="flex gap-6 mt-4 overflow-x-auto no-scrollbar max-w-7xl mx-auto w-full px-4 md:px-0">
-          <button onClick={() => setActiveTab('Todas')} className={`pb-2 border-b-2 font-semibold text-sm whitespace-nowrap transition-colors ${activeTab === 'Todas' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700'}`}>Todas</button>
-          <button onClick={() => setActiveTab('Serviços')} className={`pb-2 border-b-2 font-semibold text-sm whitespace-nowrap transition-colors ${activeTab === 'Serviços' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700'}`}>Serviços</button>
-          <button onClick={() => setActiveTab('Suporte')} className={`pb-2 border-b-2 font-semibold text-sm whitespace-nowrap transition-colors ${activeTab === 'Suporte' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700'}`}>Suporte</button>
-          <button onClick={() => setActiveTab('Arquivadas')} className={`pb-2 border-b-2 font-semibold text-sm whitespace-nowrap transition-colors ${activeTab === 'Arquivadas' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700'}`}>Arquivadas</button>
-        </div>
-      </header>
+      ) : (
+        <header className="sticky top-0 z-10 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-4">
+          <div className="flex items-center justify-between max-w-7xl mx-auto w-full">
+            <div className="flex items-center gap-3">
+              <button onClick={() => onNavigate('home')} className="material-symbols-outlined text-slate-600 dark:text-slate-400 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 p-1 rounded-full transition-colors">arrow_back</button>
+              <h1 className="text-xl font-bold tracking-tight">Mensagens</h1>
+            </div>
+            <button className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+              <span className="material-symbols-outlined text-slate-600 dark:text-slate-400">search</span>
+            </button>
+          </div>
+          {/* Categories / Tabs */}
+          <div className="flex gap-6 mt-4 overflow-x-auto no-scrollbar max-w-7xl mx-auto w-full px-4 md:px-0">
+            <button onClick={() => setActiveTab('Todas')} className={`pb-2 border-b-2 font-semibold text-sm whitespace-nowrap transition-colors ${activeTab === 'Todas' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700'}`}>Todas</button>
+            <button onClick={() => setActiveTab('Serviços')} className={`pb-2 border-b-2 font-semibold text-sm whitespace-nowrap transition-colors ${activeTab === 'Serviços' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700'}`}>Serviços</button>
+            <button onClick={() => setActiveTab('Suporte')} className={`pb-2 border-b-2 font-semibold text-sm whitespace-nowrap transition-colors ${activeTab === 'Suporte' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700'}`}>Suporte</button>
+            <button onClick={() => setActiveTab('Arquivadas')} className={`pb-2 border-b-2 font-semibold text-sm whitespace-nowrap transition-colors ${activeTab === 'Arquivadas' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700'}`}>Arquivadas</button>
+          </div>
+        </header>
+      )}
 
       {/* Inbox List */}
       <main className="flex-1 overflow-y-auto pb-24 md:pb-8">

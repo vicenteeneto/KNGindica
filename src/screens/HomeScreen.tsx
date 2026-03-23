@@ -609,8 +609,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
               {user && (
                 <div className="flex items-center gap-2">
                   <div className="hidden sm:flex flex-col items-end mr-1">
-                    <span className="text-[10px] font-black text-primary uppercase tracking-widest italic leading-none">Modo</span>
-                    <span className="text-[10px] font-bold text-white uppercase tracking-tight leading-none">Cliente</span>
+                    <span className="text-[10px] font-black text-white uppercase tracking-widest italic leading-none">Cliente</span>
                   </div>
                   <button 
                     onClick={() => onNavigate('userProfile')} 

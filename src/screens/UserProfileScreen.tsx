@@ -628,7 +628,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold tracking-tight text-center">{displayUser.name}</h1>
             <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest italic shadow-sm ${role === 'provider' ? 'bg-emerald-500 text-white' : 'bg-primary text-white'}`}>
-              MODO {role === 'provider' ? 'PRESTADOR' : 'CLIENTE'}
+              {role === 'provider' ? 'PRESTADOR' : 'CLIENTE'}
             </span>
           </div>
           <p className="text-slate-500 dark:text-slate-400 text-sm mb-1">{displayUser.email}</p>

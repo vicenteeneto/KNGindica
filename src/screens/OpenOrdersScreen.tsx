@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
 import { formatCurrency } from '../lib/formatters';
+import { ProviderHeader } from '../components/ProviderHeader';
 
 export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
   const { user } = useAuth();
@@ -114,39 +115,38 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
 
   return (
     <div className="bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
-      {/* Header */}
-      <header className="sticky top-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
-        <div className="flex items-center p-4 justify-between max-w-4xl mx-auto w-full">
-          <button 
-            onClick={() => onNavigate('dashboard')}
-            className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-all shrink-0"
-          >
-            <span className="material-symbols-outlined">arrow_back</span>
-          </button>
-          <h2 className="text-xl font-black tracking-tighter italic uppercase text-primary">Freelance</h2>
-          <button onClick={fetchOrders} className="size-10 flex items-center justify-center text-slate-400 hover:text-primary transition-colors">
-            <span className="material-symbols-outlined">refresh</span>
-          </button>
-        </div>
+      <div className="sticky top-0 z-40 bg-white dark:bg-slate-900">
+        <ProviderHeader 
+          title="Freelance" 
+          onBack={() => onNavigate('dashboard')} 
+          onNavigate={onNavigate} 
+          rightActions={
+            <button onClick={fetchOrders} className="size-10 flex items-center justify-center text-slate-400 hover:text-primary transition-colors">
+              <span className="material-symbols-outlined">refresh</span>
+            </button>
+          }
+        />
         
         {/* Tabs */}
-        <div className="flex border-b border-slate-200 dark:border-slate-800">
-          <button 
-            onClick={() => setActiveTab('available')}
-            className={`flex-1 py-3 text-sm font-bold tracking-widest uppercase transition-colors ${activeTab === 'available' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600'}`}
-          >
-            Disponíveis
-          </button>
-          <button 
-            onClick={() => setActiveTab('bidded')}
-            className={`flex-1 py-3 text-sm font-bold tracking-widest uppercase transition-colors ${activeTab === 'bidded' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600'}`}
-          >
-            Meus Lances
-          </button>
+        <div className="border-b border-slate-200 dark:border-slate-800">
+          <div className="flex max-w-7xl mx-auto">
+            <button 
+              onClick={() => setActiveTab('available')}
+              className={`flex-1 py-3 text-sm font-bold tracking-widest uppercase transition-colors ${activeTab === 'available' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600'}`}
+            >
+              Disponíveis
+            </button>
+            <button 
+              onClick={() => setActiveTab('bidded')}
+              className={`flex-1 py-3 text-sm font-bold tracking-widest uppercase transition-colors ${activeTab === 'bidded' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600'}`}
+            >
+              Meus Lances
+            </button>
+          </div>
         </div>
-      </header>
+      </div>
 
-      <main className="flex-1 max-w-4xl mx-auto w-full p-4 lg:p-8 space-y-4">
+      <main className="flex-1 max-w-7xl mx-auto w-full p-4 lg:p-8 space-y-4">
         {orders.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="size-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">

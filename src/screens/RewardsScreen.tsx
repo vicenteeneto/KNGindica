@@ -3,9 +3,10 @@ import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
+import { ProviderHeader } from '../components/ProviderHeader';
 
 export default function RewardsScreen({ onNavigate }: NavigationProps) {
-  const { user, profile, refreshProfile } = useAuth();
+  const { user, profile, refreshProfile, role } = useAuth();
   const { showToast, showModal } = useNotifications();
   
   const [history, setHistory] = useState<any[]>([]);
@@ -136,20 +137,28 @@ export default function RewardsScreen({ onNavigate }: NavigationProps) {
     <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
       
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={() => onNavigate('back')}
-            className="p-2 -ml-2 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
-          >
-            <span className="material-symbols-outlined">arrow_back</span>
-          </button>
-          <h1 className="font-bold text-lg">Indique e Ganhe</h1>
-        </div>
-      </header>
+      {role === 'provider' ? (
+        <ProviderHeader 
+          title="Indique e Ganhe" 
+          onBack={() => onNavigate('dashboard')} 
+          onNavigate={onNavigate} 
+        />
+      ) : (
+        <header className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => onNavigate('back')}
+              className="p-2 -ml-2 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
+            >
+              <span className="material-symbols-outlined">arrow_back</span>
+            </button>
+            <h1 className="font-bold text-lg">Indique e Ganhe</h1>
+          </div>
+        </header>
+      )}
 
       <main className="flex-1 overflow-y-auto w-full p-4 pb-24">
-        <div className="max-w-2xl mx-auto space-y-6">
+        <div className="max-w-7xl mx-auto space-y-6">
           
           {/* Points Card */}
           <div className="bg-gradient-to-br from-primary to-orange-600 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden group">
