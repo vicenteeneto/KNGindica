@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { NavigationProps, Professional, Screen } from '../types';
 import { professionals as mockProfessionals } from '../data/mockData';
 import { requestNotificationPermission } from '../lib/OneSignalService';
@@ -21,8 +21,6 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
   const [sortBy, setSortBy] = useState<'price' | 'rating' | 'distance' | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [dbProfessionals, setDbProfessionals] = useState<Professional[]>([]);
-  const [filteredProfessionals, setFilteredProfessionals] = useState<Professional[]>([]);
-  const [dynamicCategories, setDynamicCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCity, setSelectedCity] = useState(initialParams?.filters?.city || '');
 
@@ -58,9 +56,6 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
           }));
           setDbProfessionals(mapped);
 
-          // Extract dynamic categories
-          const cats = Array.from(new Set(mapped.map(p => p.category))).filter(c => c && c !== 'Serviços Gerais');
-          setDynamicCategories(cats);
         }
       } catch (err) {
         console.error("Erro ao carregar provedores:", err);
@@ -72,7 +67,11 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
     fetchProviders();
   }, []);
 
-  useEffect(() => {
+  const dynamicCategories = useMemo(() => {
+    return Array.from(new Set(dbProfessionals.map(p => p.category))).filter(c => c && c !== 'Serviços Gerais');
+  }, [dbProfessionals]);
+
+  const filteredProfessionals = useMemo(() => {
     let result = dbProfessionals.length > 0 ? dbProfessionals : [];
     const filters = initialParams?.filters;
 
@@ -125,7 +124,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
       });
     }
 
-    setFilteredProfessionals(result);
+    return result;
   }, [searchQuery, selectedCategory, sortBy, sortOrder, dbProfessionals, initialParams, selectedCity]);
 
   const handleSort = (type: 'price' | 'rating' | 'distance') => {
