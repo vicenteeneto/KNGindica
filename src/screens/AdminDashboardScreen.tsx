@@ -1825,6 +1825,9 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
   const renderSettingsTab = () => (
     <div className="animate-in fade-in duration-500 space-y-8">
       <div>
+        <button onClick={() => setActiveTab('dashboard')} className="flex items-center gap-1 text-slate-500 hover:text-primary transition-colors text-sm mb-2 font-medium">
+          <span className="material-symbols-outlined text-[16px]">arrow_back</span> Voltar ao Dashboard
+        </button>
         <h2 className="text-xl font-bold">Configurações Globais</h2>
         <p className="text-sm text-slate-500 dark:text-slate-400">Ajuste taxas, categorias e parâmetros gerais de funcionamento</p>
       </div>
@@ -1963,6 +1966,9 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
   const renderMaintenanceTab = () => (
     <div className="animate-in fade-in duration-500 space-y-8">
       <div>
+        <button onClick={() => setActiveTab('dashboard')} className="flex items-center gap-1 text-slate-500 hover:text-primary transition-colors text-sm mb-2 font-medium">
+          <span className="material-symbols-outlined text-[16px]">arrow_back</span> Voltar ao Dashboard
+        </button>
         <h2 className="text-xl font-bold">Zeladoria e Manutenção</h2>
         <p className="text-sm text-slate-500">Ferramentas para limpeza de dados e gestão de experiência inicial</p>
       </div>
@@ -2767,19 +2773,51 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
     </div>
   );
 
-  const renderReferralsTab = () => (
-    <div className="animate-in fade-in duration-500 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white">Auditoria de Indicações</h2>
-          <p className="text-sm text-slate-500 font-medium">Controle de quem indicou quem e gerenciamento de pontos.</p>
+  const renderReferralsTab = () => {
+    const totalPoints = referralsHistory.reduce((acc, curr) => acc + (curr.points_given || 0), 0);
+    
+    return (
+      <div className="animate-in fade-in duration-500 space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <button onClick={() => setActiveTab('dashboard')} className="flex items-center gap-1 text-slate-500 hover:text-primary transition-colors text-sm mb-2 font-medium">
+              <span className="material-symbols-outlined text-[16px]">arrow_back</span> Voltar ao Dashboard
+            </button>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white">Auditoria de Indicações</h2>
+            <p className="text-sm text-slate-500 font-medium">Controle de quem indicou quem e gerenciamento de pontos.</p>
+          </div>
+          <div className="flex items-center gap-2">
+             <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-xs font-bold tracking-widest uppercase">
+               {referralsHistory.length} INDICAÇÕES TOTAIS
+             </span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-           <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-xs font-bold tracking-widest uppercase">
-             {referralsHistory.length} INDICAÇÕES TOTAIS
-           </span>
+
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm border-t-4 border-t-primary">
+            <div className="flex items-center gap-3">
+              <div className="bg-primary/10 text-primary p-2 rounded-lg">
+                <span className="material-symbols-outlined">share</span>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Total de Indicações</p>
+                <h3 className="text-2xl font-black">{referralsHistory.length}</h3>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm border-t-4 border-t-green-500">
+            <div className="flex items-center gap-3">
+              <div className="bg-green-100 dark:bg-green-900/30 text-green-600 p-2 rounded-lg">
+                <span className="material-symbols-outlined">stars</span>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Pontos Distribuídos</p>
+                <h3 className="text-2xl font-black">{totalPoints} pts</h3>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
 
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
@@ -2845,10 +2883,40 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
       </div>
     </div>
   );
+  };
 
-  const renderChatAuditTab = () => (
-    <div className="animate-in fade-in duration-500 space-y-6">
-      <h2 className="text-xl font-bold">Auditoria de Conversas</h2>
+  const renderChatAuditTab = () => {
+    const [searchTerm, setSearchTerm] = useState('');
+    
+    const filteredRooms = chatRoomsList.filter(room => {
+      const clientName = (room.client?.full_name || '').toLowerCase();
+      const providerName = (room.provider?.full_name || '').toLowerCase();
+      const requestTitle = (room.request?.title || '').toLowerCase();
+      const term = searchTerm.toLowerCase();
+      return clientName.includes(term) || providerName.includes(term) || requestTitle.includes(term);
+    });
+
+    return (
+      <div className="animate-in fade-in duration-500 space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <button onClick={() => setActiveTab('dashboard')} className="flex items-center gap-1 text-slate-500 hover:text-primary transition-colors text-sm mb-2 font-medium">
+              <span className="material-symbols-outlined text-[16px]">arrow_back</span> Voltar ao Dashboard
+            </button>
+            <h2 className="text-xl font-bold">Auditoria de Conversas</h2>
+            <p className="text-sm text-slate-500 font-medium">Monitore o conteúdo das interações entre usuários</p>
+          </div>
+          <div className="relative w-full md:w-64">
+            <span className="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-xl pointer-events-none">search</span>
+            <input
+              type="text"
+              placeholder="Buscar por nome ou pedido..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+            />
+          </div>
+        </div>
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -2859,10 +2927,10 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-            {chatRoomsList.length === 0 ? (
-              <tr><td colSpan={3} className="p-6 text-center text-slate-500">Nenhuma sala de chat ativa encontrada.</td></tr>
+            {filteredRooms.length === 0 ? (
+              <tr><td colSpan={3} className="p-6 text-center text-slate-500">Nenhuma sala de chat encontrada para sua busca.</td></tr>
             ) : (
-              chatRoomsList.map(room => (
+              filteredRooms.map(room => (
                 <tr key={room.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                   <td className="px-6 py-4">
                     <p className="font-bold text-sm">{room.request?.title || 'Conversa Direta'}</p>
@@ -2890,8 +2958,8 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           </tbody>
         </table>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderTabContent = () => {
     switch (activeTab) {
