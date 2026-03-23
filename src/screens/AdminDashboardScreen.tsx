@@ -4,6 +4,7 @@ import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
 import { useNotifications } from '../NotificationContext';
 import { formatCurrency, maskCurrency } from '../lib/formatters';
+import { CityAutocomplete } from '../components/CityAutocomplete';
 
 interface AdminProps extends NavigationProps {
   activeTab: string;
@@ -55,6 +56,8 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
     created_at: new Date().toISOString().split('T')[0]
   });
   const [maintenanceLoading, setMaintenanceLoading] = useState(false);
+  const [isFetchingCep, setIsFetchingCep] = useState(false);
+  const [activeCities, setActiveCities] = useState<string[]>([]);
   const [providerSearchTerm, setProviderSearchTerm] = useState('');
   const [reviewerSearchTerm, setReviewerSearchTerm] = useState('');
   const [showProviderResults, setShowProviderResults] = useState(false);
@@ -98,6 +101,46 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
     'content_cut', 'imagesearch_roller', 'construction', 'engineering', 'architecture', 'pets', 'camera_alt',
     'fitness_center', 'school', 'spa', 'local_florist', 'local_dining', 'local_pizza', 'child_care', 'sports_esports'
   ];
+
+  const formatPhone = (value: string) => {
+    const v = value.replace(/\D/g, '');
+    if (v.length <= 10) {
+      return v.replace(/^(\d{2})(\d)/g, '($1) $2').replace(/(\d{4})(\d)/, '$1-$2').slice(0, 14);
+    }
+    return v.replace(/^(\d{2})(\d)/g, '($1) $2').replace(/(\d{5})(\d)/, '$1-$2').slice(0, 15);
+  };
+
+  const formatCEP = (value: string) => {
+    return value.replace(/\D/g, '').replace(/^(\d{5})(\d)/, '$1-$2').slice(0, 9);
+  };
+
+  const handleCepChange = async (cepValue: string) => {
+    const formattedCep = formatCEP(cepValue);
+    const digits = formattedCep.replace(/\D/g, '');
+    setUserForm(prev => ({ ...prev, cep: formattedCep }));
+
+    if (digits.length === 8) {
+      setIsFetchingCep(true);
+      try {
+        const response = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
+        const data = await response.json();
+        
+        if (!data.erro) {
+          setUserForm(prev => ({
+            ...prev,
+            city: data.localidade || prev.city,
+            state: data.uf || prev.state,
+            neighborhood: data.bairro || prev.neighborhood,
+            street: data.logradouro || prev.street
+          }));
+        }
+      } catch (error) {
+        console.error("Erro ao buscar CEP:", error);
+      } finally {
+        setIsFetchingCep(false);
+      }
+    }
+  };
 
   const handleUpdateUserStatus = async (userId: string, status: string) => {
     try {
@@ -642,6 +685,9 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
       const allUsers = (profiles || []).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       setRecentUsersList(allUsers);
+
+      const uniqueCities = Array.from(new Set((profiles || []).map(p => p.city))).filter(Boolean) as string[];
+      setActiveCities(uniqueCities);
 
       // Calculate Growth Data for the last 7 days
       const gClients = [0,0,0,0,0,0,0];
@@ -1324,8 +1370,9 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             <thead>
               <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Prestador</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Serviços / Ganhos</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Plano</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Especialidade</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Contato</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Localidade</th>
                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Avaliação</th>
                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Ações</th>
@@ -1333,13 +1380,13 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {loading ? (
-                <tr><td colSpan={6} className="p-6 text-center text-slate-500">Carregando prestadores...</td></tr>
+                <tr><td colSpan={7} className="p-6 text-center text-slate-500">Carregando prestadores...</td></tr>
               ) : providersList.filter(p =>
                   p.full_name?.toLowerCase().includes(providerSearch.toLowerCase()) ||
                   p.email?.toLowerCase().includes(providerSearch.toLowerCase()) ||
                   p.service_category?.toLowerCase().includes(providerSearch.toLowerCase())
                 ).length === 0 ? (
-                <tr><td colSpan={6} className="p-6 text-center text-slate-500">Nenhum prestador encontrado.</td></tr>
+                <tr><td colSpan={7} className="p-6 text-center text-slate-500">Nenhum prestador encontrado.</td></tr>
               ) : (
                 providersList
                   .filter(p =>
@@ -1373,7 +1420,12 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       <p className="text-xs text-slate-500">{provider.completed_services || 0} concluídos • <span className="text-green-600 font-semibold">{provider.earnings ? formatCurrency(provider.earnings) : 'R$ 0,00'}</span></p>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold uppercase rounded-full">Básico</span>
+                      <p className="text-sm font-medium text-slate-900 dark:text-white truncate max-w-[150px]">{provider.phone || 'Sem telefone'}</p>
+                      <p className="text-[10px] text-slate-500 uppercase font-bold tracking-tight">WhatsApp</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-sm font-medium text-slate-900 dark:text-white truncate max-w-[150px]">{provider.city ? `${provider.city}/${provider.state || '??'}` : 'Local não informado'}</p>
+                      <p className="text-xs text-slate-500">{provider.neighborhood || 'Bairro n/i'}</p>
                     </td>
                     <td className="px-6 py-4">
                       {provider.status === 'blocked' ? (
@@ -1512,19 +1564,21 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             <thead>
               <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Cliente</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Contato / Cadastro</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Contato</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Localidade</th>
+                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Cadastro</th>
                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {loading ? (
-                <tr><td colSpan={4} className="p-6 text-center text-slate-500">Carregando clientes...</td></tr>
+                <tr><td colSpan={6} className="p-6 text-center text-slate-500">Carregando clientes...</td></tr>
               ) : clientsList.filter(c =>
                   c.full_name?.toLowerCase().includes(clientSearch.toLowerCase()) ||
                   c.email?.toLowerCase().includes(clientSearch.toLowerCase())
                 ).length === 0 ? (
-                <tr><td colSpan={4} className="p-6 text-center text-slate-500">Nenhum cliente encontrado para sua busca.</td></tr>
+                <tr><td colSpan={6} className="p-6 text-center text-slate-500">Nenhum cliente encontrado para sua busca.</td></tr>
               ) : (
                 clientsList
                   .filter(c =>
@@ -1546,8 +1600,15 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-sm font-medium text-slate-900 dark:text-white">{client.email}</p>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{new Date(client.created_at).toLocaleDateString('pt-BR')}</p>
+                      <p className="text-sm font-medium text-slate-900 dark:text-white truncate max-w-[150px]">{client.email || 'S/E'}</p>
+                      <p className="text-[10px] text-slate-500 uppercase font-bold tracking-tight">{client.phone || 'Sem telefone'}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-sm font-medium text-slate-900 dark:text-white truncate max-w-[150px]">{client.city ? `${client.city}/${client.state || '??'}` : 'Local n/i'}</p>
+                      <p className="text-xs text-slate-500">{client.neighborhood || 'Bairro n/i'}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">{new Date(client.created_at).toLocaleDateString('pt-BR')}</p>
                     </td>
                     <td className="px-6 py-4">
                       {client.status === 'blocked' ? (
@@ -3593,7 +3654,8 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                     <input 
                       type="text" 
                       value={userForm.phone}
-                      onChange={(e) => setUserForm({...userForm, phone: e.target.value})}
+                      onChange={(e) => setUserForm({...userForm, phone: formatPhone(e.target.value)})}
+                      placeholder="(00) 00000-0000"
                       className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm"
                     />
                   </div>
@@ -3606,19 +3668,27 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <label className="text-[11px] font-bold text-slate-500 ml-1">CEP</label>
-                    <input 
-                      type="text" 
-                      value={userForm.cep}
-                      onChange={(e) => setUserForm({...userForm, cep: e.target.value})}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm text-center"
-                    />
+                    <div className="relative">
+                      <input 
+                        type="text" 
+                        value={userForm.cep}
+                        onChange={(e) => handleCepChange(e.target.value)}
+                        placeholder="00000-000"
+                        className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm text-center"
+                      />
+                      {isFetchingCep && (
+                        <div className="absolute right-3 top-2.5">
+                          <div className="size-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className="md:col-span-2 space-y-2">
                     <label className="text-[11px] font-bold text-slate-500 ml-1">Cidade</label>
-                    <input 
-                      type="text" 
+                    <CityAutocomplete
                       value={userForm.city}
-                      onChange={(e) => setUserForm({...userForm, city: e.target.value})}
+                      onChange={(val) => setUserForm({...userForm, city: val})}
+                      activeCities={activeCities}
                       className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm"
                     />
                   </div>
