@@ -542,8 +542,8 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
                 </div>
 
                 {/* Right Column: Feed & Portfolio (Visible on Desktop) */}
-                <div className="lg:col-span-4 space-y-6 sm:space-y-8">
-                  <div className="sticky top-24">
+                <div className="lg:col-span-4 space-y-6 sm:space-y-8 lg:sticky lg:top-[90px] self-start z-10">
+                  <div className="">
                     <h3 className="font-black text-slate-900 dark:text-slate-100 mb-4 ml-1 flex items-center gap-2 text-[10px] uppercase tracking-widest">
                       <span className="material-symbols-outlined text-primary text-[18px]">verified</span>
                       Status da Conta

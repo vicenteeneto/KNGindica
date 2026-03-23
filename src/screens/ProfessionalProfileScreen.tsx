@@ -576,7 +576,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
             </div>
 
             {/* Right Column: Sidebar Actions & Info */}
-            <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-[100px]">
+            <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-[90px] self-start z-10">
               
               {/* Action Buttons: Desktop Sidebar Integration */}
               <div className="hidden lg:flex flex-col gap-3 bg-white dark:bg-slate-950 p-6 rounded-3xl shadow-2xl border border-primary/10">
@@ -725,7 +725,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
       </main>
 
       {/* Sticky Footer Action: Mobile Only */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-black/95 backdrop-blur-lg border-t border-slate-200 dark:border-white/5 flex flex-col md:flex-row justify-center gap-3 z-[60] lg:hidden">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-black/95 backdrop-blur-lg border-t border-slate-200 dark:border-white/5 flex flex-col md:flex-row justify-center gap-3 z-[100] lg:hidden">
         {professional.plan_type === 'plus' && professional.whatsapp && (
           <a
             href={`https://wa.me/55${professional.whatsapp.replace(/\D/g, '')}`}
