@@ -534,66 +534,79 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         {renderHeader()}
         <main className="flex-1 overflow-y-auto">
           <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
-              
-              {/* Left Column: Greeting & Main Cards */}
-              <div className="lg:col-span-8 space-y-6 sm:space-y-8">
-                {renderDashboardTab()}
+            {loading ? (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 animate-pulse">
+                <div className="lg:col-span-8 space-y-6">
+                  <div className="h-8 w-48 bg-slate-200 dark:bg-slate-800 rounded-lg mb-2" />
+                  <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded-lg mb-8" />
+                  <div className="h-64 bg-slate-200 dark:bg-slate-800 rounded-[2rem]" />
+                  <div className="h-48 bg-slate-200 dark:bg-slate-800 rounded-[2rem]" />
+                </div>
+                <div className="lg:col-span-4 space-y-6">
+                  <div className="h-40 bg-slate-200 dark:bg-slate-800 rounded-[2rem]" />
+                  <div className="h-20 bg-slate-200 dark:bg-slate-800 rounded-2xl" />
+                </div>
               </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+                {/* Left Column: Greeting & Main Cards */}
+                <div className="lg:col-span-8 space-y-6 sm:space-y-8">
+                  {renderDashboardTab()}
+                </div>
 
-              {/* Right Column: Feed & Portfolio (Visible on Desktop) */}
-              <div className="lg:col-span-4 space-y-6 sm:space-y-8">
-                <div className="sticky top-24">
-                  <h3 className="font-black text-slate-900 dark:text-slate-100 mb-4 ml-1 flex items-center gap-2 text-[10px] uppercase tracking-widest">
-                    <span className="material-symbols-outlined text-primary text-[18px]">verified</span>
-                    Status da Conta
-                  </h3>
-                  {(() => {
-                    const missingForStatus = [];
-                    if (!profile?.avatar_url) missingForStatus.push("Foto");
-                    if (!(profile as any)?.bio || (profile as any)?.bio.length < 30) missingForStatus.push("Bio");
-                    if (!(profile as any)?.categories || (profile as any)?.categories.length === 0) missingForStatus.push("Categorias");
-                    if (!(profile as any)?.latitude || !(profile as any)?.longitude) missingForStatus.push("Localização");
-                    if (!(profile?.pricing_model === 'negotiable' || profile?.price_value)) missingForStatus.push("Preço");
-                    if (portfolioCount === 0) missingForStatus.push("Portfólio");
+                {/* Right Column: Feed & Portfolio (Visible on Desktop) */}
+                <div className="lg:col-span-4 space-y-6 sm:space-y-8">
+                  <div className="sticky top-24">
+                    <h3 className="font-black text-slate-900 dark:text-slate-100 mb-4 ml-1 flex items-center gap-2 text-[10px] uppercase tracking-widest">
+                      <span className="material-symbols-outlined text-primary text-[18px]">verified</span>
+                      Status da Conta
+                    </h3>
+                    {(() => {
+                      const missingForStatus = [];
+                      if (!profile?.avatar_url) missingForStatus.push("Foto");
+                      if (!(profile as any)?.bio || (profile as any)?.bio.length < 30) missingForStatus.push("Bio");
+                      if (!(profile as any)?.categories || (profile as any)?.categories.length === 0) missingForStatus.push("Categorias");
+                      if (!(profile as any)?.latitude || !(profile as any)?.longitude) missingForStatus.push("Localização");
+                      if (!(profile?.pricing_model === 'negotiable' || profile?.price_value)) missingForStatus.push("Preço");
+                      if (portfolioCount === 0) missingForStatus.push("Portfólio");
 
-                    if (missingForStatus.length > 0) return null;
+                      if (missingForStatus.length > 0) return null;
 
-                    return (
-                      <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-xl mb-6">
-                        <div className="flex items-center gap-4 mb-4">
-                          <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500">
-                             <span className="material-symbols-outlined text-3xl">verified_user</span>
+                      return (
+                        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-xl mb-6">
+                          <div className="flex items-center gap-4 mb-4">
+                            <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500">
+                               <span className="material-symbols-outlined text-3xl">verified_user</span>
+                            </div>
+                            <div>
+                              <p className="text-xs font-black uppercase tracking-tighter text-slate-900 dark:text-white">Perfil Verificado</p>
+                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Selo de Confiança Ativo</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-xs font-black uppercase tracking-tighter text-slate-900 dark:text-white">Perfil Verificado</p>
-                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Selo de Confiança Ativo</p>
-                          </div>
+                          <button 
+                            onClick={() => onNavigate('profile', { professionalId: user?.id, returnTo: 'dashboard' })}
+                            className="w-full py-3 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-xs uppercase tracking-widest transition-all"
+                          >
+                            Ver Perfil Público
+                          </button>
                         </div>
-                        <button 
-                          onClick={() => onNavigate('profile', { professionalId: user.id, returnTo: 'dashboard' })}
-                          className="w-full py-3 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-xs uppercase tracking-widest transition-all"
-                        >
-                          Ver Perfil Público
-                        </button>
-                      </div>
-                    );
-                  })()}
+                      );
+                    })()}
 
-                  <h3 className="font-black text-slate-900 dark:text-slate-100 mb-4 ml-1 flex items-center gap-2 text-[10px] uppercase tracking-widest">
-                    <span className="material-symbols-outlined text-slate-400 text-[18px]">support_agent</span>
-                    Ajuda e Suporte
-                  </h3>
-                  <div onClick={() => onNavigate('helpCenter')} className="group p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 cursor-pointer hover:border-primary transition-all">
-                    <div className="flex items-center gap-3">
-                       <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">help_center</span>
-                       <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Central de Ajuda KNG</span>
+                    <h3 className="font-black text-slate-900 dark:text-slate-100 mb-4 ml-1 flex items-center gap-2 text-[10px] uppercase tracking-widest">
+                      <span className="material-symbols-outlined text-slate-400 text-[18px]">support_agent</span>
+                      Ajuda e Suporte
+                    </h3>
+                    <div onClick={() => onNavigate('helpCenter')} className="group p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 cursor-pointer hover:border-primary transition-all">
+                      <div className="flex items-center gap-3">
+                         <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">help_center</span>
+                         <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Central de Ajuda KNG</span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-
-            </div>
+            )}
           </div>
         </main>
       </div>
