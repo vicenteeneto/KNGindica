@@ -66,6 +66,22 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
   const [selectedTicket, setSelectedTicket] = useState<any | null>(null);
   const [adminResponseText, setAdminResponseText] = useState('');
   const [referralsHistory, setReferralsHistory] = useState<any[]>([]);
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [userForm, setUserForm] = useState({
+    full_name: '',
+    email: '',
+    phone: '',
+    zip_code: '',
+    city: '',
+    state: '',
+    neighborhood: '',
+    street: '',
+    number: '',
+    service_category: '',
+    description: '',
+    status: 'active'
+  });
 
   const ticketCategoryLabels: Record<string, string> = {
     dispute: 'Disputa Financeira',
@@ -83,14 +99,16 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
     'fitness_center', 'school', 'spa', 'local_florist', 'local_dining', 'local_pizza', 'child_care', 'sports_esports'
   ];
 
-  const handleUpdateProviderStatus = async (providerId: string, status: string) => {
+  const handleUpdateUserStatus = async (userId: string, status: string) => {
     try {
-      const { error } = await supabase.from('profiles').update({ status }).eq('id', providerId);
+      const { error } = await supabase.from('profiles').update({ status }).eq('id', userId);
       if (error) throw error;
-      setProvidersList(prev => prev.map(p => p.id === providerId ? { ...p, status } : p));
+      setProvidersList(prev => prev.map(p => p.id === userId ? { ...p, status } : p));
+      setClientsList(prev => prev.map(c => c.id === userId ? { ...c, status } : c));
       setSelectedProviderForKYC(null);
+      showToast("Sucesso", "Status atualizado com sucesso.", "success");
     } catch (e) {
-      console.error("Erro ao atualizar status do prestador", e);
+      console.error("Erro ao atualizar status do usuário", e);
       showToast("Erro", "Erro ao atualizar status", "error");
     }
   };
@@ -262,6 +280,59 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         }
       }
     });
+  };
+
+  const handleOpenEditModal = (user: any) => {
+    setEditingUser(user);
+    setUserForm({
+      full_name: user.full_name || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      zip_code: user.zip_code || '',
+      city: user.city || '',
+      state: user.state || '',
+      neighborhood: user.neighborhood || '',
+      street: user.street || '',
+      number: user.number || '',
+      service_category: user.service_category || '',
+      description: user.description || '',
+      status: user.status || 'active'
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateUserProfile = async () => {
+    if (!editingUser) return;
+    setMaintenanceLoading(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: userForm.full_name,
+          phone: userForm.phone,
+          zip_code: userForm.zip_code,
+          city: userForm.city,
+          state: userForm.state,
+          neighborhood: userForm.neighborhood,
+          street: userForm.street,
+          number: userForm.number,
+          service_category: userForm.service_category,
+          description: userForm.description,
+          status: userForm.status,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', editingUser.id);
+
+      if (error) throw error;
+      showToast("Sucesso", "Perfil atualizado com sucesso!", "success");
+      setIsEditModalOpen(false);
+      fetchData();
+    } catch (e: any) {
+      console.error("Erro ao atualizar perfil:", e);
+      showToast("Erro", "Erro ao salvar alterações.", "error");
+    } finally {
+      setMaintenanceLoading(false);
+    }
   };
 
   const handleClearTestRequests = async () => {
@@ -1330,21 +1401,33 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      {provider.status === 'blocked' ? (
-                        <button onClick={() => handleUpdateProviderStatus(provider.id, 'active')} className="px-3 py-1.5 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-1 ml-auto">
-                          <span className="material-symbols-outlined text-[14px]">lock_open</span> Desbloquear
+                      <div className="flex gap-2 justify-end">
+                        <button 
+                          onClick={() => handleOpenEditModal(provider)} 
+                          className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" 
+                          title="Editar Perfil"
+                        >
+                          <span className="material-symbols-outlined text-[20px]">visibility</span>
                         </button>
-                      ) : (
-                        <div className="flex gap-2 justify-end">
-                          <button onClick={() => setSelectedProviderForKYC(provider)} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Ver Perfil Completo / Analisar KYC">
-                            <span className="material-symbols-outlined text-[20px]">visibility</span>
+                        <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 self-center mx-1"></div>
+                        {provider.status === 'blocked' ? (
+                          <button 
+                            onClick={() => handleUpdateUserStatus(provider.id, 'active')} 
+                            className="p-2 text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors" 
+                            title="Desbloquear"
+                          >
+                            <span className="material-symbols-outlined text-[20px]">lock_open</span>
                           </button>
-                          <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 self-center mx-1"></div>
-                          <button onClick={() => handleUpdateProviderStatus(provider.id, 'blocked')} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Bloquear Conta">
+                        ) : (
+                          <button 
+                            onClick={() => handleUpdateUserStatus(provider.id, 'blocked')} 
+                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" 
+                            title="Bloquear"
+                          >
                             <span className="material-symbols-outlined text-[20px]">block</span>
                           </button>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -1439,12 +1522,33 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                       <button
-                        onClick={() => handleUpdateProviderStatus(client.id, client.status === 'blocked' ? 'active' : 'blocked')}
-                        className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${client.status === 'blocked' ? 'bg-green-500 text-white' : 'bg-red-50 text-red-500 hover:bg-red-500 hover:text-white'}`}
-                       >
-                         {client.status === 'blocked' ? 'Reativar' : 'Bloquear'}
-                       </button>
+                      <div className="flex gap-2 justify-end">
+                        <button 
+                          onClick={() => handleOpenEditModal(client)} 
+                          className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" 
+                          title="Editar Perfil"
+                        >
+                          <span className="material-symbols-outlined text-[20px]">visibility</span>
+                        </button>
+                        <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 self-center mx-1"></div>
+                        {client.status === 'blocked' ? (
+                          <button 
+                            onClick={() => handleUpdateUserStatus(client.id, 'active')} 
+                            className="p-2 text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors" 
+                            title="Desbloquear"
+                          >
+                            <span className="material-symbols-outlined text-[20px]">lock_open</span>
+                          </button>
+                        ) : (
+                          <button 
+                            onClick={() => handleUpdateUserStatus(client.id, 'blocked')} 
+                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" 
+                            title="Bloquear"
+                          >
+                            <span className="material-symbols-outlined text-[20px]">block</span>
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -2958,6 +3062,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           </tbody>
         </table>
       </div>
+    </div>
     );
   };
 
@@ -3148,13 +3253,13 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
               </div>
               <div className="p-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row gap-3 justify-end bg-slate-50 dark:bg-slate-800/30">
                 <button 
-                  onClick={() => handleUpdateProviderStatus(selectedProviderForKYC.id, 'blocked')}
+                  onClick={() => handleUpdateUserStatus(selectedProviderForKYC.id, 'blocked')}
                   className="px-6 py-2.5 bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40 rounded-xl font-bold transition-colors"
                 >
                   Recusar / Bloquear
                 </button>
                 <button
-                  onClick={() => handleUpdateProviderStatus(selectedProviderForKYC.id, 'active')} 
+                  onClick={() => handleUpdateUserStatus(selectedProviderForKYC.id, 'active')} 
                   className="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold transition-colors shadow-lg flex items-center justify-center gap-2"
                 >
                   <span className="material-symbols-outlined text-[18px]">verified</span> Aprovar Perfil
@@ -3409,6 +3514,167 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           </div>
         )}
       </div>
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-2xl max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-300">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+              <div className="flex items-center gap-3">
+                <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                  <span className="material-symbols-outlined text-2xl">person_edit</span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-slate-900 dark:text-white leading-tight">Editar Perfil</h3>
+                  <p className="text-xs text-slate-500 font-medium tracking-tight">ID: {editingUser?.id.split('-')[0].toUpperCase()} • {editingUser?.email}</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setIsEditModalOpen(false)}
+                className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto custom-scrollbar space-y-8">
+              {/* Seção Dados Básicos */}
+              <div>
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 ml-1">Dados Básicos</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-slate-500 ml-1">Nome Completo</label>
+                    <input 
+                      type="text" 
+                      value={userForm.full_name}
+                      onChange={(e) => setUserForm({...userForm, full_name: e.target.value})}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-slate-500 ml-1">Telefone / WhatsApp</label>
+                    <input 
+                      type="text" 
+                      value={userForm.phone}
+                      onChange={(e) => setUserForm({...userForm, phone: e.target.value})}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Seção Endereço */}
+              <div>
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 ml-1">Endereço de Cadastro</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-slate-500 ml-1">CEP</label>
+                    <input 
+                      type="text" 
+                      value={userForm.zip_code}
+                      onChange={(e) => setUserForm({...userForm, zip_code: e.target.value})}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm text-center"
+                    />
+                  </div>
+                  <div className="md:col-span-2 space-y-2">
+                    <label className="text-[11px] font-bold text-slate-500 ml-1">Cidade</label>
+                    <input 
+                      type="text" 
+                      value={userForm.city}
+                      onChange={(e) => setUserForm({...userForm, city: e.target.value})}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-slate-500 ml-1">Bairro</label>
+                    <input 
+                      type="text" 
+                      value={userForm.neighborhood}
+                      onChange={(e) => setUserForm({...userForm, neighborhood: e.target.value})}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm"
+                    />
+                  </div>
+                  <div className="md:col-span-2 space-y-2">
+                    <label className="text-[11px] font-bold text-slate-500 ml-1">Rua / Logradouro</label>
+                    <input 
+                      type="text" 
+                      value={userForm.street}
+                      onChange={(e) => setUserForm({...userForm, street: e.target.value})}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-slate-500 ml-1">Número</label>
+                    <input 
+                      type="text" 
+                      value={userForm.number}
+                      onChange={(e) => setUserForm({...userForm, number: e.target.value})}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm text-center"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-slate-500 ml-1">Estado (UF)</label>
+                    <input 
+                      type="text" 
+                      value={userForm.state}
+                      onChange={(e) => setUserForm({...userForm, state: e.target.value})}
+                      maxLength={2}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm text-center uppercase"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Seção Profissional (se for prestador) */}
+              {(editingUser?.user_type === 'provider' || editingUser?.service_category) && (
+                <div>
+                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 ml-1">Dados Profissionais</h4>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-slate-500 ml-1">Categoria de Serviço</label>
+                      <input 
+                        type="text" 
+                        value={userForm.service_category}
+                        onChange={(e) => setUserForm({...userForm, service_category: e.target.value})}
+                        className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-slate-500 ml-1">Bio / Descrição</label>
+                      <textarea 
+                        value={userForm.description}
+                        onChange={(e) => setUserForm({...userForm, description: e.target.value})}
+                        className="w-full h-24 p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm resize-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex flex-col sm:flex-row gap-3">
+              <button 
+                onClick={() => setIsEditModalOpen(false)}
+                className="flex-1 px-6 py-3 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold rounded-2xl hover:bg-white dark:hover:bg-slate-800 transition-all text-sm"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={handleUpdateUserProfile}
+                disabled={maintenanceLoading}
+                className="flex-[2] px-6 py-3 bg-primary text-white font-black rounded-2xl hover:bg-primary-hover transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {maintenanceLoading ? (
+                   <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-[20px]">save</span>
+                    Salvar Alterações
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
