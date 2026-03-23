@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { NavigationProps, Screen } from '../types';
 import { professionals as mockProfessionals } from '../data/mockData';
 import MobileNav from '../components/MobileNav';
 import { useAuth } from '../AuthContext';
+import { formatCurrency, normalizeText } from '../lib/formatters';
 import { supabase } from '../lib/supabase';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
@@ -65,11 +66,9 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   
   const [locationName, setLocationName] = useState(() => localStorage.getItem('KNGindica_manualCity') || 'Brasil (Sem GPS)');
   const [userCoords, setUserCoords] = useState<{lat: number, lng: number} | null>(null);
-  const [providers, setProviders] = useState<any[]>([]);
-  const [featuredProviders, setFeaturedProviders] = useState<any[]>([]);
+  const [dbProviders, setDbProviders] = useState<any[]>([]);
   const [previousProviders, setPreviousProviders] = useState<any[]>([]);
   const [favoriteProviders, setFavoriteProviders] = useState<any[]>([]);
-  const [dynamicCategories, setDynamicCategories] = useState<{ name: string, icon: string }[]>([]);
   const [loadingProviders, setLoadingProviders] = useState(true);
   const [activeRequest, setActiveRequest] = useState<any>(null);
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
@@ -203,14 +202,14 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
     fetchAvailableCities();
   }, []);
 
-  // Fetch providers from Supabase instead of only relying on mock data
+  // Fetch providers from Supabase
   useEffect(() => {
     const fetchProviders = async () => {
       setLoadingProviders(true);
       try {
         let data, error;
 
-        if (userCoords) {
+        if (userCoords && !isManualLocation.current) {
           const res = await supabase.rpc('get_providers_within_radius', {
             user_lat: userCoords.lat,
             user_lon: userCoords.lng,
@@ -219,16 +218,10 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
           data = res.data;
           error = res.error;
         } else {
-          // Sem GPS: busca todos os providers, mas prioriza pela cidade digitada
-          const res = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('role', 'provider');
+          const res = await supabase.from('profiles').select('*').eq('role', 'provider');
           data = res.data;
           error = res.error;
         }
-
-        if (error) throw error;
 
 
         // Map them to look like our UI components expect
@@ -263,17 +256,6 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
           };
         });
 
-        // Sort by distance if we have GPS
-        // If not GPS, prioritize the matched city
-        // Filter by City if manual location is set
-        if (locationName && locationName !== 'Brasil (Sem GPS)' && locationName !== 'Localização Indisponível (GPS Negado)') {
-           const filterCity = locationName.split('/')[0].normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
-           mapped = mapped.filter(p => {
-             const pCity = (p.city || '').split('/')[0].normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
-             return pCity === filterCity;
-           });
-        }
-
         // Sort if still have GPS or need to prioritize something
         mapped.sort((a, b) => {
            if (userCoords) {
@@ -281,21 +263,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
            }
            return 0;
         });
-        
-        // Blend in mock ones if we have none, just to avoid empty UI for the demo
-        if (mapped.length === 0) {
-          mapped = mockProfessionals.filter(mp => mp.isAffiliate).map(mp => ({
-            ...mp, 
-            price: String(mp.price), 
-            distance: String(mp.distance),
-            city: 'N/A', 
-            isAffiliate: mp.isAffiliate ?? false,
-            isVerified: mp.isVerified ?? false,
-            rawDistance: 999999
-          }));
-        }
 
-        setProviders(mapped);
+        setDbProviders(mapped);
       } catch (err) {
         console.error("Error fetching providers:", err);
       } finally {
@@ -409,46 +378,49 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
     };
     fetchFavorites();
   }, [user]);
-
-  // Handle shuffling featured providers for the Hero spotlight
-  useEffect(() => {
-    if (providers.length > 0) {
-      const plusOnes = providers.filter(p => p.plan_type === 'plus');
-      // Fisher-Yates shuffle
-      const shuffled = [...plusOnes];
-      for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-      }
-      setFeaturedProviders(shuffled);
-
-      // Extract dynamic categories from actual providers
-      const catsWithProviders = Array.from(new Set(providers.map(p => p.service))).filter(c => c !== 'Serviços Gerais');
-      
-      const categoryIconMap: Record<string, string> = {
-        'Limpeza': 'cleaning_services',
-        'Reformas': 'construction',
-        'Elétrica': 'bolt',
-        'Jardim': 'yard',
-        'Montagem': 'handyman',
-        'Encanador': 'plumbing',
-        'Pintura': 'imagesearch_roller',
-        'Eletricista': 'bolt'
-      };
-
-      let derivedCats = catsWithProviders.map((name: string) => ({
-        name,
-        icon: (categoryIconMap as Record<string, string>)[name] || 'handyman'
-      }));
-
-      // Shuffle derived categories (Fisher-Yates)
-      for (let i = derivedCats.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [derivedCats[i], derivedCats[j]] = [derivedCats[j], derivedCats[i]];
-      }
-
-      setDynamicCategories([{ name: 'Todos', icon: 'apps' }, ...derivedCats]);
+  // Derived filtered providers
+  const providers = useMemo(() => {
+    let list = dbProviders;
+    if (locationName && !locationName.includes('Brasil') && !locationName.includes('Localização')) {
+      const filter = normalizeText(locationName.split('/')[0]);
+      list = list.filter(p => {
+        const pCity = normalizeText((p.city || '').split('/')[0]);
+        return pCity === filter;
+      });
     }
+
+    if (list.length === 0 && !loadingProviders) {
+      return mockProfessionals.filter(mp => mp.isAffiliate).map(mp => ({
+        ...mp,
+        price: String(mp.price),
+        distance: String(mp.distance),
+        city: 'N/A',
+        isAffiliate: mp.isAffiliate ?? false,
+        isVerified: mp.isVerified ?? false,
+        rawDistance: 999999
+      }));
+    }
+
+    return list;
+  }, [dbProviders, locationName, loadingProviders]);
+
+  const featuredProviders = useMemo(() => {
+    const plusOnes = providers.filter(p => p.plan_type === 'plus');
+    // We don't shuffle here to avoid re-renders, or we use a stable sort
+    return plusOnes;
+  }, [providers]);
+
+  const dynamicCategories = useMemo(() => {
+    const catsWithProviders = Array.from(new Set(providers.map(p => p.service))).filter(c => c !== 'Serviços Gerais');
+    const categoryIconMap: Record<string, string> = {
+      'Limpeza': 'cleaning_services', 'Reformas': 'construction', 'Elétrica': 'bolt',
+      'Jardim': 'yard', 'Montagem': 'handyman', 'Encanador': 'plumbing',
+      'Pintura': 'imagesearch_roller', 'Eletricista': 'bolt'
+    };
+    let derivedCats = catsWithProviders.map((name: string) => ({
+      name, icon: (categoryIconMap as Record<string, string>)[name] || 'handyman'
+    }));
+    return [{ name: 'Todos', icon: 'apps' }, ...derivedCats];
   }, [providers]);
 
   const handleManualLocationSubmit = async (e: React.FormEvent) => {
