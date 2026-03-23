@@ -294,7 +294,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
 
   const professional = dbProfessional || professionals.find(p => p.id === professionalId) || (loadingProfile ? null : professionals.find(p => p.category === dbProfessional?.category) || professionals[1]); // Evita cair no primeiro (Claudio/Ricardo) se possível
 
-  const displayRating = realAverage !== null ? realAverage : professional?.rating;
+  const displayRating = (realAverage !== null ? realAverage : professional?.rating)?.toString().replace('.', ',');
   const displayReviewsCount = realReviewsCount !== null ? realReviewsCount : professional?.reviews;
 
   if (loadingProfile) {
