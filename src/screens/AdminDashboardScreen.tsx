@@ -72,7 +72,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
     full_name: '',
     email: '',
     phone: '',
-    zip_code: '',
+    cep: '',
     city: '',
     state: '',
     neighborhood: '',
@@ -288,7 +288,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
       full_name: user.full_name || '',
       email: user.email || '',
       phone: user.phone || '',
-      zip_code: user.zip_code || '',
+      cep: user.cep || '',
       city: user.city || '',
       state: user.state || '',
       neighborhood: user.neighborhood || '',
@@ -310,7 +310,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         .update({
           full_name: userForm.full_name,
           phone: userForm.phone,
-          zip_code: userForm.zip_code,
+          cep: userForm.cep,
           city: userForm.city,
           state: userForm.state,
           neighborhood: userForm.neighborhood,
@@ -318,8 +318,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           number: userForm.number,
           service_category: userForm.service_category,
           description: userForm.description,
-          status: userForm.status,
-          updated_at: new Date().toISOString()
+          status: userForm.status
         })
         .eq('id', editingUser.id);
 
@@ -1451,25 +1450,58 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
   );
 
   const renderClientsTab = () => (
-    <div className="animate-in fade-in duration-500 space-y-6">
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
+      {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <button onClick={() => setActiveTab('dashboard')} className="flex items-center gap-1 text-slate-500 hover:text-primary transition-colors text-sm mb-2 font-medium">
-            <span className="material-symbols-outlined text-[16px]">arrow_back</span> Voltar ao Dashboard
+          <button 
+            onClick={() => setActiveTab('dashboard')}
+            className="group flex items-center gap-2 text-slate-500 hover:text-primary transition-colors mb-2"
+          >
+            <span className="material-symbols-outlined text-[18px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
+            <span className="text-xs font-bold uppercase tracking-widest">Voltar ao Dashboard</span>
           </button>
-          <h2 className="text-xl font-bold">Gestão de Clientes</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Usuários que contratam serviços na plataforma</p>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">Gestão de Clientes</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Gerencie todos os clientes cadastrados na plataforma</p>
         </div>
         <div className="flex gap-2">
-          <div className="relative flex-1 md:flex-none">
+          <div className="relative">
             <span className="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-xl pointer-events-none">search</span>
             <input
               className="pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all w-full md:w-64"
-              placeholder="Buscar cliente por nome ou email..."
+              placeholder="Buscar cliente por nome, e-mail..."
               type="text"
               value={clientSearch}
               onChange={(e) => setClientSearch(e.target.value)}
             />
+          </div>
+        </div>
+      </div>
+
+      {/* Metric Cards for this Tab */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center">
+          <p className="text-xs text-slate-500 font-medium mb-1">Total Cadastrados</p>
+          <div className="flex items-baseline gap-2">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{clientsList.length}</h3>
+          </div>
+        </div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-green-500">
+          <p className="text-xs text-slate-500 font-medium mb-1">Ativos</p>
+          <div className="flex items-baseline gap-2">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{clientsList.filter(c => c.status !== 'blocked').length}</h3>
+          </div>
+        </div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-primary">
+          <p className="text-xs text-slate-500 font-medium mb-1">Total Pedidos</p>
+          <div className="flex items-baseline gap-2">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{ordersList.filter(o => clientsList.some(c => c.id === o.client_id)).length}</h3>
+          </div>
+        </div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-red-500">
+          <p className="text-xs text-slate-500 font-medium mb-1">Bloqueados</p>
+          <div className="flex items-baseline gap-2">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{clientsList.filter(c => c.status === 'blocked').length}</h3>
           </div>
         </div>
       </div>
@@ -1487,12 +1519,12 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {loading ? (
-                <tr><td colSpan={4} className="p-6 text-center text-slate-500">Carregando...</td></tr>
+                <tr><td colSpan={4} className="p-6 text-center text-slate-500">Carregando clientes...</td></tr>
               ) : clientsList.filter(c =>
                   c.full_name?.toLowerCase().includes(clientSearch.toLowerCase()) ||
                   c.email?.toLowerCase().includes(clientSearch.toLowerCase())
                 ).length === 0 ? (
-                <tr><td colSpan={4} className="p-6 text-center text-slate-500">Nenhum cliente encontrado.</td></tr>
+                <tr><td colSpan={4} className="p-6 text-center text-slate-500">Nenhum cliente encontrado para sua busca.</td></tr>
               ) : (
                 clientsList
                   .filter(c =>
@@ -1503,23 +1535,30 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                   <tr key={client.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden shrink-0">
+                        <div className="relative h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden shrink-0">
                           <img className="h-full w-full object-cover" alt="Profile" src={client.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} />
+                          <div className={`absolute bottom-0 right-0 h-3 w-3 border-2 border-white dark:border-slate-900 rounded-full ${client.status === 'blocked' ? 'bg-red-500' : 'bg-green-500'}`}></div>
                         </div>
                         <div>
-                          <p className="font-bold text-sm">{client.full_name || 'Usuário Sem Nome'}</p>
-                          <p className="text-xs text-slate-500 font-mono font-bold tracking-wider">{client.display_id || client.id.substring(0, 8)}</p>
+                          <p className="font-bold text-sm text-slate-900 dark:text-white">{client.full_name || 'Usuário Sem Nome'}</p>
+                          <p className="text-xs text-slate-500 font-mono font-bold tracking-wider">{client.display_id || `#${client.id.substring(0, 6)}`}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-sm font-medium">{client.email}</p>
+                      <p className="text-sm font-medium text-slate-900 dark:text-white">{client.email}</p>
                       <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{new Date(client.created_at).toLocaleDateString('pt-BR')}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-1 text-[10px] font-bold uppercase rounded ${client.status === 'blocked' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
-                        {client.status === 'blocked' ? 'Bloqueado' : 'Ativo'}
-                      </span>
+                      {client.status === 'blocked' ? (
+                        <span className="px-2 py-1 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 text-xs font-semibold rounded-full flex items-center gap-1 w-max">
+                          <span className="material-symbols-outlined text-[12px]">lock</span> Bloqueado
+                        </span>
+                      ) : (
+                        <span className="px-2 py-1 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 text-xs font-semibold rounded-full flex items-center gap-1 w-max">
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span> Ativo
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex gap-2 justify-end">
@@ -3569,8 +3608,8 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                     <label className="text-[11px] font-bold text-slate-500 ml-1">CEP</label>
                     <input 
                       type="text" 
-                      value={userForm.zip_code}
-                      onChange={(e) => setUserForm({...userForm, zip_code: e.target.value})}
+                      value={userForm.cep}
+                      onChange={(e) => setUserForm({...userForm, cep: e.target.value})}
                       className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm text-center"
                     />
                   </div>
