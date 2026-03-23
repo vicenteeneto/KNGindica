@@ -274,7 +274,13 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
            });
         }
 
-        return 0;
+        // Sort if still have GPS or need to prioritize something
+        mapped.sort((a, b) => {
+           if (userCoords) {
+             return a.rawDistance - b.rawDistance;
+           }
+           return 0;
+        });
         
         // Blend in mock ones if we have none, just to avoid empty UI for the demo
         if (mapped.length === 0) {
