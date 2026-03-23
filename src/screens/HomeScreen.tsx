@@ -63,7 +63,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [mapCenter, setMapCenter] = useState<[number, number]>([-15.7801, -47.9292]); // Brasília como fallback neutro
   
-  const [locationName, setLocationName] = useState('Brasil (Sem GPS)');
+  const [locationName, setLocationName] = useState(() => localStorage.getItem('KNGindica_manualCity') || 'Brasil (Sem GPS)');
   const [userCoords, setUserCoords] = useState<{lat: number, lng: number} | null>(null);
   const [providers, setProviders] = useState<any[]>([]);
   const [featuredProviders, setFeaturedProviders] = useState<any[]>([]);
@@ -75,9 +75,9 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [touchStartHero, setTouchStartHero] = useState<number | null>(null);
   const [touchEndHero, setTouchEndHero] = useState<number | null>(null);
-  const [manualCityInput, setManualCityInput] = useState('');
+  const [manualCityInput, setManualCityInput] = useState(() => localStorage.getItem('KNGindica_manualCity') || '');
   const [availableCities, setAvailableCities] = useState<string[]>([]);
-  const isManualLocation = useRef(false);
+  const isManualLocation = useRef(!!localStorage.getItem('KNGindica_manualCity'));
 
   // Geocodifica uma string de cidade para [lat, lng]
   const geocodeCidade = async (cidade: string): Promise<[number, number] | null> => {
@@ -127,8 +127,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
     const savedLocation = localStorage.getItem('KNGindica_manualCity');
     if (savedLocation) {
       isManualLocation.current = true;
-      setLocationName(savedLocation);
-      setManualCityInput(savedLocation);
+      // setLocationName e setManualCityInput já foram carregados no useState/initializer
       // Geocodifica a cidade salva para centrar o mapa
       geocodeCidade(savedLocation).then(coords => {
         if (coords) setMapCenter(coords);
