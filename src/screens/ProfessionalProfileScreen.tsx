@@ -384,265 +384,348 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
       )}
 
       <main className="flex-1 overflow-y-auto pb-24">
-        {/* Hero Section / Gallery */}
-        <div className="@container">
-          <div className="@[480px]:px-4 @[480px]:py-3 md:px-0">
-            <div
-              className="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden bg-slate-200 dark:bg-slate-800 @[480px]:rounded-xl md:rounded-none min-h-40 md:min-h-[320px] relative group"
-              style={{
-                backgroundImage: `url("${professional.image}")`,
-              }}
-            >
-              {/* Enhanced fluid transition: Multi-layered gradients for zero "hard cutting" effect */}
-              <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-black via-black/80 to-transparent"></div>
-              <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
-              <div className="absolute inset-x-0 -bottom-1 h-32 bg-black blur-xl opacity-50"></div>
-            </div>
-          </div>
-        </div>
-
         {/* Profile Info Container */}
-        <div className="flex flex-col items-center -mt-12 md:-mt-16 relative z-10 px-0 md:px-4">
-          <div className="w-full max-w-3xl bg-white dark:bg-black md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 overflow-hidden">
+        <div className="max-w-7xl mx-auto w-full px-0 md:px-4 py-6 md:py-10">
+          <div className="lg:grid lg:grid-cols-3 lg:gap-10 items-start">
             
-            {/* Instagram Style Profile Row */}
-            <div className="flex px-4 pt-6 pb-2 items-center gap-4 md:gap-8">
-              <div
-                className="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-20 w-20 md:min-h-28 md:w-28 border-4 border-white dark:border-black shadow-xl shrink-0"
-                style={{
-                  backgroundImage: `url("${professional.image}")`,
-                }}
-              ></div>
-              <div className="flex-1 flex justify-around items-center gap-2">
-                <div className="flex flex-col items-center">
-                  <p className="text-slate-900 dark:text-slate-100 text-base font-black italic tracking-tight">{displayReviewsCount}</p>
-                  <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mt-0.5">Serviços</p>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="flex items-center gap-0.5">
-                    <p className="text-slate-900 dark:text-slate-100 text-base font-black italic tracking-tight">{displayRating}</p>
-                    <span className="material-symbols-outlined text-amber-400 text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+            {/* Left Column: Main Profile Content */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Hero Section / Gallery */}
+              <div className="@container">
+                <div className="md:px-0">
+                  <div
+                    className="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden bg-slate-200 dark:bg-slate-800 rounded-3xl min-h-60 md:min-h-[400px] relative group shadow-2xl"
+                    style={{
+                      backgroundImage: `url("${professional.image}")`,
+                    }}
+                  >
+                    <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-black via-black/60 to-transparent"></div>
+                    <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
                   </div>
-                  <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mt-0.5">Avaliação</p>
                 </div>
-                <div className="flex flex-col items-center">
-                  {professional.show_price ? (
-                    <>
-                      <p className="text-slate-900 dark:text-slate-100 text-base font-black italic tracking-tight">
-                        {professional.pricing_model === 'negotiable' ? (
-                          'A combinar'
-                        ) : (
-                          <>
-                            {professional.pricing_model === 'starting_at' && <span className="text-[9px] mr-1 opacity-50">A partir</span>}
-                            {formatCurrency(parseFloat(professional.price || '0'))}
-                          </>
+              </div>
+
+              <div className="bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 overflow-hidden">
+                {/* Instagram Style Profile Row */}
+                <div className="flex px-6 pt-8 pb-4 items-center gap-6 md:gap-10">
+                  <div
+                    className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-24 w-24 md:h-32 md:w-32 border-4 border-white dark:border-black shadow-2xl shrink-0"
+                    style={{
+                      backgroundImage: `url("${professional.image}")`,
+                    }}
+                  ></div>
+                  <div className="flex-1 flex justify-around items-center gap-4">
+                    <div className="flex flex-col items-center">
+                      <p className="text-slate-900 dark:text-slate-100 text-xl font-black italic tracking-tight">{displayReviewsCount}</p>
+                      <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Serviços</p>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <div className="flex items-center gap-1">
+                        <p className="text-slate-900 dark:text-slate-100 text-xl font-black italic tracking-tight">{displayRating}</p>
+                        <span className="material-symbols-outlined text-amber-400 text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                      </div>
+                      <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Avaliação</p>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      {professional.show_price ? (
+                        <>
+                          <p className="text-slate-900 dark:text-slate-100 text-xl font-black italic tracking-tight">
+                            {professional.pricing_model === 'negotiable' ? (
+                              'A combinar'
+                            ) : (
+                              <>
+                                {professional.pricing_model === 'starting_at' && <span className="text-[10px] mr-1 opacity-50">A partir</span>}
+                                {formatCurrency(parseFloat(professional.price || '0'))}
+                              </>
+                            )}
+                          </p>
+                          <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">
+                            {professional.pricing_model === 'hourly' ? '/ hora' : 
+                             professional.pricing_model === 'fixed' ? 'Preço Fixo' : 
+                             professional.pricing_model === 'starting_at' ? 'Inicial' : 'Negociável'}
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-slate-900 dark:text-slate-100 text-base font-black italic tracking-tight uppercase">Sob Consulta</p>
+                          <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Valores</p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="px-8 pt-4 pb-6 flex flex-col gap-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <p className="text-slate-900 dark:text-slate-100 text-2xl font-black leading-none tracking-tight">
+                      {professional.name}
+                    </p>
+                    {professional.isVerified && (
+                      <VerifiedBadge className="scale-110" />
+                    )}
+                  </div>
+                  
+                  <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">
+                    {professional.category} • {professional.isAffiliate ? (professional.isVerified ? 'Afiliado Verificado' : 'Afiliado') : 'Profissional'}
+                  </p>
+
+                  <p className="text-slate-500 dark:text-slate-400 text-sm font-bold leading-normal flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-base">location_on</span>
+                    {professional.city ? `${professional.city}, ${professional.state || ''}` : 'Localização a combinar'}
+                  </p>
+                </div>
+
+                {/* Bio Section */}
+                <div className="px-8 py-6 border-t border-slate-100 dark:border-white/5">
+                  <h3 className="text-slate-900 dark:text-slate-100 text-sm font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <span className="size-1.5 w-1.5 rounded-full bg-primary" />
+                    Sobre o Profissional
+                  </h3>
+                  <div className="bg-slate-50 dark:bg-white/5 p-5 rounded-2xl border border-slate-100 dark:border-white/5">
+                    <p className="text-slate-600 dark:text-gray-400 text-base leading-relaxed font-medium">
+                      {professional.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Portfolio Gallery */}
+              {portfolioImages.length > 0 && (
+                <div className="bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 p-8">
+                  <h3 className="text-slate-900 dark:text-slate-100 text-sm font-black uppercase tracking-widest mb-6 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary text-xl">photo_library</span>
+                    Portfólio de Trabalhos
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {portfolioImages.map((img, idx) => (
+                      <div 
+                        key={img.id} 
+                        onClick={() => setSelectedImageIndex(idx)}
+                        className="aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 group cursor-pointer shadow-md active:scale-95 transition-all"
+                      >
+                        <img 
+                          src={img.image_url} 
+                          alt={`Trabalho ${idx + 1}`} 
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Reviews Section */}
+              <div className="bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-slate-900 dark:text-slate-100 text-sm font-black uppercase tracking-widest flex items-center gap-2">
+                    <span className="material-symbols-outlined text-amber-500">reviews</span>
+                    Avaliações dos Clientes
+                  </h3>
+                  <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full">
+                    <span className="text-sm font-bold">{displayRating}</span>
+                    <span className="material-symbols-outlined text-[16px] text-amber-400" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-black">({displayReviewsCount})</span>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-6">
+                  {dbReviews.length > 0 ? (
+                    dbReviews.map((review, i) => (
+                      <div key={i} className="p-5 rounded-2xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 transition-all hover:shadow-md">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-4">
+                            <div className="size-12 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden text-slate-500 font-bold border-2 border-white dark:border-slate-700 shadow-sm">
+                              {review.reviewer_avatar_url || review.profiles?.avatar_url ? (
+                                 <img src={review.reviewer_avatar_url || review.profiles?.avatar_url} alt="Reviewer" className="w-full h-full object-cover" />
+                              ) : (
+                                 <div className="w-full h-full flex items-center justify-center text-lg">{(review.reviewer_name || review.profiles?.full_name || 'U')[0].toUpperCase()}</div>
+                              )}
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                                {review.reviewer_name || review.profiles?.full_name || 'Usuário'}
+                              </p>
+                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{new Date(review.created_at).toLocaleDateString('pt-BR')}</p>
+                            </div>
+                          </div>
+                          <div className="flex text-amber-400 gap-0.5">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <span key={star} className={`material-symbols-outlined text-[16px] ${star <= review.rating ? 'text-amber-400' : 'text-slate-200 dark:text-slate-700'}`} style={{ fontVariationSettings: star <= review.rating ? "'FILL' 1" : "'FILL' 0" }}>
+                                star
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        {review.comment && (
+                          <div className="relative pl-4 border-l-2 border-primary/20">
+                            <p className="text-slate-600 dark:text-slate-400 text-sm italic leading-relaxed">
+                              "{review.comment}"
+                            </p>
+                          </div>
                         )}
-                      </p>
-                      <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mt-0.5">
-                        {professional.pricing_model === 'hourly' ? '/ hora' : 
-                         professional.pricing_model === 'fixed' ? 'Preço Fixo' : 
-                         professional.pricing_model === 'starting_at' ? 'Inicial' : 'Negociável'}
-                      </p>
-                    </>
+                      </div>
+                    ))
                   ) : (
-                    <>
-                      <p className="text-slate-900 dark:text-slate-100 text-sm font-black italic tracking-tight uppercase">Sob Consulta</p>
-                      <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mt-0.5">Valores</p>
-                    </>
+                    <div className="bg-slate-50 dark:bg-white/5 p-10 rounded-2xl border border-slate-100 dark:border-white/5 text-center flex flex-col items-center">
+                       <span className="material-symbols-outlined text-5xl text-slate-400 mb-3">star_half</span>
+                       <p className="text-slate-600 dark:text-slate-400 font-bold uppercase tracking-widest text-xs">Sem avaliações ainda</p>
+                       <p className="text-slate-500 text-xs mt-1">Seja o primeiro a avaliar este profissional!</p>
+                    </div>
                   )}
                 </div>
               </div>
             </div>
 
-            <div className="px-5 pt-2 pb-4 flex flex-col gap-0.5">
-              <div className="flex items-center gap-1.5 mb-0.5">
-                <p className="text-slate-900 dark:text-slate-100 text-lg font-black leading-none tracking-tight">
-                  {professional.name}
-                </p>
-                {professional.isVerified && (
-                  <VerifiedBadge className="scale-100" />
-                )}
-              </div>
+            {/* Right Column: Sidebar Actions & Info */}
+            <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-[100px]">
               
-              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1.5">
-                {professional.category} • {professional.isAffiliate ? (professional.isVerified ? 'Afiliado Verificado' : 'Afiliado') : 'Profissional'}
-              </p>
-
-              <p className="text-slate-500 dark:text-slate-400 text-[11px] font-bold leading-normal flex items-center gap-1">
-                <span className="material-symbols-outlined text-xs">location_on</span>
-                {professional.city ? `${professional.city}, ${professional.state || ''}` : 'Localização a combinar'}
-              </p>
-            </div>
-
-          {/* Bio Section */}
-          <div className="px-4 py-2">
-            <h3 className="text-slate-900 dark:text-slate-100 text-xs font-black uppercase tracking-widest mb-2 flex items-center gap-2">
-              <span className="size-1 w-1 rounded-full bg-primary" />
-              Sobre
-            </h3>
-            <div className="bg-slate-50 dark:bg-white/5 p-3 rounded-xl border border-slate-100 dark:border-white/5">
-              <p className="text-slate-600 dark:text-gray-400 text-sm leading-relaxed font-medium">
-                {professional.description}
-              </p>
-            </div>
-          </div>
-
-          {/* Portfolio Gallery */}
-          {portfolioImages.length > 0 && (
-            <div className="px-4 py-4">
-              <h3 className="text-slate-900 dark:text-slate-100 text-xs font-black uppercase tracking-widest mb-3 flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-base">photo_library</span>
-                Portfólio de Trabalhos
-              </h3>
-              <div className="flex overflow-x-auto gap-3 pb-4 snap-x snap-mandatory hide-scrollbar">
-                {portfolioImages.map((img, idx) => (
-                  <div 
-                    key={img.id} 
-                    onClick={() => setSelectedImageIndex(idx)}
-                    className="flex-shrink-0 w-44 aspect-[4/5] rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 group cursor-pointer shadow-sm active:scale-95 transition-transform snap-start"
+              {/* Action Buttons: Desktop Sidebar Integration */}
+              <div className="hidden lg:flex flex-col gap-3 bg-white dark:bg-slate-950 p-6 rounded-3xl shadow-2xl border border-primary/10">
+                <h3 className="text-sm font-black uppercase tracking-widest mb-2 text-primary italic">Contrate agora</h3>
+                
+                {professional.plan_type === 'plus' && professional.whatsapp && (
+                  <a
+                    href={`https://wa.me/55${professional.whatsapp.replace(/\D/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackLead(professional.id, 'whatsapp_click')}
+                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-4 px-6 rounded-2xl font-bold flex items-center justify-center gap-3 shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
                   >
-                    <img 
-                      src={img.image_url} 
-                      alt={`Trabalho ${idx + 1}`} 
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
-                    />
-                  </div>
-                ))}
+                    <span className="material-symbols-outlined text-[24px]">chat</span>
+                    Chamar no WhatsApp
+                  </a>
+                )}
+                
+                <button
+                  onClick={async () => {
+                    if (!user) {
+                      showToast("Acesso Restrito", "Faça login para enviar mensagens.", "notification");
+                      return;
+                    }
+                    trackLead(professional.id, 'chat_start');
+                    onNavigate('chat', { 
+                      opponentId: professional.id, 
+                      opponentName: professional.name, 
+                      opponentAvatar: professional.image 
+                    });
+                  }}
+                  className="w-full bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 py-4 px-6 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all active:scale-95 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm"
+                >
+                  <span className="material-symbols-outlined text-[24px]">chat_bubble</span>
+                  Conversar no Chat
+                </button>
+                
+                <button
+                  onClick={() => {
+                    trackLead(professional.id, 'chat_start');
+                    onNavigate('serviceRequestForm', { providerId: professional.id, providerName: professional.name });
+                  }}
+                  className="w-full bg-primary hover:bg-primary/95 text-white py-5 px-6 rounded-2xl font-black uppercase italic tracking-tighter flex items-center justify-center gap-3 shadow-xl transition-all active:scale-95 shadow-primary/30"
+                >
+                  <span className="material-symbols-outlined text-[24px]">bolt</span>
+                  Solicitar Orçamento
+                </button>
               </div>
-            </div>
-          )}
 
-          {/* Business Data - Google Style Info */}
-          <div className="px-4 py-4">
-            <h3 className="text-slate-900 dark:text-slate-100 text-xs font-black uppercase tracking-widest mb-3 flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary text-base">info</span>
-              Informações do Prestador
-            </h3>
-            <div className="bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
-              <div className="p-4 flex flex-col gap-4">
-                <div className="flex items-start gap-3">
-                  <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                    <span className="material-symbols-outlined text-primary">location_on</span>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Endereço de Atendimento</h4>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
-                      {professional.address || `${professional.city || 'Atendimento em domicílio'}, ${professional.state || ''}`}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="size-10 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0">
-                    <span className="material-symbols-outlined text-orange-500">schedule</span>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Horário de Funcionamento</h4>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
-                      {professional.opening_hours || 'Seg à Sex: 08:00 - 18:00 (Consulte disponibilidade)'}
-                    </p>
-                  </div>
-                </div>
-
-                {professional.loyalty_enabled && (
-                  <div className="flex items-start gap-3 p-3 bg-primary/5 rounded-xl border border-primary/20">
-                    <div className="size-10 rounded-xl bg-primary text-white flex items-center justify-center shrink-0 shadow-lg shadow-primary/30">
-                      <span className="material-symbols-outlined">loyalty</span>
+              {/* Business Info Card */}
+              <div className="bg-white dark:bg-slate-900 shadow-xl border border-slate-100 dark:border-white/5 rounded-3xl p-6 space-y-6">
+                <h3 className="text-slate-900 dark:text-slate-100 text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary text-base">info</span>
+                  Informações Comerciais
+                </h3>
+                
+                <div className="space-y-4">
+                  <div className="flex items-start gap-4">
+                    <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-primary text-xl">location_on</span>
                     </div>
                     <div>
-                      <h4 className="text-sm font-black text-primary uppercase italic tracking-tighter">Programa de Fidelidade</h4>
-                      <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                        {professional.loyalty_benefit_description}
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Endereço</h4>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                        {professional.address || `${professional.city || 'Atendimento em domicílio'}, ${professional.state || ''}`}
                       </p>
                     </div>
                   </div>
-                )}
-              </div>
 
-              {/* Map View */}
-              {(professional.latitude && professional.longitude) && (
-                <div className="px-4 pb-4">
-                  <div className="w-full h-48 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm relative z-0">
-                    <MapContainer 
-                      center={[professional.latitude, professional.longitude]} 
-                      zoom={15} 
-                      style={{ height: '100%', width: '100%' }}
-                      scrollWheelZoom={false}
-                    >
-                      <TileLayer
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                      />
-                      <Marker position={[professional.latitude, professional.longitude]}>
-                        <Popup>
-                          <div className="text-xs font-bold">{professional.name}</div>
-                        </Popup>
-                      </Marker>
-                    </MapContainer>
-                  </div>
-                  <p className="text-[10px] text-slate-400 mt-2 font-medium text-center italic">
-                    📍 Localização aproximada do prestador
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-
-            {/* Reviews Section */}
-            <div className="px-4 py-4 mb-24">
-              <div className="flex items-center justify-between mb-3 px-1">
-                <h3 className="text-slate-900 dark:text-slate-100 text-xs font-black uppercase tracking-widest">
-                  Avaliações
-                </h3>
-              </div>
-              <div className="flex flex-col gap-4">
-                {dbReviews.length > 0 ? (
-                  dbReviews.map((review, i) => (
-                    <div key={i} className="bg-white/2 dark:bg-white/5 p-4 rounded-2xl border border-slate-100 dark:border-white/5">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-3">
-                          <div className="size-10 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden text-slate-500 font-bold border border-slate-200 dark:border-slate-700">
-                            {review.reviewer_avatar_url || review.profiles?.avatar_url ? (
-                               <img src={review.reviewer_avatar_url || review.profiles?.avatar_url} alt="Reviewer" className="w-full h-full object-cover" />
-                            ) : (
-                               <div className="w-full h-full flex items-center justify-center">{(review.reviewer_name || review.profiles?.full_name || 'U')[0].toUpperCase()}</div>
-                            )}
-                          </div>
-                          <div>
-                            <p className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                              {review.reviewer_name || review.profiles?.full_name || 'Usuário'}
-                            </p>
-                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{new Date(review.created_at).toLocaleDateString('pt-BR')}</p>
-                          </div>
-                        </div>
-                        <div className="flex text-amber-400">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <span key={star} className={`material-symbols-outlined text-[14px] ${star <= review.rating ? 'text-amber-400 filled' : 'text-slate-200 dark:text-slate-700'}`} style={{ fontVariationSettings: star <= review.rating ? "'FILL' 1" : "'FILL' 0" }}>
-                              star
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      {review.comment && (
-                        <p className="text-slate-600 dark:text-slate-400 text-sm italic pl-1">
-                          "{review.comment}"
-                        </p>
-                      )}
+                  <div className="flex items-start gap-4">
+                    <div className="size-10 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-orange-500 text-xl">schedule</span>
                     </div>
-                  ))
-                ) : (
-                  <div className="bg-slate-50 dark:bg-white/5 p-8 rounded-xl border border-slate-200 dark:border-white/5 text-center flex flex-col items-center">
-                     <span className="material-symbols-outlined text-4xl text-slate-400 mb-2">star_half</span>
-                     <p className="text-slate-500 text-sm">Nenhuma avaliação recebida ainda.</p>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Horário</h4>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                        {professional.opening_hours || 'Seg à Sex: 08:00 - 18:00 (Consulte disponibilidade)'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {professional.loyalty_enabled && (
+                    <div className="flex items-start gap-4 p-4 bg-primary/5 rounded-2xl border border-primary/20">
+                      <div className="size-10 rounded-xl bg-primary text-white flex items-center justify-center shrink-0 shadow-lg shadow-primary/30">
+                        <span className="material-symbols-outlined text-xl">loyalty</span>
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-black text-primary uppercase italic tracking-tighter">Programa Fidelidade</h4>
+                        <p className="text-[10px] font-bold text-slate-700 dark:text-slate-300 mt-1">
+                          {professional.loyalty_benefit_description}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Map View Integration */}
+                {(professional.latitude && professional.longitude) && (
+                  <div className="pt-2">
+                    <div className="w-full h-48 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-md relative z-0">
+                      <MapContainer 
+                        center={[professional.latitude, professional.longitude]} 
+                        zoom={15} 
+                        style={{ height: '100%', width: '100%' }}
+                        scrollWheelZoom={false}
+                      >
+                        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                        <Marker position={[professional.latitude, professional.longitude]}>
+                          <Popup>
+                            <div className="text-xs font-bold">{professional.name}</div>
+                          </Popup>
+                        </Marker>
+                      </MapContainer>
+                    </div>
+                    <p className="text-[9px] text-slate-400 mt-3 font-medium text-center italic">
+                      📍 Localização aproximada do prestador
+                    </p>
                   </div>
                 )}
+              </div>
+
+              {/* Share & Favorite Mini Card */}
+              <div className="bg-white dark:bg-slate-900 shadow-md border border-slate-100 dark:border-white/5 rounded-2xl p-4 flex items-center justify-around">
+                <button 
+                  onClick={toggleFavorite}
+                  className="flex flex-col items-center gap-1 group"
+                >
+                  <div className={`size-10 rounded-full flex items-center justify-center transition-all ${isFavorite ? 'bg-red-50 text-red-500' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 group-hover:text-slate-600'}`}>
+                    <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: isFavorite ? "'FILL' 1" : "'FILL' 0" }}>favorite</span>
+                  </div>
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">{isFavorite ? 'Favoritado' : 'Favoritar'}</span>
+                </button>
+                <button 
+                  onClick={handleShare}
+                  className="flex flex-col items-center gap-1 group"
+                >
+                  <div className="size-10 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-400 group-hover:text-slate-600 flex items-center justify-center transition-all">
+                    <span className="material-symbols-outlined text-xl">share</span>
+                  </div>
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Compartilhar</span>
+                </button>
               </div>
             </div>
           </div>
         </div>
       </main>
 
-      {/* Sticky Footer Action */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-black/95 backdrop-blur-lg border-t border-slate-200 dark:border-white/5 flex flex-col md:flex-row justify-center gap-3 z-[60]">
+      {/* Sticky Footer Action: Mobile Only */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-black/95 backdrop-blur-lg border-t border-slate-200 dark:border-white/5 flex flex-col md:flex-row justify-center gap-3 z-[60] lg:hidden">
         {professional.plan_type === 'plus' && professional.whatsapp && (
           <a
             href={`https://wa.me/55${professional.whatsapp.replace(/\D/g, '')}`}
