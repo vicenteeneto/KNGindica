@@ -238,7 +238,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             id: p.id,
             name: p.full_name || 'Profissional Sem Nome',
             service: (p.categories && p.categories.length > 0) ? p.categories[0] : 'Serviços Gerais',
-            rating: p.rating !== null ? Number(p.rating).toFixed(1).replace('.', ',') : "0,0",
+            rating: p.rating || 0,
             reviews: p.reviews_count || 0,
             price: p.price_value || 0,
             priceUnit: p.pricing_model || 'hourly',
@@ -899,49 +899,55 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                       subtitle="Profissionais que já prestaram serviços para você."
                       providers={previousProviders} 
                       onNavigate={onNavigate}
+                      onViewMore={() => onNavigate('myRequests')}
                     />
                   )}
 
                   {/* Row: Alvo Indica Recommendations */}
-                  <CollectionRow 
-                    title="Destaques KNGindica" 
-                    subtitle="Os profissionais mais bem avaliados e recomendados."
-                    providers={featuredProviders.length > 0 ? featuredProviders : plusProviders.slice(0, 10)} 
-                    onNavigate={onNavigate}
-                    highlight
-                  />
+                    <CollectionRow 
+                      title="Destaques KNGindica" 
+                      subtitle="Os profissionais mais bem avaliados e recomendados."
+                      providers={featuredProviders.length > 0 ? featuredProviders : plusProviders.slice(0, 10)} 
+                      onNavigate={onNavigate}
+                      highlight
+                      onViewMore={() => onNavigate('listing', { featured: true })}
+                    />
 
                   {/* Row: Cleaning Services */}
-                  <CollectionRow 
-                    title="Mestres da Limpeza" 
-                    subtitle="Deixe sua casa brilhando com especialistas."
-                    providers={cleaningProviders} 
-                    onNavigate={onNavigate}
-                  />
+                    <CollectionRow 
+                      title="Mestres da Limpeza" 
+                      subtitle="Deixe sua casa brilhando com especialistas."
+                      providers={cleaningProviders} 
+                      onNavigate={onNavigate}
+                      onViewMore={() => onNavigate('listing', { category: 'Limpeza' })}
+                    />
 
                   {/* Row: Construction & Renovation */}
-                  <CollectionRow 
-                    title="Reformas e Manutenção" 
-                    subtitle="Sua casa nova, do jeito que você sonhou."
-                    providers={constructionProviders} 
-                    onNavigate={onNavigate}
-                  />
+                    <CollectionRow 
+                      title="Reformas e Manutenção" 
+                      subtitle="Sua casa nova, do jeito que você sonhou."
+                      providers={constructionProviders} 
+                      onNavigate={onNavigate}
+                      onViewMore={() => onNavigate('listing', { category: 'Reformas' })}
+                    />
 
                   {/* Row: Electrical */}
-                  <CollectionRow 
-                    title="Eletricistas e Instalações" 
-                    subtitle="Segurança e rapidez para resolver pane ou instalar aparelhos."
-                    providers={electricProviders} 
-                    onNavigate={onNavigate}
-                  />
+                    <CollectionRow 
+                      title="Eletricistas e Instalações" 
+                      subtitle="Segurança e rapidez para resolver pane ou instalar aparelhos."
+                      providers={electricProviders} 
+                      onNavigate={onNavigate}
+                      onViewMore={() => onNavigate('listing', { category: 'Eletricista' })}
+                    />
 
                   {/* Row: All Providers (Fallback/Discovery) */}
-                  <CollectionRow 
-                    title="KNGindica" 
-                    subtitle="Explore todos os prestadores em sua região."
-                    providers={providers} 
-                    onNavigate={onNavigate}
-                  />
+                    <CollectionRow 
+                      title="KNGindica" 
+                      subtitle="Explore todos os prestadores em sua região."
+                      providers={providers} 
+                      onNavigate={onNavigate}
+                      onViewMore={() => onNavigate('listing', { searchQuery: '' })}
+                    />
 
                   {/* Row: My Favorites (At the bottom as requested) */}
                   {favoriteProviders.length > 0 && (
@@ -1003,9 +1009,10 @@ interface CollectionRowProps {
   providers: any[];
   onNavigate: (screen: Screen, params?: any) => void;
   highlight?: boolean;
+  onViewMore?: () => void;
 }
 
-function CollectionRow({ title, subtitle, providers, onNavigate, highlight }: CollectionRowProps) {
+function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onViewMore }: CollectionRowProps) {
   if (providers.length === 0) return null;
 
   return (
@@ -1041,7 +1048,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight }: Co
                 >
                   star
                 </span>
-                {Number(p.rating).toFixed(1)}
+                {Number(p.rating || 0).toFixed(1).replace('.', ',')}
               </div>
 
               {/* Info Overlay - Cleaner version with even smaller text */}
@@ -1063,10 +1070,10 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight }: Co
           </div>
         ))}
         
-        {/* View More Card */}
+        {onViewMore && (
         <div className="snap-start shrink-0 w-[160px] md:w-[260px] cursor-pointer">
            <button 
-            onClick={() => onNavigate('listing', { category: providers[0].service })}
+            onClick={onViewMore}
             className="w-full aspect-[16/9] md:aspect-video rounded-xl border-2 border-slate-200/50 dark:border-white/5 bg-slate-100 dark:bg-white/2 hover:bg-primary hover:text-white dark:hover:bg-white dark:hover:text-black transition-all flex flex-col items-center justify-center gap-2 group shadow-sm dark:shadow-none"
           >
             <span className="size-10 rounded-full bg-slate-200 dark:bg-white/5 flex items-center justify-center group-hover:bg-black/10">
@@ -1077,6 +1084,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight }: Co
            {/* Alignment placeholder */}
            <div className="mt-2 text-center h-[20px] md:h-[24px]"></div>
         </div>
+        )}
       </div>
     </section>
   );
