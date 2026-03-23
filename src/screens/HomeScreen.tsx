@@ -1013,6 +1013,16 @@ interface CollectionRowProps {
 }
 
 function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onViewMore }: CollectionRowProps) {
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const { scrollLeft, clientWidth } = scrollRef.current;
+      const scrollTo = direction === 'left' ? scrollLeft - clientWidth * 0.8 : scrollLeft + clientWidth * 0.8;
+      scrollRef.current.scrollTo({ left: scrollTo, behavior: 'smooth' });
+    }
+  };
+
   if (providers.length === 0) return null;
 
   return (
@@ -1025,66 +1035,85 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
         <p className="text-xs md:text-sm text-slate-500 dark:text-gray-400 font-medium">{subtitle}</p>
       </div>
 
-      <div className="flex gap-4 md:gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory px-0 md:mx-0 md:px-0">
-        {providers.map((p) => (
-          <div
-            key={p.id}
-            onClick={() => onNavigate('profile', { professionalId: p.id })}
-            className="snap-start shrink-0 w-[160px] md:w-[260px] group cursor-pointer"
-          >
-            <div className={`relative aspect-[16/9] md:aspect-video rounded-xl overflow-hidden shadow-2xl bg-white dark:bg-[#0a0a0a] transition-all duration-300 group-hover:scale-105 group-hover:ring-4 ${highlight ? 'group-hover:ring-primary/40' : 'group-hover:ring-slate-200 dark:group-hover:ring-white/5'}`}>
-              <img
-                className="w-full h-full object-cover transition-transform duration-700"
-                src={p.image}
-                alt={p.name}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
-              
-              {/* Rating Mini - Ultra micro version with forced 5px star */}
-              <div className="absolute top-1 right-1 bg-black/60 backdrop-blur-md px-1 py-0 rounded text-[7px] font-black flex items-center gap-0.5">
-                <span 
-                  className="material-symbols-outlined text-yellow-500 filled"
-                  style={{ fontSize: '5px', width: '5px', height: '5px', display: 'flex', itemsCenter: 'center', justifyContent: 'center', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
-                >
-                  star
-                </span>
-                {Number(p.rating || 0).toFixed(1).replace('.', ',')}
-              </div>
+      <div className="relative group">
+        {/* Scroll Buttons (Desktop Only) */}
+        <button 
+          onClick={() => scroll('left')}
+          className="absolute -left-4 top-1/2 -translate-y-1/2 z-40 size-10 rounded-full bg-black/60 backdrop-blur-xl border border-white/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-primary text-white hidden md:flex"
+        >
+          <span className="material-symbols-outlined">chevron_left</span>
+        </button>
+        <button 
+          onClick={() => scroll('right')}
+          className="absolute -right-4 top-1/2 -translate-y-1/2 z-40 size-10 rounded-full bg-black/60 backdrop-blur-xl border border-white/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-primary text-white hidden md:flex"
+        >
+          <span className="material-symbols-outlined">chevron_right</span>
+        </button>
 
-              {/* Info Overlay - Cleaner version with even smaller text */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"></div>
-              <div className="absolute bottom-1.5 left-1.5 right-1.5 flex items-center justify-between">
-                <span className="text-[7px] font-black text-white px-1 py-0 bg-primary/20 backdrop-blur-md rounded border border-primary/30 uppercase tracking-tighter italic">
-                  {p.service}
-                </span>
-                <span className="text-[7px] font-black text-white/40">{p.distance} km</span>
+        <div 
+          ref={scrollRef}
+          className="flex gap-4 md:gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory px-2 md:-mx-2"
+        >
+          {providers.map((p) => (
+            <div
+              key={p.id}
+              onClick={() => onNavigate('profile', { professionalId: p.id })}
+              className="snap-start shrink-0 w-[160px] md:w-[260px] group cursor-pointer"
+            >
+              <div className={`relative aspect-[16/9] md:aspect-video rounded-xl overflow-hidden shadow-2xl bg-white dark:bg-[#0a0a0a] transition-all duration-300 group-hover:scale-105 group-hover:ring-4 ${highlight ? 'group-hover:ring-primary/40' : 'group-hover:ring-slate-200 dark:group-hover:ring-white/5'}`}>
+                <img
+                  className="w-full h-full object-cover transition-transform duration-700"
+                  src={p.image}
+                  alt={p.name}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+                
+                {/* Rating Mini - Ultra micro version with forced 5px star */}
+                <div className="absolute top-1 right-1 bg-black/60 backdrop-blur-md px-1 py-0 rounded text-[7px] font-black flex items-center gap-0.5">
+                  <span 
+                    className="material-symbols-outlined text-yellow-500 filled"
+                    style={{ fontSize: '5px', width: '5px', height: '5px', display: 'flex', itemsCenter: 'center', justifyContent: 'center', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
+                  >
+                    star
+                  </span>
+                  {Number(p.rating || 0).toFixed(1).replace('.', ',')}
+                </div>
+
+                {/* Info Overlay - Cleaner version with even smaller text */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"></div>
+                <div className="absolute bottom-1.5 left-1.5 right-1.5 flex items-center justify-between">
+                  <span className="text-[7px] font-black text-white px-1 py-0 bg-primary/20 backdrop-blur-md rounded border border-primary/30 uppercase tracking-tighter italic">
+                    {p.service}
+                  </span>
+                  <span className="text-[7px] font-black text-white/40">{p.distance} km</span>
+                </div>
+              </div>
+              
+              {/* Name Below Card for cleaner look */}
+              <div className="mt-2 text-center">
+                <h4 className="font-bold text-[11px] md:text-xs truncate text-slate-500 dark:text-gray-400 group-hover:text-primary transition-colors uppercase tracking-tight">
+                  {p.name}
+                </h4>
               </div>
             </div>
-            
-            {/* Name Below Card for cleaner look */}
-            <div className="mt-2 text-center">
-              <h4 className="font-bold text-[11px] md:text-xs truncate text-slate-500 dark:text-gray-400 group-hover:text-primary transition-colors uppercase tracking-tight">
-                {p.name}
-              </h4>
-            </div>
+          ))}
+          
+          {onViewMore && (
+          <div className="snap-start shrink-0 w-[160px] md:w-[260px] cursor-pointer">
+             <button 
+              onClick={onViewMore}
+              className="w-full aspect-[16/9] md:aspect-video rounded-xl border-2 border-slate-200/50 dark:border-white/5 bg-slate-100 dark:bg-white/2 hover:bg-primary hover:text-white dark:hover:bg-white dark:hover:text-black transition-all flex flex-col items-center justify-center gap-2 group shadow-sm dark:shadow-none"
+            >
+              <span className="size-10 rounded-full bg-slate-200 dark:bg-white/5 flex items-center justify-center group-hover:bg-black/10">
+                <span className="material-symbols-outlined">add</span>
+              </span>
+              <span className="text-xs font-black uppercase tracking-widest">Ver Mais</span>
+             </button>
+             {/* Alignment placeholder */}
+             <div className="mt-2 text-center h-[20px] md:h-[24px]"></div>
           </div>
-        ))}
-        
-        {onViewMore && (
-        <div className="snap-start shrink-0 w-[160px] md:w-[260px] cursor-pointer">
-           <button 
-            onClick={onViewMore}
-            className="w-full aspect-[16/9] md:aspect-video rounded-xl border-2 border-slate-200/50 dark:border-white/5 bg-slate-100 dark:bg-white/2 hover:bg-primary hover:text-white dark:hover:bg-white dark:hover:text-black transition-all flex flex-col items-center justify-center gap-2 group shadow-sm dark:shadow-none"
-          >
-            <span className="size-10 rounded-full bg-slate-200 dark:bg-white/5 flex items-center justify-center group-hover:bg-black/10">
-              <span className="material-symbols-outlined">add</span>
-            </span>
-            <span className="text-xs font-black uppercase tracking-widest">Ver Mais</span>
-           </button>
-           {/* Alignment placeholder */}
-           <div className="mt-2 text-center h-[20px] md:h-[24px]"></div>
+          )}
         </div>
-        )}
       </div>
     </section>
   );
