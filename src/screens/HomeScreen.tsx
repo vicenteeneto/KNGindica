@@ -246,7 +246,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             id: p.id,
             name: p.full_name || 'Profissional Sem Nome',
             service: (p.categories && p.categories.length > 0) ? p.categories[0] : 'Serviços Gerais',
-            rating: p.rating || "0.0",
+            rating: p.rating !== null ? Number(p.rating).toFixed(1) : "0.0",
+            reviews: p.reviews_count || 0,
             price: p.price_value || 0,
             priceUnit: p.pricing_model || 'hourly',
             show_price: p.show_price !== false,
@@ -1069,7 +1070,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight }: Co
                 >
                   star
                 </span>
-                {p.rating}
+                {Number(p.rating).toFixed(1)}
               </div>
 
               {/* Info Overlay - Cleaner version with even smaller text */}

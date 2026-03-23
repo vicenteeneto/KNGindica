@@ -9,7 +9,7 @@ export interface Professional {
   id: string;
   name: string;
   service: string;
-  rating: number;
+  rating: number | string;
   reviews: number;
   price: number;
   priceUnit: string;

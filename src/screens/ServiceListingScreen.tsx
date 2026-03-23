@@ -43,8 +43,8 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
             name: p.company_name || p.full_name || 'Profissional',
             service: p.categories?.[0] || 'Serviços',
             category: p.categories?.[0] || 'Serviços Gerais',
-            rating: p.rating || 0.0, // Default for now
-            reviews: 0,
+            rating: p.rating !== null ? Number(p.rating).toFixed(1) : "0.0",
+            reviews: p.reviews_count || 0,
             price: p.price_value || 0,
             priceUnit: p.pricing_model || 'hourly',
             show_price: p.show_price !== false,
@@ -312,7 +312,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
                       star
                     </span>
                     <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                      {professional.rating}
+                      {Number(professional.rating).toFixed(1)}
                     </span>
                   </div>
                 </div>
