@@ -81,6 +81,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
     neighborhood: '',
     street: '',
     number: '',
+    address_complement: '',
     service_category: '',
     description: '',
     status: 'active'
@@ -337,6 +338,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
       neighborhood: user.neighborhood || '',
       street: user.street || '',
       number: user.number || '',
+      address_complement: user.address_complement || '',
       service_category: user.service_category || '',
       description: user.description || '',
       status: user.status || 'active'
@@ -359,6 +361,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           neighborhood: userForm.neighborhood,
           street: userForm.street,
           number: userForm.number,
+          address_complement: userForm.address_complement,
           service_category: userForm.service_category,
           description: userForm.description,
           status: userForm.status
@@ -3674,7 +3677,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                         value={userForm.cep}
                         onChange={(e) => handleCepChange(e.target.value)}
                         placeholder="00000-000"
-                        className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm text-center"
+                        className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm"
                       />
                       {isFetchingCep && (
                         <div className="absolute right-3 top-2.5">
@@ -3683,24 +3686,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       )}
                     </div>
                   </div>
-                  <div className="md:col-span-2 space-y-2">
-                    <label className="text-[11px] font-bold text-slate-500 ml-1">Cidade</label>
-                    <CityAutocomplete
-                      value={userForm.city}
-                      onChange={(val) => setUserForm({...userForm, city: val})}
-                      activeCities={activeCities}
-                      className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-slate-500 ml-1">Bairro</label>
-                    <input 
-                      type="text" 
-                      value={userForm.neighborhood}
-                      onChange={(e) => setUserForm({...userForm, neighborhood: e.target.value})}
-                      className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm"
-                    />
-                  </div>
+
                   <div className="md:col-span-2 space-y-2">
                     <label className="text-[11px] font-bold text-slate-500 ml-1">Rua / Logradouro</label>
                     <input 
@@ -3710,15 +3696,48 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm"
                     />
                   </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-slate-500 ml-1">Bairro</label>
+                    <input 
+                      type="text" 
+                      value={userForm.neighborhood}
+                      onChange={(e) => setUserForm({...userForm, neighborhood: e.target.value})}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm"
+                    />
+                  </div>
+
                   <div className="space-y-2">
                     <label className="text-[11px] font-bold text-slate-500 ml-1">Número</label>
                     <input 
                       type="text" 
                       value={userForm.number}
                       onChange={(e) => setUserForm({...userForm, number: e.target.value})}
-                      className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm text-center"
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm"
                     />
                   </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-slate-500 ml-1">Complemento</label>
+                    <input 
+                      type="text" 
+                      value={userForm.address_complement}
+                      onChange={(e) => setUserForm({...userForm, address_complement: e.target.value})}
+                      placeholder="Opcional"
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2 space-y-2">
+                    <label className="text-[11px] font-bold text-slate-500 ml-1">Cidade</label>
+                    <CityAutocomplete
+                      value={userForm.city}
+                      onChange={(val) => setUserForm({...userForm, city: val})}
+                      activeCities={activeCities}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm"
+                    />
+                  </div>
+
                   <div className="space-y-2">
                     <label className="text-[11px] font-bold text-slate-500 ml-1">Estado (UF)</label>
                     <input 
@@ -3726,7 +3745,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       value={userForm.state}
                       onChange={(e) => setUserForm({...userForm, state: e.target.value})}
                       maxLength={2}
-                      className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm text-center uppercase"
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm uppercase"
                     />
                   </div>
                 </div>

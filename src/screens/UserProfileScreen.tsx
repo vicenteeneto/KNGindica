@@ -97,9 +97,12 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
     phone: (profile as any)?.phone || '',
     cpf: (profile as any)?.cpf || '',
     cep: (profile as any)?.cep || '',
-    city: (profile as any)?.city || '',
-    address: (profile as any)?.address || '',
+    street: (profile as any)?.street || '',
+    neighborhood: (profile as any)?.neighborhood || '',
+    number: (profile as any)?.number || '',
     address_complement: (profile as any)?.address_complement || '',
+    city: (profile as any)?.city || '',
+    state: (profile as any)?.state || '',
     bio: (profile as any)?.bio || '',
     categories: (profile as any)?.categories || [],
     whatsapp_number: (profile as any)?.whatsapp_number || '',
@@ -142,9 +145,12 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         phone: formatPhone((profile as any).phone || ''),
         cpf: formatCPF_CNPJ((profile as any).cpf || ''),
         cep: formatCEP((profile as any).cep || ''),
-        city: (profile as any).city || '',
-        address: (profile as any).address || '',
+        street: (profile as any).street || '',
+        neighborhood: (profile as any).neighborhood || '',
+        number: (profile as any).number || '',
         address_complement: (profile as any).address_complement || '',
+        city: (profile as any).city || '',
+        state: (profile as any).state || '',
         bio: (profile as any).bio || '',
         categories: (profile as any).categories || [],
         whatsapp_number: formatPhone((profile as any).whatsapp_number || ''),
@@ -245,8 +251,10 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         if (!data.erro) {
           setFormData(prev => ({
             ...prev,
+            street: data.logradouro || prev.street,
+            neighborhood: data.bairro || prev.neighborhood,
             city: data.localidade || prev.city,
-            address: `${data.logradouro}${data.bairro ? ` - ${data.bairro}` : ''}`
+            state: data.uf || prev.state
           }));
         }
       } catch (error) {
@@ -306,14 +314,15 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         .from('profiles')
         .update({
           full_name: formData.full_name,
-          phone: formData.phone,
-          address: formData.address,
+          phone: formData.phone.replace(/\D/g, ''),
+          cep: formData.cep.replace(/\D/g, ''),
+          street: formData.street,
           neighborhood: formData.neighborhood,
+          number: formData.number,
+          address_complement: formData.address_complement,
           city: formData.city,
           state: formData.state,
-          zip_code: formData.zip_code,
-          address_complement: formData.address_complement,
-          cep: formData.cep
+          whatsapp_number: formData.whatsapp_number.replace(/\D/g, '')
         })
         .eq('id', user?.id);
 
@@ -980,38 +989,75 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                       </div>
                     </div>
                     <div className="sm:col-span-2">
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Cidade / Estado</label>
-                      <CityAutocomplete
-                        value={formData.city}
-                        onChange={(val) => setFormData({...formData, city: val})}
-                        activeCities={activeCities}
-                        placeholder="Ex: Rondonópolis/MT"
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Rua / Logradouro</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.street}
+                        onChange={(e) => setFormData({...formData, street: e.target.value})}
+                        placeholder="Ex: Rua das Flores"
                         className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
                       />
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Rua, Número e Bairro</label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.address}
-                      onChange={(e) => setFormData({...formData, address: e.target.value})}
-                      placeholder="Ex: Av. Brasil, 123 - Centro"
-                      className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
-                    />
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="sm:col-span-1">
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Bairro</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.neighborhood}
+                        onChange={(e) => setFormData({...formData, neighborhood: e.target.value})}
+                        placeholder="Ex: Centro"
+                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
+                      />
+                    </div>
+                    <div className="sm:col-span-1">
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Número</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.number}
+                        onChange={(e) => setFormData({...formData, number: e.target.value})}
+                        placeholder="Ex: 123"
+                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
+                      />
+                    </div>
+                    <div className="sm:col-span-1">
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Complemento</label>
+                      <input
+                        type="text"
+                        value={formData.address_complement}
+                        onChange={(e) => setFormData({...formData, address_complement: e.target.value})}
+                        placeholder="Apto, Sala, etc."
+                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
+                      />
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Complemento (Opcional)</label>
-                    <input
-                      type="text"
-                      value={formData.address_complement}
-                      onChange={(e) => setFormData({...formData, address_complement: e.target.value})}
-                      placeholder="Ex: Apto 101, Bloco A"
-                      className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
-                    />
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="sm:col-span-2">
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Cidade</label>
+                      <CityAutocomplete
+                        value={formData.city}
+                        onChange={(val) => setFormData({...formData, city: val})}
+                        activeCities={activeCities}
+                        placeholder="Ex: Itajaí"
+                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
+                      />
+                    </div>
+                    <div className="sm:col-span-1">
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Estado (UF)</label>
+                      <input
+                        type="text"
+                        maxLength={2}
+                        value={formData.state}
+                        onChange={(e) => setFormData({...formData, state: e.target.value.toUpperCase()})}
+                        placeholder="Ex: SC"
+                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white uppercase"
+                      />
+                    </div>
                   </div>
 
                   {role === 'provider' && (
