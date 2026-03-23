@@ -246,7 +246,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             id: p.id,
             name: p.full_name || 'Profissional Sem Nome',
             service: (p.categories && p.categories.length > 0) ? p.categories[0] : 'Serviços Gerais',
-            rating: p.rating || (4.5 + Math.random() * 0.5).toFixed(1),
+            rating: p.rating || "0.0",
             price: p.price_value || 0,
             priceUnit: p.pricing_model || 'hourly',
             show_price: p.show_price !== false,
@@ -702,13 +702,15 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                   <div className="absolute bottom-16 md:bottom-24 left-0 w-full px-4 md:px-12 max-w-7xl mx-auto left-1/2 -translate-x-1/2">
                     <div className="max-w-2xl animate-fade-in-up">
                       <div className="flex items-center gap-2 mb-3">
-                        {p.plan_type === 'plus' ? (
+                        {p.isVerified ? (
+                          <div className="flex items-center gap-1.5 bg-emerald-500/20 backdrop-blur-md px-2 py-0.5 rounded border border-emerald-500/30">
+                            <span className="text-[9px] font-black tracking-tighter uppercase text-emerald-400">Conta Verificada</span>
+                            <VerifiedBadge size="sm" />
+                          </div>
+                        ) : p.plan_type === 'plus' ? (
                           <span className="bg-primary px-2 py-0.5 rounded text-[10px] font-black tracking-tighter italic text-white shadow-lg">PREMIUM</span>
                         ) : (
                           <span className="bg-white/10 px-2 py-0.5 rounded text-[10px] font-black tracking-tighter italic text-gray-400 shadow-lg border border-white/5">DESTAQUE</span>
-                        )}
-                        {p.isVerified && (
-                          <VerifiedBadge size="lg" />
                         )}
                       </div>
                       <h1 className="text-3xl md:text-6xl font-black text-slate-900 dark:text-white leading-[0.9] mb-3 drop-shadow-2xl">

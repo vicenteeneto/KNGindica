@@ -43,7 +43,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
             name: p.company_name || p.full_name || 'Profissional',
             service: p.categories?.[0] || 'Serviços',
             category: p.categories?.[0] || 'Serviços Gerais',
-            rating: 5.0, // Default for now
+            rating: p.rating || 0.0, // Default for now
             reviews: 0,
             price: p.price_value || 0,
             priceUnit: p.pricing_model || 'hourly',
