@@ -134,8 +134,8 @@ function AppContent() {
           localStorage.removeItem(STORAGE_KEY);
           localStorage.removeItem(STORAGE_PARAMS_KEY);
         }
-      } else if (currentScreen === 'auth' && role !== null) {
-        // Verifica se havia uma pesquisa pendente do WhatsApp antes do login
+      } else {
+        // Verifica se havia uma pesquisa pendente do WhatsApp antes do login (prioridade total)
         const pendingSearchId = localStorage.getItem('pendingSearchId');
         if (pendingSearchId) {
           localStorage.removeItem('pendingSearchId');
@@ -144,8 +144,10 @@ function AppContent() {
           localStorage.setItem(STORAGE_KEY, 'whatsappSearch');
           return;
         }
-        const adminEmail = user?.email?.toLowerCase();
-        const isAdmin = adminEmail === 'offkngpublicidade@gmail.com' || role === 'admin';
+
+        if (currentScreen === 'auth' && role !== null) {
+          const adminEmail = user?.email?.toLowerCase();
+          const isAdmin = adminEmail === 'offkngpublicidade@gmail.com' || role === 'admin';
         
         // NOVO: Redirecionar para termos se não aceitou (admins também passam pelo filtro para aceitação oficial)
         // Se currentScreen for auth ou forgotPassword, não atrapalha o fluxo de login
@@ -167,6 +169,7 @@ function AppContent() {
         if (currentScreen === 'auth' || !currentScreen) {
           setCurrentScreen(dest);
           localStorage.setItem(STORAGE_KEY, dest);
+        }
         }
       }
     }
