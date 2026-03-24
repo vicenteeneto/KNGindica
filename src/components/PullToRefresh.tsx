@@ -98,7 +98,7 @@ export default function PullToRefresh({ children }: Props) {
       
       {/* Main App Content that moves slightly down for parallax effect */}
       <div style={{ 
-        transform: `translateY(${isPulling.current && pullDistance > 0 ? pullDistance * 0.15 : 0}px)`, 
+        transform: isPulling.current && pullDistance > 0 ? `translateY(${pullDistance * 0.15}px)` : 'none', 
         transition: isPulling.current ? 'none' : 'transform 0.3s ease-out'
       }}>
         {children}

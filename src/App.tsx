@@ -307,7 +307,9 @@ function AppContent() {
           />
         )}
         <div className={`flex-1 w-full ${!NON_PERSISTENT_SCREENS.includes(currentScreen) ? 'pl-12' : ''} transition-all duration-300`}>
-          {renderScreen()}
+          <PullToRefresh>
+            {renderScreen()}
+          </PullToRefresh>
         </div>
       </div>
       {activeChat && (
@@ -321,12 +323,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <PullToRefresh>
-      <AuthProvider>
-        <ThemeProvider>
-          <AppContent />
-        </ThemeProvider>
-      </AuthProvider>
-    </PullToRefresh>
+    <AuthProvider>
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
