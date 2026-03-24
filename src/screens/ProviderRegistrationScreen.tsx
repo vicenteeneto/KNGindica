@@ -91,7 +91,7 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
 
       if (profileError) throw profileError;
 
-      // 2. Link to Category in provider_services (For Judite Search)
+      // 2. Link to Category in provider_services (For maia Search)
       const selectedCat = dbCategories.find(c => c.name === formData.category);
       if (selectedCat) {
         // Clear previous services to avoid duplicates during re-registration

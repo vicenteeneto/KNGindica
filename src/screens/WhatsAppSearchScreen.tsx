@@ -84,7 +84,7 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 px-6 text-center">
           <span className="material-symbols-outlined animate-spin text-5xl text-primary">progress_activity</span>
-          <p className="text-white font-bold animate-pulse">Judite está localizando os melhores profissionais...</p>
+          <p className="text-white font-bold animate-pulse">maia está localizando os melhores profissionais...</p>
         </div>
       </div>
     );
@@ -236,7 +236,7 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
                     Veja os contatos completos
                   </h2>
                   <p className="text-slate-400 text-xs font-medium mb-5">
-                    Cadastre-se grátis para ver o perfil e contato de todos os {providers.length} profissional{providers.length !== 1 ? 'is' : ''}.
+                    Cadastre-se grátis para ver o perfil e contato {providers.length === 1 ? 'do profissional' : `de todos os ${providers.length} profissionais`}.
                   </p>
 
                   {/* Google Button */}
