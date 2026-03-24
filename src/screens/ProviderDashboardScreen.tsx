@@ -13,6 +13,8 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
   const [recentRequests, setRecentRequests] = useState<any[]>([]);
   const [portfolioCount, setPortfolioCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [earnings, setEarnings] = useState<any[]>([]);
+  const [todayOrdersCount, setTodayOrdersCount] = useState(0);
   const [verificationStatus, setVerificationStatus] = useState<'none' | 'pending' | 'approved' | 'rejected'>('none');
   const [categoriesMap, setCategoriesMap] = useState<Record<string, string>>({});
 
@@ -148,6 +150,17 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
           .maybeSingle();
         
         if (verifData) setVerificationStatus(verifData.status as any);
+        
+        // Fetch today's freelance orders count
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+        
+        const { count, error: countError } = await supabase
+          .from('freelance_orders')
+          .select('*', { count: 'exact', head: true })
+          .gte('created_at', startOfDay.toISOString());
+          
+        if (!countError) setTodayOrdersCount(count || 0);
 
       } catch (err) {
         console.error("Dashboard error", err);
@@ -394,10 +407,10 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
 
 
       {/* Indique e Ganhe - Referral System */}
-      <section className="px-4 pt-4">
+      <section className="px-4 pt-2">
         <div 
           onClick={() => onNavigate('rewards')}
-          className="bg-gradient-to-br from-primary to-orange-600 rounded-3xl p-4 shadow-lg border border-white/10 relative overflow-hidden cursor-pointer group hover:scale-[1.02] active:scale-[0.98] transition-all"
+          className="bg-gradient-to-br from-primary to-orange-600 rounded-3xl py-3 px-4 shadow-lg border border-white/10 relative overflow-hidden cursor-pointer group hover:scale-[1.02] active:scale-[0.98] transition-all"
         >
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
             <span className="material-symbols-outlined text-7xl text-white">workspace_premium</span>
@@ -410,7 +423,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
             <h3 className="text-xl font-black text-white uppercase tracking-tighter italic leading-none mb-1">
               Indique e Ganhe
             </h3>
-            <p className="text-white/80 text-[11px] font-medium leading-tight max-w-[200px]">
+            <p className="text-white/80 text-[11px] font-medium leading-[1.3] max-w-sm">
               Seu link de convite vale pontos que podem ser trocados por KNG Premium e mais.
             </p>
             <div className="mt-3 flex items-center gap-2">
@@ -424,10 +437,10 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
       </section>
 
       {/* Oportunidades KNGindica - Freelance Feed */}
-      <section className="px-4 pt-5 pb-5">
+      <section className="px-4 pt-3 pb-3">
         <div 
           onClick={() => onNavigate('openOrders')}
-          className="bg-gradient-to-br from-emerald-500 to-teal-700 rounded-3xl p-4 shadow-lg border border-white/10 relative overflow-hidden cursor-pointer group hover:scale-[1.02] active:scale-[0.98] transition-all"
+          className="bg-gradient-to-br from-emerald-500 to-teal-700 rounded-3xl py-3 px-4 shadow-lg border border-white/10 relative overflow-hidden cursor-pointer group hover:scale-[1.02] active:scale-[0.98] transition-all"
         >
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:rotate-12 transition-transform duration-500">
             <span className="material-symbols-outlined text-7xl text-white">rocket_launch</span>
@@ -435,12 +448,12 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
           <div className="relative z-10">
             <div className="inline-flex items-center gap-2 bg-black/20 backdrop-blur-md px-2 py-1 rounded-full text-[9px] font-black tracking-widest uppercase mb-2 text-emerald-200">
               <span className="material-symbols-outlined text-xs">campaign</span>
-              Mais de 10 ordens hoje
+              {todayOrdersCount > 0 ? `${todayOrdersCount} ${todayOrdersCount === 1 ? 'ordem' : 'ordens'} hoje` : 'Novas oportunidades'}
             </div>
             <h3 className="text-xl font-black text-white uppercase tracking-tighter italic leading-none mb-1">
               Oportunidades KNGindica
             </h3>
-            <p className="text-emerald-50/80 text-[11px] font-medium leading-tight max-w-[200px]">
+            <p className="text-emerald-50/80 text-[11px] font-medium leading-tight max-w-sm">
               Novos pedidos freelance abertos na sua região disponíveis.
             </p>
             <div className="mt-3 flex items-center gap-2">
