@@ -508,10 +508,10 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   };
 
   return (
-    <div className="w-full bg-[#000000] min-h-screen flex flex-col font-display text-white pb-20 md:pb-0 overflow-x-hidden transition-colors duration-500">
+    <div className="w-full bg-[#000000] min-h-screen flex flex-col font-display text-white md:pb-0 overflow-x-hidden transition-colors duration-500">
       
       {/* Floating Header */}
-      <header className={`fixed top-0 left-0 md:left-12 right-0 z-50 transition-all duration-500 px-4 pt-3 pb-1.5 ${isScrolled
+<header className={`relative lg:fixed top-0 left-0 lg:left-12 right-0 z-50 transition-all duration-500 px-4 pt-3 pb-1.5 ${isScrolled
         ? 'bg-black/95 backdrop-blur-md shadow-2xl border-b border-white/5'
         : 'bg-gradient-to-b from-black/90 via-black/30 to-transparent'
         }`}>
@@ -964,8 +964,6 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         </div>
       </main>
 
-      {/* Bottom Navigation (Mobile Only) */}
-      <MobileNav onNavigate={onNavigate} currentScreen="home" role={useAuth().role} />
 
 
       {/* Custom Styles */}

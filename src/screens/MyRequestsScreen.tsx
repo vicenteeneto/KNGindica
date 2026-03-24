@@ -110,7 +110,7 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
     <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
 
       {/* Header */}
-      <header className="flex flex-col bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-20">
+      <header className="flex flex-col bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 relative z-20">
         <div className="flex items-center gap-3 p-4 max-w-4xl mx-auto w-full">
           <button 
             onClick={() => onNavigate('back')}
@@ -151,7 +151,7 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto w-full pb-32">
+      <main className="flex-1 overflow-y-auto w-full">
         <div className="max-w-4xl mx-auto w-full p-4 space-y-4">
 
           {loading ? (

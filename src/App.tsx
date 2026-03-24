@@ -40,6 +40,7 @@ import { AuthProvider, useAuth } from './AuthContext';
 import { NotificationProvider } from './NotificationContext';
 import SidebarNav from './components/SidebarNav';
 import PullToRefresh from './components/PullToRefresh';
+import MobileNav from './components/MobileNav';
 
 // ThemeToggle foi movido para o UserProfileScreen
 const STORAGE_KEY = 'KNGindica_currentScreen';
@@ -309,6 +310,9 @@ function AppContent() {
         <div className={`flex-1 w-full ${!NON_PERSISTENT_SCREENS.includes(currentScreen) ? 'lg:pl-12' : ''} transition-all duration-300`}>
           <PullToRefresh>
             {renderScreen()}
+            {!NON_PERSISTENT_SCREENS.includes(currentScreen) && (
+              <MobileNav onNavigate={handleNavigate} currentScreen={currentScreen} role={role} />
+            )}
           </PullToRefresh>
         </div>
       </div>

@@ -12,7 +12,7 @@ export default function ServiceHistoryScreen({ onNavigate }: NavigationProps) {
       <div className="max-w-7xl mx-auto bg-white dark:bg-slate-900 min-h-screen flex flex-col shadow-xl">
         
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 transition-colors">
+        <div className="relative z-10 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 transition-colors">
           <div className="flex items-center p-4 justify-between">
             <button onClick={() => onNavigate('home')} className="text-slate-900 dark:text-slate-100 flex size-10 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
               <span className="material-symbols-outlined text-[24px]">arrow_back</span>
@@ -134,7 +134,6 @@ export default function ServiceHistoryScreen({ onNavigate }: NavigationProps) {
             </div>
           </div>
           
-          <div className="h-24"></div> {/* Spacer for MobileNav */}
         </div>
 
       </div>
