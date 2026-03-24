@@ -11,8 +11,8 @@ interface SEOProps {
 const DEFAULT = {
   title: 'KNGindica — Encontre profissionais indicados perto de você',
   description: 'Conectamos você com os melhores prestadores de serviços da sua cidade. Limpeza, reformas, elétrica e muito mais.',
-  image: 'https://kngindica-dusky.vercel.app/og-image.png',
-  url: 'https://kngindica-dusky.vercel.app',
+  image: 'https://kngindica.kngflow.com/og-image.png',
+  url: 'https://kngindica.kngflow.com',
 };
 
 function setMeta(selector: string, value: string) {
