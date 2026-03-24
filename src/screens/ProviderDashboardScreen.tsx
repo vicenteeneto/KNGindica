@@ -241,7 +241,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
 
   const renderDashboardTab = () => (
     <>
-      <section className="px-4 pt-4 pb-1 text-center sm:text-left">
+      <section className="pt-4 pb-1 text-center sm:text-left">
         <h1 className="text-slate-900 dark:text-slate-100 text-xl font-black leading-tight italic tracking-tighter">Olá, {getGreetingName()}! 👋</h1>
         <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-0.5">Visão Geral do seu Negócio</p>
       </section>
@@ -259,7 +259,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         if (missing.length === 0) return null;
 
         return (
-          <section className="px-4 py-4">
+          <section className="py-4">
             <div className="bg-red-500/10 dark:bg-red-500/5 rounded-3xl p-6 border-2 border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.2)] animate-pulse-subtle relative overflow-hidden">
               <div className="absolute top-0 right-0 p-4 opacity-10">
                 <span className="material-symbols-outlined text-7xl text-red-500">warning</span>
@@ -407,7 +407,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
 
 
       {/* Indique e Ganhe - Referral System */}
-      <section className="px-4 pt-2">
+      <section className="pt-2">
         <div 
           onClick={() => onNavigate('rewards')}
           className="bg-gradient-to-br from-primary to-orange-600 rounded-3xl py-3 px-4 shadow-lg border border-white/10 relative overflow-hidden cursor-pointer group hover:scale-[1.02] active:scale-[0.98] transition-all"
@@ -437,7 +437,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
       </section>
 
       {/* Oportunidades KNGindica - Freelance Feed */}
-      <section className="px-4 pt-3 pb-3">
+      <section className="pt-3 pb-3">
         <div 
           onClick={() => onNavigate('openOrders')}
           className="bg-gradient-to-br from-emerald-500 to-teal-700 rounded-3xl py-3 px-4 shadow-lg border border-white/10 relative overflow-hidden cursor-pointer group hover:scale-[1.02] active:scale-[0.98] transition-all"
@@ -465,7 +465,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
 
 
       {/* Cards Auxiliares */}
-      <section className="px-4 pb-4">
+      <section className="pb-4">
          <div className="grid grid-cols-2 gap-2">
             <div onClick={() => onNavigate('providerRequests')} className="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center gap-3 cursor-pointer hover:border-primary transition-all group">
                <div className="size-8 bg-blue-500/10 rounded-lg flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-colors">
@@ -495,7 +495,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
       </section>
 
       {/* Carteira e Saldo */}
-      <section className="px-4 pb-8">
+      <section className="pb-8">
         <h3 className="font-black text-slate-900 dark:text-slate-100 mb-2 ml-1 flex items-center gap-2 text-[10px] uppercase tracking-widest">
           <span className="material-symbols-outlined text-slate-400 text-[18px]">payments</span>
           Carteira Financeira
