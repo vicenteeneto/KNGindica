@@ -29,7 +29,7 @@ const PLANS = [
     id: 'plus' as PlanType,
     name: 'Prestador Premium',
     subtitle: 'Para quem quer escala total',
-    price: 'R$ 49,90',
+    price: 'R$ 39,90',
     period: '/mês',
     icon: 'verified',
     color: 'primary',

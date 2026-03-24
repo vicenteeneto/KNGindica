@@ -34,6 +34,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const [pendingVerifications, setPendingVerifications] = useState<any[]>([]);
   const [selectedVerification, setSelectedVerification] = useState<any>(null);
+  const [selectedOrderDetail, setSelectedOrderDetail] = useState<any>(null);
 
   const [categoriesList, setCategoriesList] = useState<any[]>([]);
   const [categoryRequests, setCategoryRequests] = useState<any[]>([]);
@@ -86,6 +87,9 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
     description: '',
     status: 'active'
   });
+  const [chatAuditSearchTerm, setChatAuditSearchTerm] = useState('');
+  const [platformCommissionFixed, setPlatformCommissionFixed] = useState(10);
+  const [premiumSubscriptionPrice, setPremiumSubscriptionPrice] = useState(39.90);
 
   const ticketCategoryLabels: Record<string, string> = {
     dispute: 'Disputa Financeira',
@@ -154,6 +158,18 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
     } catch (e) {
       console.error("Erro ao atualizar status do usuário", e);
       showToast("Erro", "Erro ao atualizar status", "error");
+    }
+  };
+
+  const handleUpdateCategoryStatus = async (categoryId: string, active: boolean) => {
+    try {
+      const { error } = await supabase.from('service_categories').update({ active }).eq('id', categoryId);
+      if (error) throw error;
+      setCategoriesList(prev => prev.map(c => c.id === categoryId ? { ...c, active } : c));
+      showToast("Sucesso", `Categoria ${active ? 'ativada' : 'desativada'} com sucesso.`, "success");
+    } catch (e) {
+      console.error("Erro ao atualizar status da categoria", e);
+      showToast("Erro", "Erro ao atualizar categoria", "error");
     }
   };
 
@@ -600,7 +616,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
     const rows = concludedOrders.map(order => {
       const date = new Date(order.created_at).toLocaleDateString('pt-BR');
       const val = order.price || 0;
-      const tax = val * 0.15; // 15% platform fee
+      const tax = 10; // R$ 10,00 fixed platform fee
       return `"${order.id}","${order.client?.full_name || ''}","${order.provider?.full_name || ''}","${order.category?.name || 'Serviço Direto'}","${order.status}","R$ ${formatCurrency(val)}","R$ ${formatCurrency(tax)}","${date}"`;
     }).join("\n");
     
@@ -642,8 +658,8 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
       // 3. Fetch reviews
       const { data: reviews } = await supabase.from('reviews').select('*, reviewer:profiles!reviews_reviewer_id_fkey(full_name), provider:profiles!reviews_provider_id_fkey(full_name, role)').order('created_at', { ascending: false });
 
-      // Calculate dynamic platform revenue (e.g. 15% of all completed service prices)
-      const revenue = compServ.reduce((acc, curr) => acc + (curr.price || 0), 0) * 0.15;
+      // Calculate dynamic platform revenue (R$ 10,00 fixed per completed service)
+      const revenue = compServ.length * 10;
 
       // Enrich providers data
       const providers = (profiles?.filter(p => p.role === 'provider') || []).map(p => {
@@ -1887,8 +1903,12 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                     <td className="px-2 py-1.5 text-right">
                       <div className="flex gap-1 justify-end">
                         <button 
-                          onClick={(e) => { e.stopPropagation(); /* detail logic */ }}
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            setSelectedOrderDetail(order);
+                          }}
                           className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-md transition-colors"
+                          title="Visualizar Detalhes do Pedido"
                         >
                           <span className="material-symbols-outlined text-[18px]">visibility</span>
                         </button>
@@ -2086,24 +2106,28 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
           <div className="space-y-5">
             <div>
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Comissão por Serviço Concluído (%)</label>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Comissão por Serviço Concluído (Fixo R$)</label>
               <div className="flex items-center gap-4 border border-slate-200 dark:border-slate-700 rounded-lg p-3 bg-slate-50 dark:bg-slate-800/50">
-                <input type="range" min="5" max="30" defaultValue="15" className="w-full accent-primary" />
-                <span className="text-lg font-bold w-12 text-right">15%</span>
+                <span className="text-lg font-bold text-slate-400">R$</span>
+                <input 
+                  type="number" 
+                  value={platformCommissionFixed} 
+                  onChange={(e) => setPlatformCommissionFixed(Number(e.target.value))}
+                  className="w-full bg-transparent outline-none font-bold text-lg" 
+                />
               </div>
-              <p className="text-xs text-slate-500 mt-1">Percentual retido pela plataforma sobre o valor cobrado pelo prestador.</p>
+              <p className="text-xs text-slate-500 mt-1">Valor fixo retido pela plataforma por cada serviço finalizado.</p>
             </div>
 
             <hr className="border-slate-200 dark:border-slate-800" />
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Mensalidade Assinatura VIP Ouro</label>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Mensalidade Assinatura Premium</label>
               <div className="relative">
-
                 <input 
                   type="text" 
-                  defaultValue={formatCurrency(49.90)} 
-                  onChange={(e) => e.target.value = maskCurrency(e.target.value)}
+                  value={formatCurrency(premiumSubscriptionPrice)} 
+                  onChange={(e) => setPremiumSubscriptionPrice(Number(e.target.value.replace(/\D/g, '')) / 100)}
                   className="w-full px-2 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all font-bold" 
                 />
               </div>
@@ -2115,55 +2139,17 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           </div>
         </section>
 
-        {/* Gestão de Categorias */}
-        <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden flex flex-col">
-          <div className="p-6 border-b border-slate-200 dark:border-slate-800">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 p-2 rounded-lg flex items-center justify-center">
-                  <span className="material-symbols-outlined">category</span>
-                </div>
-                <h3 className="text-lg font-bold">Gestão de Categorias</h3>
-              </div>
-              <button className="text-primary hover:bg-primary/10 p-1.5 rounded-lg transition-colors" title="Adicionar Categoria">
-                <span className="material-symbols-outlined text-[20px]">add</span>
-              </button>
+        <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm p-6 overflow-hidden relative">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="bg-primary/10 text-primary p-2 rounded-lg flex items-center justify-center">
+              <span className="material-symbols-outlined">help</span>
             </div>
-
-            <div className="relative">
-              <span className="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-xl pointer-events-none">search</span>
-              <input
-                className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:border-primary transition-all"
-                placeholder="Buscar categoria para editar..."
-                type="text"
-              />
-            </div>
+            <h3 className="text-lg font-bold">Suporte e Ajuda</h3>
           </div>
-
-          <div className="flex-1 overflow-y-auto max-h-[250px] p-2">
-            <ul className="space-y-1">
-              {[
-                { name: 'Limpeza Residencial', active: true },
-                { name: 'Eletricista', active: true },
-                { name: 'Encanador', active: true },
-                { name: 'Montador de Móveis', active: true },
-                { name: 'Aulas Particulares', active: false },
-                { name: 'Personal Trainer', active: true }
-              ].map((cat, idx) => (
-                <li key={idx} className="flex items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg transition-colors group">
-                  <span className={`text-sm font-medium ${!cat.active ? 'text-slate-400 line-through' : 'text-slate-700 dark:text-slate-200'}`}>{cat.name}</span>
-                  <div className="flex items-center gap-2">
-                    <button className={`relative w-10 h-5 rounded-full outline-none transition-colors ${cat.active ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-600'}`}>
-                      <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${cat.active ? 'translate-x-5' : 'translate-x-0'}`}></span>
-                    </button>
-                    <button className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span className="material-symbols-outlined text-[18px]">edit</span>
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <p className="text-sm text-slate-500 mb-4">Ajuste os links de suporte e contatos do WhatsApp de atendimento.</p>
+          <button className="w-full py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-bold rounded-lg hover:bg-slate-200 transition-colors">
+            Configurar Canais
+          </button>
         </section>
 
       </div>
@@ -2705,7 +2691,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
   const renderFinanceTab = () => {
     const concludedOrders = ordersList.filter(o => o.status === 'completed');
     const grossVolume = concludedOrders.reduce((acc, order) => acc + (order.price || 0), 0);
-    const platformRevenue = grossVolume * 0.15; // fixed 15% fee assumption
+    const platformRevenue = concludedOrders.length * 10; // R$ 10,00 fixed fee per concluded service
     const avgTicket = concludedOrders.length > 0 ? grossVolume / concludedOrders.length : 0;
 
     return (
@@ -2739,7 +2725,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             <div className="p-2 bg-white/20 rounded-lg inline-flex mb-3">
               <span className="material-symbols-outlined text-2xl text-white">savings</span>
             </div>
-            <p className="text-sm text-white/80 font-medium">Receita da Plataforma (15%)</p>
+            <p className="text-sm text-white/80 font-medium">Receita da Plataforma (R$ 10 / serv)</p>
             <h3 className="text-3xl font-black mt-1">
               {formatCurrency(platformRevenue)}
             </h3>
@@ -2841,19 +2827,25 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
   const renderCategoriesTab = () => (
     <div className="animate-in fade-in duration-500 space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <button onClick={() => setActiveTab('dashboard')} className="flex items-center gap-1 text-slate-500 hover:text-primary transition-colors text-sm mb-2 font-medium">
-            <span className="material-symbols-outlined text-[16px]">arrow_back</span> Voltar ao Dashboard
-          </button>
-          <h2 className="text-xl font-bold">Categorias de Serviço</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Gerencie os tipos de serviços oferecidos na plataforma</p>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <button onClick={() => setActiveTab('dashboard')} className="flex items-center gap-1 text-slate-500 hover:text-primary transition-colors text-sm mb-2 font-medium">
+              <span className="material-symbols-outlined text-[16px]">arrow_back</span> Voltar ao Dashboard
+            </button>
+            <h2 className="text-xl font-bold">Categorias de Serviço</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Gerencie os tipos de serviços oferecidos na plataforma</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs font-bold border border-purple-200 dark:border-purple-800">
+              <span className="material-symbols-outlined text-[18px]">visibility</span>
+              {categoriesList.filter(c => c.active !== false).length} Visíveis
+            </div>
+            <button onClick={() => openCategoryModal()} className="px-2 py-1.5 bg-primary hover:bg-primary-hover text-white rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm">
+              <span className="material-symbols-outlined text-[20px]">add</span>
+              Nova Categoria
+            </button>
+          </div>
         </div>
-        <button onClick={() => openCategoryModal()} className="px-2 py-1.5 bg-primary hover:bg-primary-hover text-white rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm">
-          <span className="material-symbols-outlined text-[20px]">add</span>
-          Nova Categoria
-        </button>
-      </div>
 
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
@@ -2908,74 +2900,84 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
       </div>
 
       {/* Category Requests Section */}
-      <div className="mt-12 bg-slate-50/50 dark:bg-slate-800/20 p-6 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-bold flex items-center gap-2 text-slate-900 dark:text-white">
-            <span className="material-symbols-outlined text-primary">pending_actions</span>
-            Solicitações de Novas Categorias
-          </h2>
-          <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-xs font-bold">
-            {categoryRequests.filter(r => r.status === 'pending').length} pendentes
-          </span>
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+        {/* Gestão de Categorias (Moved from Settings) */}
+        <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden flex flex-col">
+          <div className="p-6 border-b border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 p-2 rounded-lg flex items-center justify-center">
+                  <span className="material-symbols-outlined">category</span>
+                </div>
+                <h3 className="text-lg font-bold">Gerenciar Exibição</h3>
+              </div>
+            </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse whitespace-normal break-words">
-              <thead>
-                <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-                  <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Categoria Sugerida</th>
-                  <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Prestador</th>
-                  <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                  <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider text-right">Ações</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {categoryRequests.length === 0 ? (
-                  <tr><td colSpan={4} className="p-8 text-center text-slate-500 italic">Nenhuma solicitação encontrada por enquanto.</td></tr>
-                ) : (
-                  categoryRequests.map(req => (
-                    <tr key={req.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                      <td className="px-3 py-3 font-black text-sm text-primary uppercase italic tracking-tighter">
-                        {req.category_name}
-                      </td>
-                      <td className="px-3 py-3">
-                        <p className="text-sm font-medium">{req.provider?.full_name || 'Desconhecido'}</p>
-                        <p className="text-xs text-slate-500">{req.provider?.email}</p>
-                      </td>
-                      <td className="px-3 py-3">
-                        <span className={`px-2 py-1 text-[10px] font-bold rounded uppercase ${
-                          req.status === 'approved' ? 'bg-green-100 text-green-700' :
-                          req.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
-                        }`}>
-                          {req.status === 'approved' ? 'Aprovada' : req.status === 'rejected' ? 'Rejeitada' : 'Pendente'}
-                        </span>
-                      </td>
-                      <td className="px-3 py-3 text-right">
-                        {req.status === 'pending' && (
-                          <div className="flex gap-2 justify-end">
-                            <button
-                              onClick={() => handleApproveCategoryRequest(req)}
-                              className="px-3 py-1.5 bg-green-500 text-white text-xs font-bold rounded-lg hover:bg-green-600 transition-colors flex items-center gap-1"
-                            >
-                              <span className="material-symbols-outlined text-[16px]">check</span> Aprovar
-                            </button>
-                            <button
-                              onClick={() => handleRejectCategoryRequest(req.id)}
-                              className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-lg hover:bg-red-50 hover:text-red-500 transition-colors flex items-center gap-1"
-                            >
-                              <span className="material-symbols-outlined text-[16px]">close</span> Rejeitar
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-xl pointer-events-none">search</span>
+              <input
+                className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:border-primary transition-all"
+                placeholder="Buscar categoria..."
+                type="text"
+              />
+            </div>
           </div>
-        </div>
+
+          <div className="flex-1 overflow-y-auto max-h-[350px] p-2">
+            <ul className="space-y-1">
+              {categoriesList.map((cat, idx) => (
+                <li key={idx} className="flex items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg transition-colors group">
+                  <div className="flex items-center gap-3">
+                    <span className="material-symbols-outlined text-slate-400 text-[18px]">{cat.icon || 'handyman'}</span>
+                    <span className={`text-sm font-medium ${cat.active === false ? 'text-slate-400 line-through' : 'text-slate-700 dark:text-slate-200'}`}>{cat.name}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => handleUpdateCategoryStatus(cat.id, cat.active !== false ? false : true)}
+                      className={`relative w-10 h-5 rounded-full outline-none transition-colors ${cat.active !== false ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-600'}`}
+                    >
+                      <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${cat.active !== false ? 'translate-x-5' : 'translate-x-0'}`}></span>
+                    </button>
+                    <button onClick={() => openCategoryModal(cat)} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="material-symbols-outlined text-[18px]">edit</span>
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* Requests Summary Card */}
+        <section className="bg-slate-50 dark:bg-slate-800/20 border border-slate-200 dark:border-slate-800 rounded-xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold flex items-center gap-2 text-slate-900 dark:text-white">
+              <span className="material-symbols-outlined text-primary">pending_actions</span>
+              Novas Sugestões
+            </h3>
+            <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-[10px] font-black uppercase">
+              {categoryRequests.filter(r => r.status === 'pending').length} Pendentes
+            </span>
+          </div>
+          <div className="space-y-3">
+            {categoryRequests.filter(r => r.status === 'pending').slice(0, 3).map(req => (
+              <div key={req.id} className="bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-100 dark:border-slate-800 flex items-center justify-between shadow-sm">
+                <div>
+                  <p className="text-sm font-bold text-primary italic uppercase tracking-tighter">{req.category_name}</p>
+                  <p className="text-[10px] text-slate-500 font-medium">Por: {req.provider?.full_name?.split(' ')[0]}</p>
+                </div>
+                <div className="flex gap-1">
+                  <button onClick={() => handleApproveCategoryRequest(req)} className="size-8 bg-green-500 text-white rounded-lg flex items-center justify-center hover:bg-green-600 transition-colors">
+                    <span className="material-symbols-outlined text-[18px]">check</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+            {categoryRequests.filter(r => r.status === 'pending').length === 0 && (
+              <p className="text-center text-slate-400 text-xs py-10 italic">Nenhuma sugestão pendente.</p>
+            )}
+          </div>
+        </section>
       </div>
     </div>
   );
@@ -3093,13 +3095,11 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
   };
 
   const renderChatAuditTab = () => {
-    const [searchTerm, setSearchTerm] = useState('');
-    
     const filteredRooms = chatRoomsList.filter(room => {
       const clientName = (room.client?.full_name || '').toLowerCase();
       const providerName = (room.provider?.full_name || '').toLowerCase();
       const requestTitle = (room.request?.title || '').toLowerCase();
-      const term = searchTerm.toLowerCase();
+      const term = chatAuditSearchTerm.toLowerCase();
       return clientName.includes(term) || providerName.includes(term) || requestTitle.includes(term);
     });
 
@@ -3118,8 +3118,8 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             <input
               type="text"
               placeholder="Buscar por nome ou pedido..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={chatAuditSearchTerm}
+              onChange={(e) => setChatAuditSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
             />
           </div>
@@ -3612,6 +3612,152 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                    <span className="material-symbols-outlined text-[18px]">chat</span>
                    Iniciar Chat
                  </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {selectedOrderDetail && (
+          <div className="fixed inset-0 z-[120] bg-black/70 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300">
+            <div className="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-300">
+              <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md z-10">
+                <div className="flex items-center gap-4">
+                  <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                    <span className="material-symbols-outlined text-2xl">receipt_long</span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-slate-900 dark:text-white leading-tight">Detalhes do Pedido</h3>
+                    <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">{selectedOrderDetail.display_id || `#${selectedOrderDetail.id.split('-')[0].toUpperCase()}`}</p>
+                  </div>
+                </div>
+                <button onClick={() => setSelectedOrderDetail(null)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+
+              <div className="p-8 space-y-8">
+                {/* Status and Price Banner */}
+                <div className="flex flex-col sm:flex-row gap-4 items-center justify-between p-6 bg-slate-50 dark:bg-slate-800/30 rounded-3xl border border-slate-100 dark:border-slate-800">
+                   <div className="flex items-center gap-3">
+                     <span className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest ${
+                       ['completed', 'paid'].includes(selectedOrderDetail.status) ? 'bg-green-100 text-green-700' : 
+                       ['cancelled', 'disputed'].includes(selectedOrderDetail.status) ? 'bg-red-100 text-red-700' : 
+                       'bg-primary/10 text-primary'
+                     }`}>
+                       {statusMap[selectedOrderDetail.status] || selectedOrderDetail.status}
+                     </span>
+                     <span className="text-xs text-slate-400 font-bold">•</span>
+                     <p className="text-xs text-slate-500 font-bold">{new Date(selectedOrderDetail.created_at).toLocaleString('pt-BR')}</p>
+                   </div>
+                   <div className="text-right">
+                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Valor Total</p>
+                     <p className="text-2xl font-black text-slate-900 dark:text-white">
+                       {selectedOrderDetail.price ? formatCurrency(selectedOrderDetail.price) : 'Em negociação'}
+                     </p>
+                   </div>
+                </div>
+
+                {/* Service Category */}
+                <div>
+                   <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3 ml-1">Serviço Solicitado</h4>
+                   <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center gap-4">
+                      <div className="size-10 rounded-xl bg-primary/5 text-primary flex items-center justify-center">
+                         <span className="material-symbols-outlined">category</span>
+                      </div>
+                      <span className="text-lg font-bold">{selectedOrderDetail.category?.name || 'Serviço Personalizado'}</span>
+                   </div>
+                </div>
+
+                {/* Description if any */}
+                {selectedOrderDetail.description && (
+                  <div>
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3 ml-1">Descrição do Cliente</h4>
+                    <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 text-sm leading-relaxed text-slate-700 dark:text-slate-300 italic font-medium">
+                      "{selectedOrderDetail.description}"
+                    </div>
+                  </div>
+                )}
+
+                {/* Participants */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Client */}
+                  <div className="space-y-3">
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Cliente</h4>
+                    <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center gap-3">
+                       <img src={selectedOrderDetail.client?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} className="size-12 rounded-full object-cover bg-slate-100" />
+                       <div className="overflow-hidden">
+                         <p className="font-bold text-sm truncate">{selectedOrderDetail.client?.full_name || 'Usuário'}</p>
+                         <p className="text-[10px] text-slate-500 truncate">{selectedOrderDetail.client?.email || 'N/I'}</p>
+                       </div>
+                    </div>
+                  </div>
+
+                  {/* Provider */}
+                  <div className="space-y-3">
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Prestador</h4>
+                    <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center gap-3">
+                       <img src={selectedOrderDetail.provider?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} className="size-12 rounded-full object-cover bg-slate-100" />
+                       <div className="overflow-hidden">
+                         <p className="font-bold text-sm truncate">{selectedOrderDetail.provider?.full_name || 'Profissional'}</p>
+                         <p className="text-[10px] text-slate-500 truncate">{selectedOrderDetail.provider?.email || 'N/I'}</p>
+                       </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Extra Details / Audit */}
+                <div className="p-6 bg-blue-50/50 dark:bg-blue-900/10 rounded-3xl border border-blue-100 dark:border-blue-900/20 space-y-4">
+                  <h4 className="text-[10px] font-black uppercase tracking-[0.1em] text-blue-600 dark:text-blue-400 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm">analytics</span>
+                    Contexto para Auditoria
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4 text-[11px]">
+                     <div>
+                       <p className="text-slate-400 font-bold mb-0.5">ID Interno</p>
+                       <p className="text-slate-600 dark:text-slate-300 font-mono font-bold truncate" title={selectedOrderDetail.id}>{selectedOrderDetail.id}</p>
+                     </div>
+                     <div>
+                       <p className="text-slate-400 font-bold mb-0.5">Taxa Plataforma (15%)</p>
+                       <p className="text-blue-600 dark:text-blue-400 font-black">
+                         {selectedOrderDetail.price ? formatCurrency(selectedOrderDetail.price * 0.15) : '---'}
+                       </p>
+                     </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-8 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row gap-4 bg-slate-50/50 dark:bg-slate-800/50">
+                <button 
+                  onClick={() => {
+                    const room = chatRoomsList.find(r => r.request_id === selectedOrderDetail.id);
+                    if (room) {
+                      setSelectedChatRoom(room);
+                      setSelectedOrderDetail(null);
+                      setActiveTab('chat_audit');
+                    } else {
+                      showToast("Info", "Nenhuma conversa de chat iniciada para este pedido.", "notification");
+                    }
+                  }}
+                  className="flex-1 px-6 py-4 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-2xl hover:border-primary/30 hover:text-primary transition-all flex items-center justify-center gap-2 shadow-sm"
+                >
+                  <span className="material-symbols-outlined">chat_bubble</span>
+                  Auditar Chat
+                </button>
+                <button 
+                  onClick={() => {
+                    if (selectedOrderDetail.status === 'disputed') {
+                       setSelectedDispute(selectedOrderDetail);
+                       setSelectedOrderDetail(null);
+                       setActiveTab('tickets');
+                    } else {
+                       showToast("Info", "Disputas só podem ser resolvidas se o status for 'Em Disputa'.", "notification");
+                    }
+                  }}
+                  className="flex-1 px-6 py-4 bg-primary text-white font-black rounded-2xl hover:bg-primary-hover shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2"
+                >
+                  <span className="material-symbols-outlined">gavel</span>
+                  Resolver Disputa
+                </button>
               </div>
             </div>
           </div>

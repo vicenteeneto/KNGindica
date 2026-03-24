@@ -42,7 +42,7 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
       ];
 
   return (
-    <nav className="hidden md:flex fixed left-0 top-0 bottom-0 w-12 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-r border-slate-200 dark:border-white/10 flex-col items-center py-2 z-50 shadow-lg overflow-hidden">
+    <nav className="flex fixed left-0 top-0 bottom-0 w-12 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-r border-slate-200 dark:border-white/10 flex-col items-center py-2 z-[100] shadow-lg overflow-hidden">
       <div className="flex-1 flex flex-col gap-0.5 overflow-hidden py-1 w-full px-0.5">
         {navItems.map((item) => {
           const isActive = currentScreen === item.screen;

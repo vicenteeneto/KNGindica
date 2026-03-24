@@ -625,10 +625,10 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           />
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col items-center gap-2">
             <h1 className="text-2xl font-bold tracking-tight text-center">{displayUser.name}</h1>
-            <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest italic shadow-sm ${role === 'provider' ? 'bg-emerald-500 text-white' : 'bg-primary text-white'}`}>
-              {role === 'provider' ? 'PRESTADOR' : 'CLIENTE'}
+            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest italic shadow-sm ${role === 'provider' ? 'bg-emerald-500 text-white' : 'bg-primary text-white'}`}>
+              {role === 'provider' ? 'PRESTADOR DE SERVIÇO' : 'CLIENTE'}
             </span>
           </div>
           <p className="text-slate-500 dark:text-slate-400 text-sm mb-1">{displayUser.email}</p>
@@ -855,7 +855,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
               <div className="relative z-10 w-3/4">
                 <h3 className="font-bold text-lg mb-1 flex items-center gap-2">
                   <span className="material-symbols-outlined text-amber-400">handyman</span>
-                  Modo Prestador
+                  Prestador
                 </h3>
                 <p className="text-sm text-slate-300 leading-relaxed">
                   Alternar para a visualização exclusiva de prestador de serviços.
@@ -1370,9 +1370,14 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
 
                 {/* 03. Portfólio de Imagens */}
                 <div className="space-y-4">
-                  <div className="flex items-center gap-2 mb-2 px-1">
-                    <span className="text-[10px] font-black text-purple-500 uppercase tracking-[0.2em]">03. Portfólio (Fotos)</span>
-                    <div className="flex-1 h-[1px] bg-slate-100 dark:bg-slate-800"></div>
+                  <div className="flex items-center justify-between gap-2 mb-2 px-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-black text-purple-500 uppercase tracking-[0.2em]">03. Portfólio (Fotos)</span>
+                      <div className="h-[1px] w-8 bg-slate-100 dark:bg-slate-800"></div>
+                    </div>
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 dark:bg-slate-800/50 px-2 py-1 rounded-lg border border-slate-100 dark:border-slate-800">
+                      Formatos aceitos: JPG, PNG
+                    </span>
                   </div>
                   
                   <div className="grid grid-cols-4 gap-2">

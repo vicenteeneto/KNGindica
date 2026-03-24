@@ -16,6 +16,7 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
   const [fullName, setFullName] = useState('');
   const [signUpRole, setSignUpRole] = useState<UserRole>('client');
   const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -188,13 +189,22 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
               <div className="relative flex items-center">
                 <span className="material-symbols-outlined absolute left-3 text-gray-500">lock</span>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all text-white shadow-sm"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-12 text-sm focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all text-white shadow-sm"
                   placeholder="••••••••"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 text-gray-500 hover:text-gray-300 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[20px]">
+                    {showPassword ? 'visibility_off' : 'visibility'}
+                  </span>
+                </button>
               </div>
             </div>
 
