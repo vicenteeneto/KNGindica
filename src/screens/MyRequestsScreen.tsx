@@ -174,7 +174,7 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
               {freelanceOrders.map((order) => (
                 <div
                   key={order.id}
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-sm overflow-hidden"
+                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm overflow-hidden"
                 >
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
@@ -193,8 +193,8 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
                   </div>
 
                   {/* Bids Link */}
-                  <div className="mt-6 border-t border-slate-100 dark:border-slate-700 pt-4 cursor-pointer" onClick={() => onNavigate('bidRoom', { orderId: order.id })}>
-                    <div className="flex items-center justify-between text-primary font-bold bg-primary/5 hover:bg-primary/10 rounded-2xl p-4 transition-colors">
+                  <div className="mt-4 border-t border-slate-100 dark:border-slate-700 pt-4 cursor-pointer" onClick={() => onNavigate('bidRoom', { orderId: order.id })}>
+                    <div className="flex items-center justify-between text-primary font-bold bg-primary/5 hover:bg-primary/10 rounded-2xl p-3 transition-colors">
                       <div className="flex items-center gap-2">
                         <span className="material-symbols-outlined">forum</span>
                         <span>Ver Sala de Freelance</span>

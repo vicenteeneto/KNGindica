@@ -335,12 +335,12 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         </div>
 
         {/* Funil de Conversão */}
-        <div className="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-xl mb-6 relative overflow-hidden group">
+        <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-xl mb-4 relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-4 opacity-5 rotate-12 group-hover:rotate-45 transition-transform duration-700">
             <span className="material-symbols-outlined text-8xl text-white">analytics</span>
           </div>
           
-          <div className="flex justify-between items-start mb-6">
+          <div className="flex justify-between items-start mb-4">
             <div>
               <h4 className="text-white font-black text-[10px] uppercase tracking-widest flex items-center gap-2">
                 Taxa de Conversão
@@ -394,16 +394,16 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
 
 
       {/* Indique e Ganhe - Referral System */}
-      <section className="px-4 pt-6">
+      <section className="px-4 pt-4">
         <div 
           onClick={() => onNavigate('rewards')}
-          className="bg-gradient-to-br from-primary to-orange-600 rounded-3xl p-5 shadow-lg border border-white/10 relative overflow-hidden cursor-pointer group hover:scale-[1.02] active:scale-[0.98] transition-all"
+          className="bg-gradient-to-br from-primary to-orange-600 rounded-3xl p-4 shadow-lg border border-white/10 relative overflow-hidden cursor-pointer group hover:scale-[1.02] active:scale-[0.98] transition-all"
         >
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
             <span className="material-symbols-outlined text-7xl text-white">workspace_premium</span>
           </div>
           <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-2 py-1 rounded-full text-[9px] font-black tracking-widest uppercase mb-3 text-white">
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-2 py-1 rounded-full text-[9px] font-black tracking-widest uppercase mb-2 text-white">
               <span className="material-symbols-outlined text-xs">share</span>
               Ganhe Prêmios Indicando
             </div>
@@ -413,7 +413,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
             <p className="text-white/80 text-[11px] font-medium leading-tight max-w-[200px]">
               Seu link de convite vale pontos que podem ser trocados por KNG Premium e mais.
             </p>
-            <div className="mt-4 flex items-center gap-2">
+            <div className="mt-3 flex items-center gap-2">
               <span className="text-[10px] font-black text-white uppercase tracking-widest bg-white/20 px-3 py-1.5 rounded-xl border border-white/20 flex items-center gap-2">
                 Ver Meus Pontos ({profile?.reward_points || 0} pts)
                 <span className="material-symbols-outlined text-xs">chevron_right</span>
@@ -424,16 +424,16 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
       </section>
 
       {/* Oportunidades KNGindica - Freelance Feed */}
-      <section className="px-4 pt-6 pb-6">
+      <section className="px-4 pt-5 pb-5">
         <div 
           onClick={() => onNavigate('openOrders')}
-          className="bg-gradient-to-br from-emerald-500 to-teal-700 rounded-3xl p-5 shadow-lg border border-white/10 relative overflow-hidden cursor-pointer group hover:scale-[1.02] active:scale-[0.98] transition-all"
+          className="bg-gradient-to-br from-emerald-500 to-teal-700 rounded-3xl p-4 shadow-lg border border-white/10 relative overflow-hidden cursor-pointer group hover:scale-[1.02] active:scale-[0.98] transition-all"
         >
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:rotate-12 transition-transform duration-500">
             <span className="material-symbols-outlined text-7xl text-white">rocket_launch</span>
           </div>
           <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 bg-black/20 backdrop-blur-md px-2 py-1 rounded-full text-[9px] font-black tracking-widest uppercase mb-3 text-emerald-200">
+            <div className="inline-flex items-center gap-2 bg-black/20 backdrop-blur-md px-2 py-1 rounded-full text-[9px] font-black tracking-widest uppercase mb-2 text-emerald-200">
               <span className="material-symbols-outlined text-xs">campaign</span>
               Mais de 10 ordens hoje
             </div>
@@ -443,7 +443,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
             <p className="text-emerald-50/80 text-[11px] font-medium leading-tight max-w-[200px]">
               Novos pedidos freelance abertos na sua região disponíveis.
             </p>
-            <div className="mt-4 flex items-center gap-2">
+            <div className="mt-3 flex items-center gap-2">
               <span className="text-[10px] font-black text-white uppercase tracking-widest bg-emerald-400/20 px-3 py-1.5 rounded-xl border border-white/20">Ver Ordens Disponíveis</span>
             </div>
           </div>
@@ -453,20 +453,20 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
 
       {/* Cards Auxiliares */}
       <section className="px-4 pb-4">
-         <div className="grid grid-cols-2 gap-3">
-            <div onClick={() => onNavigate('providerRequests')} className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center gap-3 cursor-pointer hover:border-primary transition-all group">
+         <div className="grid grid-cols-2 gap-2">
+            <div onClick={() => onNavigate('providerRequests')} className="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center gap-3 cursor-pointer hover:border-primary transition-all group">
                <div className="size-8 bg-blue-500/10 rounded-lg flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-colors">
                   <span className="material-symbols-outlined text-sm">assignment</span>
                </div>
                <div>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pedidos e Serviços</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pedidos</p>
                   <div className="flex items-center gap-1.5">
                     <p className="text-lg font-black text-slate-900 dark:text-slate-100">{stats.requests}</p>
                     <span className="material-symbols-outlined text-slate-300 text-sm group-hover:translate-x-1 transition-transform">chevron_right</span>
                   </div>
                </div>
             </div>
-            <div onClick={() => onNavigate('reviews', { professionalId: user.id, returnTo: 'dashboard' })} className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center gap-3 cursor-pointer hover:border-primary transition-all group">
+            <div onClick={() => onNavigate('reviews', { professionalId: user.id, returnTo: 'dashboard' })} className="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center gap-3 cursor-pointer hover:border-primary transition-all group">
                <div className="size-8 bg-amber-500/10 rounded-lg flex items-center justify-center text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-colors">
                   <span className="material-symbols-outlined text-sm">star</span>
                </div>
@@ -483,11 +483,11 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
 
       {/* Carteira e Saldo */}
       <section className="px-4 pb-8">
-        <h3 className="font-black text-slate-900 dark:text-slate-100 mb-3 ml-1 flex items-center gap-2 text-[10px] uppercase tracking-widest">
+        <h3 className="font-black text-slate-900 dark:text-slate-100 mb-2 ml-1 flex items-center gap-2 text-[10px] uppercase tracking-widest">
           <span className="material-symbols-outlined text-slate-400 text-[18px]">payments</span>
           Carteira Financeira
         </h3>
-        <div onClick={() => onNavigate('providerWallet')} className="group flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-primary transition-all cursor-pointer overflow-hidden relative">
+        <div onClick={() => onNavigate('providerWallet')} className="group flex items-center justify-between p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-primary transition-all cursor-pointer overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/0 to-primary/[0.02] pointer-events-none" />
           <div className="flex flex-col gap-0.5 relative z-10">
             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5 group-hover:text-primary transition-colors">Saldo Atualizado</p>
@@ -560,7 +560,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
                       if (missingForStatus.length > 0) return null;
 
                       return (
-                        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-xl mb-6">
+                        <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-800 shadow-xl mb-4">
                           <div className="flex items-center gap-4 mb-4">
                             <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500">
                                <span className="material-symbols-outlined text-3xl">verified_user</span>
@@ -572,7 +572,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
                           </div>
                           <button 
                             onClick={() => onNavigate('profile', { professionalId: user?.id, returnTo: 'dashboard' })}
-                            className="w-full py-3 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-xs uppercase tracking-widest transition-all"
+                            className="w-full py-2.5 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-xs uppercase tracking-widest transition-all"
                           >
                             Ver Perfil Público
                           </button>

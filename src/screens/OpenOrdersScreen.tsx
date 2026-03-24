@@ -115,7 +115,7 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
 
   return (
     <div className="bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
-      <div className="sticky top-0 z-40 bg-white dark:bg-slate-900">
+      <div className="relative z-40 bg-white dark:bg-slate-900">
         <ProviderHeader 
           title="Freelance" 
           onBack={() => onNavigate('dashboard')} 
@@ -162,7 +162,7 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
             <div 
               key={order.id} 
               onClick={() => onNavigate('bidRoom', { orderId: order.id })}
-              className="cursor-pointer bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden relative group transition-all hover:shadow-xl hover:border-primary/20 hover:-translate-y-1 block"
+              className="cursor-pointer bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden relative group transition-all hover:shadow-xl hover:border-primary/20 hover:-translate-y-1 block"
             >
               {/* Dismiss Button - Só em disponíveis */}
               {activeTab === 'available' && (
