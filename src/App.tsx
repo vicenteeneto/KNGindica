@@ -88,7 +88,9 @@ function AppContent() {
     try {
       const path = window.location.pathname;
       if (path.startsWith('/search/')) {
-        const searchId = path.split('/')[2];
+        const parts = path.split('/');
+        // Pega a parte do ID e remove qualquer query param (ex: ?fbclid=...) ou hash
+        const searchId = parts[2]?.split('?')[0]?.split('#')[0];
         return { searchId };
       }
 
