@@ -61,6 +61,9 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
     fetchData();
     if (user && searchId) {
        localStorage.removeItem('pendingSearchId');
+    } else if (!user && searchId) {
+       // Persiste para garantir volta após login por qualquer via
+       localStorage.setItem('pendingSearchId', searchId);
     }
   }, [searchId, user]);
 
@@ -75,6 +78,9 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
         options: { data: { full_name: name } }
       });
       if (signUpError) throw signUpError;
+      
+      // Garante que o searchId esteja no storage para a restauração no App.tsx
+      if (searchId) localStorage.setItem('pendingSearchId', searchId);
     } catch (err: any) {
       setRegError(err.message);
     } finally {

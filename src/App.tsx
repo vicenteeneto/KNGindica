@@ -136,7 +136,9 @@ function AppContent() {
         }
       } else {
         // Verifica se havia uma pesquisa pendente do WhatsApp antes do login (prioridade total)
+        // Tentamos recuperar do localStorage ou se a tela atual já for a de busca
         const pendingSearchId = localStorage.getItem('pendingSearchId');
+        
         if (pendingSearchId) {
           localStorage.removeItem('pendingSearchId');
           setNavigationParams({ searchId: pendingSearchId });
