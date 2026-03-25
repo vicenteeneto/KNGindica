@@ -104,6 +104,33 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
     }
   }, [order?.expires_at, order?.status]);
 
+  const handleCancelBid = async (bidId: string) => {
+    if (!window.confirm("Certeza que deseja retirar sua proposta?")) return;
+    try {
+      const { error } = await supabase.from('freelance_bids').delete().eq('id', bidId);
+      if (error) throw error;
+      showToast("Sucesso", "Proposta retirada", "success");
+      // O fetchBids precisa ser chamado ou o estado atualizado
+      window.location.reload(); // Simple way as fetchBids isn't easily accessible here if not in scope
+    } catch (e) {
+      console.error(e);
+      showToast("Erro", "Falha ao retirar proposta", "error");
+    }
+  };
+
+  const handleCancelOrder = async () => {
+    if (!window.confirm("Certeza que deseja CANCELAR este freelance? Esta ação é irreversível.")) return;
+    try {
+      const { error } = await supabase.from('freelance_orders').update({ status: 'cancelled' }).eq('id', order.id);
+      if (error) throw error;
+      showToast("Cancelado", "Freelance cancelado com sucesso", "notification");
+      onNavigate('back');
+    } catch (e) {
+      console.error(e);
+      showToast("Erro", "Falha ao cancelar freelance", "error");
+    }
+  };
+
   const handleSendBid = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitting) return;
@@ -144,6 +171,11 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
         title: order.title,
         description: order.description,
         city: order.city,
+        street: order.street,
+        number: order.number,
+        neighborhood: order.neighborhood,
+        state: order.state,
+        cep: order.cep,
         budget: bid.amount,
         status: 'awaiting_payment',
         service_category_id: order.category_id,
@@ -252,7 +284,17 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
                           </p>
                         </div>
                       </div>
-                      <p className={`text-lg font-black ${isMine ? 'text-primary' : 'text-emerald-500'}`}>{formatCurrency(bid.amount || 0)}</p>
+                      <div className="text-right">
+                        <p className={`text-lg font-black ${isMine ? 'text-primary' : 'text-emerald-500'}`}>{formatCurrency(bid.amount || 0)}</p>
+                        {isMine && !isExpired && (
+                          <button 
+                            onClick={() => handleCancelBid(bid.id)}
+                            className="text-[10px] text-red-500 font-bold uppercase hover:bg-red-50 px-2 py-1 rounded-lg transition-colors mt-1"
+                          >
+                            Mudar de ideia? Cancelar
+                          </button>
+                        )}
+                      </div>
                     </div>
                     {bid.message && (
                       <p className="text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50 p-2 rounded-xl mt-1">
@@ -292,9 +334,9 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
             <button 
               type="submit" 
               disabled={submitting || !bidAmount}
-              className="bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:active:scale-100 text-white rounded-2xl h-14 px-6 font-black uppercase tracking-widest text-sm shadow-xl shadow-primary/30 active:scale-95 transition-all w-28 flex items-center justify-center shrink-0"
+              className="bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:active:scale-100 text-white rounded-2xl h-11 px-4 font-black uppercase tracking-widest text-xs shadow-xl shadow-primary/30 active:scale-95 transition-all w-28 flex items-center justify-center shrink-0"
             >
-              {submitting ? <span className="material-symbols-outlined animate-spin">sync</span> : 'Enviar'}
+              {submitting ? <span className="material-symbols-outlined animate-spin text-sm">sync</span> : 'Enviar'}
             </button>
           </div>
         </form>
@@ -309,14 +351,19 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
       {isClient && !isExpired && (
         <div className="shrink-0 p-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 z-20 text-center">
           <p className="text-sm font-bold text-slate-500 mb-2">Você é o criador deste pedido.</p>
-          <button onClick={async () => {
-            if (window.confirm('Certeza que deseja encerrar preventivamente? Ninguém mais poderá dar lances.')) {
-              await supabase.from('freelance_orders').update({status: 'closed'}).eq('id', order.id);
-              onNavigate('back');
-            }
-          }} className="text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 px-4 py-2 rounded-xl text-sm font-bold transition-colors">
-            Encerrar Freelance Antecipadamente
-          </button>
+          <div className="flex flex-col gap-2">
+            <button onClick={async () => {
+              if (window.confirm('Certeza que deseja encerrar preventivamente? Ninguém mais poderá dar lances.')) {
+                await supabase.from('freelance_orders').update({status: 'closed'}).eq('id', order.id);
+                onNavigate('back');
+              }
+            }} className="text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-500/10 px-4 py-2 rounded-xl text-xs font-bold transition-colors">
+              Encerrar Freelance Antecipadamente
+            </button>
+            <button onClick={handleCancelOrder} className="text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 px-4 py-2 rounded-xl text-sm font-black uppercase tracking-widest transition-colors">
+              CANCELAR ESTE FREELANCE
+            </button>
+          </div>
         </div>
       )}
     </div>

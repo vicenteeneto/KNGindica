@@ -754,7 +754,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                 opponentAvatar: professional.image 
               });
             }}
-            className="flex-1 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 py-4 px-6 rounded-xl font-bold flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-sm"
+            className="flex-1 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 py-2.5 px-6 rounded-xl font-bold flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-sm"
           >
             <span className="material-symbols-outlined text-[20px]">chat_bubble</span>
             Mensagem
@@ -764,7 +764,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
               trackLead(professional.id, 'chat_start');
               onNavigate('serviceRequestForm', { providerId: professional.id, providerName: professional.name });
             }}
-            className="flex-[2] bg-primary hover:bg-primary/90 text-white py-4 px-6 rounded-xl font-bold flex items-center justify-center gap-2 shadow-xl transition-transform active:scale-95 shadow-primary/20"
+            className="flex-[2] bg-primary hover:bg-primary/90 text-white py-2.5 px-6 rounded-xl font-bold flex items-center justify-center gap-2 shadow-xl transition-transform active:scale-95 shadow-primary/20"
           >
             <span className="material-symbols-outlined text-[20px]">design_services</span>
             Solicitar Orçamento

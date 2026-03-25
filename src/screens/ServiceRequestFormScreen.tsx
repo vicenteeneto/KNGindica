@@ -13,9 +13,12 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
   const { user } = useAuth();
   const { showToast } = useNotifications();
   const [description, setDescription] = useState('');
-  const [address, setAddress] = useState('');
+  const [street, setStreet] = useState('');
+  const [number, setNumber] = useState('');
+  const [neighborhood, setNeighborhood] = useState('');
   const [addressComplement, setAddressComplement] = useState('');
   const [city, setCity] = useState('');
+  const [state, setState] = useState('');
   const [cep, setCep] = useState('');
   const [desiredDate, setDesiredDate] = useState('');
   const [desiredTime, setDesiredTime] = useState('09:00');
@@ -34,8 +37,12 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed.description) setDescription(parsed.description);
-        if (parsed.address) setAddress(parsed.address);
+        if (parsed.street) setStreet(parsed.street);
+        if (parsed.number) setNumber(parsed.number);
+        if (parsed.neighborhood) setNeighborhood(parsed.neighborhood);
         if (parsed.city) setCity(parsed.city);
+        if (parsed.state) setState(parsed.state);
+        if (parsed.cep) setCep(parsed.cep);
         if (parsed.desiredDate) setDesiredDate(parsed.desiredDate);
         if (parsed.desiredTime) setDesiredTime(parsed.desiredTime);
         if (parsed.selectedCategoryId) setSelectedCategoryId(parsed.selectedCategoryId);
@@ -50,11 +57,11 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
   useEffect(() => {
     const timer = setTimeout(() => {
       localStorage.setItem('draft_service_request', JSON.stringify({
-        description, address, city, desiredDate, desiredTime, selectedCategoryId, photos
+        street, number, neighborhood, city, state, cep, desiredDate, desiredTime, selectedCategoryId, photos
       }));
     }, 500);
     return () => clearTimeout(timer);
-  }, [description, address, desiredDate, desiredTime, selectedCategoryId, photos]);
+  }, [street, number, neighborhood, city, state, cep, desiredDate, desiredTime, selectedCategoryId, photos]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -93,8 +100,8 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
       showToast("Atenção", 'Por favor, selecione uma categoria.', "warning");
       return;
     }
-    if (!description || !city || !address || !desiredDate) {
-      showToast("Atenção", 'Por favor, preencha a descrição, cidade, endereço e a data desejada.', "warning");
+    if (!description || !city || !street || !number || !neighborhood || !desiredDate) {
+      showToast("Atenção", 'Por favor, preencha a descrição, cidade, endereço completo (com número e bairro) e a data desejada.', "warning");
       return;
     }
 
@@ -112,8 +119,11 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
           provider_id: params?.providerId || null,
           title: `Orçamento para ${categoryName}`,
           description: fullDescription,
-          address,
+          street,
+          number,
+          neighborhood,
           city,
+          state,
           cep,
           address_complement: addressComplement,
           status: 'open'
@@ -154,16 +164,19 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
   const handleFetchAddressFromProfile = async () => {
     if (!user) return;
     try {
-      const { data, error } = await supabase.from('profiles').select('address, city, cep, address_complement').eq('id', user.id).single();
+      const { data, error } = await supabase.from('profiles').select('street, number, neighborhood, city, state, cep, address_complement').eq('id', user.id).single();
       
       if (error) {
         showToast("Erro", "Não foi possível buscar seus dados", "error");
         return;
       }
 
-      if (data && (data.address || data.city || data.cep || data.address_complement)) {
-        if (data.address) setAddress(data.address);
+      if (data && (data.street || data.city || data.cep || data.address_complement)) {
+        if (data.street) setStreet(data.street);
+        if (data.number) setNumber(data.number);
+        if (data.neighborhood) setNeighborhood(data.neighborhood);
         if (data.city) setCity(data.city);
+        if (data.state) setState(data.state);
         if (data.cep) setCep(data.cep);
         if (data.address_complement) setAddressComplement(data.address_complement);
         showToast("Dados Importados", "Informações preenchidas com sucesso!", "notification");
@@ -185,8 +198,10 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
       const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
       const data = await response.json();
       if (!data.erro) {
-        setCity(`${data.localidade}/${data.uf}`);
-        setAddress(`${data.logradouro}, ${data.bairro}`);
+        setCity(data.localidade);
+        setState(data.uf);
+        setStreet(data.logradouro);
+        setNeighborhood(data.bairro);
       }
     } catch (e) {
       console.error("Erro ao buscar CEP", e);
@@ -370,18 +385,43 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Endereço</label>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Rua / Logradouro</label>
                     <div className="relative">
                       <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">location_on</span>
                       <input
                         type="text"
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        placeholder="Rua, número, bairro..."
+                        value={street}
+                        onChange={(e) => setStreet(e.target.value)}
+                        placeholder="Rua..."
                         className="form-input w-full pl-10 pr-4 py-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary"
                       />
                     </div>
                   </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Número</label>
+                      <input
+                        type="text"
+                        value={number}
+                        onChange={(e) => setNumber(e.target.value)}
+                        placeholder="123"
+                        className="form-input w-full p-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Bairro</label>
+                      <input
+                        type="text"
+                        value={neighborhood}
+                        onChange={(e) => setNeighborhood(e.target.value)}
+                        placeholder="Bairro..."
+                        className="form-input w-full p-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Complemento</label>
                     <input
@@ -390,6 +430,17 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
                       onChange={(e) => setAddressComplement(e.target.value)}
                       placeholder="Ap, Bloco..."
                       className="form-input w-full p-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Estado (UF)</label>
+                    <input
+                      type="text"
+                      value={state}
+                      maxLength={2}
+                      onChange={(e) => setState(e.target.value.toUpperCase())}
+                      placeholder="MT"
+                      className="form-input w-full p-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary uppercase"
                     />
                   </div>
                 </div>
@@ -432,7 +483,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
         <button
           onClick={handleSendRequest}
           disabled={isSubmitting}
-          className="w-full max-w-7xl mx-auto bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 transition-transform active:scale-[0.98] disabled:opacity-70 disabled:hover:bg-primary"
+          className="w-full max-w-7xl mx-auto bg-primary hover:bg-primary/90 text-white font-bold py-2.5 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 transition-transform active:scale-[0.98] disabled:opacity-70 disabled:hover:bg-primary"
         >
           {isSubmitting ? (
             <span className="material-symbols-outlined animate-spin text-xl text-white">progress_activity</span>

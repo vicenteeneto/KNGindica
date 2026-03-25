@@ -20,8 +20,37 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
     budget: '',
     category_id: '',
     city: '',
+    street: '',
+    number: '',
+    neighborhood: '',
+    state: 'MT',
+    cep: '',
     expiresInHours: '24'
   });
+  const [isFetchingCep, setIsFetchingCep] = useState(false);
+
+  const handleCepBlur = async () => {
+    const cleanCep = formData.cep.replace(/\D/g, '');
+    if (cleanCep.length !== 8) return;
+    setIsFetchingCep(true);
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+      const data = await res.json();
+      if (!data.erro) {
+        setFormData({
+          ...formData,
+          street: data.logradouro || formData.street,
+          neighborhood: data.bairro || formData.neighborhood,
+          city: data.localidade || formData.city,
+          state: data.uf || formData.state
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsFetchingCep(false);
+    }
+  };
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -64,6 +93,11 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
           budget: parseCurrency(formData.budget),
           category_id: formData.category_id,
           city: formData.city,
+          street: formData.street,
+          number: formData.number,
+          neighborhood: formData.neighborhood,
+          state: formData.state,
+          cep: formData.cep,
           status: 'open',
           expires_at: expiresAt.toISOString()
         }])
@@ -144,14 +178,77 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
               </select>
             </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-sm font-bold mb-2 uppercase tracking-widest text-slate-400">CEP</label>
+                <div className="relative">
+                  <input 
+                    type="text" 
+                    placeholder="00000-000"
+                    className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium"
+                    value={formData.cep}
+                    onChange={e => setFormData({...formData, cep: e.target.value})}
+                    onBlur={handleCepBlur}
+                  />
+                  {isFetchingCep && <span className="material-symbols-outlined animate-spin absolute right-3 top-1/2 -translate-y-1/2 text-primary text-sm">progress_activity</span>}
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <label className="block text-sm font-bold mb-2 uppercase tracking-widest text-slate-400">Cidade</label>
+                <CityAutocomplete
+                  value={formData.city}
+                  onChange={val => setFormData({...formData, city: val})}
+                  activeCities={activeCities}
+                  placeholder="Onde o serviço será realizado?"
+                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-sm font-bold mb-2 uppercase tracking-widest text-slate-400">Rua / Logradouro</label>
+                <input 
+                  type="text" 
+                  placeholder="Nome da rua..."
+                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium"
+                  value={formData.street}
+                  onChange={e => setFormData({...formData, street: e.target.value})}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-bold mb-2 uppercase tracking-widest text-slate-400">Número</label>
+                  <input 
+                    type="text" 
+                    placeholder="123"
+                    className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium"
+                    value={formData.number}
+                    onChange={e => setFormData({...formData, number: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-bold mb-2 uppercase tracking-widest text-slate-400">Bairro</label>
+                  <input 
+                    type="text" 
+                    placeholder="Bairro..."
+                    className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium"
+                    value={formData.neighborhood}
+                    onChange={e => setFormData({...formData, neighborhood: e.target.value})}
+                  />
+                </div>
+              </div>
+            </div>
+
             <div>
-              <label className="block text-sm font-bold mb-2 uppercase tracking-widest text-slate-400">Cidade do Serviço</label>
-              <CityAutocomplete
-                value={formData.city}
-                onChange={val => setFormData({...formData, city: val})}
-                activeCities={activeCities}
-                placeholder="Onde o serviço será realizado?"
-                className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium"
+              <label className="block text-sm font-bold mb-2 uppercase tracking-widest text-slate-400">Estado (UF)</label>
+              <input 
+                type="text" 
+                maxLength={2}
+                placeholder="MT"
+                className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium uppercase"
+                value={formData.state}
+                onChange={e => setFormData({...formData, state: e.target.value.toUpperCase()})}
               />
             </div>
 
@@ -204,7 +301,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
             <button 
               type="submit"
               disabled={sending}
-              className="w-full bg-primary hover:bg-primary/90 disabled:opacity-50 text-white font-black py-5 rounded-2xl shadow-xl shadow-primary/30 transition-all active:scale-[0.98] flex items-center justify-center gap-2 uppercase tracking-widest"
+              className="w-full bg-primary hover:bg-primary/90 disabled:opacity-50 text-white font-black py-2.5 rounded-2xl shadow-xl shadow-primary/30 transition-all active:scale-[0.98] flex items-center justify-center gap-2 uppercase tracking-widest"
             >
               {sending ? (
                 <>

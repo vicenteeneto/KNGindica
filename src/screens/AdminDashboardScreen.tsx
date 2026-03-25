@@ -529,7 +529,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
   };
 
 
-  const handleUpdateTicketStatus = async (ticketId: string, status: 'open' | 'in_progress' | 'resolved' | 'closed') => {
+  const handleUpdateTicketStatus = async (ticketId: string, status: 'open' | 'in_review' | 'answered' | 'resolved' | 'closed') => {
     try {
       const { error } = await supabase.from('support_tickets').update({ status }).eq('id', ticketId);
       if (error) throw error;
@@ -2584,7 +2584,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
   };
 
   const renderTicketsTab = () => {
-    const openTickets = supportTickets.filter(t => t.status === 'open' || t.status === 'in_progress' || t.status === 'in_review');
+    const openTickets = supportTickets.filter(t => t.status === 'open' || t.status === 'in_review');
     const answeredTickets = supportTickets.filter(t => t.status === 'answered');
     const resolvedTickets = supportTickets.filter(t => t.status === 'resolved' || t.status === 'closed');
 
@@ -2648,12 +2648,12 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       <div className="flex items-center gap-2 mb-1">
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${
                           ticket.status === 'open' ? 'bg-amber-100 text-amber-700' :
-                          ticket.status === 'in_progress' ? 'bg-indigo-100 text-indigo-700' :
-                          ticket.status === 'answered' ? 'bg-blue-100 text-blue-700' :
+                          ticket.status === 'in_review' ? 'bg-indigo-100 text-indigo-700' : 
+                          ticket.status === 'answered' ? 'bg-blue-100 text-blue-700' : 
                           'bg-green-100 text-green-700'
                         }`}>{
                           ticket.status === 'open' ? 'ABERTO' : 
-                          ticket.status === 'in_progress' ? 'EM ESPERA' : 
+                          ticket.status === 'in_review' ? 'EM ANÁLISE' : 
                           ticket.status === 'answered' ? 'RESPONDIDO' :
                           'RESOLVIDO'
                         }</span>
@@ -3221,10 +3221,10 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             <div className="flex items-center gap-2 md:gap-4">
               <button
                 onClick={handleLogout}
-                className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-sm font-semibold transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-sm font-semibold transition-colors"
               >
                 <span className="material-symbols-outlined text-[18px]">logout</span>
-                <span>Sair</span>
+                <span className="hidden sm:inline">Sair</span>
               </button>
               <div className={`h-10 w-10 rounded-full overflow-hidden border-2 flex items-center justify-center transition-all ${
                 isPremiumUser 
@@ -3601,7 +3601,8 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-bold text-slate-700 dark:text-slate-300 px-2 py-1.5 outline-none focus:ring-2 focus:ring-primary/20 w-full sm:w-auto"
                    >
                      <option value="open">Aberto</option>
-                     <option value="in_progress">Em Andamento</option>
+                     <option value="in_review">Em Análise</option>
+                     <option value="answered">Respondido</option>
                      <option value="resolved">Resolvido</option>
                      <option value="closed">Fechado</option>
                    </select>

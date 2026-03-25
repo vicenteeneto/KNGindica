@@ -875,7 +875,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         {/* Logout */}
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 p-4 text-red-500 font-bold bg-red-50 dark:bg-red-900/10 rounded-2xl border border-red-100 dark:border-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors active:scale-[0.98]"
+          className="w-full flex items-center justify-center gap-2 p-3 text-red-500 font-bold bg-red-50 dark:bg-red-900/10 rounded-2xl border border-red-100 dark:border-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors active:scale-[0.98]"
         >
           <span className="material-symbols-outlined">logout</span>
           Sair da Conta
@@ -1067,7 +1067,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                         setShowProfileModal(false);
                         setShowLocationPickerModal(true);
                       }}
-                      className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-xs uppercase tracking-widest shadow-xl hover:opacity-90 active:scale-[0.98] transition-all"
+                      className="w-full h-11 flex items-center justify-center gap-3 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-xs uppercase tracking-widest shadow-xl hover:opacity-90 active:scale-[0.98] transition-all"
                     >
                       <span className="material-symbols-outlined">pin_drop</span>
                       {(profile as any)?.latitude ? 'Ajustar Localização no Mapa' : 'Marcar Meu Local no Mapa'}
@@ -1201,7 +1201,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 type="button" 
                 disabled={isSaving} 
                 onClick={() => setShowProfileModal(false)}
-                className="flex-1 py-4 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-all uppercase tracking-widest text-[10px]"
+                className="flex-1 py-2.5 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-all uppercase tracking-widest text-[10px]"
               >
                 Cancelar
               </button>
@@ -1209,7 +1209,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 type="submit" 
                 disabled={isSaving} 
                 onClick={(e) => handleSavePersonalData(e as any)}
-                className="flex-2 py-4 bg-blue-600 text-white rounded-2xl font-black hover:bg-blue-700 transition-all disabled:opacity-50 flex justify-center items-center gap-2 uppercase tracking-widest text-xs shadow-lg shadow-blue-500/30"
+                className="flex-2 py-2.5 bg-blue-600 text-white rounded-2xl font-black hover:bg-blue-700 transition-all disabled:opacity-50 flex justify-center items-center gap-2 uppercase tracking-widest text-xs shadow-lg shadow-blue-500/30"
               >
                 {isSaving ? (
                   <span className="material-symbols-outlined animate-spin text-[20px]">refresh</span>

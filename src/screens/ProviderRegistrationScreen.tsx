@@ -14,10 +14,16 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
     document: '',
     category: '',
     bio: '',
+    cep: '',
+    street: '',
+    number: '',
+    neighborhood: '',
     city: '',
+    state: '',
     latitude: null as number | null,
     longitude: null as number | null
   });
+  const [isFetchingCep, setIsFetchingCep] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [geoLoading, setGeoLoading] = useState(false);
   const [dbCategories, setDbCategories] = useState<any[]>([]);
@@ -65,6 +71,30 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
     );
   };
 
+  const handleCepBlur = async () => {
+    const cleanCep = formData.cep.replace(/\D/g, '');
+    if (cleanCep.length !== 8) return;
+
+    setIsFetchingCep(true);
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+      const data = await response.json();
+      if (!data.erro) {
+        setFormData(prev => ({
+          ...prev,
+          city: data.localidade,
+          state: data.uf,
+          street: data.logradouro,
+          neighborhood: data.bairro
+        }));
+      }
+    } catch (e) {
+      console.error("Erro ao buscar CEP", e);
+    } finally {
+      setIsFetchingCep(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
@@ -82,9 +112,14 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
       const { error: profileError } = await supabase.from('profiles').update({
         full_name: formData.name,
         city: formData.city,
+        state: formData.state,
+        cep: formData.cep,
+        street: formData.street,
+        number: formData.number,
+        neighborhood: formData.neighborhood,
         latitude: formData.latitude,
         longitude: formData.longitude,
-        categories: [formData.category], // Store name in JSONB for legacy support
+        categories: [formData.category], 
         role: 'provider',
         status: 'pending'
       }).eq('id', user.id);
@@ -237,14 +272,77 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
               </div>
             )}
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">CEP</label>
+                <div className="relative">
+                  <input 
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none" 
+                    placeholder="00000-000" 
+                    type="text"
+                    value={formData.cep}
+                    onChange={e => setFormData({...formData, cep: e.target.value})}
+                    onBlur={handleCepBlur}
+                  />
+                  {isFetchingCep && <span className="material-symbols-outlined animate-spin absolute right-3 top-1/2 -translate-y-1/2 text-primary text-sm">progress_activity</span>}
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Cidade de Atuação *</label>
+                <CityAutocomplete
+                  value={formData.city}
+                  onChange={val => setFormData({...formData, city: val})}
+                  activeCities={activeCities}
+                  placeholder="Ex: Rondonópolis/MT"
+                  className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Logradouro / Rua</label>
+                <input 
+                  className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none" 
+                  placeholder="Rua..." 
+                  type="text"
+                  value={formData.street}
+                  onChange={e => setFormData({...formData, street: e.target.value})}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Número</label>
+                  <input 
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none" 
+                    placeholder="123" 
+                    type="text"
+                    value={formData.number}
+                    onChange={e => setFormData({...formData, number: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Bairro</label>
+                  <input 
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none" 
+                    placeholder="Bairro..." 
+                    type="text"
+                    value={formData.neighborhood}
+                    onChange={e => setFormData({...formData, neighborhood: e.target.value})}
+                  />
+                </div>
+              </div>
+            </div>
+
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Cidade de Atuação *</label>
-              <CityAutocomplete
-                value={formData.city}
-                onChange={val => setFormData({...formData, city: val})}
-                activeCities={activeCities}
-                placeholder="Ex: Rondonópolis/MT"
-                className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Estado (UF)</label>
+              <input 
+                className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none uppercase" 
+                placeholder="MT" 
+                maxLength={2}
+                type="text"
+                value={formData.state}
+                onChange={e => setFormData({...formData, state: e.target.value.toUpperCase()})}
               />
             </div>
           </div>
@@ -259,7 +357,7 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
         <button 
           onClick={handleSubmit}
           disabled={isSubmitting}
-          className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-[0.98] flex items-center justify-center disabled:opacity-70"
+          className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-2.5 rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-[0.98] flex items-center justify-center disabled:opacity-70"
         >
           <span>{isSubmitting ? 'Salvando...' : 'Finalizar Cadastro'}</span>
           {!isSubmitting && <span className="material-symbols-outlined ml-2 text-sm">check_circle</span>}

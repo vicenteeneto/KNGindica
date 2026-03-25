@@ -229,7 +229,7 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
             form={paymentMethod === 'credit' ? "payment-form" : undefined}
             onClick={paymentMethod === 'pix' ? () => handlePayment() : undefined}
             disabled={isProcessing}
-            className={`flex-1 py-4 px-6 rounded-xl font-bold text-white shadow-lg transition-all flex items-center justify-center gap-2 ${paymentMethod === 'pix' ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/30' : 'bg-primary hover:bg-primary/90 shadow-primary/30'} ${isProcessing ? 'opacity-80 cursor-wait' : 'hover:-translate-y-0.5 active:translate-y-0'}`}
+            className={`flex-1 py-2.5 px-6 rounded-xl font-bold text-white shadow-lg transition-all flex items-center justify-center gap-2 ${paymentMethod === 'pix' ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/30' : 'bg-primary hover:bg-primary/90 shadow-primary/30'} ${isProcessing ? 'opacity-80 cursor-wait' : 'hover:-translate-y-0.5 active:translate-y-0'}`}
           >
             {isProcessing ? (
               <span className="material-symbols-outlined animate-spin">progress_activity</span>
