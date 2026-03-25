@@ -317,7 +317,7 @@ function AppContent() {
         <div className={`flex-1 w-full ${!NON_PERSISTENT_SCREENS.includes(currentScreen) ? 'lg:pl-12' : ''} transition-all duration-300`}>
           <PullToRefresh>
             {renderScreen()}
-            {!NON_PERSISTENT_SCREENS.includes(currentScreen) && currentScreen !== 'adminDashboard' && (
+            {!NON_PERSISTENT_SCREENS.includes(currentScreen) && currentScreen !== 'adminDashboard' && role !== 'admin' && (
               <MobileNav onNavigate={handleNavigate} currentScreen={currentScreen} role={role} />
             )}
           </PullToRefresh>

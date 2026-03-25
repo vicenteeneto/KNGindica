@@ -198,7 +198,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
 
   const confirmSendBudget = async () => {
     if (!budgetModal.requestId) return;
-    const rawValue = budgetModal.currentAmount.replace(/\./g, '').replace(',', '.');
+    const rawValue = budgetModal.currentAmount.replace('R$', '').replace(/\./g, '').replace(',', '.').trim();
     const amount = parseFloat(rawValue);
     
     if (isNaN(amount) || amount <= 0) {

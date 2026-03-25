@@ -90,6 +90,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
   const [chatAuditSearchTerm, setChatAuditSearchTerm] = useState('');
   const [platformCommissionFixed, setPlatformCommissionFixed] = useState(10);
   const [premiumSubscriptionPrice, setPremiumSubscriptionPrice] = useState(39.90);
+  const [newAuditMessage, setNewAuditMessage] = useState('');
 
   const ticketCategoryLabels: Record<string, string> = {
     dispute: 'Disputa Financeira',
@@ -525,6 +526,52 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
     } catch (e) {
       console.error("Erro ao iniciar chat admin:", e);
       showToast("Erro", "Falha ao iniciar chat", "error");
+    }
+  };
+
+  const handleSendAuditMessage = async () => {
+    if (!selectedChatRoom || !newAuditMessage.trim() || !user) return;
+    
+    const msgText = newAuditMessage.trim();
+    setNewAuditMessage(''); // Clear immediately for better UX
+    
+    try {
+      const { error } = await supabase
+        .from('chat_messages')
+        .insert({
+          room_id: selectedChatRoom.id,
+          sender_id: user.id,
+          content: msgText
+        });
+      
+      if (error) throw error;
+      
+      // Enviar notificação para ambos os participantes
+      const participants = [selectedChatRoom.client_id, selectedChatRoom.provider_id];
+      for (const recipientId of participants) {
+          if (recipientId) {
+            await supabase.from('notifications').insert({
+              user_id: recipientId,
+              title: 'Mensagem da Administração',
+              message: msgText.length > 50 ? msgText.substring(0, 50) + '...' : msgText,
+              type: 'message',
+              related_entity_id: selectedChatRoom.id
+            });
+          }
+      }
+
+      // As mensagens são carregadas via subscription ou efeito, mas para garantir:
+      const { data: latest } = await supabase
+        .from('chat_messages')
+        .select('*')
+        .eq('room_id', selectedChatRoom.id)
+        .order('created_at', { ascending: false });
+      
+      if (latest) setChatMessages(latest.reverse());
+
+    } catch (err) {
+      console.error(err);
+      showToast("Erro", "Falha ao enviar mensagem", "error");
     }
   };
 
@@ -2091,7 +2138,24 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                 )}
               </div>
               <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
-                <p className="text-[10px] text-slate-500 italic text-center">Modo de Visualização do Administrador (Somente Leitura)</p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Enviar mensagem como admin..."
+                    value={newAuditMessage}
+                    onChange={(e) => setNewAuditMessage(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSendAuditMessage()}
+                    className="flex-1 bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+                  />
+                  <button
+                    onClick={handleSendAuditMessage}
+                    disabled={!newAuditMessage.trim()}
+                    className="size-10 bg-primary text-white rounded-xl flex items-center justify-center hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">send</span>
+                  </button>
+                </div>
+                <p className="text-[9px] text-slate-400 italic text-center mt-2 uppercase font-black tracking-widest">Aviso: Sua mensagem será visível para ambos os participantes</p>
               </div>
             </div>
           </div>
@@ -3224,7 +3288,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                 className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-sm font-semibold transition-colors"
               >
                 <span className="material-symbols-outlined text-[18px]">logout</span>
-                <span className="hidden sm:inline">Sair</span>
+                <span className="sm:inline">Sair</span>
               </button>
               <div className={`h-10 w-10 rounded-full overflow-hidden border-2 flex items-center justify-center transition-all ${
                 isPremiumUser 

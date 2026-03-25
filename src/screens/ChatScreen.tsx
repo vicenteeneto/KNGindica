@@ -220,6 +220,26 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
         });
 
       if (error) throw error;
+
+      // Enviar notificação para o destinatário
+      const { data: roomData } = await supabase
+        .from('chat_rooms')
+        .select('client_id, provider_id')
+        .eq('id', roomId)
+        .single();
+
+      if (roomData) {
+        const recipientId = roomData.client_id === user.id ? roomData.provider_id : roomData.client_id;
+        if (recipientId) {
+          await supabase.from('notifications').insert({
+            user_id: recipientId,
+            title: 'Nova mensagem',
+            message: msgText.length > 50 ? msgText.substring(0, 50) + '...' : msgText,
+            type: 'message',
+            related_entity_id: roomId
+          });
+        }
+      }
     } catch (err) {
       console.error('Error sending message:', err);
       // optionally set the message back if failed
