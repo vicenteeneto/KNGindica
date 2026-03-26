@@ -111,31 +111,33 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
   return (
     <div className="bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
       {/* Floating Action Buttons */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-10 flex flex-col gap-3 max-w-4xl mx-auto">
-        <button 
-          onClick={() => onNavigate('checkout', { requestId: params?.requestId })}
-          className="w-full bg-emerald-500 hover:bg-emerald-600 active:translate-y-0 hover:-translate-y-0.5 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-emerald-500/30 transition-all flex justify-center items-center gap-2"
-        >
-          <span className="material-symbols-outlined">payments</span>
-          Efetuar Pagamento (Taxa R$ 10)
-        </button>
-        <div className="flex gap-3">
+      {displayData.status !== 'cancelled' && (
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-10 flex flex-col gap-3 max-w-4xl mx-auto">
           <button 
-            onClick={() => displayData.provider_id && onNavigate('chat', { requestId: params?.requestId })}
-            className="flex-1 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300 font-bold py-3.5 px-6 rounded-xl transition-all flex justify-center items-center gap-2"
+            onClick={() => onNavigate('checkout', { requestId: params?.requestId })}
+            className="w-full bg-emerald-500 hover:bg-emerald-600 active:translate-y-0 hover:-translate-y-0.5 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-emerald-500/30 transition-all flex justify-center items-center gap-2"
           >
-            <span className="material-symbols-outlined">chat</span>
-            Chat
+            <span className="material-symbols-outlined">payments</span>
+            Efetuar Pagamento (Taxa R$ 10)
           </button>
-          <button 
-            onClick={() => showToast("Ligação", `Ligando para o profissional...`, "info")}
-            className="flex-1 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300 font-bold py-3.5 px-6 rounded-xl transition-all flex justify-center items-center gap-2"
-          >
-            <span className="material-symbols-outlined">call</span>
-            Ligar
-          </button>
+          <div className="flex gap-3">
+            <button 
+              onClick={() => displayData.provider_id && onNavigate('chat', { requestId: params?.requestId })}
+              className="flex-1 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300 font-bold py-3.5 px-6 rounded-xl transition-all flex justify-center items-center gap-2"
+            >
+              <span className="material-symbols-outlined">chat</span>
+              Chat
+            </button>
+            <button 
+              onClick={() => showToast("Ligação", `Ligando para o profissional...`, "info")}
+              className="flex-1 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300 font-bold py-3.5 px-6 rounded-xl transition-all flex justify-center items-center gap-2"
+            >
+              <span className="material-symbols-outlined">call</span>
+              Ligar
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Header */}
       <header className="sticky top-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
@@ -154,11 +156,15 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
         <div className="flex flex-col px-4 py-8">
           <div className="flex flex-col items-center gap-6">
             <div className="relative">
-              <div className="size-24 bg-primary/10 rounded-full flex items-center justify-center">
-                <span className="material-symbols-outlined text-primary text-5xl">check_circle</span>
+              <div className={`size-24 rounded-full flex items-center justify-center ${displayData.status === 'cancelled' ? 'bg-red-500/10' : 'bg-primary/10'}`}>
+                <span className={`material-symbols-outlined text-5xl ${displayData.status === 'cancelled' ? 'text-red-600' : 'text-primary'}`}>
+                  {displayData.status === 'cancelled' ? 'cancel' : 'check_circle'}
+                </span>
               </div>
-              <div className="absolute -bottom-1 -right-1 size-8 bg-green-500 rounded-full border-4 border-white dark:border-slate-900 flex items-center justify-center">
-                <span className="material-symbols-outlined text-white text-xs">priority_high</span>
+              <div className={`absolute -bottom-1 -right-1 size-8 rounded-full border-4 border-white dark:border-slate-900 flex items-center justify-center ${displayData.status === 'cancelled' ? 'bg-red-600' : 'bg-green-500'}`}>
+                <span className="material-symbols-outlined text-white text-xs">
+                  {displayData.status === 'cancelled' ? 'close' : 'priority_high'}
+                </span>
               </div>
             </div>
             
@@ -168,15 +174,25 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                  displayData.status === 'proposed' ? 'Orçamento Recebido' :
                  displayData.status === 'awaiting_payment' ? 'Aguardando Pagamento' :
                  displayData.status === 'paid' ? 'Pedido Pago' :
-                 displayData.status === 'completed' ? 'Serviço Concluído' : 'Serviço em Andamento'}
+                 displayData.status === 'completed' ? 'Serviço Concluído' : 
+                 displayData.status === 'cancelled' ? 'Pedido Recusado' : 'Serviço em Andamento'}
               </h1>
-              <p className="text-slate-600 dark:text-slate-400 text-sm max-w-[280px]">
+              <p className="text-slate-600 dark:text-slate-400 text-sm max-w-[320px]">
                 {displayData.status === 'open' ? 'Estamos aguardando um profissional aceitar sua solicitação.' : 
                  displayData.status === 'proposed' ? 'Você recebeu uma proposta. Confira os detalhes abaixo.' :
                  displayData.status === 'awaiting_payment' ? 'Sua proposta foi aceita! Realize o pagamento da taxa de intermediação para liberar o contato direto.' :
                  displayData.status === 'paid' ? 'Pagamento confirmado! O profissional entrará em contato em breve.' :
                  displayData.status === 'completed' ? 'Obrigado por utilizar o KNGindica! Por favor, avalie o atendimento do profissional.' :
-                 'O profissional está pronto para realizar o seu atendimento.'}
+                 displayData.status === 'cancelled' ? (
+                   <>
+                     Infelizmente o profissional recusou este serviço.
+                     {displayData.rejection_reason && (
+                       <span className="block mt-2 font-bold text-red-600 dark:text-red-400 italic">
+                         " {displayData.rejection_reason} "
+                       </span>
+                     )}
+                   </>
+                 ) : 'O profissional está pronto para realizar o seu atendimento.'}
               </p>
               
               {displayData.status === 'completed' && (
@@ -291,8 +307,15 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                     : 'A definir'}
                 </p>
               </div>
-              <div className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest ${displayData.status === 'paid' ? 'bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400' : 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400'}`}>
-                {displayData.status === 'paid' ? 'Pago' : displayData.status === 'proposed' ? 'Aprovar Orçamento' : displayData.status === 'awaiting_payment' ? 'Aguardando Pagamento' : 'Pendente'}
+              <div className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest ${
+                displayData.status === 'paid' ? 'bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400' : 
+                displayData.status === 'cancelled' ? 'bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400' :
+                'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400'
+              }`}>
+                {displayData.status === 'paid' ? 'Pago' : 
+                 displayData.status === 'cancelled' ? 'Recusado' :
+                 displayData.status === 'proposed' ? 'Aprovar Orçamento' : 
+                 displayData.status === 'awaiting_payment' ? 'Aguardando Pagamento' : 'Pendente'}
               </div>
             </div>
           </div>
@@ -306,18 +329,30 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                 Aceitar Orçamento no Chat
               </button>
             )}
+
+            {displayData.status === 'cancelled' && (
+              <button 
+                onClick={() => onNavigate('listing')}
+                className="w-full h-12 bg-primary text-white font-bold rounded-xl hover:brightness-110 transition-all shadow-lg shadow-primary/20"
+              >
+                Buscar Outro Profissional
+              </button>
+            )}
+
             <button 
               onClick={() => onNavigate('home')}
               className="w-full h-12 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700"
             >
               Ver Meus Agendamentos
             </button>
-            <button 
-              onClick={() => onNavigate('helpCenter', { requestId: params?.requestId })}
-              className="w-full h-12 bg-transparent text-slate-500 hover:text-red-500 font-bold rounded-xl transition-colors text-sm"
-            >
-              Tive um problema / Abrir Disputa
-            </button>
+            {displayData.status !== 'cancelled' && (
+              <button 
+                onClick={() => onNavigate('helpCenter', { requestId: params?.requestId })}
+                className="w-full h-12 bg-transparent text-slate-500 hover:text-red-500 font-bold rounded-xl transition-colors text-sm"
+              >
+                Tive um problema / Abrir Disputa
+              </button>
+            )}
           </div>
         </div>
       </main>
