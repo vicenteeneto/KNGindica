@@ -165,7 +165,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
   const handleAcceptBid = async (bid: any) => {
     if (!window.confirm("Aceitar esta proposta e iniciar serviço?")) return;
     try {
-      const { error: reqError } = await supabase.from('service_requests').insert([{
+      const { data: requestData, error: reqError } = await supabase.from('service_requests').insert([{
         client_id: user?.id,
         provider_id: bid.provider_id,
         title: order.title,
@@ -176,23 +176,35 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
         neighborhood: order.neighborhood,
         state: order.state,
         cep: order.cep,
-        budget: bid.amount,
+        budget_amount: bid.amount,
         status: 'awaiting_payment',
-        service_category_id: order.category_id,
+        category_id: order.category_id,
         payment_method: 'credit_card',
         desired_date: new Date().toISOString()
       }]).select().single();
       
-      if (reqError && !reqError.message.includes("invalid input value for enum")) throw reqError;
+      if (reqError) throw reqError;
       
-      // Since it causes a known enum warning with proposed, etc, we grab the latest insert manually via a simpler query if needed
-      // Actually, we should just close the order.
-      const { error: closeError } = await supabase.from('freelance_orders').update({ status: 'closed' }).eq('id', order.id);
+      // Notificar o prestador que ele foi contratado
+      await supabase.from('notifications').insert({
+        user_id: bid.provider_id,
+        title: 'Você foi contratado!',
+        message: `Sua proposta para "${order.title}" foi aceita.`,
+        type: 'order',
+        related_entity_id: requestData.id
+      });
+      
+      const { error: closeError } = await supabase.from('freelance_orders').update({ 
+        status: 'closed',
+        assigned_provider_id: bid.provider_id
+      }).eq('id', order.id);
+      
       if (closeError) throw closeError;
 
       showToast("Sucesso", "Prestador contratado!", "success");
       onNavigate('home');
     } catch (err: any) {
+      console.error(err);
       showToast("Erro", "Ocorreu um erro: " + err.message, "error");
     }
   };
