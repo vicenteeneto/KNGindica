@@ -25,9 +25,11 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
     neighborhood: '',
     state: 'MT',
     cep: '',
-    expiresInHours: '24'
+    expiresInHours: '24',
+    attachments: [] as string[]
   });
   const [isFetchingCep, setIsFetchingCep] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleCepBlur = async () => {
     const cleanCep = formData.cep.replace(/\D/g, '');
@@ -99,7 +101,8 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
           state: formData.state,
           cep: formData.cep,
           status: 'open',
-          expires_at: expiresAt.toISOString()
+          expires_at: expiresAt.toISOString(),
+          attachments: formData.attachments
         }])
         .select()
         .single();
@@ -117,6 +120,56 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
     } finally {
       setSending(false);
     }
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || !user) return;
+
+    if (formData.attachments.length + files.length > 5) {
+      showToast("Limite de Fotos", "Máximo de 5 fotos permitidas.", "notification");
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const uploadPromises = Array.from(files).map(async (file: File) => {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `requests/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('portfolio')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('portfolio')
+          .getPublicUrl(filePath);
+
+        return publicUrl;
+      });
+
+      const urls = await Promise.all(uploadPromises);
+      setFormData(prev => ({
+        ...prev,
+        attachments: [...prev.attachments, ...urls].slice(0, 5)
+      }));
+      showToast("Sucesso", "Fotos enviadas com sucesso!", "success");
+    } catch (err: any) {
+      console.error("Error uploading photos:", err);
+      showToast("Erro no Upload", "Não foi possível enviar algumas fotos.", "error");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const removePhoto = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      attachments: prev.attachments.filter((_, i) => i !== index)
+    }));
   };
 
   if (loading) {
@@ -286,7 +339,37 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
               </select>
             </div>
 
-            <div>
+            <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-800">
+              <label className="block text-sm font-bold mb-4 uppercase tracking-widest text-slate-400">Fotos do Serviço (Opcional)</label>
+              <div className="flex flex-wrap gap-3">
+                {formData.attachments.length < 5 && (
+                  <label className={`size-20 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed transition-colors bg-white dark:bg-slate-900 ${isUploading ? 'border-primary animate-pulse' : 'border-slate-200 dark:border-slate-800 hover:border-primary cursor-pointer'}`}>
+                    {isUploading ? (
+                      <span className="material-symbols-outlined text-primary text-[24px] animate-spin">progress_activity</span>
+                    ) : (
+                      <span className="material-symbols-outlined text-slate-400 text-[24px]">add_a_photo</span>
+                    )}
+                    <input type="file" accept="image/png, image/jpeg" className="hidden" multiple onChange={handlePhotoUpload} disabled={isUploading} />
+                  </label>
+                )}
+
+                {formData.attachments.map((photoUrl, idx) => (
+                  <div key={idx} className="size-20 rounded-2xl overflow-hidden relative group border border-slate-200 dark:border-slate-800">
+                    <img className="w-full h-full object-cover" src={photoUrl} alt={`Photo ${idx + 1}`} />
+                    <button 
+                      type="button"
+                      onClick={() => removePhoto(idx)}
+                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-10 bg-black/60 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"
+                    >
+                      <span className="material-symbols-outlined text-sm">delete</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[10px] text-slate-500 mt-2 italic font-medium uppercase tracking-widest">Máximo de 5 fotos (JPG ou PNG)</p>
+            </div>
+
+            <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-800">
               <label className="block text-sm font-bold mb-2 uppercase tracking-widest text-slate-400">Detalhes extras</label>
               <textarea 
                 required

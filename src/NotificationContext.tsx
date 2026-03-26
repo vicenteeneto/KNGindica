@@ -119,35 +119,40 @@ export function NotificationProvider({ children, onNavigate }: { children: React
 
       // 3. Contar Novos Pedidos (Somente para profissionais)
       if (role === 'provider') {
-        const { data: profData } = await supabase.from('profiles').select('categories').eq('id', user.id).single();
+        const { data: profData } = await supabase.from('profiles').select('categories').eq('id', user.id).maybeSingle();
         const myCats = profData?.categories || [];
         
+        // Obter IDs das categorias por nome para busca mais rápida e precisa
         const { data: catData } = await supabase.from('service_categories').select('id, name');
         let catIds: string[] = [];
         if (catData) {
           catIds = catData.filter(c => myCats.includes(c.name)).map(c => c.id);
         }
 
+        // Construir query de solicitações idêntica à do ProviderRequestsScreen
         let query = supabase.from('service_requests').select('id', { count: 'exact', head: true }).eq('status', 'open');
         
         if (catIds.length > 0) {
+          // Solicitação direta OU Broadcast de categoria que eu atendo
           query = query.or(`provider_id.eq.${user.id},and(provider_id.is.null,category_id.in.(${catIds.join(',')}))`);
         } else {
+          // Se não tem categoria, só vê as diretas
           query = query.eq('provider_id', user.id);
         }
         
         const { count: reqCount } = await query;
         
-        // Contar ordens freelance abertas na categoria
-        let queryFreelance = supabase.from('freelance_orders').select('id', { count: 'exact', head: true }).eq('status', 'open');
+        // Contar ordens freelance abertas nas categorias atendidas
+        let freeCount = 0;
         if (catIds.length > 0) {
-           queryFreelance = queryFreelance.in('category_id', catIds);
-        } else {
-           queryFreelance = queryFreelance.limit(0); // Forçar 0 se não tiver categorias
+           const { count } = await supabase.from('freelance_orders')
+             .select('id', { count: 'exact', head: true })
+             .eq('status', 'open')
+             .in('category_id', catIds);
+           freeCount = count || 0;
         }
-        const { count: freeCount } = await queryFreelance;
 
-        setUnreadRequests((reqCount || 0) + (freeCount || 0));
+        setUnreadRequests((reqCount || 0) + freeCount);
       } else {
         setUnreadRequests(0);
       }

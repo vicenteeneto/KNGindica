@@ -22,7 +22,8 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
   const [cep, setCep] = useState('');
   const [desiredDate, setDesiredDate] = useState('');
   const [desiredTime, setDesiredTime] = useState('09:00');
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [attachments, setAttachments] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFetchingCep, setIsFetchingCep] = useState(false);
 
@@ -46,7 +47,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
         if (parsed.desiredDate) setDesiredDate(parsed.desiredDate);
         if (parsed.desiredTime) setDesiredTime(parsed.desiredTime);
         if (parsed.selectedCategoryId) setSelectedCategoryId(parsed.selectedCategoryId);
-        if (parsed.photos) setPhotos(parsed.photos);
+        if (parsed.photos) setAttachments(parsed.photos);
       }
     } catch (e) {
       console.error('Error loading draft', e);
@@ -57,11 +58,11 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
   useEffect(() => {
     const timer = setTimeout(() => {
       localStorage.setItem('draft_service_request', JSON.stringify({
-        street, number, neighborhood, city, state, cep, desiredDate, desiredTime, selectedCategoryId, photos
+        street, number, neighborhood, city, state, cep, desiredDate, desiredTime, selectedCategoryId, photos: attachments
       }));
     }, 500);
     return () => clearTimeout(timer);
-  }, [street, number, neighborhood, city, state, cep, desiredDate, desiredTime, selectedCategoryId, photos]);
+  }, [street, number, neighborhood, city, state, cep, desiredDate, desiredTime, selectedCategoryId, attachments]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -126,7 +127,8 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
           state,
           cep,
           address_complement: addressComplement,
-          status: 'open'
+          status: 'open',
+          attachments: attachments
         })
         .select('id')
         .single();
@@ -201,31 +203,48 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
     }
   };
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files) return;
+    if (!files || !user) return;
 
-    if (photos.length + files.length > 5) {
+    if (attachments.length + files.length > 5) {
       showToast("Limite de Fotos", "Máximo de 5 fotos permitidas.", "notification");
       return;
     }
 
-    Array.from(files).forEach((file: File) => {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        if (ev.target?.result) {
-           setPhotos(prev => {
-             const newPhotos = [...prev, ev.target!.result as string];
-             return newPhotos.slice(0, 5); // Ensure max 5
-           });
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+    setIsUploading(true);
+    try {
+      const uploadPromises = Array.from(files).map(async (file: File) => {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `requests/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('portfolio')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('portfolio')
+          .getPublicUrl(filePath);
+
+        return publicUrl;
+      });
+
+      const urls = await Promise.all(uploadPromises);
+      setAttachments(prev => [...prev, ...urls].slice(0, 5));
+      showToast("Sucesso", "Fotos enviadas com sucesso!", "success");
+    } catch (err: any) {
+      console.error("Error uploading photos:", err);
+      showToast("Erro no Upload", "Não foi possível enviar algumas fotos.", "error");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const removePhoto = (index: number) => {
-    setPhotos(prev => prev.filter((_, i) => i !== index));
+    setAttachments(prev => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -444,14 +463,18 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
                    Fotos (Opcional)
                 </h3>
                 <div className="flex flex-wrap gap-3">
-                  {photos.length < 5 && (
-                    <label className="size-16 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-primary cursor-pointer transition-colors bg-white dark:bg-slate-900">
-                      <span className="material-symbols-outlined text-slate-400 text-[20px]">add_a_photo</span>
-                      <input type="file" accept="image/png, image/jpeg" className="hidden" multiple onChange={handlePhotoUpload} />
+                  {attachments.length < 5 && (
+                    <label className={`size-16 flex flex-col items-center justify-center rounded-xl border-2 border-dashed transition-colors bg-white dark:bg-slate-900 ${isUploading ? 'border-primary animate-pulse' : 'border-slate-200 dark:border-slate-800 hover:border-primary cursor-pointer'}`}>
+                      {isUploading ? (
+                        <span className="material-symbols-outlined text-primary text-[20px] animate-spin">progress_activity</span>
+                      ) : (
+                        <span className="material-symbols-outlined text-slate-400 text-[20px]">add_a_photo</span>
+                      )}
+                      <input type="file" accept="image/png, image/jpeg" className="hidden" multiple onChange={handlePhotoUpload} disabled={isUploading} />
                     </label>
                   )}
 
-                  {photos.map((photoUrl, idx) => (
+                  {attachments.map((photoUrl, idx) => (
                     <div key={idx} className="size-16 rounded-xl overflow-hidden relative group border border-slate-200 dark:border-slate-800">
                       <img className="w-full h-full object-cover" src={photoUrl} alt={`Photo ${idx + 1}`} />
                       <button 

@@ -12,6 +12,9 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'available' | 'bidded'>('available');
+  const [detailsModal, setDetailsModal] = useState<{ isOpen: boolean, order: any | null }>({
+    isOpen: false, order: null
+  });
   
   // Track dismissed orders
   const dismissedKeys = user ? `kngindica_dismissed_orders_${user.id}` : null;
@@ -58,7 +61,7 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
         .from('freelance_orders')
         .select(`
           *,
-          profiles:client_id(full_name, avatar_url),
+          profiles:client_id(full_name, avatar_url, phone),
           service_categories(name, icon)
         `)
         .eq('status', 'open')
@@ -79,7 +82,7 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
           .from('freelance_orders')
           .select(`
             *,
-            profiles:client_id(full_name, avatar_url),
+            profiles:client_id(full_name, avatar_url, phone),
             service_categories(name, icon)
           `)
           .in('id', bidOrderIds)
@@ -146,7 +149,7 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
         </div>
       </div>
 
-      <main className="flex-1 max-w-7xl mx-auto w-full p-4 lg:p-8 space-y-4">
+      <main className="flex-1 max-w-7xl mx-auto w-full p-4 md:p-8 space-y-4">
         {orders.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="size-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
@@ -158,69 +161,247 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
             </p>
           </div>
         ) : (
-          orders.map(order => (
-            <div 
-              key={order.id} 
-              onClick={() => onNavigate('bidRoom', { orderId: order.id })}
-              className="cursor-pointer bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden relative group transition-all hover:shadow-xl hover:border-primary/20 hover:-translate-y-1 block"
-            >
-              {/* Dismiss Button - Só em disponíveis */}
-              {activeTab === 'available' && (
-                <button 
-                  onClick={(e) => handeDismiss(e, order.id)}
-                  className="absolute top-4 right-4 size-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center justify-center transition-colors shadow-sm"
-                  title="Não tenho interesse"
-                >
-                  <span className="material-symbols-outlined text-[18px]">close</span>
-                </button>
-              )}
-              
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3 pr-10">
-                  <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
-                    <span className="material-symbols-outlined">{order.service_categories?.icon || 'work'}</span>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {orders.map(order => (
+              <div 
+                key={order.id} 
+                className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden relative transition-all hover:shadow-xl hover:border-primary/20 flex flex-col h-full"
+              >
+                {/* Header with Title & Category */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined">{order.service_categories?.icon || 'work'}</span>
+                    </div>
+                    <div>
+                      <h3 className="font-black text-lg leading-tight uppercase tracking-tight line-clamp-1">{order.title}</h3>
+                      <div className="flex items-center gap-2">
+                        <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{order.service_categories?.name}</p>
+                        {order.attachments && Array.isArray(order.attachments) && order.attachments.length > 0 && (
+                          <span className="flex items-center gap-0.5 bg-amber-500/10 text-amber-500 text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-widest">
+                            <span className="material-symbols-outlined text-[10px]">photo_library</span>
+                            {order.attachments.length}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-black text-lg leading-tight uppercase tracking-tight">{order.title}</h3>
-                    <p className="text-xs font-bold text-primary uppercase tracking-widest">{order.service_categories?.name}</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex justify-between items-end mb-4 pr-1">
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Budget Cliente</p>
-                  <p className="text-xl font-black text-emerald-500 leading-none">{formatCurrency(order.budget || 0)}</p>
-                </div>
-                {activeTab === 'bidded' && order.myBidAmount && (
-                  <div className="text-right">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Seu Lance</p>
-                    <p className="text-lg font-black text-primary leading-none">{formatCurrency(order.myBidAmount || 0)}</p>
-                  </div>
-                )}
-              </div>
-
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl leading-relaxed line-clamp-3">
-                {order.description}
-              </p>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="size-8 rounded-full bg-slate-200 overflow-hidden">
-                    <img src={order.profiles?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} className="w-full h-full object-cover" alt="" />
-                  </div>
-                  <p className="text-xs font-bold text-slate-500">{order.profiles?.full_name?.split(' ')[0]}</p>
+                  
+                  {activeTab === 'available' && (
+                    <button 
+                      onClick={(e) => handeDismiss(e, order.id)}
+                      className="size-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center justify-center transition-colors shadow-sm"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">close</span>
+                    </button>
+                  )}
                 </div>
 
-                <div className="flex items-center gap-1 text-primary text-sm font-bold">
-                  <span>Entrar na Sala</span>
-                  <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                {/* Budget Indicators */}
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="p-3 rounded-2xl bg-emerald-500/5 border border-emerald-500/10">
+                    <p className="text-[9px] font-black text-emerald-500/60 uppercase tracking-widest mb-1">Budget Sugerido</p>
+                    <p className="text-xl font-black text-emerald-500">{formatCurrency(order.budget || 0)}</p>
+                  </div>
+                  {activeTab === 'bidded' && order.myBidAmount && (
+                    <div className="p-3 rounded-2xl bg-primary/5 border border-primary/10">
+                      <p className="text-[9px] font-black text-primary/60 uppercase tracking-widest mb-1">Seu Lance</p>
+                      <p className="text-xl font-black text-primary">{formatCurrency(order.myBidAmount || 0)}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Description Preview */}
+                <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl mb-6 flex-1">
+                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-3 italic">
+                    "{order.description}"
+                  </p>
+                  <button 
+                    onClick={() => setDetailsModal({ isOpen: true, order })}
+                    className="mt-3 text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-1 hover:underline"
+                  >
+                    Ver Solicitação Completa
+                    <span className="material-symbols-outlined text-xs">open_in_new</span>
+                  </button>
+                </div>
+
+                {/* Footer Info */}
+                <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700">
+                  <div className="flex items-center gap-2">
+                    <div className="size-8 rounded-full bg-slate-200 overflow-hidden border border-white dark:border-slate-800">
+                      <img src={order.profiles?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} className="w-full h-full object-cover" alt="" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-500">{order.profiles?.full_name?.split(' ')[0]}</p>
+                      <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{new Date(order.created_at).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+
+                  <button 
+                    onClick={() => onNavigate('bidRoom', { orderId: order.id })}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 dark:bg-slate-700 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:brightness-125 transition-all shadow-lg active:scale-95"
+                  >
+                    <span>{activeTab === 'available' ? 'Dar Lance' : 'Ver Chat'}</span>
+                    <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                  </button>
                 </div>
               </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
+
+        <div className="h-24"></div>
       </main>
+
+      {/* Details Modal */}
+      {detailsModal.isOpen && detailsModal.order && (
+        <div className="fixed inset-0 z-[250] flex items-center justify-center p-0 md:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="w-full h-full md:h-auto md:max-h-[90vh] md:max-w-4xl bg-white dark:bg-slate-900 md:rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
+            
+            {/* Header */}
+            <div className="p-4 md:p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 sticky top-0 z-10">
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => setDetailsModal({ isOpen: false, order: null })}
+                  className="md:hidden size-10 flex items-center justify-center text-slate-400"
+                >
+                  <span className="material-symbols-outlined">arrow_back</span>
+                </button>
+                <div className="size-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined text-primary text-2xl">{detailsModal.order.service_categories?.icon || 'work'}</span>
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-lg font-black text-slate-900 dark:text-white leading-tight uppercase tracking-tighter truncate">
+                    {detailsModal.order.profiles?.full_name || 'Detalhes da Ordem Freelance'}
+                  </h3>
+                  <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Job para {detailsModal.order.service_categories?.name}</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setDetailsModal({ isOpen: false, order: null })}
+                className="hidden md:flex size-10 items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto p-6 md:p-10 space-y-10">
+              
+              {/* 1. Descrição */}
+              <section>
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="size-2 bg-primary rounded-full"></span>
+                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Briefing do Cliente</h4>
+                </div>
+                <div className="bg-slate-50 dark:bg-white/5 p-6 rounded-3xl border border-slate-100 dark:border-white/5">
+                  <p className="text-lg text-slate-800 dark:text-slate-200 font-medium leading-relaxed whitespace-pre-line">
+                    {detailsModal.order.description || 'Nenhuma descrição detalhada fornecida.'}
+                  </p>
+                </div>
+              </section>
+
+              {/* 2. Fotos */}
+              {detailsModal.order.attachments && detailsModal.order.attachments.length > 0 && (
+                <section>
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="size-2 bg-amber-500 rounded-full"></span>
+                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Anexos do Job ({detailsModal.order.attachments.length})</h4>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                    {detailsModal.order.attachments.map((url: string, idx: number) => (
+                      <a 
+                        key={idx} 
+                        href={url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="aspect-square rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 hover:ring-4 hover:ring-primary/20 transition-all group"
+                      >
+                        <img src={url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={`Anexo Job ${idx + 1}`} />
+                      </a>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* 3. Localização */}
+              <section>
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="size-2 bg-emerald-500 rounded-full"></span>
+                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Local de Atendimento</h4>
+                </div>
+                <div className="bg-emerald-500/5 border border-emerald-500/10 p-6 rounded-3xl space-y-2">
+                   {detailsModal.order.street ? (
+                     <>
+                        <p className="text-lg font-black text-slate-900 dark:text-white leading-tight">
+                          {detailsModal.order.street}, {detailsModal.order.number || 'S/N'}
+                        </p>
+                        <p className="text-base font-bold text-slate-600 dark:text-slate-300">
+                          {detailsModal.order.neighborhood}
+                        </p>
+                        <p className="text-sm font-medium text-slate-400 uppercase tracking-widest">
+                          {detailsModal.order.city} - {detailsModal.order.state} | CEP: {detailsModal.order.cep}
+                        </p>
+                     </>
+                   ) : (
+                     <p className="text-slate-500 italic">Localização não especificada (pode ser serviço remoto ou a combinar).</p>
+                   )}
+                </div>
+              </section>
+
+              {/* 4. Budget e Prazo */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                 <section>
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="size-2 bg-emerald-500 rounded-full"></span>
+                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Budget Sugerido</h4>
+                  </div>
+                  <div className="bg-emerald-500/10 p-6 rounded-3xl flex items-center gap-4">
+                    <div className="size-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center">
+                      <span className="material-symbols-outlined text-2xl">payments</span>
+                    </div>
+                    <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+                      {formatCurrency(detailsModal.order.budget || 0)}
+                    </p>
+                  </div>
+                </section>
+
+                <section>
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="size-2 bg-orange-500 rounded-full"></span>
+                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Prazo Estimado</h4>
+                  </div>
+                  <div className="bg-orange-500/10 p-6 rounded-3xl flex items-center gap-4">
+                    <div className="size-12 rounded-2xl bg-orange-500 text-white flex items-center justify-center">
+                      <span className="material-symbols-outlined text-2xl">timer</span>
+                    </div>
+                    <p className="text-xl font-black text-orange-600 dark:text-orange-400">
+                      {detailsModal.order.delivery_deadline ? new Date(detailsModal.order.delivery_deadline).toLocaleDateString() : 'A combinar'}
+                    </p>
+                  </div>
+                </section>
+              </div>
+
+              <div className="h-10 md:h-0"></div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-6 bg-slate-50 dark:bg-slate-800 border-t border-slate-100 dark:border-slate-800">
+               <button 
+                 onClick={() => {
+                   onNavigate('bidRoom', { orderId: detailsModal.order.id });
+                   setDetailsModal({ isOpen: false, order: null });
+                 }}
+                 className="w-full py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+               >
+                 <span className="material-symbols-outlined">send_money</span>
+                 Entrar na Sala de Lance
+               </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 }

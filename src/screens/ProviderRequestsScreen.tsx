@@ -24,6 +24,9 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
   const [scheduleModal, setScheduleModal] = useState<{ isOpen: boolean, requestId: string | null, requestTitle: string, date: string, time: string }>({
     isOpen: false, requestId: null, requestTitle: '', date: '', time: '09:00'
   });
+  const [detailsModal, setDetailsModal] = useState<{ isOpen: boolean, request: any | null }>({
+    isOpen: false, request: null
+  });
 
   const fetchRequests = async () => {
     if (!user) return;
@@ -48,6 +51,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
           cep,
           address_complement,
           desired_date,
+          attachments,
           profiles!service_requests_client_id_fkey(full_name, avatar_url),
           service_categories(name, icon)
         `)
@@ -493,43 +497,58 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
           </div>
 
           {!loading && requests.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {requests.map(req => (
                 <div key={req.id} className="flex flex-col rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden transition-all hover:shadow-md">
                   <div className="p-4 flex flex-col h-full">
                     <div className="flex gap-4 items-start flex-1">
                       <div className="w-16 h-16 rounded-lg bg-cover bg-center shrink-0 border border-slate-100 dark:border-slate-800" style={{ backgroundImage: `url('${req.profiles?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"}')` }}></div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-start">
-                          <p className="text-slate-900 dark:text-white text-base font-bold truncate">{req.profiles?.full_name || 'Cliente'}</p>
-                           <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${statusMap[req.status]?.color || 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+                        <div className="flex justify-between items-start gap-2">
+                          <p className="text-slate-900 dark:text-white text-lg font-black tracking-tight truncate">{req.profiles?.full_name || 'Cliente'}</p>
+                           <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border shrink-0 ${statusMap[req.status]?.color || 'bg-slate-100 text-slate-600 border-slate-200'}`}>
                             {statusMap[req.status]?.label || req.status}
                           </span>
                         </div>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm flex items-center gap-1 mt-0.5" title={req.description}>
-                          <span className="material-symbols-outlined text-[16px]">{req.service_categories?.icon || 'work'}</span>
-                          {req.service_categories?.name || 'Serviço'}
-                        </p>
-                        <p className="text-slate-400 dark:text-slate-500 text-xs mt-1 flex items-start gap-1">
-                          <span className="material-symbols-outlined text-[16px] mt-0.5 shrink-0">location_on</span>
-                          <span className="leading-tight">
-                            {req.street ? `${req.street}, ${req.number || 'S/N'}` : 'Local não informado'}
-                            {req.neighborhood && <><br />{req.neighborhood}</>}
-                            {req.city && <><br />{req.city} - {req.state || ''}</>}
-                            {req.cep && <><br />CEP: {req.cep}</>}
-                            {req.address_complement && <><br /><span className="text-[10px] opacity-75">Ref: {req.address_complement}</span></>}
-                          </span>
-                        </p>
-                        <p className="text-slate-400 dark:text-slate-500 text-[11px] mt-2 flex items-center gap-1 font-bold">
-                          <span className="material-symbols-outlined text-[16px]">calendar_today</span>
-                          Criação: {new Date(req.created_at).toLocaleDateString()}
-                        </p>
+                        
+                        <div className="flex flex-wrap items-center gap-3 mt-2">
+                          <p className="text-slate-500 dark:text-slate-400 text-sm flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[18px] text-primary">{req.service_categories?.icon || 'work'}</span>
+                            <span className="font-bold border-b border-primary/20">{req.service_categories?.name || 'Serviço'}</span>
+                          </p>
+                          {req.attachments && Array.isArray(req.attachments) && req.attachments.length > 0 && (
+                             <div className="flex items-center gap-1 bg-primary/10 text-primary px-2 py-0.5 rounded-lg border border-primary/20">
+                               <span className="material-symbols-outlined text-sm">photo_library</span>
+                               <span className="text-[10px] font-black uppercase tracking-widest">{req.attachments.length} {req.attachments.length === 1 ? 'Foto' : 'Fotos'}</span>
+                             </div>
+                          )}
+                        </div>
+
+                        <div className="mt-4 p-4 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/5 space-y-2">
+                          <div className="flex items-start gap-2">
+                            <span className="material-symbols-outlined text-primary text-[18px] mt-0.5">location_on</span>
+                            <p className="text-slate-700 dark:text-slate-200 text-sm font-medium leading-relaxed">
+                              {req.street ? `${req.street}, ${req.number || 'S/N'}` : 'Local não informado'}
+                              {req.neighborhood && <><br /><span className="text-slate-400 font-normal">{req.neighborhood}</span></>}
+                              {req.city && <><br /><span className="text-slate-400 font-normal">{req.city} - {req.state || ''}</span></>}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-white/5">
+                            <span className="material-symbols-outlined text-slate-400 text-[18px]">event</span>
+                            <p className="text-slate-400 dark:text-slate-500 text-[11px] font-bold uppercase tracking-widest">
+                              Publicado: {new Date(req.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+
                         {req.desired_date && (
-                          <div className="mt-3 p-2 rounded-xl bg-primary/5 border border-primary/10 flex items-center gap-2">
-                             <span className="material-symbols-outlined text-primary text-sm">schedule</span>
-                             <div>
-                               <p className="text-[9px] font-black text-primary uppercase tracking-widest">Preferência do Cliente</p>
-                               <p className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                          <div className="mt-4 p-3 rounded-2xl bg-orange-500/5 border border-orange-500/10 flex items-center shadow-sm">
+                             <div className="size-10 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0">
+                                <span className="material-symbols-outlined text-orange-500">schedule</span>
+                             </div>
+                             <div className="ml-3">
+                               <p className="text-[9px] font-black text-orange-500 uppercase tracking-widest">Preferência do Cliente</p>
+                               <p className="text-sm font-black text-slate-800 dark:text-orange-100">
                                  {new Date(req.desired_date).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
                                </p>
                              </div>
@@ -538,10 +557,17 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                       </div>
                     </div>
 
-                    <div className="mt-4 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800 flex-1">
-                      <p className="text-sm text-slate-700 dark:text-slate-300 font-medium whitespace-pre-line line-clamp-3">
+                    <div className="mt-4 bg-slate-50 dark:bg-slate-800/80 p-4 rounded-xl border border-slate-100 dark:border-slate-800 flex-1 relative group/desc">
+                      <p className="text-sm text-slate-700 dark:text-slate-300 font-medium whitespace-pre-line line-clamp-2">
                         {req.description || 'Sem descrição.'}
                       </p>
+                      <button 
+                        onClick={() => setDetailsModal({ isOpen: true, request: req })}
+                        className="mt-3 text-xs font-black text-primary uppercase tracking-widest flex items-center gap-1 hover:underline"
+                      >
+                        Visualizar Pedido Completo
+                        <span className="material-symbols-outlined text-sm">open_in_new</span>
+                      </button>
                     </div>
 
                     {activeTab === 'Novos' && (
@@ -561,7 +587,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                           </button>
                           <button 
                             onClick={() => updateRequestStatus(req.id, 'cancelled')}
-                            className="w-24 cursor-pointer flex items-center justify-center rounded-lg h-10 px-4 bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-500 text-sm font-bold border border-red-200 dark:border-red-800/30">
+                            className="w-24 cursor-pointer flex items-center justify-center rounded-lg h-10 px-4 bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-500 text-sm font-bold border border-red-200 dark:red-800/30">
                             Recusar
                           </button>
                         </div>
@@ -631,6 +657,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                         <p className="text-xs text-slate-400 dark:text-slate-500 text-center italic">Pedido finalizado em {new Date(req.updated_at || req.created_at).toLocaleDateString()}</p>
                       </div>
                     )}
+
                   </div>
                 </div>
               ))}
@@ -646,7 +673,155 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
           <div className="h-24"></div> {/* Spacer for BottomNav */}
         </div>
 
+        {/* Details Modal */}
+        {detailsModal.isOpen && detailsModal.request && (
+          <div className="fixed inset-0 z-[250] flex items-center justify-center p-0 md:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
+            <div className="w-full h-full md:h-auto md:max-h-[90vh] md:max-w-4xl bg-white dark:bg-slate-900 md:rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
+              
+              {/* Header */}
+              <div className="p-4 md:p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 sticky top-0 z-10">
+                <div className="flex items-center gap-4">
+                  <button 
+                    onClick={() => setDetailsModal({ isOpen: false, request: null })}
+                    className="md:hidden size-10 flex items-center justify-center text-slate-400"
+                  >
+                    <span className="material-symbols-outlined">arrow_back</span>
+                  </button>
+                  <div className="size-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined text-primary text-2xl">{detailsModal.request.service_categories?.icon || 'work'}</span>
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="text-lg font-black text-slate-900 dark:text-white leading-tight uppercase tracking-tighter truncate">
+                      {detailsModal.request.profiles?.full_name || 'Detalhes do Pedido'}
+                    </h3>
+                    <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Orçamento para {detailsModal.request.service_categories?.name}</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setDetailsModal({ isOpen: false, request: null })}
+                  className="hidden md:flex size-10 items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+                >
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
 
+              {/* Scrollable Content */}
+              <div className="flex-1 overflow-y-auto p-6 md:p-10 space-y-10">
+                
+                {/* 1. Descrição */}
+                <section>
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="size-2 bg-primary rounded-full"></span>
+                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Descrição do Serviço</h4>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-white/5 p-6 rounded-3xl border border-slate-100 dark:border-white/5">
+                    <p className="text-lg text-slate-800 dark:text-slate-200 font-medium leading-relaxed whitespace-pre-line">
+                      {detailsModal.request.description || 'Nenhuma descrição detalhada fornecida.'}
+                    </p>
+                  </div>
+                </section>
+
+                {/* 2. Fotos */}
+                {detailsModal.request.attachments && detailsModal.request.attachments.length > 0 && (
+                  <section>
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="size-2 bg-amber-500 rounded-full"></span>
+                      <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Anexos ({detailsModal.request.attachments.length})</h4>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                      {detailsModal.request.attachments.map((url: string, idx: number) => (
+                        <a 
+                          key={idx} 
+                          href={url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="aspect-square rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 hover:ring-4 hover:ring-primary/20 transition-all group"
+                        >
+                          <img src={url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={`Anexo ${idx + 1}`} />
+                        </a>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                {/* 3. Informações de Agendamento e Local */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <section>
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="size-2 bg-orange-500 rounded-full"></span>
+                      <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Preferência de Horário</h4>
+                    </div>
+                    <div className="bg-orange-500/5 border border-orange-500/10 p-6 rounded-3xl flex items-center gap-4">
+                      <div className="size-12 rounded-2xl bg-orange-500 text-white flex items-center justify-center">
+                        <span className="material-symbols-outlined text-2xl">event_available</span>
+                      </div>
+                      <div>
+                        <p className="text-xl font-black text-slate-900 dark:text-white">
+                          {detailsModal.request.desired_date ? new Date(detailsModal.request.desired_date).toLocaleDateString() : 'A combinar'}
+                        </p>
+                        <p className="text-sm font-bold text-orange-500 uppercase tracking-widest">
+                          {detailsModal.request.desired_date ? new Date(detailsModal.request.desired_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Qualquer horário'}
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section>
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="size-2 bg-emerald-500 rounded-full"></span>
+                      <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Endereço Completo</h4>
+                    </div>
+                    <div className="bg-emerald-500/5 border border-emerald-500/10 p-6 rounded-3xl space-y-2">
+                       <p className="text-lg font-black text-slate-900 dark:text-white leading-tight">
+                         {detailsModal.request.street}, {detailsModal.request.number || 'S/N'}
+                       </p>
+                       <p className="text-base font-bold text-slate-600 dark:text-slate-300">
+                         {detailsModal.request.neighborhood}
+                       </p>
+                       <p className="text-sm font-medium text-slate-400 uppercase tracking-widest">
+                         {detailsModal.request.city} - {detailsModal.request.state} | CEP: {detailsModal.request.cep}
+                       </p>
+                       {detailsModal.request.address_complement && (
+                         <div className="mt-3 pt-3 border-t border-emerald-500/20 italic text-xs text-emerald-600 dark:text-emerald-400">
+                           Complemento: {detailsModal.request.address_complement}
+                         </div>
+                       )}
+                    </div>
+                  </section>
+                </div>
+
+                <div className="h-10 md:h-0"></div>
+              </div>
+
+              {/* Action Buttons Footer */}
+              <div className="p-6 bg-slate-50 dark:bg-slate-800 border-t border-slate-100 dark:border-slate-800 flex flex-col md:flex-row gap-3">
+                 {detailsModal.request.status === 'open' && (
+                   <button 
+                     onClick={() => {
+                       handleSendBudget(detailsModal.request.id, detailsModal.request.budget_amount, detailsModal.request.title);
+                       setDetailsModal({ isOpen: false, request: null });
+                     }}
+                     className="flex-1 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+                   >
+                     <span className="material-symbols-outlined">receipt_long</span>
+                     Enviar Orçamento
+                   </button>
+                 )}
+                 <button 
+                   onClick={() => {
+                     handleOpenChat(detailsModal.request);
+                     setDetailsModal({ isOpen: false, request: null });
+                   }}
+                   className="flex-1 py-4 bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200 dark:border-slate-600 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-600 transition-all flex items-center justify-center gap-2"
+                 >
+                   <span className="material-symbols-outlined">chat</span>
+                   Abrir Chat
+                 </button>
+              </div>
+
+            </div>
+          </div>
+        )}
 
       </div>
     </div>

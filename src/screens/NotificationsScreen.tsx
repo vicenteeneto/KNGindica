@@ -171,7 +171,7 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
       {role === 'provider' ? (
         <div className="sticky top-0 z-40 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
           <ProviderHeader 
-            title="Notificações" 
+            title="Avisos e Notificações" 
             onBack={() => {
               if (params?.returnTo) {
                 onNavigate(params.returnTo);
@@ -181,18 +181,23 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
             }}
             onNavigate={onNavigate} 
             rightActions={
-              <button onClick={handleClearAll} className="text-primary font-bold text-sm px-4 hover:brightness-110 transition-all uppercase tracking-widest italic">
+              <button onClick={handleClearAll} className="text-primary font-bold text-xs md:text-sm px-4 hover:brightness-110 transition-all uppercase tracking-widest italic">
                 Limpar tudo
               </button>
             }
           />
           {/* Tab Navigation */}
           <div className="flex px-4 max-w-7xl mx-auto w-full">
-            <button onClick={() => setActiveTab('all')} className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'all' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'}`}>
+            <button onClick={() => setActiveTab('all')} className={`flex-1 py-4 text-xs md:text-sm font-black uppercase tracking-widest border-b-2 transition-colors ${activeTab === 'all' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'}`}>
               Todas
             </button>
-            <button onClick={() => setActiveTab('unread')} className={`flex-1 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'unread' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'}`}>
-              Não lidas ({notifications.filter(n => !n.is_read).length})
+            <button onClick={() => setActiveTab('unread')} className={`flex-1 py-4 text-xs md:text-sm font-black uppercase tracking-widest border-b-2 transition-colors ${activeTab === 'unread' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'} flex items-center justify-center gap-2`}>
+              Não lidas
+              {notifications.filter(n => !n.is_read).length > 0 && (
+                <span className="bg-primary text-white text-[10px] size-5 rounded-full flex items-center justify-center">
+                  {notifications.filter(n => !n.is_read).length}
+                </span>
+              )}
             </button>
           </div>
         </div>
@@ -216,11 +221,16 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
           </div>
           {/* Tab Navigation */}
           <div className="flex px-4 max-w-7xl mx-auto w-full">
-            <button onClick={() => setActiveTab('all')} className={`flex-1 py-3 text-sm font-bold border-b-2 ${activeTab === 'all' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'}`}>
+            <button onClick={() => setActiveTab('all')} className={`flex-1 py-4 text-xs md:text-sm font-black uppercase tracking-widest border-b-2 ${activeTab === 'all' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'}`}>
               Todas
             </button>
-            <button onClick={() => setActiveTab('unread')} className={`flex-1 py-3 text-sm font-bold border-b-2 ${activeTab === 'unread' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'}`}>
-              Não lidas ({notifications.filter(n => !n.is_read).length})
+            <button onClick={() => setActiveTab('unread')} className={`flex-1 py-4 text-xs md:text-sm font-black uppercase tracking-widest border-b-2 ${activeTab === 'unread' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'} flex items-center justify-center gap-2`}>
+              Não lidas
+              {notifications.filter(n => !n.is_read).length > 0 && (
+                <span className="bg-primary text-white text-[10px] size-5 rounded-full flex items-center justify-center">
+                  {notifications.filter(n => !n.is_read).length}
+                </span>
+              )}
             </button>
           </div>
         </header>
