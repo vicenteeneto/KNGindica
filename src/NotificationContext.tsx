@@ -35,6 +35,7 @@ interface ModalConfig {
 interface NotificationContextType {
   unreadNotifications: number;
   unreadMessages: number;
+  unreadRequests: number;
   toasts: Toast[];
   showToast: (title: string, message: string, type?: 'notification' | 'message' | 'success' | 'error', avatar?: string, targetScreen?: Screen, params?: any) => void;
   showModal: (config: ModalConfig) => void;
@@ -49,6 +50,7 @@ export function NotificationProvider({ children, onNavigate }: { children: React
   const { user, role } = useAuth();
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [unreadMessages, setUnreadMessages] = useState(0);
+  const [unreadRequests, setUnreadRequests] = useState(0);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [modal, setModal] = useState<ModalConfig | null>(null);
 
@@ -94,12 +96,12 @@ export function NotificationProvider({ children, onNavigate }: { children: React
         setUnreadNotifications(Number(data[0].notifications_count));
         setUnreadMessages(Number(data[0].messages_count));
       } else {
-        const [notifs, msgs] = await Promise.all([
-          supabase.from('notifications').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('is_read', false),
-          supabase.from('chat_messages').select('id, chat_rooms!inner(id)').eq('is_read', false).neq('sender_id', user.id)
+        const [notifs] = await Promise.all([
+          supabase.from('notifications').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('is_read', false)
         ]);
-        
         setUnreadNotifications(notifs.count || 0);
+
+        // Fetch unread messages
         const { data: userRooms } = await supabase.from('chat_rooms')
           .select('id')
           .or(`client_id.eq.${user.id},provider_id.eq.${user.id}`);
@@ -114,6 +116,32 @@ export function NotificationProvider({ children, onNavigate }: { children: React
           setUnreadMessages(count || 0);
         }
       }
+
+      // 3. Contar Novos Pedidos (Somente para profissionais)
+      if (role === 'provider') {
+        const { data: profData } = await supabase.from('profiles').select('categories').eq('id', user.id).single();
+        const myCats = profData?.categories || [];
+        
+        const { data: catData } = await supabase.from('service_categories').select('id, name');
+        let catIds: string[] = [];
+        if (catData) {
+          catIds = catData.filter(c => myCats.includes(c.name)).map(c => c.id);
+        }
+
+        let query = supabase.from('service_requests').select('id', { count: 'exact', head: true }).eq('status', 'open');
+        
+        if (catIds.length > 0) {
+          query = query.or(`provider_id.eq.${user.id},and(provider_id.is.null,category_id.in.(${catIds.join(',')}))`);
+        } else {
+          query = query.eq('provider_id', user.id);
+        }
+        
+        const { count: reqCount } = await query;
+        setUnreadRequests(reqCount || 0);
+      } else {
+        setUnreadRequests(0);
+      }
+
     } catch (err) {
       console.error("Erro ao buscar contadores:", err);
     }
@@ -216,16 +244,49 @@ export function NotificationProvider({ children, onNavigate }: { children: React
       }
     };
 
+    // 3. Canal de Pedidos de Serviço (Real-time para profissionais)
+    let requestsChannel: any = null;
+    if (role === 'provider') {
+      requestsChannel = supabase.channel('realtime_requests')
+        .on('postgres_changes', {
+          event: '*',
+          schema: 'public',
+          table: 'service_requests'
+        }, async (payload) => {
+          // Quando algo muda em service_requests, atualizamos os contadores
+          fetchCounts();
+          
+          if (payload.eventType === 'INSERT' && payload.new.status === 'open') {
+             // Checar se é para este profissional
+             const { data: prof } = await supabase.from('profiles').select('categories').eq('id', user.id).single();
+             const myCats = prof?.categories || [];
+             const { data: cat } = await supabase.from('service_categories').select('name').eq('id', payload.new.category_id).single();
+             
+             if (payload.new.provider_id === user.id || (cat && myCats.includes(cat.name))) {
+               showToast(
+                 "Novo Pedido Disponível!", 
+                 payload.new.title || "Um novo cliente solicitou um serviço na sua categoria.",
+                 'notification',
+                 undefined,
+                 'providerRequests'
+               );
+             }
+          }
+        })
+        .subscribe();
+    }
+
     setupChatSubscription();
 
     return () => {
       supabase.removeChannel(notificationsChannel);
+      if (requestsChannel) supabase.removeChannel(requestsChannel);
       supabase.channel('realtime_messages').unsubscribe();
     };
   }, [user, role]);
 
   return (
-    <NotificationContext.Provider value={{ unreadNotifications, unreadMessages, toasts, showToast, showModal, removeToast, refreshCounts: fetchCounts, onNavigate }}>
+    <NotificationContext.Provider value={{ unreadNotifications, unreadMessages, unreadRequests, toasts, showToast, showModal, removeToast, refreshCounts: fetchCounts, onNavigate }}>
       {children}
       
       {/* Modal Container */}

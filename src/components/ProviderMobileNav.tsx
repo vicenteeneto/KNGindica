@@ -8,7 +8,7 @@ interface ProviderMobileNavProps extends NavigationProps {
 }
 
 export default function ProviderMobileNav({ onNavigate, currentScreen }: ProviderMobileNavProps) {
-  const { unreadNotifications, unreadMessages } = useNotifications();
+  const { unreadNotifications, unreadMessages, unreadRequests } = useNotifications();
   const { user } = useAuth();
 
   const getButtonClass = (isActive: boolean) =>
@@ -45,6 +45,11 @@ export default function ProviderMobileNav({ onNavigate, currentScreen }: Provide
           className={getButtonClass(currentScreen === 'providerRequests')}
         >
           <span className={getIconClass(currentScreen === 'providerRequests')} style={currentScreen === 'providerRequests' ? { fontVariationSettings: "'FILL' 1" } : {}}>assignment</span>
+          {unreadRequests > 0 && (
+            <span className="absolute top-[-5px] right-2 size-4 bg-emerald-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900">
+              {unreadRequests > 9 ? '9+' : unreadRequests}
+            </span>
+          )}
           <span className="text-[9px] font-semibold tracking-tight">Serviços</span>
         </button>
 

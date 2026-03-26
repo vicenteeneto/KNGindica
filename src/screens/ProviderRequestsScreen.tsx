@@ -115,6 +115,22 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
 
   useEffect(() => {
     fetchRequests();
+
+    // Iniciar canal de real-time para atualizar a lista automaticamente
+    const channel = supabase.channel('requests_list_updates')
+      .on('postgres_changes', {
+        event: '*', // Listen to INSERT, UPDATE, DELETE
+        schema: 'public',
+        table: 'service_requests'
+      }, () => {
+        // Debounce or just fetch again. For simplicity, we fetch again.
+        fetchRequests();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [activeTab, user]);
 
   const handleOpenChat = async (req: any) => {
