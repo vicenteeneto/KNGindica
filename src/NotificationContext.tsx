@@ -129,6 +129,14 @@ export function NotificationProvider({ children, onNavigate }: { children: React
           catIds = catData.filter(c => myCats.includes(c.name)).map(c => c.id);
         }
 
+        // Buscar ordens que eu já recusei/ocultei
+        const { data: dismissalData } = await supabase.from('provider_dismissals')
+          .select('order_id, order_type')
+          .eq('provider_id', user.id);
+        
+        const dismissedServiceIds = dismissalData?.filter(d => d.order_type === 'service').map(d => d.order_id) || [];
+        const dismissedFreelanceIds = dismissalData?.filter(d => d.order_type === 'freelance').map(d => d.order_id) || [];
+
         // Construir query de solicitações idêntica à do ProviderRequestsScreen
         let query = supabase.from('service_requests').select('id', { count: 'exact', head: true }).eq('status', 'open');
         
@@ -139,16 +147,27 @@ export function NotificationProvider({ children, onNavigate }: { children: React
           // Se não tem categoria, só vê as diretas
           query = query.eq('provider_id', user.id);
         }
+
+        // Filtrar as ocultadas manualmente
+        if (dismissedServiceIds.length > 0) {
+          query = query.not('id', 'in', `(${dismissedServiceIds.join(',')})`);
+        }
         
         const { count: reqCount } = await query;
         
         // Contar ordens freelance abertas nas categorias atendidas
         let freeCount = 0;
         if (catIds.length > 0) {
-           const { count } = await supabase.from('freelance_orders')
+           let freeQuery = supabase.from('freelance_orders')
              .select('id', { count: 'exact', head: true })
              .eq('status', 'open')
              .in('category_id', catIds);
+           
+           if (dismissedFreelanceIds.length > 0) {
+             freeQuery = freeQuery.not('id', 'in', `(${dismissedFreelanceIds.join(',')})`);
+           }
+
+           const { count } = await freeQuery;
            freeCount = count || 0;
         }
 

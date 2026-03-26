@@ -11,21 +11,32 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
   const { showToast } = useNotifications();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'available' | 'bidded'>('available');
+  const [activeTab, setActiveTab] = useState<'available' | 'bidded' | 'dismissed'>('available');
   const [detailsModal, setDetailsModal] = useState<{ isOpen: boolean, order: any | null }>({
     isOpen: false, order: null
   });
+  const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean, orderId: string | null }>({
+    isOpen: false, orderId: null
+  });
   
-  // Track dismissed orders
-  const dismissedKeys = user ? `kngindica_dismissed_orders_${user.id}` : null;
-  const [dismissed, setDismissed] = useState<string[]>([]);
+  // Track dismissed orders via database
+  const [dismissedIds, setDismissedIds] = useState<string[]>([]);
 
   useEffect(() => {
-    if (dismissedKeys) {
-      const stored = localStorage.getItem(dismissedKeys);
-      if (stored) setDismissed(JSON.parse(stored));
+    if (user) {
+      fetchDismissedIds();
     }
-  }, [dismissedKeys]);
+  }, [user]);
+
+  const fetchDismissedIds = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('provider_dismissals')
+      .select('order_id')
+      .eq('provider_id', user.id)
+      .eq('order_type', 'freelance');
+    if (data) setDismissedIds(data.map(d => d.order_id));
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -34,18 +45,18 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
     // Subscribe to new orders
     const channel = supabase
       .channel('freelance_orders_changes')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'freelance_orders' }, payload => {
-        if (!dismissed.includes(payload.new.id)) {
-          // If active tab is available, just refetch to be safe with DB relations
-          if (activeTab === 'available') fetchOrders();
-        }
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'freelance_orders' }, () => {
+        fetchOrders();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'provider_dismissals' }, () => {
+        fetchDismissedIds().then(() => fetchOrders());
       })
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, dismissed, activeTab]);
+  }, [user, activeTab]);
 
   const fetchOrders = async () => {
     if (!user) return;
@@ -56,7 +67,7 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
     const bidOrderIds = userBids?.map(b => b.order_id) || [];
     
     if (activeTab === 'available') {
-      const toExclude = [...bidOrderIds, ...dismissed];
+      const toExclude = [...bidOrderIds, ...dismissedIds];
       let query = supabase
         .from('freelance_orders')
         .select(`
@@ -73,7 +84,7 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
 
       const { data, error } = await query;
       if (!error) setOrders(data || []);
-    } else {
+    } else if (activeTab === 'bidded') {
       // Bidded tab
       if (bidOrderIds.length === 0) {
         setOrders([]);
@@ -96,16 +107,51 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
            setOrders(enhanced || []);
         }
       }
+    } else {
+      // Dismissed tab
+      if (dismissedIds.length === 0) {
+        setOrders([]);
+      } else {
+        const { data, error } = await supabase
+          .from('freelance_orders')
+          .select(`
+            *,
+            profiles:client_id(full_name, avatar_url, phone),
+            service_categories(name, icon)
+          `)
+          .in('id', dismissedIds)
+          .order('created_at', { ascending: false });
+        if (!error) setOrders(data || []);
+      }
     }
     setLoading(false);
   };
 
-  const handeDismiss = (e: React.MouseEvent, orderId: string) => {
+  const handleDismissClick = (e: React.MouseEvent, orderId: string) => {
     e.stopPropagation();
-    const updated = [...dismissed, orderId];
-    setDismissed(updated);
-    if (dismissedKeys) localStorage.setItem(dismissedKeys, JSON.stringify(updated));
-    setOrders(prev => prev.filter(o => o.id !== orderId));
+    setConfirmModal({ isOpen: true, orderId });
+  };
+
+  const confirmDismiss = async () => {
+    if (!confirmModal.orderId || !user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('provider_dismissals')
+        .insert({
+          provider_id: user.id,
+          order_id: confirmModal.orderId,
+          order_type: 'freelance'
+        });
+
+      if (error) throw error;
+      
+      showToast('Oportunidade movida para recusadas', 'success');
+      setConfirmModal({ isOpen: false, orderId: null });
+      fetchDismissedIds().then(() => fetchOrders());
+    } catch (error: any) {
+      showToast('Erro ao recusar: ' + error.message, 'error');
+    }
   };
 
   if (loading) {
@@ -144,6 +190,12 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
               className={`flex-1 py-3 text-sm font-bold tracking-widest uppercase transition-colors ${activeTab === 'bidded' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600'}`}
             >
               Meus Lances
+            </button>
+            <button 
+              onClick={() => setActiveTab('dismissed')}
+              className={`flex-1 py-3 text-sm font-bold tracking-widest uppercase transition-colors ${activeTab === 'dismissed' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600'}`}
+            >
+              Recusadas
             </button>
           </div>
         </div>
@@ -189,7 +241,7 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
                   
                   {activeTab === 'available' && (
                     <button 
-                      onClick={(e) => handeDismiss(e, order.id)}
+                      onClick={(e) => handleDismissClick(e, order.id)}
                       className="size-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center justify-center transition-colors shadow-sm"
                     >
                       <span className="material-symbols-outlined text-[18px]">close</span>
@@ -399,6 +451,38 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
                </button>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Dismiss Modal */}
+      {confirmModal.isOpen && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-xs bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200">
+            <div className="p-6 text-center">
+              <div className="size-16 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center mx-auto mb-4">
+                <span className="material-symbols-outlined text-red-600 text-3xl">delete_sweep</span>
+              </div>
+              <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tighter">Ocultar Ordem?</h3>
+              <p className="text-sm text-slate-500 font-medium mb-6 leading-relaxed text-center">
+                Esta oportunidade será removida da sua lista principal e movida para o histórico de recusadas.
+              </p>
+              
+              <div className="flex flex-col gap-2">
+                <button 
+                  onClick={confirmDismiss}
+                  className="w-full py-3.5 bg-red-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-red-700 transition-colors"
+                >
+                  Confirmar
+                </button>
+                <button 
+                  onClick={() => setConfirmModal({ isOpen: false, orderId: null })}
+                  className="w-full py-3.5 text-slate-500 font-bold text-xs"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -6,7 +6,7 @@ import { useNotifications } from '../NotificationContext';
 import { formatCurrency, maskCurrency } from '../lib/formatters';
 import { ProviderHeader } from '../components/ProviderHeader';
 
-type Tab = 'Novos' | 'Orçados' | 'Aprovados' | 'Agendados' | 'Finalizados';
+type Tab = 'Novos' | 'Orçados' | 'Aprovados' | 'Agendados' | 'Finalizados' | 'Recusados';
 
 export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) {
   const { user } = useAuth();
@@ -15,7 +15,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
   const [activeTab, setActiveTab] = useState<Tab>('Novos');
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const tabs: Tab[] = ['Novos', 'Orçados', 'Aprovados', 'Agendados', 'Finalizados'];
+  const tabs: Tab[] = ['Novos', 'Orçados', 'Aprovados', 'Agendados', 'Finalizados', 'Recusados'];
 
   // Custom Modals State
   const [budgetModal, setBudgetModal] = useState<{ isOpen: boolean, requestId: string | null, requestTitle: string, currentAmount: string }>({ 
@@ -26,6 +26,9 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
   });
   const [detailsModal, setDetailsModal] = useState<{ isOpen: boolean, request: any | null }>({
     isOpen: false, request: null
+  });
+  const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean, requestId: string | null, action: 'cancel' | 'dismiss' | null }>({
+    isOpen: false, requestId: null, action: null
   });
 
   const fetchRequests = async () => {
@@ -62,19 +65,51 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
       switch (activeTab) {
         case 'Novos':
           expectedStatuses = ['open'];
-          const { data: profData } = await supabase.from('profiles').select('categories').eq('id', user.id).single();
+          const { data: profData } = await supabase.from('profiles').select('categories').eq('id', user.id).maybeSingle();
           const myCats = profData?.categories || [];
+          
+          // Buscar IDs das categorias
           const { data: catData } = await supabase.from('service_categories').select('id, name');
           let catIds: string[] = [];
           if (catData) {
             catIds = catData.filter(c => myCats.includes(c.name)).map(c => c.id);
           }
 
+          // Buscar ordens que eu já recusei/ocultei
+          const { data: dismissalData } = await supabase.from('provider_dismissals')
+            .select('order_id')
+            .eq('provider_id', user.id)
+            .eq('order_type', 'service');
+          const dismissedIds = dismissalData?.map(d => d.order_id) || [];
+
           if (catIds.length > 0) {
             query = query.eq('status', 'open')
               .or(`provider_id.eq.${user.id},and(provider_id.is.null,category_id.in.(${catIds.join(',')}))`);
           } else {
             query = query.eq('status', 'open').eq('provider_id', user.id);
+          }
+
+          // Filtrar as ocultadas manualmente se for broadcast
+          if (dismissedIds.length > 0) {
+            query = query.not('id', 'in', `(${dismissedIds.join(',')})`);
+          }
+          break;
+
+        case 'Recusados':
+          expectedStatuses = ['cancelled'];
+          
+          // 1. Minhas recusas diretas (status = cancelled e provider_id = eu)
+          // 2. Broadcasts que eu ocultei (id está em provider_dismissals)
+          const { data: myDismissals } = await supabase.from('provider_dismissals')
+            .select('order_id')
+            .eq('provider_id', user.id)
+            .eq('order_type', 'service');
+          const myDismissedIds = myDismissals?.map(d => d.order_id) || [];
+
+          if (myDismissedIds.length > 0) {
+            query = query.or(`and(status.eq.cancelled,provider_id.eq.${user.id}),id.in.(${myDismissedIds.join(',')})`);
+          } else {
+            query = query.eq('status', 'cancelled').eq('provider_id', user.id);
           }
           break;
 
@@ -197,6 +232,50 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
     }
   };
 
+  const handleRequestRecusar = (id: string, isDirect: boolean) => {
+    setConfirmModal({ 
+      isOpen: true, 
+      requestId: id, 
+      action: isDirect ? 'cancel' : 'dismiss' 
+    });
+  };
+
+  const confirmRecusar = async () => {
+    if (!confirmModal.requestId || !user) return;
+    
+    setIsSubmitting(true);
+    try {
+      if (confirmModal.action === 'cancel') {
+        // Recusa direta (status do pedido)
+        const { error } = await supabase
+          .from('service_requests')
+          .update({ status: 'cancelled' })
+          .eq('id', confirmModal.requestId);
+        
+        if (error) throw error;
+      } else {
+        // Rejeição de broadcast (ocultar)
+        const { error } = await supabase
+          .from('provider_dismissals')
+          .insert({
+            provider_id: user.id,
+            order_id: confirmModal.requestId,
+            order_type: 'service'
+          });
+        
+        if (error) throw error;
+      }
+
+      showToast('Pedido movido para recusados', 'success');
+      setConfirmModal({ isOpen: false, requestId: null, action: null });
+      fetchRequests();
+    } catch (error: any) {
+      showToast(error.message || 'Erro ao processar recusa', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const updateRequestStatus = async (requestId: string, newStatus: string) => {
     if (!user) return;
     try {
@@ -206,6 +285,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
         .eq('id', requestId);
 
       if (error) throw error;
+      fetchRequests();
     } catch (err: any) {
       console.error(err);
       showToast('Erro ao atualizar status: ' + err.message, 'error');
@@ -586,8 +666,8 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                             Conversar
                           </button>
                           <button 
-                            onClick={() => updateRequestStatus(req.id, 'cancelled')}
-                            className="w-24 cursor-pointer flex items-center justify-center rounded-lg h-10 px-4 bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-500 text-sm font-bold border border-red-200 dark:red-800/30">
+                            onClick={() => handleRequestRecusar(req.id, req.provider_id !== null)}
+                            className="w-24 cursor-pointer flex items-center justify-center rounded-lg h-10 px-4 bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-500 text-sm font-bold border border-red-200 dark:border-red-800/30">
                             Recusar
                           </button>
                         </div>
@@ -823,6 +903,42 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
           </div>
         )}
 
+        {/* Confirm Recusal Modal */}
+        {confirmModal.isOpen && (
+          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="w-full max-w-xs bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200">
+              <div className="p-6 text-center">
+                <div className="size-16 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center mx-auto mb-4">
+                  <span className="material-symbols-outlined text-red-600 text-3xl">delete_forever</span>
+                </div>
+                <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tighter">Recusar Pedido?</h3>
+                <p className="text-sm text-slate-500 font-medium mb-6">
+                  {confirmModal.action === 'cancel' 
+                    ? "Esta ação informará ao cliente que você não pode atender este pedido agora."
+                    : "Esta oportunidade será removida da sua lista e movida para o histórico de recusados."}
+                </p>
+                
+                <div className="flex flex-col gap-2">
+                  <button 
+                    onClick={confirmRecusar}
+                    disabled={isSubmitting}
+                    className="w-full py-3.5 bg-red-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+                  >
+                    {isSubmitting ? (
+                      <span className="animate-spin size-4 border-2 border-white/30 border-t-white rounded-full" />
+                    ) : 'Confirmar Recusa'}
+                  </button>
+                  <button 
+                    onClick={() => setConfirmModal({ isOpen: false, requestId: null, action: null })}
+                    className="w-full py-3.5 text-slate-500 font-bold text-xs"
+                  >
+                    Voltar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
