@@ -267,17 +267,6 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
           .eq('id', confirmModal.requestId);
         
         if (error) throw error;
-
-        // Notificar o cliente
-        if (requestData) {
-          await supabase.from('notifications').insert({
-            user_id: requestData.client_id,
-            title: 'Pedido Recusado',
-            message: `O prestador recusou o serviço "${requestData.title}"${rejectionReason ? `: ${rejectionReason}` : '.'}`,
-            type: 'status',
-            related_entity_id: confirmModal.requestId
-          });
-        }
       } else {
         // Rejeição de broadcast (ocultar)
         const { error } = await supabase
