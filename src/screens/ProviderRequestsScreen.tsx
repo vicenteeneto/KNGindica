@@ -30,6 +30,10 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
   const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean, requestId: string | null, action: 'cancel' | 'dismiss' | null }>({
     isOpen: false, requestId: null, action: null
   });
+  const [imageModal, setImageModal] = useState<{ isOpen: boolean, url: string }>({
+    isOpen: false, url: ''
+  });
+  const [rejectionReason, setRejectionReason] = useState('');
 
   const fetchRequests = async () => {
     if (!user) return;
@@ -55,6 +59,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
           address_complement,
           desired_date,
           attachments,
+          rejection_reason,
           profiles!service_requests_client_id_fkey(full_name, avatar_url),
           service_categories(name, icon)
         `)
@@ -247,12 +252,32 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
     try {
       if (confirmModal.action === 'cancel') {
         // Recusa direta (status do pedido)
+        const { data: requestData } = await supabase
+          .from('service_requests')
+          .select('client_id, title')
+          .eq('id', confirmModal.requestId)
+          .single();
+
         const { error } = await supabase
           .from('service_requests')
-          .update({ status: 'cancelled' })
+          .update({ 
+            status: 'cancelled',
+            rejection_reason: rejectionReason || null 
+          })
           .eq('id', confirmModal.requestId);
         
         if (error) throw error;
+
+        // Notificar o cliente
+        if (requestData) {
+          await supabase.from('notifications').insert({
+            user_id: requestData.client_id,
+            title: 'Pedido Recusado',
+            message: `O prestador recusou o serviço "${requestData.title}"${rejectionReason ? `: ${rejectionReason}` : '.'}`,
+            type: 'status',
+            related_entity_id: confirmModal.requestId
+          });
+        }
       } else {
         // Rejeição de broadcast (ocultar)
         const { error } = await supabase
@@ -268,6 +293,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
 
       showToast('Pedido movido para recusados', 'success');
       setConfirmModal({ isOpen: false, requestId: null, action: null });
+      setRejectionReason(''); // Limpar motivo
       fetchRequests();
     } catch (error: any) {
       showToast(error.message || 'Erro ao processar recusa', 'error');
@@ -674,6 +700,15 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                       </div>
                     )}
 
+                     {activeTab === 'Recusados' && (
+                      <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-100 dark:border-red-900/20">
+                        <p className="text-[10px] font-black text-red-600 dark:text-red-400 uppercase tracking-widest mb-1">Motivo da Recusa:</p>
+                        <p className="text-sm text-red-700 dark:text-red-300 font-medium italic">
+                          "{req.rejection_reason || 'Nenhum motivo informado.'}"
+                        </p>
+                      </div>
+                    )}
+
                     {activeTab === 'Orçados' && (
                       <div className="mt-4 flex flex-col gap-2">
                         <div className="bg-blue-50 dark:bg-blue-900/10 p-3 rounded-lg border border-blue-100 dark:border-blue-800/30 flex items-center gap-2">
@@ -810,15 +845,13 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                       {detailsModal.request.attachments.map((url: string, idx: number) => (
-                        <a 
+                        <button 
                           key={idx} 
-                          href={url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
+                          onClick={() => setImageModal({ isOpen: true, url })}
                           className="aspect-square rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 hover:ring-4 hover:ring-primary/20 transition-all group"
                         >
                           <img src={url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={`Anexo ${idx + 1}`} />
-                        </a>
+                        </button>
                       ))}
                     </div>
                   </section>
@@ -912,11 +945,23 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                   <span className="material-symbols-outlined text-red-600 text-3xl">delete_forever</span>
                 </div>
                 <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tighter">Recusar Pedido?</h3>
-                <p className="text-sm text-slate-500 font-medium mb-6">
+                <p className="text-sm text-slate-500 font-medium mb-4">
                   {confirmModal.action === 'cancel' 
                     ? "Esta ação informará ao cliente que você não pode atender este pedido agora."
                     : "Esta oportunidade será removida da sua lista e movida para o histórico de recusados."}
                 </p>
+                
+                {confirmModal.action === 'cancel' && (
+                  <div className="mb-6">
+                    <textarea
+                      value={rejectionReason}
+                      onChange={(e) => setRejectionReason(e.target.value)}
+                      placeholder="Motivo da recusa (opcional)..."
+                      className="w-full p-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm focus:ring-2 focus:ring-red-500/20 focus:border-red-500/50 outline-none transition-all resize-none h-24"
+                    />
+                    <p className="text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-widest italic">Este motivo será enviado ao cliente.</p>
+                  </div>
+                )}
                 
                 <div className="flex flex-col gap-2">
                   <button 
@@ -936,6 +981,31 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Image Viewer Modal */}
+        {imageModal.isOpen && (
+          <div 
+            className="fixed inset-0 z-[400] flex items-center justify-center bg-black/95 backdrop-blur-xl animate-in fade-in duration-300"
+            onClick={() => setImageModal({ isOpen: false, url: '' })}
+          >
+            <button 
+              className="absolute top-6 right-6 size-12 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-full transition-all z-50"
+              onClick={() => setImageModal({ isOpen: false, url: '' })}
+            >
+              <span className="material-symbols-outlined text-3xl">close</span>
+            </button>
+            <div 
+              className="relative w-full h-full flex items-center justify-center p-4 md:p-12"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img 
+                src={imageModal.url} 
+                className="max-w-full max-h-full object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-300"
+                alt="Visualização ampliada" 
+              />
             </div>
           </div>
         )}

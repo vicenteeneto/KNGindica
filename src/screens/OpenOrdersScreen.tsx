@@ -18,6 +18,9 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
   const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean, orderId: string | null }>({
     isOpen: false, orderId: null
   });
+  const [imageModal, setImageModal] = useState<{ isOpen: boolean, url: string }>({
+    isOpen: false, url: ''
+  });
   
   // Track dismissed orders via database
   const [dismissedIds, setDismissedIds] = useState<string[]>([]);
@@ -362,15 +365,13 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                     {detailsModal.order.attachments.map((url: string, idx: number) => (
-                      <a 
+                      <button 
                         key={idx} 
-                        href={url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
+                        onClick={() => setImageModal({ isOpen: true, url })}
                         className="aspect-square rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 hover:ring-4 hover:ring-primary/20 transition-all group"
                       >
                         <img src={url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={`Anexo Job ${idx + 1}`} />
-                      </a>
+                      </button>
                     ))}
                   </div>
                 </section>
@@ -483,6 +484,31 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Image Viewer Modal */}
+      {imageModal.isOpen && (
+        <div 
+          className="fixed inset-0 z-[400] flex items-center justify-center bg-black/95 backdrop-blur-xl animate-in fade-in duration-300"
+          onClick={() => setImageModal({ isOpen: false, url: '' })}
+        >
+          <button 
+            className="absolute top-6 right-6 size-12 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-full transition-all z-50"
+            onClick={() => setImageModal({ isOpen: false, url: '' })}
+          >
+            <span className="material-symbols-outlined text-3xl">close</span>
+          </button>
+          <div 
+            className="relative w-full h-full flex items-center justify-center p-4 md:p-12"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img 
+              src={imageModal.url} 
+              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-300"
+              alt="Visualização ampliada" 
+            />
           </div>
         </div>
       )}
