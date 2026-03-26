@@ -35,12 +35,19 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
           id,
           title,
           description,
-          address,
           status,
           created_at,
           client_id,
           category_id,
           budget_amount,
+          street,
+          number,
+          neighborhood,
+          city,
+          state,
+          cep,
+          address_complement,
+          desired_date,
           profiles!service_requests_client_id_fkey(full_name, avatar_url),
           service_categories(name, icon)
         `)
@@ -503,14 +510,31 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                           <span className="material-symbols-outlined text-[16px]">{req.service_categories?.icon || 'work'}</span>
                           {req.service_categories?.name || 'Serviço'}
                         </p>
-                        <p className="text-slate-400 dark:text-slate-500 text-xs mt-1 flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[16px]">location_on</span>
-                          <span className="truncate">{req.address || 'Local não informado'}</span>
+                        <p className="text-slate-400 dark:text-slate-500 text-xs mt-1 flex items-start gap-1">
+                          <span className="material-symbols-outlined text-[16px] mt-0.5 shrink-0">location_on</span>
+                          <span className="leading-tight">
+                            {req.street ? `${req.street}, ${req.number || 'S/N'}` : 'Local não informado'}
+                            {req.neighborhood && <><br />{req.neighborhood}</>}
+                            {req.city && <><br />{req.city} - {req.state || ''}</>}
+                            {req.cep && <><br />CEP: {req.cep}</>}
+                            {req.address_complement && <><br /><span className="text-[10px] opacity-75">Ref: {req.address_complement}</span></>}
+                          </span>
                         </p>
-                        <p className="text-slate-400 dark:text-slate-500 text-xs mt-1 flex items-center gap-1">
+                        <p className="text-slate-400 dark:text-slate-500 text-[11px] mt-2 flex items-center gap-1 font-bold">
                           <span className="material-symbols-outlined text-[16px]">calendar_today</span>
-                          {new Date(req.created_at).toLocaleDateString()}
+                          Criação: {new Date(req.created_at).toLocaleDateString()}
                         </p>
+                        {req.desired_date && (
+                          <div className="mt-3 p-2 rounded-xl bg-primary/5 border border-primary/10 flex items-center gap-2">
+                             <span className="material-symbols-outlined text-primary text-sm">schedule</span>
+                             <div>
+                               <p className="text-[9px] font-black text-primary uppercase tracking-widest">Preferência do Cliente</p>
+                               <p className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                                 {new Date(req.desired_date).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
+                               </p>
+                             </div>
+                          </div>
+                        )}
                       </div>
                     </div>
 
