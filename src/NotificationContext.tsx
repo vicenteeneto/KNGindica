@@ -137,7 +137,17 @@ export function NotificationProvider({ children, onNavigate }: { children: React
         }
         
         const { count: reqCount } = await query;
-        setUnreadRequests(reqCount || 0);
+        
+        // Contar ordens freelance abertas na categoria
+        let queryFreelance = supabase.from('freelance_orders').select('id', { count: 'exact', head: true }).eq('status', 'open');
+        if (catIds.length > 0) {
+           queryFreelance = queryFreelance.in('category_id', catIds);
+        } else {
+           queryFreelance = queryFreelance.limit(0); // Forçar 0 se não tiver categorias
+        }
+        const { count: freeCount } = await queryFreelance;
+
+        setUnreadRequests((reqCount || 0) + (freeCount || 0));
       } else {
         setUnreadRequests(0);
       }
@@ -274,13 +284,45 @@ export function NotificationProvider({ children, onNavigate }: { children: React
           }
         })
         .subscribe();
+
+      // 4. Canal de Ordens Freelance
+      const freelanceChannel = supabase.channel('realtime_freelance')
+        .on('postgres_changes', {
+          event: '*',
+          schema: 'public',
+          table: 'freelance_orders'
+        }, async (payload) => {
+          fetchCounts();
+          
+          if (payload.eventType === 'INSERT' && payload.new.status === 'open') {
+             const { data: prof } = await supabase.from('profiles').select('categories').eq('id', user.id).single();
+             const myCats = prof?.categories || [];
+             const { data: cat } = await supabase.from('service_categories').select('name').eq('id', payload.new.category_id).single();
+             
+             if (cat && myCats.includes(cat.name)) {
+               showToast(
+                 "Novo Pedido Freelance!", 
+                 payload.new.title || "Um novo projeto freelance está disponível para lance.",
+                 'notification',
+                 undefined,
+                 'openOrders'
+               );
+             }
+          }
+        })
+        .subscribe();
+        
+      requestsChannel = { sr: requestsChannel, fr: freelanceChannel };
     }
 
     setupChatSubscription();
 
     return () => {
       supabase.removeChannel(notificationsChannel);
-      if (requestsChannel) supabase.removeChannel(requestsChannel);
+      if (requestsChannel) {
+        supabase.removeChannel(requestsChannel.sr);
+        supabase.removeChannel(requestsChannel.fr);
+      }
       supabase.channel('realtime_messages').unsubscribe();
     };
   }, [user, role]);

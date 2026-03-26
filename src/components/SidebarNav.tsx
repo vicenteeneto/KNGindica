@@ -12,7 +12,7 @@ interface SidebarNavProps extends NavigationProps {
 }
 
 export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, setAdminTab, adminTabs }: SidebarNavProps) {
-  const { unreadNotifications, unreadMessages } = useNotifications();
+  const { unreadNotifications, unreadMessages, unreadRequests } = useNotifications();
   const { user } = useAuth();
 
   const navItems = role === 'admin' 
@@ -25,7 +25,7 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
         ...(role === 'provider' ? [
           { id: 'dashboard', icon: 'pie_chart', label: 'Painel', screen: 'dashboard' as Screen },
           { id: 'openOrders', icon: 'gavel', label: 'Freelance', screen: 'openOrders' as Screen },
-          { id: 'providerRequests', icon: 'assignment', label: 'Serviços', screen: 'providerRequests' as Screen },
+          { id: 'providerRequests', icon: 'assignment', label: 'Serviços', screen: 'providerRequests' as Screen, badge: unreadRequests },
         ] : [
           { id: 'myRequests', icon: 'receipt_long', label: 'Serviços', screen: 'myRequests' as Screen },
         ]),
@@ -65,7 +65,7 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
               </span>
               
               {item.badge !== undefined && item.badge > 0 && (
-                <span className="absolute top-0 right-0 size-2.5 bg-red-500 text-white text-[5px] font-bold rounded-full flex items-center justify-center border border-white dark:border-slate-900">
+                <span className="absolute top-0 right-0 size-3.5 bg-red-500 text-white text-[7px] font-black rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-sm transition-transform group-hover:scale-110">
                   {item.badge > 9 ? '9+' : item.badge}
                 </span>
               )}

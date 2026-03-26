@@ -133,16 +133,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
 
       if (error) throw error;
 
-      // Se for pedido direto, gerar notificação para o prestador
-      if (params?.providerId) {
-        await supabase.from('notifications').insert({
-          user_id: params.providerId,
-          title: 'Novo Pedido Direto',
-          message: `Você recebeu uma solicitação de orçamento direta para ${categoryName}.`,
-          type: 'order',
-          related_entity_id: requestData.id
-        });
-      }
+      // Database trigger tr_notify_new_service_request handles the notification now
 
       // Clear draft on success
       localStorage.removeItem('draft_service_request');
