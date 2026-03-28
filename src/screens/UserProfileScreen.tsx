@@ -691,27 +691,26 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         })()}
 
         {/* Grupo 1: Dados Pessoais e Endereços */}
-        <section className="mb-8">
-          <div className="flex items-center gap-2 mb-3 px-2">
-            <span className="size-1.5 rounded-full bg-blue-500"></span>
-            <h2 className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Dados Pessoais & Endereço</h2>
+        <section className="mb-6">
+          <div className="flex items-center gap-2 mb-3 px-1">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500/80 italic">01. Dados Pessoais & Endereço</span>
           </div>
-          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border-2 border-slate-100 dark:border-slate-800 overflow-hidden group">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/60 dark:border-white/5 overflow-hidden group">
             <button
               onClick={() => setShowProfileModal(true)}
-              className="w-full flex items-center justify-between p-6 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all active:scale-[0.99]"
+              className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all active:scale-[0.99]"
             >
-              <div className="flex items-center gap-5">
-                <div className="size-14 rounded-2xl bg-blue-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
-                  <span className="material-symbols-outlined text-3xl">person_pin_circle</span>
+              <div className="flex items-center gap-4">
+                <div className="size-11 rounded-xl bg-blue-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform">
+                  <span className="material-symbols-outlined text-2xl">person_pin_circle</span>
                 </div>
                 <div className="text-left">
-                  <p className="text-lg font-black text-slate-900 dark:text-white tracking-tight italic">Editar Meus Dados</p>
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest">NOME, CPF, TELEFONE E ENDEREÇO</p>
+                  <p className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Editar Meus Dados</p>
+                  <p className="text-[10px] text-slate-500/80 dark:text-slate-400 uppercase font-black tracking-widest leading-none mt-0.5">NOME, CPF, TELEFONE E ENDEREÇO</p>
                 </div>
               </div>
-              <div className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-blue-500 group-hover:text-white transition-all">
-                <span className="material-symbols-outlined">edit</span>
+              <div className="size-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-blue-500 group-hover:text-white transition-all">
+                <span className="material-symbols-outlined text-lg">edit</span>
               </div>
             </button>
           </div>
@@ -719,27 +718,26 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
 
         {/* Grupo 2: Perfil Profissional (Apenas para Prestadores) */}
         {role === 'provider' && (
-          <section className="mb-8">
-            <div className="flex items-center gap-2 mb-3 px-2">
-              <span className="size-1.5 rounded-full bg-orange-500"></span>
-              <h2 className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Perfil Profissional & Negócio</h2>
+          <section className="mb-6">
+            <div className="flex items-center gap-2 mb-3 px-1">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500/80 italic">02. Perfil Profissional & Negócio</span>
             </div>
-            <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border-2 border-slate-100 dark:border-slate-800 overflow-hidden group">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/60 dark:border-white/5 overflow-hidden group">
               <button
                 onClick={() => setShowProviderModal(true)}
-                className="w-full flex items-center justify-between p-6 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all active:scale-[0.99]"
+                className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all active:scale-[0.99]"
               >
-                <div className="flex items-center gap-5">
-                  <div className="size-14 rounded-2xl bg-orange-500 text-white flex items-center justify-center shadow-lg shadow-orange-500/20 group-hover:scale-110 transition-transform">
-                    <span className="material-symbols-outlined text-3xl">construction</span>
+                <div className="flex items-center gap-4">
+                  <div className="size-11 rounded-xl bg-orange-500 text-white flex items-center justify-center shadow-lg shadow-orange-500/20 group-hover:scale-105 transition-transform">
+                    <span className="material-symbols-outlined text-2xl">construction</span>
                   </div>
                   <div className="text-left">
-                    <p className="text-lg font-black text-slate-900 dark:text-white tracking-tight italic">Editar Perfil de Trabalho</p>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest">BIO, SERVIÇOS, HORÁRIOS E PORTFÓLIO</p>
+                    <p className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Perfis de Trabalho</p>
+                    <p className="text-[10px] text-slate-500/80 dark:text-slate-400 uppercase font-black tracking-widest leading-none mt-0.5">BIO, SERVIÇOS, HORÁRIOS E PORTFÓLIO</p>
                   </div>
                 </div>
-                <div className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-orange-500 group-hover:text-white transition-all">
-                  <span className="material-symbols-outlined">edit</span>
+                <div className="size-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-orange-500 group-hover:text-white transition-all">
+                  <span className="material-symbols-outlined text-lg">edit</span>
                 </div>
               </button>
             </div>
@@ -747,52 +745,52 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         )}
 
         {/* Grupo 3: Pagamentos */}
-        <section className="mb-8">
-          <div className="flex items-center gap-2 mb-3 px-2">
-            <span className="size-1.5 rounded-full bg-purple-500"></span>
-            <h2 className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Pagamentos</h2>
+        <section className="mb-6">
+          <div className="flex items-center gap-2 mb-3 px-1">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500/80 italic">03. Pagamentos</span>
           </div>
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/60 dark:border-white/5 overflow-hidden group">
             <button
               onClick={() => onNavigate('providerWallet' as any)}
-              className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
+              className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800"
             >
               <div className="flex items-center gap-4">
-                <div className="size-10 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-500 flex items-center justify-center group-hover:bg-purple-100 dark:group-hover:bg-purple-900/40 transition-colors">
-                  <span className="material-symbols-outlined">credit_card</span>
+                <div className="size-11 rounded-xl bg-purple-500 text-white flex items-center justify-center shadow-lg shadow-purple-500/20 group-hover:scale-105 transition-transform">
+                  <span className="material-symbols-outlined text-2xl">credit_card</span>
                 </div>
                 <div className="text-left">
-                  <p className="font-bold text-slate-900 dark:text-white">Meus Cartões & Pix</p>
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest">CONFIGURAÇÕES DE FATURAMENTO</p>
+                  <p className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Meus Cartões & Pix</p>
+                  <p className="text-[10px] text-slate-500/80 dark:text-slate-400 uppercase font-black tracking-widest leading-none mt-0.5">CONFIGURAÇÕES DE FATURAMENTO</p>
                 </div>
               </div>
-              <span className="material-symbols-outlined text-slate-400">chevron_right</span>
+              <div className="size-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-purple-500 group-hover:text-white transition-all">
+                <span className="material-symbols-outlined text-lg">chevron_right</span>
+              </div>
             </button>
           </div>
         </section>
 
         {/* Grupo 4: Recompensas */}
-        <section className="mb-8">
-          <div className="flex items-center gap-2 mb-3 px-2">
-            <span className="size-1.5 rounded-full bg-primary"></span>
-            <h2 className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Fidelidade & Prêmios</h2>
+        <section className="mb-6">
+          <div className="flex items-center gap-2 mb-3 px-1">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500/80 italic">04. Fidelidade & Prêmios</span>
           </div>
-          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border-2 border-slate-100 dark:border-slate-800 overflow-hidden group">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/60 dark:border-white/5 overflow-hidden group">
             <button
               onClick={() => onNavigate('rewards')}
-              className="w-full flex items-center justify-between p-6 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all active:scale-[0.99]"
+              className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all active:scale-[0.99]"
             >
-              <div className="flex items-center gap-5">
-                <div className="size-14 rounded-2xl bg-gradient-to-br from-primary to-orange-600 text-white flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
-                  <span className="material-symbols-outlined text-3xl">workspace_premium</span>
+              <div className="flex items-center gap-4">
+                <div className="size-11 rounded-xl bg-gradient-to-br from-primary to-orange-600 text-white flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform">
+                  <span className="material-symbols-outlined text-2xl">workspace_premium</span>
                 </div>
                 <div className="text-left">
-                  <p className="text-lg font-black text-slate-900 dark:text-white tracking-tight italic">Indique e Ganhe</p>
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest">MEUS PONTOS, LINK DE CONVITE E PRÊMIOS</p>
+                  <p className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Indique e Ganhe</p>
+                  <p className="text-[10px] text-slate-500/80 dark:text-slate-400 uppercase font-black tracking-widest leading-none mt-0.5">MEUS PONTOS E LINK DE CONVITE</p>
                 </div>
               </div>
-              <div className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white transition-all">
-                <span className="material-symbols-outlined">redeem</span>
+              <div className="size-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white transition-all">
+                <span className="material-symbols-outlined text-lg">redeem</span>
               </div>
             </button>
           </div>
@@ -800,31 +798,30 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
 
         {/* Grupo 5: Avaliações (Apenas para Prestadores) */}
         {role === 'provider' && (
-          <section className="mb-8">
-            <div className="flex items-center gap-2 mb-3 px-2">
-              <span className="size-1.5 rounded-full bg-amber-500"></span>
-              <h2 className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Feedback dos Clientes</h2>
+          <section className="mb-6">
+            <div className="flex items-center gap-2 mb-3 px-1">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500/80 italic">05. Feedback dos Clientes</span>
             </div>
-            <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border-2 border-slate-100 dark:border-slate-800 overflow-hidden group">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/60 dark:border-white/5 overflow-hidden group">
               <button
                 onClick={() => onNavigate('reviews', { professionalId: user?.id, returnTo: 'userProfile' })}
-                className="w-full flex items-center justify-between p-6 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all active:scale-[0.99]"
+                className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all active:scale-[0.99]"
               >
-                <div className="flex items-center gap-5">
-                  <div className="size-14 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform">
-                    <span className="material-symbols-outlined text-3xl">star</span>
+                <div className="flex items-center gap-4">
+                  <div className="size-11 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-105 transition-transform">
+                    <span className="material-symbols-outlined text-2xl">star</span>
                   </div>
                   <div className="text-left">
-                    <p className="text-lg font-black text-slate-900 dark:text-white tracking-tight italic">Minhas Avaliações</p>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest leading-tight">
+                    <p className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Minhas Avaliações</p>
+                    <p className="text-[10px] text-slate-500/80 dark:text-slate-400 uppercase font-black tracking-widest leading-none mt-0.5">
                       {((profile as any)?.rating > 0) 
                         ? `${(profile as any).rating.toFixed(1)} ESTRELAS • ${(profile as any).reviews_count || 0} AVALIAÇÕES` 
                         : 'NENHUMA AVALIAÇÃO RECEBIDA AINDA'}
                     </p>
                   </div>
                 </div>
-                <div className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-amber-500 group-hover:text-white transition-all">
-                  <span className="material-symbols-outlined">chevron_right</span>
+                <div className="size-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-amber-500 group-hover:text-white transition-all">
+                  <span className="material-symbols-outlined text-lg">chevron_right</span>
                 </div>
               </button>
             </div>
@@ -832,73 +829,87 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         )}
 
         {/* Configs Section */}
-        <section className="mb-8">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3 px-2">Configurações</h2>
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
-            <button
-              onClick={() => {
-                requestNotificationPermission();
-                showToast("Solicitando permissão", "Siga as instruções do navegador para ativar as notificações push.", "notification");
-              }}
-              className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
-            >
-              <div className="flex items-center gap-4">
-                <div className="size-10 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-500 flex items-center justify-center group-hover:bg-amber-100 dark:group-hover:bg-amber-900/40 transition-colors">
-                  <span className="material-symbols-outlined">notifications</span>
-                </div>
-                <div className="text-left">
-                  <div className="flex items-center gap-2">
-                    <p className="font-semibold text-slate-900 dark:text-white">Notificações Push</p>
-                    {(profile as any)?.onesignal_id && (
-                      <span className="bg-emerald-500 size-2 rounded-full animate-pulse"></span>
-                    )}
+        <section className="mb-6">
+          <div className="flex items-center gap-2 mb-3 px-1">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500/80 italic">06. Configurações</span>
+          </div>
+          <div className="space-y-3">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/60 dark:border-white/5 overflow-hidden group">
+              <button
+                onClick={() => {
+                  requestNotificationPermission();
+                  showToast("Solicitando permissão", "Siga as instruções do navegador para ativar as notificações push.", "notification");
+                }}
+                className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all active:scale-[0.99]"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="size-11 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-105 transition-transform">
+                    <span className="material-symbols-outlined text-2xl">notifications</span>
                   </div>
-                  <p className="text-xs text-slate-500">{(profile as any)?.onesignal_id ? 'Notificações Ativadas' : 'Ativar notificações no celular'}</p>
+                  <div className="text-left">
+                    <div className="flex items-center gap-2">
+                      <p className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Notificações Push</p>
+                      {(profile as any)?.onesignal_id && (
+                        <span className="bg-emerald-500 size-2 rounded-full animate-pulse"></span>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-slate-500/80 dark:text-slate-400 uppercase font-black tracking-widest leading-none mt-0.5">{(profile as any)?.onesignal_id ? 'NOTIFICAÇÕES ATIVADAS' : 'ATIVAR NO CELULAR'}</p>
+                  </div>
                 </div>
-              </div>
-              <span className="material-symbols-outlined text-slate-400">{(profile as any)?.onesignal_id ? 'check' : 'chevron_right'}</span>
-            </button>
+                <div className="size-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-amber-500 group-hover:text-white transition-all">
+                  <span className="material-symbols-outlined text-lg">{(profile as any)?.onesignal_id ? 'check' : 'chevron_right'}</span>
+                </div>
+              </button>
+            </div>
 
-
-            <button
-              onClick={() => onNavigate('helpCenter' as any)}
-              className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800 group"
-            >
-              <div className="flex items-center gap-4">
-                <div className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center justify-center group-hover:bg-slate-200 dark:group-hover:bg-slate-700 transition-colors">
-                  <span className="material-symbols-outlined">help</span>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/60 dark:border-white/5 overflow-hidden group">
+              <button
+                onClick={() => onNavigate('helpCenter' as any)}
+                className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all active:scale-[0.99]"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="size-11 rounded-xl bg-slate-500 text-white flex items-center justify-center shadow-lg shadow-slate-500/20 group-hover:scale-105 transition-transform">
+                    <span className="material-symbols-outlined text-2xl">help</span>
+                  </div>
+                  <div className="text-left">
+                    <p className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Central de Ajuda</p>
+                    <p className="text-[10px] text-slate-500/80 dark:text-slate-400 uppercase font-black tracking-widest leading-none mt-0.5">DÚVIDAS E SUPORTE</p>
+                  </div>
                 </div>
-                <div className="text-left">
-                  <p className="font-semibold text-slate-900 dark:text-white">Central de Ajuda</p>
-                  <p className="text-xs text-slate-500">Dúvidas e suporte</p>
+                <div className="size-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-slate-500 group-hover:text-white transition-all">
+                  <span className="material-symbols-outlined text-lg">chevron_right</span>
                 </div>
-              </div>
-              <span className="material-symbols-outlined text-slate-400">chevron_right</span>
-            </button>
+              </button>
+            </div>
           </div>
         </section>
 
         {/* Profile Switcher (Only for clients to upgrade) */}
         {role !== 'provider' && (
-          <section className="mb-8">
-            <div className="bg-gradient-to-tr from-slate-800 to-slate-900 text-white rounded-2xl p-6 shadow-lg shadow-black/10 relative overflow-hidden flex flex-col items-start gap-4 border border-slate-700">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-bl-full flex items-start justify-end p-4">
-                <span className="material-symbols-outlined text-4xl text-white/20">swap_horiz</span>
-              </div>
-              <div className="relative z-10 w-3/4">
-                <h3 className="font-bold text-lg mb-1 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-amber-400">handyman</span>
-                  Prestador
-                </h3>
-                <p className="text-sm text-slate-300 leading-relaxed">
-                  Alternar para a visualização exclusiva de prestador de serviços.
+          <section className="mb-6">
+            <div className="bg-gradient-to-tr from-slate-900 to-black text-white rounded-2xl p-5 shadow-lg shadow-black/20 border border-slate-800 relative overflow-hidden flex flex-col items-start gap-4">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-bl-full flex items-start justify-end p-4 blur-2xl"></div>
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="size-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/30">
+                    <span className="material-symbols-outlined text-2xl">handyman</span>
+                  </div>
+                  <div>
+                    <h3 className="font-black text-base uppercase tracking-tight italic">
+                      Seja um Prestador
+                    </h3>
+                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest leading-none mt-0.5">GANHE DINHEIRO COM SEUS SERVIÇOS</p>
+                  </div>
+                </div>
+                <p className="text-xs text-slate-400 leading-relaxed mb-1">
+                  Alterne para a visualização exclusiva de prestador de serviços e comece a receber pedidos agora mesmo.
                 </p>
               </div>
               <button
                 onClick={() => setShowUpgradeModal(true)}
-                className="relative z-10 bg-primary hover:bg-primary/90 text-white font-bold px-6 py-3 rounded-xl shadow-sm hover:scale-105 active:scale-95 transition-all w-full flex justify-center items-center gap-2"
+                className="relative z-10 bg-primary hover:bg-primary/90 text-white font-black px-6 py-3.5 rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all w-full flex justify-center items-center gap-2 uppercase tracking-widest text-xs"
               >
-                <span className="material-symbols-outlined">switch_account</span>
+                <span className="material-symbols-outlined text-sm">switch_account</span>
                 Mudar para Prestador
               </button>
             </div>
