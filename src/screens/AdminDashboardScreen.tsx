@@ -1311,7 +1311,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <span className="font-semibold text-sm">{review.reviewer?.full_name || 'Usuário'}</span>
-                      <span className="text-[10px] text-slate-400">{new Date(review.created_at).toLocaleDateString()}</span>
+                      <span className="text-[10px] text-slate-400">{new Date(review.created_at).toLocaleDateString('pt-BR')}</span>
                     </div>
                     <div className="flex text-orange-400">
                       {[1, 2, 3, 4, 5].map((star) => (
@@ -2065,7 +2065,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                         </span>
                       ))}
                     </div>
-                    <span className="text-xs text-slate-500 font-medium">• {new Date(review.created_at).toLocaleDateString()}</span>
+                    <span className="text-xs text-slate-500 font-medium">• {new Date(review.created_at).toLocaleDateString('pt-BR')}</span>
                   </div>
                   <p className="text-slate-800 dark:text-slate-200 mb-3 text-[13px] italic">"{review.comment || 'Sem comentário'}"</p>
                   <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs">

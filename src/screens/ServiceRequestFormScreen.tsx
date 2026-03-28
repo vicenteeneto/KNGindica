@@ -110,7 +110,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
     try {
       // Find category name for title or use a generic one
       const categoryName = categories.find(c => c.id === selectedCategoryId)?.name || 'Serviço';
-      const fullDescription = `${description}\n\n📅 Preferência de Horário: ${desiredDate.split('-').reverse().join('/')} às ${desiredTime}`;
+      const fullDescription = description;
 
       const combinedAddress = `${street}${number ? `, ${number}` : ''}${neighborhood ? ` - ${neighborhood}` : ''}${city ? `, ${city}` : ''}${state ? ` - ${state}` : ''}`;
       const [year, month, day] = desiredDate.split('-').map(Number);

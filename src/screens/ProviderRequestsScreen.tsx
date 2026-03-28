@@ -618,43 +618,44 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                              </div>
                           )}
                         </div>
-
-                        <div className="mt-4 p-4 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/5 space-y-2">
-                          <div className="flex items-start gap-2">
-                            <span className="material-symbols-outlined text-primary text-[18px] mt-0.5">location_on</span>
-                            <p className="text-slate-700 dark:text-slate-200 text-sm font-medium leading-relaxed">
-                              {req.street ? `${req.street}, ${req.number || 'S/N'}` : 'Local não informado'}
-                              {req.neighborhood && <><br /><span className="text-slate-400 font-normal">{req.neighborhood}</span></>}
-                              {req.city && <><br /><span className="text-slate-400 font-normal">{req.city} - {req.state || ''}</span></>}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-white/5">
-                            <span className="material-symbols-outlined text-slate-400 text-[18px]">event</span>
-                            <p className="text-slate-400 dark:text-slate-500 text-[11px] font-bold uppercase tracking-widest">
-                              Publicado: {new Date(req.created_at).toLocaleDateString()}
-                            </p>
-                          </div>
-                        </div>
-
-                        {req.desired_date && (
-                          <div className="mt-4 p-3 rounded-2xl bg-orange-500/5 border border-orange-500/10 flex items-center shadow-sm">
-                             <div className="size-10 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0">
-                                <span className="material-symbols-outlined text-orange-500">schedule</span>
-                             </div>
-                             <div className="ml-3">
-                               <p className="text-[9px] font-black text-orange-500 uppercase tracking-widest">Preferência do Cliente</p>
-                               <p className="text-sm font-black text-slate-800 dark:text-orange-100">
-                                 {new Date(req.desired_date).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
-                               </p>
-                             </div>
-                          </div>
-                        )}
                       </div>
                     </div>
 
+                    {/* Endereço e Datas alinhados à esquerda (fora do flex lateral anterior) */}
+                    <div className="mt-4 p-4 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/5 space-y-2">
+                      <div className="flex items-start gap-2">
+                        <span className="material-symbols-outlined text-primary text-[18px] mt-0.5">location_on</span>
+                        <p className="text-slate-700 dark:text-slate-200 text-sm font-medium leading-relaxed">
+                          {req.street ? `${req.street}, ${req.number || 'S/N'}` : 'Local não informado'}
+                          {req.neighborhood && <><br /><span className="text-slate-400 font-normal">{req.neighborhood}</span></>}
+                          {req.city && <><br /><span className="text-slate-400 font-normal">{req.city} - {req.state || ''}</span></>}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-white/5">
+                        <span className="material-symbols-outlined text-slate-400 text-[18px]">event</span>
+                        <p className="text-slate-400 dark:text-slate-500 text-[11px] font-bold uppercase tracking-widest">
+                          Publicado: {new Date(req.created_at).toLocaleDateString('pt-BR')}
+                        </p>
+                      </div>
+                    </div>
+
+                    {req.desired_date && (
+                      <div className="mt-4 p-3 rounded-2xl bg-orange-500/5 border border-orange-500/10 flex items-center shadow-sm">
+                         <div className="size-10 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0">
+                            <span className="material-symbols-outlined text-orange-500">schedule</span>
+                         </div>
+                         <div className="ml-3">
+                           <p className="text-[9px] font-black text-orange-500 uppercase tracking-widest">Preferência do Cliente</p>
+                           <p className="text-sm font-black text-slate-800 dark:text-orange-100">
+                             {new Date(req.desired_date).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
+                           </p>
+                         </div>
+                      </div>
+                    )}
+
                     <div className="mt-4 bg-slate-50 dark:bg-slate-800/80 p-4 rounded-xl border border-slate-100 dark:border-slate-800 flex-1 relative group/desc">
                       <p className="text-sm text-slate-700 dark:text-slate-300 font-medium whitespace-pre-line line-clamp-2">
-                        {req.description || 'Sem descrição.'}
+                        {(req.description || 'Sem descrição.').split('📅 Preferência de Horário:')[0].trim()}
                       </p>
                       <button 
                         onClick={() => setDetailsModal({ isOpen: true, request: req })}
@@ -758,7 +759,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
 
                     {activeTab === 'Finalizados' && (
                       <div className="mt-4">
-                        <p className="text-xs text-slate-400 dark:text-slate-500 text-center italic">Pedido finalizado em {new Date(req.updated_at || req.created_at).toLocaleDateString()}</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 text-center italic">Pedido finalizado em {new Date(req.updated_at || req.created_at).toLocaleDateString('pt-BR')}</p>
                       </div>
                     )}
 
@@ -820,7 +821,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                   </div>
                   <div className="bg-slate-50 dark:bg-white/5 p-6 rounded-3xl border border-slate-100 dark:border-white/5">
                     <p className="text-lg text-slate-800 dark:text-slate-200 font-medium leading-relaxed whitespace-pre-line">
-                      {detailsModal.request.description || 'Nenhuma descrição detalhada fornecida.'}
+                      {(detailsModal.request.description || 'Nenhuma descrição detalhada fornecida.').split('📅 Preferência de Horário:')[0].trim()}
                     </p>
                   </div>
                 </section>
@@ -859,10 +860,10 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                       </div>
                       <div>
                         <p className="text-xl font-black text-slate-900 dark:text-white">
-                          {detailsModal.request.desired_date ? new Date(detailsModal.request.desired_date).toLocaleDateString() : 'A combinar'}
+                          {detailsModal.request.desired_date ? new Date(detailsModal.request.desired_date).toLocaleDateString('pt-BR') : 'A combinar'}
                         </p>
                         <p className="text-sm font-bold text-orange-500 uppercase tracking-widest">
-                          {detailsModal.request.desired_date ? new Date(detailsModal.request.desired_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Qualquer horário'}
+                          {detailsModal.request.desired_date ? new Date(detailsModal.request.desired_date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : 'Qualquer horário'}
                         </p>
                       </div>
                     </div>

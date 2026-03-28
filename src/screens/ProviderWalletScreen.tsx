@@ -160,7 +160,7 @@ export default function ProviderWalletScreen({ onNavigate }: NavigationProps) {
                         <p className="font-bold text-slate-900 dark:text-white">
                           {tx.type === 'fee_deduction' ? 'Taxa da Plataforma' : 'Serviço Concluído'}
                         </p>
-                        <p className="text-xs text-slate-500">{new Date(tx.created_at).toLocaleDateString()} • {new Date(tx.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                        <p className="text-xs text-slate-500">{new Date(tx.created_at).toLocaleDateString('pt-BR')} • {new Date(tx.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
                       </div>
                     </div>
                     <div className="text-right">

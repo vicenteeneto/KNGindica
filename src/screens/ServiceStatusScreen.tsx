@@ -279,8 +279,8 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                 <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Data e Horário</p>
                 <p className="text-slate-900 dark:text-slate-100 font-semibold">
                   {displayData.desired_date 
-                    ? `${new Date(displayData.desired_date).toLocaleDateString([], { day: 'numeric', month: 'long' })}, ${new Date(displayData.desired_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-                    : `${new Date(displayData.created_at).toLocaleDateString([], { day: 'numeric', month: 'long' })}, ${new Date(displayData.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                    ? `${new Date(displayData.desired_date).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' })}, ${new Date(displayData.desired_date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+                    : `${new Date(displayData.created_at).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' })}, ${new Date(displayData.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
                   }
                 </p>
               </div>

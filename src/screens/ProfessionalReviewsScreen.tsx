@@ -136,7 +136,7 @@ export default function ProfessionalReviewsScreen({ onNavigate, params }: Profes
                         />
                         <div>
                           <p className="font-bold text-slate-900 dark:text-white">{review.reviewer?.full_name || 'Usuário'}</p>
-                          <p className="text-xs text-slate-500">{new Date(review.created_at).toLocaleDateString()} • Avaliação validada</p>
+                          <p className="text-xs text-slate-500">{new Date(review.created_at).toLocaleDateString('pt-BR')} • Avaliação validada</p>
                         </div>
                       </div>
                       <div className="flex text-primary">

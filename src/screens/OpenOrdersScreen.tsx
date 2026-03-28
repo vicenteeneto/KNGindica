@@ -288,7 +288,9 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
                     </div>
                     <div>
                       <p className="text-xs font-bold text-slate-500">{order.profiles?.full_name?.split(' ')[0]}</p>
-                      <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{new Date(order.created_at).toLocaleDateString()}</p>
+                      <p className="text-slate-400 dark:text-slate-500 text-[11px] font-bold uppercase tracking-widest">
+                        Publicado: {new Date(order.created_at).toLocaleDateString('pt-BR')}
+                      </p>
                     </div>
                   </div>
 
@@ -429,7 +431,7 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
                       <span className="material-symbols-outlined text-2xl">timer</span>
                     </div>
                     <p className="text-xl font-black text-orange-600 dark:text-orange-400">
-                      {detailsModal.order.delivery_deadline ? new Date(detailsModal.order.delivery_deadline).toLocaleDateString() : 'A combinar'}
+                      {detailsModal.order.delivery_deadline ? new Date(detailsModal.order.delivery_deadline).toLocaleDateString('pt-BR') : 'A combinar'}
                     </p>
                   </div>
                 </section>
