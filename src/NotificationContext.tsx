@@ -137,15 +137,18 @@ export function NotificationProvider({ children, onNavigate }: { children: React
         const dismissedServiceIds = dismissalData?.filter(d => d.order_type === 'service').map(d => d.order_id) || [];
         const dismissedFreelanceIds = dismissalData?.filter(d => d.order_type === 'freelance').map(d => d.order_id) || [];
 
-        // Construir query de solicitações idêntica à do ProviderRequestsScreen
-        let query = supabase.from('service_requests').select('id', { count: 'exact', head: true }).eq('status', 'open');
+        // Construir query de solicitações BROADCAST (sem prestador definido)
+        // Pedidos diretos já são contados via tabela de notificações/sininho.
+        let query = supabase.from('service_requests')
+          .select('id', { count: 'exact', head: true })
+          .eq('status', 'open')
+          .is('provider_id', null);
         
         if (catIds.length > 0) {
-          // Solicitação direta OU Broadcast de categoria que eu atendo
-          query = query.or(`provider_id.eq.${user.id},and(provider_id.is.null,category_id.in.(${catIds.join(',')}))`);
+          query = query.in('category_id', catIds);
         } else {
-          // Se não tem categoria, só vê as diretas
-          query = query.eq('provider_id', user.id);
+          // Se não tem categoria e o provider_id é nulo, não vê nada (não tem broadcast sem categoria)
+          query = query.eq('id', '00000000-0000-0000-0000-000000000000');
         }
 
         // Filtrar as ocultadas manualmente

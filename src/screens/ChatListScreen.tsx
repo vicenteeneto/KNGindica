@@ -41,13 +41,15 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
           const opponentId = room.provider_id === user.id ? room.client_id : room.provider_id;
           if (!opponentId) return;
 
-          const existing = roomMap.get(opponentId);
+          // Chave única baseada no oponente E no pedido (se houver)
+          const key = room.request_id ? `${opponentId}_${room.request_id}` : opponentId;
+          
+          const existing = roomMap.get(key);
           if (!existing) {
-            roomMap.set(opponentId, room);
+            roomMap.set(key, room);
           } else {
-            // Keep the one with the higher ID (assuming higher ID = newer, or we can refine after fetching messages)
              if (room.id > existing.id) {
-               roomMap.set(opponentId, room);
+               roomMap.set(key, room);
              }
           }
         });

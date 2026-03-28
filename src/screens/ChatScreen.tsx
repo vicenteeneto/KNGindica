@@ -36,16 +36,16 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
     'cancelled': 'Cancelado'
   };
 
-  const roomId = params?.roomId;
+  const [activeRoomId, setActiveRoomId] = useState<string | null>(params?.roomId || null);
   const opponentName = params?.opponentName || 'Usuário';
   const opponentAvatar = params?.opponentAvatar || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png";
 
   const markMessagesAsRead = async () => {
-    if (!roomId || !user) return;
+    if (!activeRoomId || !user) return;
     const { error } = await supabase
       .from('chat_messages')
       .update({ is_read: true })
-      .eq('room_id', roomId)
+      .eq('room_id', activeRoomId)
       .neq('sender_id', user.id)
       .eq('is_read', false);
     
@@ -56,47 +56,25 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
 
   useEffect(() => {
     const fetchMessages = async (silent = false) => {
-      if (!silent) setLoading(true);
-      
-      let currentRoomId = roomId;
+      let currentRoomId = activeRoomId;
+      if (!currentRoomId) {
+        try {
+          const rId = params?.requestId || serviceRequest?.id;
+          if (rId) {
+            const { data: roomData } = await supabase.from('chat_rooms').select('id').eq('request_id', rId).maybeSingle();
+            if (roomData) currentRoomId = roomData.id;
+          }
 
-      // New Logic: If no roomId, try finding one by opponentId
-      if (!currentRoomId && params?.opponentId && user) {
-        try {
-          const { data: existingRoom } = await supabase
-            .from('chat_rooms')
-            .select('id')
-            .or(`and(client_id.eq.${user.id},provider_id.eq.${params.opponentId}),and(client_id.eq.${params.opponentId},provider_id.eq.${user.id})`)
-            .maybeSingle();
-          
-          if (existingRoom) {
-            currentRoomId = existingRoom.id;
-            params.roomId = currentRoomId;
+          if (!currentRoomId && params?.opponentId) {
+            const { data: existingRoom } = await supabase.from('chat_rooms')
+              .select('id')
+              .or(`and(client_id.eq.${user.id},provider_id.eq.${params.opponentId}),and(client_id.eq.${params.opponentId},provider_id.eq.${user.id})`)
+              .is('request_id', null)
+              .maybeSingle();
+            if (existingRoom) currentRoomId = existingRoom.id;
           }
         } catch (e) {
-          console.error("Error searching for room by opponentId:", e);
-        }
-      }
-      
-      // Fallback: se não veio por parâmetro, busca da sala de chat pelo requestId
-      if (!currentRoomId && (params?.requestId || serviceRequest?.id)) {
-        try {
-          const rid = params?.requestId || serviceRequest?.id;
-          const { data: roomData, error: roomError } = await supabase
-            .from('chat_rooms')
-            .select('id')
-            .eq('request_id', rid)
-            .single();
-          
-          if (roomData?.id) {
-            currentRoomId = roomData.id;
-            // Update params so other functions can use it
-            if (params) params.roomId = currentRoomId;
-          } else {
-             console.error("Room count not found for request", rid);
-          }
-        } catch (e) {
-          console.error("Error fetching room for fallback:", e);
+          console.error("Erro ao descobrir sala:", e);
         }
       }
 
@@ -104,6 +82,10 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
         if (!silent) setLoading(false);
         return;
       }
+
+      // Sincronizar activeRoomId e activeRoomId nos params para outras funções se necessário
+      if (!activeRoomId && currentRoomId) setActiveRoomId(currentRoomId);
+      if (params && !params.activeRoomId) params.activeRoomId = currentRoomId;
 
       try {
         const { data, error } = await supabase
@@ -115,7 +97,6 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
         if (error) throw error;
         
         setMessages(prev => {
-          // Só atualiza (e rola) se a quantidade de mensagens vindas do banco mudar
           const validPrev = prev.filter(m => !m.id?.toString().startsWith('temp-'));
           if (validPrev.length !== (data || []).length) {
             scrollToBottom();
@@ -125,7 +106,14 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
         });
         
         // Marca como lidas ao carregar
-        markMessagesAsRead();
+        await supabase
+          .from('chat_messages')
+          .update({ is_read: true })
+          .eq('room_id', currentRoomId)
+          .neq('sender_id', user.id)
+          .eq('is_read', false);
+        
+        refreshCounts();
       } catch (err) {
         console.error(err);
       } finally {
@@ -140,11 +128,11 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
       let finalRequestId = params?.requestId;
       
       // Fallback: se não veio por parâmetro, busca da sala de chat
-      if (!finalRequestId && roomId) {
+      if (!finalRequestId && activeRoomId) {
         const { data: roomData } = await supabase
           .from('chat_rooms')
           .select('request_id')
-          .eq('id', roomId)
+          .eq('id', activeRoomId)
           .single();
         if (roomData?.request_id) finalRequestId = roomData.request_id;
       }
@@ -171,8 +159,8 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
     // Subscribe to real-time updates as primary driver
     let messageSubscription: any = null;
     
-    if (params?.roomId || roomId) {
-      const rid = params?.roomId || roomId;
+    if (params?.activeRoomId || activeRoomId) {
+      const rid = params?.activeRoomId || activeRoomId;
       messageSubscription = supabase
         .channel(`chat_room_${rid}`)
         .on('postgres_changes', {
@@ -203,7 +191,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
       clearInterval(interval);
       if (messageSubscription) supabase.removeChannel(messageSubscription);
     };
-  }, [roomId, user, params?.requestId]);
+  }, [activeRoomId, user, params?.requestId]);
 
   const scrollToBottom = () => {
     setTimeout(() => {
@@ -216,7 +204,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
     const msgText = newMessage.trim();
     setNewMessage('');
 
-    let currentRoomId = roomId || params?.roomId;
+    let currentRoomId = activeRoomId || params?.activeRoomId;
 
     // Handle room creation on the fly if it doesn't exist
     if (!currentRoomId) {
@@ -242,7 +230,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
 
         if (createError) throw createError;
         currentRoomId = newRoom.id;
-        params.roomId = currentRoomId;
+        params.activeRoomId = currentRoomId;
       } catch (err: any) {
         console.error("Error creating room:", err);
         showToast("Erro", "Não foi possível iniciar a conversa.", "error");
@@ -309,7 +297,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !user || !roomId) return;
+    if (!file || !user || !activeRoomId) return;
     
     if (file.size > 5 * 1024 * 1024) {
       showToast("Arquivo muito grande", "O limite é de 5MB por anexo.", "error");
@@ -323,7 +311,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
       
       const tempMsg = {
         id: `temp-${Date.now()}`,
-        room_id: roomId,
+        room_id: activeRoomId,
         sender_id: user.id,
         content: contentStr,
         created_at: new Date().toISOString()
@@ -333,7 +321,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
 
       try {
         const { error } = await supabase.from('chat_messages').insert({
-          room_id: roomId,
+          room_id: activeRoomId,
           sender_id: user.id,
           content: contentStr
         });
@@ -346,8 +334,8 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
   };
 
   const handleSendProposal = async () => {
-    if (!proposalPrice || !user || !params?.requestId || !roomId) {
-       console.error("Missing data for proposal", { proposalPrice, user: !!user, requestId: params?.requestId, roomId });
+    if (!proposalPrice || !user || !params?.requestId || !activeRoomId) {
+       console.error("Missing data for proposal", { proposalPrice, user: !!user, requestId: params?.requestId, activeRoomId });
        return;
     }
 
@@ -391,7 +379,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
       // 2. Enviar mensagem especial de proposta
       const content = `[PROPOSTA]Valor: ${formatCurrency(price)} | Clique para ver detalhes e aceitar.`;
       const { error: msgError } = await supabase.from('chat_messages').insert({
-        room_id: roomId,
+        room_id: activeRoomId,
         sender_id: user.id,
         content: content
       });
@@ -438,7 +426,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
       
       // Notificar no chat
       await supabase.from('chat_messages').insert({
-        room_id: roomId,
+        room_id: activeRoomId,
         sender_id: user.id,
         content: "✅ Proposta aceita! Aguardando confirmação do pagamento da taxa de intermediação."
       });
@@ -473,15 +461,15 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
     }
   };
   const handleArchiveChat = async () => {
-    if (!roomId || !user) return;
+    if (!activeRoomId || !user) return;
     try {
-      const { data: roomData } = await supabase.from('chat_rooms').select('client_id').eq('id', roomId).single();
+      const { data: roomData } = await supabase.from('chat_rooms').select('client_id').eq('id', activeRoomId).single();
       if (!roomData) return;
       
       const isClient = roomData.client_id === user.id;
       const updateData = isClient ? { client_archived: true } : { provider_archived: true };
       
-      const { error } = await supabase.from('chat_rooms').update(updateData).eq('id', roomId);
+      const { error } = await supabase.from('chat_rooms').update(updateData).eq('id', activeRoomId);
       if (error) throw error;
       
       showToast("Sucesso", "Conversa arquivada com sucesso.", "success");
