@@ -140,16 +140,22 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
 
       if (!finalRequestId) return;
 
-      const { data } = await supabase
+      let query = supabase
         .from('service_requests')
-        .select('*')
-        .eq('id', finalRequestId)
-        .single();
+        .select('*');
+
+      if (typeof finalRequestId === 'string' && finalRequestId.startsWith('ORD-')) {
+        query = query.eq('display_id', finalRequestId);
+      } else {
+        query = query.eq('id', finalRequestId);
+      }
+      
+      const { data } = await query.single();
       
       if (data) {
         setServiceRequest(data);
         // Atualiza o parâmetro internamente para outras funções
-        params.requestId = finalRequestId;
+        params.requestId = data.id; // Sempre usa o UUID internamente após o fetch
       }
     };
     fetchRequest();

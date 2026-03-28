@@ -28,7 +28,13 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
         // Tentamos primeiro por UUID, depois por display_id se falhar ou for formato de ORD-
         let query = supabase.from('service_requests').select(`
           *,
-          provider:profiles!service_requests_provider_id_fkey(full_name, avatar_url, rating),
+          provider:profiles!service_requests_provider_id_fkey(
+            id, 
+            full_name, 
+            avatar_url, 
+            rating, 
+            profiles_private(cpf, birth_date)
+          ),
           category:service_categories(name, icon)
         `);
 
@@ -47,7 +53,13 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                 .from('service_requests')
                 .select(`
                   *,
-                  provider:profiles!service_requests_provider_id_fkey(full_name, avatar_url, rating),
+                  provider:profiles!service_requests_provider_id_fkey(
+                    id, 
+                    full_name, 
+                    avatar_url, 
+                    rating, 
+                    profiles_private(cpf, birth_date)
+                  ),
                   category:service_categories(name, icon)
                 `)
                 .eq('display_id', params.requestId)
@@ -127,7 +139,9 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
-          <h2 className="text-lg font-bold leading-tight tracking-tight flex-1 text-center pr-10">Status do Serviço</h2>
+          <h2 className="text-lg font-bold leading-tight tracking-tight flex-1 text-center pr-10">
+            {displayData.display_id || 'Status do Serviço'}
+          </h2>
         </div>
       </header>
 
@@ -227,6 +241,46 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
             </div>
           </div>
         </div>
+
+        {/* Condo Access Section (for Client) */}
+        {(displayData.status === 'paid' || displayData.status === 'scheduled' || displayData.status === 'in_service' || displayData.status === 'completed') && (
+          <div className="px-4 mb-6">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border-2 border-primary/20 shadow-sm">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                  <span className="material-symbols-outlined">shield_person</span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 dark:text-white leading-tight">Liberação no Condomínio</h3>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Utilize os dados abaixo na portaria</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Profissional</p>
+                  <p className="font-bold text-sm text-slate-700 dark:text-slate-200">{displayData.provider?.full_name}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">CPF</p>
+                  <p className="font-bold text-sm text-slate-700 dark:text-slate-200">
+                    {displayData.provider?.profiles_private?.[0]?.cpf || 'Não informado'}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Data Nasc.</p>
+                  <p className="font-bold text-sm text-slate-700 dark:text-slate-200">
+                    {displayData.provider?.profiles_private?.[0]?.birth_date || 'Não informada'}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Ordem de Serviço (OS)</p>
+                  <p className="font-bold text-sm text-primary">{displayData.display_id}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Service Details */}
         <div className="px-4 space-y-4">
@@ -399,6 +453,81 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                   <span className="material-symbols-outlined">chat</span>
                   Conversar pelo chat
                 </button>
+              </div>
+            )}
+
+            {/* Fluxo de Conclusão e Liberação de Pagamento */}
+            {(displayData.status === 'completed' || displayData.status === 'in_service' || displayData.status === 'scheduled' || displayData.status === 'paid') && user?.id === displayData.client_id && (
+              <div className="flex flex-col gap-3 mt-4">
+                <div className="p-4 bg-primary/5 dark:bg-primary/10 rounded-2xl border border-primary/20">
+                  <h4 className="text-xs font-bold text-primary uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm">check_circle</span>
+                    O serviço foi finalizado?
+                  </h4>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                    Confirme se o serviço foi realizado conforme o acordado para liberar o pagamento ao profissional.
+                  </p>
+                  
+                  <div className="flex flex-col gap-2">
+                    <button 
+                      onClick={async () => {
+                        try {
+                          // Se já estiver completed, apenas abre avaliação
+                          if (displayData.status === 'completed') {
+                            onNavigate('writeReview', {
+                              requestId: displayData.id,
+                              providerId: displayData.provider_id,
+                              providerName: displayData.provider?.full_name,
+                              providerAvatar: displayData.provider?.avatar_url,
+                              serviceTitle: displayData.title || displayData.category?.name || 'Serviço'
+                            });
+                            return;
+                          }
+
+                          // Senão marca como completed
+                          const { error } = await supabase
+                            .from('service_requests')
+                            .update({ status: 'completed' })
+                            .eq('id', request.id);
+                          if (error) throw error;
+
+                          // Notificar o prestador
+                          if (displayData.provider_id) {
+                            await supabase.from('notifications').insert({
+                              user_id: displayData.provider_id,
+                              title: 'Pagamento Liberado! 🎉',
+                              message: `O cliente confirmou a conclusão do serviço "${displayData.title || 'Serviço'}" e o valor foi liberado.`,
+                              type: 'payment',
+                              related_entity_id: request.id
+                            });
+                          }
+
+                          showToast("Sucesso", "Serviço finalizado com sucesso!", "success");
+                          onNavigate('writeReview', {
+                            requestId: displayData.id,
+                            providerId: displayData.provider_id,
+                            providerName: displayData.provider?.full_name,
+                            providerAvatar: displayData.provider?.avatar_url,
+                            serviceTitle: displayData.title || displayData.category?.name || 'Serviço'
+                          });
+                        } catch (e: any) {
+                          showToast("Erro", "Falha ao finalizar serviço.", "error");
+                        }
+                      }}
+                      className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
+                    >
+                      <span className="material-symbols-outlined">payments</span>
+                      Confirmar e Liberar Valor
+                    </button>
+
+                    <button 
+                      onClick={() => onNavigate('helpCenter', { requestId: displayData.id })}
+                      className="w-full bg-white dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700 font-bold py-2.5 rounded-xl transition-all text-xs"
+                    >
+                      Tarefa não concluída / Abrir Disputa
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
 

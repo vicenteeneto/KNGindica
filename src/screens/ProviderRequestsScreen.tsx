@@ -67,6 +67,7 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
           desired_date,
           attachments,
           rejection_reason,
+          display_id,
           profiles!service_requests_client_id_fkey(full_name, avatar_url),
           service_categories(name, icon)
         `)
@@ -309,6 +310,29 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
         .eq('id', requestId);
 
       if (error) throw error;
+
+      // Notificar o cliente em mudanças críticas
+      const req = requests.find(r => r.id === requestId);
+      if (req && req.client_id) {
+        if (newStatus === 'completed') {
+          await supabase.from('notifications').insert({
+            user_id: req.client_id,
+            title: 'Serviço Finalizado',
+            message: `O profissional marcou o serviço "${req.title || 'Serviço'}" como finalizado. Por favor, confirme a entrega para liberar o valor.`,
+            type: 'status',
+            related_entity_id: requestId
+          });
+        } else if (newStatus === 'in_service') {
+          await supabase.from('notifications').insert({
+            user_id: req.client_id,
+            title: 'Execução Iniciada',
+            message: `O profissional iniciou a execução do serviço "${req.title || 'Serviço'}".`,
+            type: 'status',
+            related_entity_id: requestId
+          });
+        }
+      }
+
       fetchRequests();
     } catch (err: any) {
       console.error(err);
@@ -406,6 +430,18 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
 
       if (error) throw error;
       
+      // Notificar cliente sobre o agendamento
+      const req = requests.find(r => r.id === scheduleModal.requestId);
+      if (req && req.client_id) {
+        await supabase.from('notifications').insert({
+          user_id: req.client_id,
+          title: 'Serviço Agendado!',
+          message: `O profissional agendou o serviço para ${new Date(scheduledAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}.`,
+          type: 'status',
+          related_entity_id: scheduleModal.requestId
+        });
+      }
+
       showToast('Serviço agendado com sucesso!', 'success');
       setScheduleModal({ isOpen: false, requestId: null, requestTitle: '', date: '', time: '09:00' });
       // Changing tab triggers useEffect re-fetch automatically
@@ -615,7 +651,10 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                       <div className="w-16 h-16 rounded-lg bg-cover bg-center shrink-0 border border-slate-100 dark:border-slate-800" style={{ backgroundImage: `url('${req.profiles?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"}')` }}></div>
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start gap-2">
-                          <p className="text-slate-900 dark:text-white text-lg font-black tracking-tight truncate">{req.profiles?.full_name || 'Cliente'}</p>
+                          <div className="flex flex-col min-w-0">
+                            <p className="text-slate-900 dark:text-white text-lg font-black tracking-tight truncate">{req.profiles?.full_name || 'Cliente'}</p>
+                            <p className="text-[10px] font-bold text-primary uppercase tracking-widest">{req.display_id || 'Pedido s/ OS'}</p>
+                          </div>
                            <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border shrink-0 ${statusMap[req.status]?.color || 'bg-slate-100 text-slate-600 border-slate-200'}`}>
                             {statusMap[req.status]?.label || req.status}
                           </span>
@@ -928,6 +967,19 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                     </div>
                   </section>
                 </div>
+
+                {/* 4. Numero da OS */}
+                <section className="px-6 pb-6 md:px-10">
+                  <div className="flex items-center justify-between p-6 bg-slate-900 dark:bg-black rounded-3xl border border-white/5">
+                    <div>
+                      <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1">Identificação do Pedido (OS)</h4>
+                      <p className="text-2xl font-black text-white">{detailsModal.request.display_id || 'Não Gerada'}</p>
+                    </div>
+                    <div className="size-14 rounded-2xl bg-white/10 flex items-center justify-center text-white shrink-0">
+                      <span className="material-symbols-outlined text-3xl">qr_code_2</span>
+                    </div>
+                  </div>
+                </section>
 
                 <div className="h-10 md:h-0"></div>
               </div>

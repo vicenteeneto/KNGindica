@@ -23,15 +23,21 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
         setLoading(false);
         return;
       }
-      const { data, error } = await supabase
+      let query = supabase
         .from('service_requests')
         .select(`
           *,
           profiles:provider_id(full_name, avatar_url),
           service_categories(name)
-        `)
-        .eq('id', params.requestId)
-        .single();
+        `);
+
+      if (params.requestId.startsWith('ORD-')) {
+        query = query.eq('display_id', params.requestId);
+      } else {
+        query = query.eq('id', params.requestId);
+      }
+
+      const { data, error } = await query.single();
       
       if (!error) setRequest(data);
       setLoading(false);
@@ -49,7 +55,7 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
       const { error } = await supabase
         .from('service_requests')
         .update({ status: 'paid' })
-        .eq('id', params.requestId);
+        .eq('id', request?.id || params.requestId);
 
       if (error) throw error;
 
