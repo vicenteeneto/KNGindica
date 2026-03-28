@@ -5,10 +5,10 @@ import { useAuth } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
 import { formatCurrency } from '../lib/formatters';
 
-export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
+export default function MyRequestsScreen({ onNavigate, params }: NavigationProps) {
   const { user, role } = useAuth();
   const { showToast } = useNotifications();
-  const [activeTab, setActiveTab] = useState<'ativos' | 'concluidos' | 'cancelados' | 'freelance'>('ativos');
+  const [activeTab, setActiveTab] = useState<'ativos' | 'concluidos' | 'cancelados' | 'freelance'>(params?.tab || 'ativos');
   const [requests, setRequests] = useState<any[]>([]);
   const [freelanceOrders, setFreelanceOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -119,6 +119,16 @@ export default function MyRequestsScreen({ onNavigate }: NavigationProps) {
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
           <h1 className="text-xl font-bold tracking-tight">Serviços</h1>
+          <div className="flex-1"></div>
+          {activeTab === 'freelance' && (
+            <button 
+              onClick={() => onNavigate('freelanceRequest')}
+              className="bg-primary text-white px-4 py-2 rounded-xl text-xs font-bold hover:scale-105 transition-all flex items-center gap-2 shadow-lg shadow-primary/20"
+            >
+              <span className="material-symbols-outlined text-sm">add</span>
+              Postar Novo
+            </button>
+          )}
         </div>
 
         {/* Tabs */}

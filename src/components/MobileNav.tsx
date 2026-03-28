@@ -7,7 +7,7 @@ interface MobileNavProps extends NavigationProps {
   role?: 'client' | 'provider' | null;
 }
 
-export default function MobileNav({ onNavigate, currentScreen, role }: MobileNavProps) {
+export default function MobileNav({ onNavigate, currentScreen, role, params }: MobileNavProps) {
   const { unreadNotifications, unreadMessages } = useNotifications();
 
   return (
@@ -62,10 +62,10 @@ export default function MobileNav({ onNavigate, currentScreen, role }: MobileNav
       </button>
 
       <button
-        onClick={() => onNavigate('freelanceRequest')}
+        onClick={() => onNavigate('myRequests', { tab: 'freelance' })}
         className={`flex flex-1 flex-col items-center justify-end gap-1 group transition-colors ${currentScreen === 'freelanceRequest' ? 'text-primary' : 'text-slate-400 hover:text-primary'}`}
       >
-        <span className="material-symbols-outlined text-[24px]" style={currentScreen === 'freelanceRequest' ? { fontVariationSettings: "'FILL' 1" } : {}}>work</span>
+        <span className="material-symbols-outlined text-[24px]" style={currentScreen === 'myRequests' && params?.tab === 'freelance' ? { fontVariationSettings: "'FILL' 1" } : {}}>work</span>
         <span className="text-[10px] font-medium leading-normal">Freelance</span>
       </button>
 

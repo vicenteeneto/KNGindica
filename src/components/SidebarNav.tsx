@@ -31,10 +31,10 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
           { id: 'providerRequests', icon: 'assignment', label: 'Serviços', screen: 'providerRequests' as Screen, badge: unreadRequests },
         ] : [
           { id: 'myRequests', icon: 'receipt_long', label: 'Serviços', screen: 'myRequests' as Screen },
-          { id: 'freelanceRequest', icon: 'work', label: 'Postar Freelance', screen: 'freelanceRequest' as Screen },
+          { id: 'freelanceRequest', icon: 'work', label: 'Freelance', screen: 'myRequests' as Screen, params: { tab: 'freelance' } },
         ]) : [
           { id: 'myRequests', icon: 'receipt_long', label: 'Serviços', screen: 'myRequests' as Screen },
-          { id: 'freelanceRequest', icon: 'work', label: 'Postar Freelance', screen: 'freelanceRequest' as Screen },
+          { id: 'freelanceRequest', icon: 'work', label: 'Freelance', screen: 'myRequests' as Screen, params: { tab: 'freelance' } },
         ]),
         { id: 'chatList', icon: 'chat', label: 'Chat', screen: 'chatList' as Screen, badge: unreadMessages },
         { id: 'notifications', icon: 'notifications', label: 'Avisos', screen: 'notifications' as Screen, badge: unreadNotifications },

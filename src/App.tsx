@@ -279,7 +279,7 @@ function AppContent() {
       case 'providerSchedule':
         return <ProviderScheduleScreen onNavigate={handleNavigate} />;
       case 'myRequests':
-        return <MyRequestsScreen onNavigate={handleNavigate} />;
+        return <MyRequestsScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'categories':
         return <CategoriesScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'favorites':
