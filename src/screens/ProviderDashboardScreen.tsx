@@ -9,7 +9,7 @@ import { ProviderHeader } from '../components/ProviderHeader';
 export default function ProviderDashboardScreen({ onNavigate }: NavigationProps) {
   const { logout, profile, user } = useAuth();
   const { unreadNotifications, unreadMessages, unreadRequests } = useNotifications();
-  const [stats, setStats] = useState({ requests: 0, visits: 0, leads: 0, earnings: 0, rating: 0 });
+  const [stats, setStats] = useState({ requests: 0, visits: 0, leads: 0, earnings: 0, rating: 0, pending: 0, latestReview: null as any });
   const [recentRequests, setRecentRequests] = useState<any[]>([]);
   const [portfolioCount, setPortfolioCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -150,6 +150,17 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
           .maybeSingle();
         
         if (verifData) setVerificationStatus(verifData.status as any);
+
+        // EXTRA: Fetch latest review
+        const { data: latestReviewData } = await supabase
+          .from('reviews')
+          .select('*, reviewer:profiles!reviews_reviewer_id_fkey(full_name, avatar_url)')
+          .eq('provider_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        
+        if (latestReviewData) (setStats as any)(prev => ({ ...prev, latestReview: latestReviewData }));
         
         // Fetch today's freelance orders count
         const startOfDay = new Date();
@@ -405,6 +416,47 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         ))}
       </section>
 
+      {/* Último Feedback Recebido */}
+      {stats.latestReview && (
+        <section className="pt-4">
+          <div 
+            onClick={() => onNavigate('reviews', { professionalId: user?.id, returnTo: 'dashboard' })}
+            className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-lg cursor-pointer hover:border-amber-500 transition-all group"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                <span className="material-symbols-outlined text-amber-500 text-sm">stars</span>
+                Último Feedback Recebido
+              </h3>
+              <span className="material-symbols-outlined text-slate-300 group-hover:text-amber-500 transition-colors">chevron_right</span>
+            </div>
+            
+            <div className="flex gap-4">
+              <img 
+                src={stats.latestReview.reviewer?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} 
+                className="size-12 rounded-full object-cover border-2 border-slate-100 dark:border-slate-800"
+                alt="Avatar"
+              />
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="font-bold text-sm text-slate-900 dark:text-white">{stats.latestReview.reviewer?.full_name || 'Cliente'}</p>
+                  <div className="flex text-amber-500">
+                    {[1, 2, 3, 4, 5].map(star => (
+                      <span key={star} className="material-symbols-outlined text-xs" style={{ fontVariationSettings: `'FILL' ${stats.latestReview.rating >= star ? 1 : 0}` }}>
+                        star
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 italic">
+                  "{stats.latestReview.comment || 'Sem comentário.'}"
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
 
       {/* Plano Premium - Promo Card */}
       {profile?.plan_type !== 'plus' && (
@@ -604,22 +656,30 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
                       if (!(profile?.pricing_model === 'negotiable' || profile?.price_value)) missingForStatus.push("Preço");
                       if (portfolioCount === 0) missingForStatus.push("Portfólio");
 
-                      if (missingForStatus.length > 0) return null;
+                      const isComplete = missingForStatus.length === 0;
 
                       return (
                         <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-800 shadow-xl mb-4">
                           <div className="flex items-center gap-4 mb-4">
-                            <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500">
-                               <span className="material-symbols-outlined text-3xl">verified_user</span>
+                            <div className={`flex size-14 shrink-0 items-center justify-center rounded-2xl ${isComplete ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}`}>
+                               <span className="material-symbols-outlined text-3xl">{isComplete ? 'verified_user' : 'account_circle'}</span>
                             </div>
                             <div>
-                              <p className="text-xs font-black uppercase tracking-tighter text-slate-900 dark:text-white">Perfil Verificado</p>
-                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Selo de Confiança Ativo</p>
+                              <p className="text-xs font-black uppercase tracking-tighter text-slate-900 dark:text-white">
+                                {isComplete ? 'Perfil Verificado' : 'Perfil em Construção'}
+                              </p>
+                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">
+                                {isComplete ? 'Selo de Confiança Ativo' : 'Complete para ganhar selo'}
+                              </p>
                             </div>
                           </div>
                           <button 
                             onClick={() => onNavigate('profile', { professionalId: user?.id, returnTo: 'dashboard' })}
-                            className="w-full py-2.5 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-xs uppercase tracking-widest transition-all"
+                            className={`w-full py-2.5 px-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all ${
+                              isComplete 
+                                ? 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300' 
+                                : 'bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20'
+                            }`}
                           >
                             Ver Perfil Público
                           </button>

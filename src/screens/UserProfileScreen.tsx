@@ -798,6 +798,39 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           </div>
         </section>
 
+        {/* Grupo 5: Avaliações (Apenas para Prestadores) */}
+        {role === 'provider' && (
+          <section className="mb-8">
+            <div className="flex items-center gap-2 mb-3 px-2">
+              <span className="size-1.5 rounded-full bg-amber-500"></span>
+              <h2 className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Feedback dos Clientes</h2>
+            </div>
+            <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border-2 border-slate-100 dark:border-slate-800 overflow-hidden group">
+              <button
+                onClick={() => onNavigate('reviews', { professionalId: user?.id, returnTo: 'userProfile' })}
+                className="w-full flex items-center justify-between p-6 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all active:scale-[0.99]"
+              >
+                <div className="flex items-center gap-5">
+                  <div className="size-14 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform">
+                    <span className="material-symbols-outlined text-3xl">star</span>
+                  </div>
+                  <div className="text-left">
+                    <p className="text-lg font-black text-slate-900 dark:text-white tracking-tight italic">Minhas Avaliações</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-widest leading-tight">
+                      {((profile as any)?.rating > 0) 
+                        ? `${(profile as any).rating.toFixed(1)} ESTRELAS • ${(profile as any).reviews_count || 0} AVALIAÇÕES` 
+                        : 'NENHUMA AVALIAÇÃO RECEBIDA AINDA'}
+                    </p>
+                  </div>
+                </div>
+                <div className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-amber-500 group-hover:text-white transition-all">
+                  <span className="material-symbols-outlined">chevron_right</span>
+                </div>
+              </button>
+            </div>
+          </section>
+        )}
+
         {/* Configs Section */}
         <section className="mb-8">
           <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3 px-2">Configurações</h2>
