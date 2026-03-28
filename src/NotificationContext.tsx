@@ -210,13 +210,20 @@ export function NotificationProvider({ children, onNavigate }: { children: React
         
         if (payload.new.type === 'order') {
           target = role === 'provider' ? 'providerRequests' : 'serviceStatus';
-          navParams = { requestId: payload.new.related_entity_id };
+          navParams = { 
+            requestId: payload.new.related_entity_id,
+            tab: role === 'provider' ? 'Novos' : undefined 
+          };
         } else if (payload.new.type === 'new_bid') {
           target = 'serviceStatus';
           navParams = { requestId: payload.new.related_entity_id };
         } else if (payload.new.type === 'status') {
-          target = 'serviceStatus';
-          navParams = { requestId: payload.new.related_entity_id };
+          target = role === 'provider' ? 'providerRequests' : 'serviceStatus';
+          // Se for prestador e status mudou, provavelmente vai para Orçados ou Aprovados
+          navParams = { 
+            requestId: payload.new.related_entity_id,
+            tab: role === 'provider' ? 'Orçados' : undefined
+          };
         } else if (payload.new.type === 'message') {
           target = 'chat';
           navParams = { roomId: payload.new.related_entity_id };

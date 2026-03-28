@@ -5,14 +5,17 @@ import { useAuth } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
 import { formatCurrency, maskCurrency } from '../lib/formatters';
 import { ProviderHeader } from '../components/ProviderHeader';
+import PullToRefresh from '../components/PullToRefresh';
 
 type Tab = 'Novos' | 'Orçados' | 'Aprovados' | 'Agendados' | 'Finalizados' | 'Recusados';
 
-export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) {
+export default function ProviderRequestsScreen({ onNavigate, params }: NavigationProps) {
   const { user } = useAuth();
   const { showToast } = useNotifications();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [activeTab, setActiveTab] = useState<Tab>('Novos');
+  const [activeTab, setActiveTab] = useState<Tab>(
+    (params?.tab as Tab) || 'Novos'
+  );
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const tabs: Tab[] = ['Novos', 'Orçados', 'Aprovados', 'Agendados', 'Finalizados', 'Recusados'];
@@ -119,15 +122,15 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
           break;
 
         case 'Orçados':
-          // Awaiting client approval
-          expectedStatuses = ['proposed'];
-          query = query.eq('status', 'proposed').eq('provider_id', user.id);
+          // Awaiting client approval OR payment
+          expectedStatuses = ['proposed', 'awaiting_payment'];
+          query = query.in('status', ['proposed', 'awaiting_payment']).eq('provider_id', user.id);
           break;
 
         case 'Aprovados':
-          // Approved by client, needs scheduling
-          expectedStatuses = ['accepted'];
-          query = query.eq('status', 'accepted').eq('provider_id', user.id);
+          // Approved by client (paid or accepted), needs scheduling
+          expectedStatuses = ['accepted', 'paid'];
+          query = query.in('status', ['accepted', 'paid']).eq('provider_id', user.id);
           break;
 
         case 'Agendados':
@@ -163,6 +166,12 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (params?.tab && params.tab !== activeTab) {
+      setActiveTab(params.tab as Tab);
+    }
+  }, [params?.tab]);
 
   useEffect(() => {
     fetchRequests();
@@ -348,8 +357,13 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
 
       showToast('Orçamento enviado com sucesso!', 'success');
       setBudgetModal({ isOpen: false, requestId: null, requestTitle: '', currentAmount: '' });
-      fetchRequests();
-      setActiveTab('Orçados');
+      
+      // Delay de 500ms para garantir que a transação do Supabase foi processada em todos os nós
+      // antes de recarregar a lista na nova aba.
+      setTimeout(() => {
+        setActiveTab('Orçados');
+        fetchRequests();
+      }, 500);
     } catch (err: any) {
       console.error(err);
       showToast('Erro ao enviar orçamento: ' + err.message, 'error');
@@ -390,7 +404,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
       
       showToast('Serviço agendado com sucesso!', 'success');
       setScheduleModal({ isOpen: false, requestId: null, requestTitle: '', date: '', time: '09:00' });
-      fetchRequests();
+      // Changing tab triggers useEffect re-fetch automatically
       setActiveTab('Agendados');
     } catch (err: any) {
       console.error(err);
@@ -579,13 +593,14 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
       )}
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-4 w-full max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-slate-900 dark:text-white text-lg font-bold">
-              {loading ? 'Carregando...' : `${activeTab} (${requests.length})`}
-            </h3>
-            <button className="text-sm text-primary font-medium hover:underline">Ver mapa</button>
-          </div>
+        <PullToRefresh>
+          <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-4 w-full max-w-7xl mx-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-slate-900 dark:text-white text-lg font-bold">
+                {loading ? 'Carregando...' : `${activeTab} (${requests.length})`}
+              </h3>
+              <button className="text-sm text-primary font-medium hover:underline">Ver mapa</button>
+            </div>
 
           {!loading && requests.length > 0 ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -773,6 +788,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
 
           <div className="h-24"></div> {/* Spacer for BottomNav */}
         </div>
+      </PullToRefresh>
 
         {/* Details Modal */}
         {detailsModal.isOpen && detailsModal.request && (
