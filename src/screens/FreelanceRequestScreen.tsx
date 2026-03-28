@@ -296,51 +296,49 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="block text-sm font-bold mb-2 uppercase tracking-widest text-slate-400">Rua / Logradouro</label>
-                <input 
-                  type="text" 
-                  placeholder="Nome da rua..."
-                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium"
-                  value={formData.street}
-                  onChange={e => setFormData({...formData, street: e.target.value})}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="block text-sm font-bold mb-2 uppercase tracking-widest text-slate-400">Número</label>
-                  <input 
-                    type="text" 
-                    placeholder="123"
-                    className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium"
-                    value={formData.number}
-                    onChange={e => setFormData({...formData, number: e.target.value})}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="block text-sm font-bold mb-2 uppercase tracking-widest text-slate-400">Bairro</label>
-                  <input 
-                    type="text" 
-                    placeholder="Bairro..."
-                    className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium"
-                    value={formData.neighborhood}
-                    onChange={e => setFormData({...formData, neighborhood: e.target.value})}
-                  />
-                </div>
-              </div>
-            </div>
-
             <div>
-              <label className="block text-sm font-bold mb-2 uppercase tracking-widest text-slate-400">Estado (UF)</label>
+              <label className="block text-sm font-bold mb-2 uppercase tracking-widest text-slate-400">Rua / Logradouro</label>
               <input 
                 type="text" 
-                maxLength={2}
-                placeholder="MT"
-                className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium uppercase"
-                value={formData.state}
-                onChange={e => setFormData({...formData, state: e.target.value.toUpperCase()})}
+                placeholder="Nome da rua..."
+                className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium"
+                value={formData.street}
+                onChange={e => setFormData({...formData, street: e.target.value})}
               />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+              <div className="sm:col-span-1 space-y-1.5">
+                <label className="block text-sm font-bold mb-2 uppercase tracking-widest text-slate-400">Número</label>
+                <input 
+                  type="text" 
+                  placeholder="123"
+                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium"
+                  value={formData.number}
+                  onChange={e => setFormData({...formData, number: e.target.value})}
+                />
+              </div>
+              <div className="sm:col-span-2 space-y-1.5">
+                <label className="block text-sm font-bold mb-2 uppercase tracking-widest text-slate-400">Bairro</label>
+                <input 
+                  type="text" 
+                  placeholder="Bairro..."
+                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium"
+                  value={formData.neighborhood}
+                  onChange={e => setFormData({...formData, neighborhood: e.target.value})}
+                />
+              </div>
+              <div className="sm:col-span-1 space-y-1.5">
+                <label className="block text-sm font-bold mb-2 uppercase tracking-widest text-slate-400">Estado (UF)</label>
+                <input 
+                  type="text" 
+                  maxLength={2}
+                  placeholder="MT"
+                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium uppercase"
+                  value={formData.state}
+                  onChange={e => setFormData({...formData, state: e.target.value.toUpperCase()})}
+                />
+              </div>
             </div>
 
             <div>
