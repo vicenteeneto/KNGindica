@@ -20,6 +20,7 @@ import AdminDashboardScreen from './screens/AdminDashboardScreen';
 import CheckoutScreen from './screens/CheckoutScreen';
 import CategoriesScreen from './screens/CategoriesScreen';
 import MyRequestsScreen from './screens/MyRequestsScreen';
+import MyFreelancesScreen from './screens/MyFreelancesScreen';
 import ProviderWalletScreen from './screens/ProviderWalletScreen';
 import AuthScreen from './screens/AuthScreen';
 import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
@@ -280,6 +281,8 @@ function AppContent() {
         return <ProviderScheduleScreen onNavigate={handleNavigate} />;
       case 'myRequests':
         return <MyRequestsScreen onNavigate={handleNavigate} params={navigationParams} />;
+      case 'myFreelances':
+        return <MyFreelancesScreen onNavigate={handleNavigate} />;
       case 'categories':
         return <CategoriesScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'favorites':

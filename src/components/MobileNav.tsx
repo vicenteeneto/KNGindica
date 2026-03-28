@@ -62,10 +62,10 @@ export default function MobileNav({ onNavigate, currentScreen, role, params }: M
       </button>
 
       <button
-        onClick={() => onNavigate('myRequests', { tab: 'freelance' })}
-        className={`flex flex-1 flex-col items-center justify-end gap-1 group transition-colors ${currentScreen === 'freelanceRequest' ? 'text-primary' : 'text-slate-400 hover:text-primary'}`}
+        onClick={() => onNavigate('myFreelances')}
+        className={`flex flex-1 flex-col items-center justify-end gap-1 group transition-colors ${currentScreen === 'myFreelances' ? 'text-primary' : 'text-slate-400 hover:text-primary'}`}
       >
-        <span className="material-symbols-outlined text-[24px]" style={currentScreen === 'myRequests' && params?.tab === 'freelance' ? { fontVariationSettings: "'FILL' 1" } : {}}>work</span>
+        <span className="material-symbols-outlined text-[24px]" style={currentScreen === 'myFreelances' ? { fontVariationSettings: "'FILL' 1" } : {}}>work</span>
         <span className="text-[10px] font-medium leading-normal">Freelance</span>
       </button>
 

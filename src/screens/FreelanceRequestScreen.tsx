@@ -143,7 +143,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
         "Ordem publicada com sucesso! Os prestadores profissionais serão notificados e em breve entrarão em contato.",
         "success"
       );
-      onNavigate('home');
+      onNavigate('myFreelances');
     } catch (err: any) {
       showToast("Erro ao publicar", err.message, "error");
     } finally {
