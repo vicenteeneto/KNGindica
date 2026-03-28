@@ -298,7 +298,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
           </div>
           
           <div className="pt-4 flex flex-col gap-3">
-            {displayData.status === 'proposed' && user?.id === displayData.client_id && displayData.budget_amount > 0 && (
+            {(displayData.status === 'proposed' || displayData.status === 'awaiting_payment') && user?.id === displayData.client_id && displayData.budget_amount > 0 && (
               <div className="flex flex-col gap-3">
                 {/* Resumo de Taxas para o Cliente */}
                 <div className="bg-emerald-50 dark:bg-emerald-500/5 rounded-2xl p-5 border border-emerald-100 dark:border-emerald-500/20 mb-2">
@@ -327,46 +327,60 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                   </p>
                 </div>
 
-                {/* 1. Aceitar Orçamento */}
-                <button 
-                  onClick={async () => {
-                    try {
-                      const { error } = await supabase
-                        .from('service_requests')
-                        .update({ status: 'awaiting_payment' })
-                        .eq('id', request.id);
-                      if (error) throw error;
+                {displayData.status === 'proposed' && (
+                  <>
+                    {/* 1. Aceitar Orçamento */}
+                    <button 
+                      onClick={async () => {
+                        try {
+                          const { error } = await supabase
+                            .from('service_requests')
+                            .update({ status: 'awaiting_payment' })
+                            .eq('id', request.id);
+                          if (error) throw error;
 
-                      // Notificar o prestador (sininho)
-                      if (request?.provider_id) {
-                        await supabase.from('notifications').insert({
-                          user_id: request.provider_id,
-                          title: 'Orçamento Aceito!',
-                          message: `O cliente aceitou seu orçamento para "${request.title || 'Serviço'}".`,
-                          type: 'status',
-                          related_entity_id: request.id
-                        });
-                      }
+                          // Notificar o prestador (sininho)
+                          if (request?.provider_id) {
+                            await supabase.from('notifications').insert({
+                              user_id: request.provider_id,
+                              title: 'Orçamento Aceito!',
+                              message: `O cliente aceitou seu orçamento para "${request.title || 'Serviço'}".`,
+                              type: 'status',
+                              related_entity_id: request.id
+                            });
+                          }
 
-                      onNavigate('checkout', { requestId: request.id });
-                    } catch (e: any) {
-                      showToast("Erro", "Falha ao aceitar orçamento.", "error");
-                    }
-                  }}
-                  className="w-full h-14 bg-orange-500 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-orange-600 active:scale-95 transition-all shadow-xl shadow-orange-500/20 flex items-center justify-center gap-2"
-                >
-                  <span className="material-symbols-outlined">check_circle</span>
-                  Aceitar Orçamento
-                </button>
+                          onNavigate('checkout', { requestId: request.id });
+                        } catch (e: any) {
+                          showToast("Erro", "Falha ao aceitar orçamento.", "error");
+                        }
+                      }}
+                      className="w-full h-14 bg-orange-500 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-orange-600 active:scale-95 transition-all shadow-xl shadow-orange-500/20 flex items-center justify-center gap-2"
+                    >
+                      <span className="material-symbols-outlined">check_circle</span>
+                      Aceitar Orçamento
+                    </button>
 
-                {/* 2. Recusar Orçamento */}
-                <button 
-                  onClick={() => setShowRefuseModal(true)}
-                  className="w-full h-12 bg-white dark:bg-slate-800 text-red-500 border-2 border-red-100 dark:border-red-900/30 font-bold rounded-xl hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
-                >
-                  <span className="material-symbols-outlined">cancel</span>
-                  Recusar Orçamento
-                </button>
+                    {/* 2. Recusar Orçamento */}
+                    <button 
+                      onClick={() => setShowRefuseModal(true)}
+                      className="w-full h-12 bg-white dark:bg-slate-800 text-red-500 border-2 border-red-100 dark:border-red-900/30 font-bold rounded-xl hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <span className="material-symbols-outlined">cancel</span>
+                      Recusar Orçamento
+                    </button>
+                  </>
+                )}
+
+                {displayData.status === 'awaiting_payment' && (
+                  <button 
+                    onClick={() => onNavigate('checkout', { requestId: request.id })}
+                    className="w-full h-14 bg-emerald-500 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-emerald-600 active:scale-95 transition-all shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2"
+                  >
+                    <span className="material-symbols-outlined">payments</span>
+                    Ir para Pagamento (Taxa R$ 9,90)
+                  </button>
+                )}
 
                 {/* 3. Conversar pelo chat */}
                 <button 
@@ -388,15 +402,6 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
               </div>
             )}
 
-            {displayData.status === 'awaiting_payment' && (
-              <button 
-                onClick={() => onNavigate('checkout', { requestId: request.id })}
-                className="w-full h-14 bg-emerald-500 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-emerald-600 active:scale-95 transition-all shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2"
-              >
-                <span className="material-symbols-outlined">payments</span>
-                Ir para Pagamento (Taxa R$ 10)
-              </button>
-            )}
             {displayData.status === 'cancelled' && (
               <button 
                 onClick={() => onNavigate('listing')}
