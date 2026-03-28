@@ -3,11 +3,16 @@ import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useNotifications } from '../NotificationContext';
 import { formatCurrency } from '../lib/formatters';
+import { useAuth } from '../AuthContext';
 
 export default function ServiceStatusScreen({ onNavigate, params }: NavigationProps) {
+  const { user } = useAuth();
   const { showToast } = useNotifications();
   const [request, setRequest] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showRefuseModal, setShowRefuseModal] = useState(false);
+  const [refusalReason, setRefusalReason] = useState('');
+  const [isRefusing, setIsRefusing] = useState(false);
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -292,7 +297,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
           </div>
           
           <div className="pt-4 flex flex-col gap-3">
-            {displayData.status === 'proposed' && displayData.budget_amount > 0 && (
+            {displayData.status === 'proposed' && user?.id === displayData.client_id && displayData.budget_amount > 0 && (
               <div className="flex flex-col gap-3">
                 {/* 1. Aceitar Orçamento */}
                 <button 
@@ -328,31 +333,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
 
                 {/* 2. Recusar Orçamento */}
                 <button 
-                  onClick={async () => {
-                    if (!window.confirm("Deseja realmente recusar este orçamento?")) return;
-                    try {
-                      const { error } = await supabase
-                        .from('service_requests')
-                        .update({ status: 'cancelled' })
-                        .eq('id', request.id);
-                      if (error) throw error;
-
-                      // Notificar o prestador (sininho)
-                      if (request?.provider_id) {
-                        await supabase.from('notifications').insert({
-                          user_id: request.provider_id,
-                          title: 'Orçamento Recusado',
-                          message: `Seu orçamento para "${request.title || 'Serviço'}" foi recusado pelo cliente.`,
-                          type: 'status',
-                          related_entity_id: request.id
-                        });
-                      }
-
-                      showToast("Sucesso", "Orçamento recusado.", "success");
-                    } catch (e: any) {
-                      showToast("Erro", "Falha ao recusar orçamento.", "error");
-                    }
-                  }}
+                  onClick={() => setShowRefuseModal(true)}
                   className="w-full h-12 bg-white dark:bg-slate-800 text-red-500 border-2 border-red-100 dark:border-red-900/30 font-bold rounded-xl hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
                 >
                   <span className="material-symbols-outlined">cancel</span>
@@ -429,6 +410,97 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
           </button>
         </div>
       </nav>
+
+      {/* Custom Refusal Modal */}
+      {showRefuseModal && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-[32px] p-8 flex flex-col items-center text-center shadow-2xl border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-300">
+            <div className="size-16 rounded-2xl bg-red-50 dark:bg-red-900/10 flex items-center justify-center mb-6">
+              <span className="material-symbols-outlined text-red-500 text-3xl">cancel</span>
+            </div>
+            
+            <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter mb-2">
+              RECUSAR ORÇAMENTO?
+            </h3>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-6">
+              Esta ação informará ao profissional que você não aceitou a proposta agora.
+            </p>
+
+            <textarea
+              className="w-full h-32 p-4 bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-medium focus:border-red-500/50 outline-none transition-all resize-none mb-4"
+              placeholder="Motivo da recusa (opcional)..."
+              value={refusalReason}
+              onChange={(e) => setRefusalReason(e.target.value)}
+            />
+
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 italic">
+              Este motivo será enviado ao profissional.
+            </p>
+
+            <div className="flex flex-col gap-3 w-full">
+              <button
+                disabled={isRefusing}
+                onClick={async () => {
+                  setIsRefusing(true);
+                  try {
+                    const { error } = await supabase
+                      .from('service_requests')
+                      .update({ 
+                        status: 'cancelled',
+                        cancellation_reason: refusalReason 
+                      })
+                      .eq('id', request.id);
+                    if (error) throw error;
+
+                    // Enviar mensagem no chat com o motivo
+                    if (refusalReason.trim() && request.id) {
+                      const { data: room } = await supabase.from('chat_rooms').select('id').eq('request_id', request.id).single();
+                      if (room) {
+                        await supabase.from('chat_messages').insert({
+                          room_id: room.id,
+                          sender_id: user.id,
+                          content: `❌ Orçamento recusado. Motivo: ${refusalReason}`
+                        });
+                      }
+                    }
+
+                    // Notificar o prestador (sininho)
+                    if (request?.provider_id) {
+                      await supabase.from('notifications').insert({
+                        user_id: request.provider_id,
+                        title: 'Orçamento Recusado',
+                        message: `O cliente recusou seu orçamento para "${request.title || 'Serviço'}".`,
+                        type: 'status',
+                        related_entity_id: request.id
+                      });
+                    }
+
+                    showToast("Sucesso", "Orçamento recusado.", "success");
+                    setShowRefuseModal(false);
+                    // Refresh data
+                    const { data } = await supabase.from('service_requests').select('*').eq('id', request.id).single();
+                    setRequest(data);
+                  } catch (e: any) {
+                    showToast("Erro", "Falha ao recusar orçamento.", "error");
+                  } finally {
+                    setIsRefusing(false);
+                  }
+                }}
+                className="w-full py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-red-600/20 active:scale-95 transition-all"
+              >
+                {isRefusing ? 'Processando...' : 'Confirmar Recusa'}
+              </button>
+
+              <button
+                onClick={() => setShowRefuseModal(false)}
+                className="w-full py-2 text-slate-500 dark:text-slate-400 font-bold hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+              >
+                Voltar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
