@@ -130,6 +130,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                 onNavigate('chat', { 
                   roomId: room?.id,
                   requestId: request?.id,
+                  opponentId: displayData.provider_id,
                   opponentName: displayData.provider?.full_name,
                   opponentAvatar: displayData.provider?.avatar_url
                 });
@@ -244,6 +245,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                       const { data: room } = await supabase.from('chat_rooms').select('id').eq('request_id', request?.id).single();
                       onNavigate('chat', { 
                         roomId: room?.id, 
+                        opponentId: displayData.provider_id,
                         opponentName: displayData.provider?.full_name, 
                         opponentAvatar: displayData.provider?.avatar_url,
                         requestId: request?.id
@@ -327,6 +329,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                   onNavigate('chat', { 
                     roomId: room?.id,
                     requestId: request?.id,
+                    opponentId: displayData.provider_id,
                     opponentName: displayData.provider?.full_name,
                     opponentAvatar: displayData.provider?.avatar_url
                   });

@@ -217,7 +217,11 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
 
 
       {/* Action Button */}
-      <button onClick={() => showToast('Novo Chat', 'Funcionalidade de contatos em breve.', 'info')} className="absolute bottom-24 right-6 w-14 h-14 bg-primary text-white rounded-full shadow-lg flex items-center justify-center hover:scale-105 transition-transform z-40">
+      <button 
+        onClick={() => onNavigate('listing')} 
+        className="absolute bottom-24 right-6 w-14 h-14 bg-primary text-white rounded-full shadow-lg flex items-center justify-center hover:scale-105 transition-transform z-40"
+        title="Novo Chat (Buscar Profissional)"
+      >
         <span className="material-symbols-outlined text-3xl">add_comment</span>
       </button>
     </div>

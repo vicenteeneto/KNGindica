@@ -97,7 +97,7 @@ export default function MaiaAssistantScreen({ onNavigate }: NavigationProps) {
           {/* Provider 1 */}
           <div 
             className="flex items-center gap-3 bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-            onClick={() => onNavigate('profile', { professionalId: '1' })}  
+            onClick={() => onNavigate('listing', { category: 'Elétrica' })}  
           >
             <div 
               className="bg-slate-200 dark:bg-slate-700 bg-center bg-no-repeat aspect-square bg-cover rounded-full h-12 w-12" 
@@ -116,7 +116,7 @@ export default function MaiaAssistantScreen({ onNavigate }: NavigationProps) {
           {/* Provider 2 */}
           <div 
             className="flex items-center gap-3 bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-            onClick={() => onNavigate('profile', { professionalId: '2' })}
+            onClick={() => onNavigate('listing', { category: 'Elétrica' })}
           >
             <div 
               className="bg-slate-200 dark:bg-slate-700 bg-center bg-no-repeat aspect-square bg-cover rounded-full h-12 w-12" 
@@ -135,7 +135,7 @@ export default function MaiaAssistantScreen({ onNavigate }: NavigationProps) {
           {/* Provider 3 */}
           <div 
             className="flex items-center gap-3 bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-            onClick={() => onNavigate('profile', { professionalId: '3' })}
+            onClick={() => onNavigate('listing', { category: 'Elétrica' })}
           >
             <div 
               className="bg-slate-200 dark:bg-slate-700 bg-center bg-no-repeat aspect-square bg-cover rounded-full h-12 w-12" 

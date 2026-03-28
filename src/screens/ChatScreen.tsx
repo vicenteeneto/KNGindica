@@ -60,6 +60,24 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
       
       let currentRoomId = roomId;
 
+      // New Logic: If no roomId, try finding one by opponentId
+      if (!currentRoomId && params?.opponentId && user) {
+        try {
+          const { data: existingRoom } = await supabase
+            .from('chat_rooms')
+            .select('id')
+            .or(`and(client_id.eq.${user.id},provider_id.eq.${params.opponentId}),and(client_id.eq.${params.opponentId},provider_id.eq.${user.id})`)
+            .maybeSingle();
+          
+          if (existingRoom) {
+            currentRoomId = existingRoom.id;
+            params.roomId = currentRoomId;
+          }
+        } catch (e) {
+          console.error("Error searching for room by opponentId:", e);
+        }
+      }
+      
       // Fallback: se não veio por parâmetro, busca da sala de chat pelo requestId
       if (!currentRoomId && (params?.requestId || serviceRequest?.id)) {
         try {
@@ -194,14 +212,49 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
   };
 
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || !user || !roomId) return;
+    if (!newMessage.trim() || !user) return;
     const msgText = newMessage.trim();
     setNewMessage('');
+
+    let currentRoomId = roomId || params?.roomId;
+
+    // Handle room creation on the fly if it doesn't exist
+    if (!currentRoomId) {
+      if (!params?.opponentId) {
+        showToast("Erro", "Destinatário não identificado.", "error");
+        return;
+      }
+
+      try {
+        const isClient = role === 'client';
+        const clientId = isClient ? user.id : params.opponentId;
+        const providerId = isClient ? params.opponentId : user.id;
+
+        const { data: newRoom, error: createError } = await supabase
+          .from('chat_rooms')
+          .insert({
+            client_id: clientId,
+            provider_id: providerId,
+            request_id: params?.requestId || null
+          })
+          .select('id')
+          .single();
+
+        if (createError) throw createError;
+        currentRoomId = newRoom.id;
+        params.roomId = currentRoomId;
+      } catch (err: any) {
+        console.error("Error creating room:", err);
+        showToast("Erro", "Não foi possível iniciar a conversa.", "error");
+        setNewMessage(msgText);
+        return;
+      }
+    }
 
     // Optimistic Update
     const tempMsg = {
       id: `temp-${Date.now()}`,
-      room_id: roomId,
+      room_id: currentRoomId,
       sender_id: user.id,
       content: msgText,
       created_at: new Date().toISOString()
@@ -214,7 +267,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
       const { error } = await supabase
         .from('chat_messages')
         .insert({
-          room_id: roomId,
+          room_id: currentRoomId,
           sender_id: user.id,
           content: msgText
         });
@@ -225,7 +278,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
       const { data: roomData } = await supabase
         .from('chat_rooms')
         .select('client_id, provider_id')
-        .eq('id', roomId)
+        .eq('id', currentRoomId)
         .single();
 
       if (roomData) {
@@ -236,7 +289,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
             title: 'Nova mensagem',
             message: msgText.length > 50 ? msgText.substring(0, 50) + '...' : msgText,
             type: 'message',
-            related_entity_id: roomId
+            related_entity_id: currentRoomId
           });
         }
       }
