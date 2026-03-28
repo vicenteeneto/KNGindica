@@ -303,6 +303,18 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                         .update({ status: 'awaiting_payment' })
                         .eq('id', request.id);
                       if (error) throw error;
+
+                      // Notificar o prestador (sininho)
+                      if (request?.provider_id) {
+                        await supabase.from('notifications').insert({
+                          user_id: request.provider_id,
+                          title: 'Orçamento Aceito!',
+                          message: `O cliente aceitou seu orçamento para "${request.title || 'Serviço'}".`,
+                          type: 'status',
+                          related_entity_id: request.id
+                        });
+                      }
+
                       onNavigate('checkout', { requestId: request.id });
                     } catch (e: any) {
                       showToast("Erro", "Falha ao aceitar orçamento.", "error");
@@ -324,6 +336,18 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                         .update({ status: 'cancelled' })
                         .eq('id', request.id);
                       if (error) throw error;
+
+                      // Notificar o prestador (sininho)
+                      if (request?.provider_id) {
+                        await supabase.from('notifications').insert({
+                          user_id: request.provider_id,
+                          title: 'Orçamento Recusado',
+                          message: `Seu orçamento para "${request.title || 'Serviço'}" foi recusado pelo cliente.`,
+                          type: 'status',
+                          related_entity_id: request.id
+                        });
+                      }
+
                       showToast("Sucesso", "Orçamento recusado.", "success");
                     } catch (e: any) {
                       showToast("Erro", "Falha ao recusar orçamento.", "error");

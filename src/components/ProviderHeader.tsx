@@ -18,7 +18,7 @@ export const ProviderHeader: React.FC<ProviderHeaderProps> = ({
   showAvatar = true 
 }) => {
   const { user, profile } = useAuth();
-  const { unreadMessages, unreadNotifications } = useNotifications();
+  const { unreadMessages, unreadNotifications, unreadRequests } = useNotifications();
 
   return (
     <header className="relative w-full bg-slate-950/80 backdrop-blur-md border-b border-slate-900 px-4 py-3">
@@ -76,7 +76,7 @@ export const ProviderHeader: React.FC<ProviderHeaderProps> = ({
                 className="p-2 hover:bg-slate-900 rounded-full transition-colors text-slate-400 hover:text-white relative"
               >
                 <span className="material-symbols-outlined text-[22px]">notifications</span>
-                {unreadNotifications > 0 && (
+                {(unreadNotifications > 0 || unreadRequests > 0) && (
                   <span className="absolute top-1.5 right-1.5 size-2 bg-red-500 rounded-full border border-slate-950 animate-pulse"></span>
                 )}
               </button>

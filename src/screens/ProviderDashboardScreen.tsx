@@ -8,7 +8,7 @@ import { ProviderHeader } from '../components/ProviderHeader';
 
 export default function ProviderDashboardScreen({ onNavigate }: NavigationProps) {
   const { logout, profile, user } = useAuth();
-  const { unreadNotifications, unreadMessages } = useNotifications();
+  const { unreadNotifications, unreadMessages, unreadRequests } = useNotifications();
   const [stats, setStats] = useState({ requests: 0, visits: 0, leads: 0, earnings: 0, rating: 0 });
   const [recentRequests, setRecentRequests] = useState<any[]>([]);
   const [portfolioCount, setPortfolioCount] = useState(0);
@@ -208,9 +208,9 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
           </button>
           <button onClick={() => onNavigate('notifications', { returnTo: 'dashboard' })} className="flex size-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 relative hover:bg-slate-200 dark:hover:bg-slate-700 transition-all group" title="Notificações">
             <span className="material-symbols-outlined text-[22px] group-hover:scale-110 transition-transform">notifications</span>
-            {unreadNotifications > 0 && (
+            {(unreadNotifications > 0 || unreadRequests > 0) && (
               <span className="absolute -top-1 -right-1 flex h-5 min-w-5 px-1 items-center justify-center rounded-full bg-red-500 text-[10px] font-black text-white border-2 border-white dark:border-slate-900 shadow-lg animate-bounce">
-                {unreadNotifications > 9 ? '9+' : unreadNotifications}
+                {unreadNotifications + unreadRequests > 9 ? '9+' : unreadNotifications + unreadRequests}
               </span>
             )}
           </button>
