@@ -324,6 +324,15 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                   {displayData.address || 'Localização não informada'}
                 </p>
               </div>
+              {displayData.latitude && displayData.longitude && (
+                <button 
+                  onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${displayData.latitude},${displayData.longitude}`, '_blank')}
+                  className="size-10 flex items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition-all cursor-pointer shrink-0"
+                  title="Abrir no Google Maps / Waze"
+                >
+                  <span className="material-symbols-outlined">map</span>
+                </button>
+              )}
             </div>
             
             <div className="flex items-center gap-4 p-4">
@@ -461,11 +470,16 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
               <div className="flex flex-col gap-3 mt-4">
                 <div className="p-4 bg-primary/5 dark:bg-primary/10 rounded-2xl border border-primary/20">
                   <h4 className="text-xs font-bold text-primary uppercase tracking-widest mb-2 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-sm">check_circle</span>
-                    O serviço foi finalizado?
+                    <span className="material-symbols-outlined text-sm">
+                      {displayData.status === 'completed' ? 'celebration' : 'check_circle'}
+                    </span>
+                    {displayData.status === 'completed' ? 'Serviço finalizado pelo Prestador!' : 'O serviço foi finalizado?'}
                   </h4>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
-                    Confirme se o serviço foi realizado conforme o acordado para liberar o pagamento ao profissional.
+                    {displayData.status === 'completed' 
+                      ? "O profissional informou que já concluiu o trabalho. Se estiver tudo OK, confirme para liberar o pagamento."
+                      : "Confirme se o serviço foi realizado conforme o acordado para liberar o pagamento ao profissional."
+                    }
                   </p>
                   
                   <div className="flex flex-col gap-2">
@@ -522,8 +536,9 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
 
                     <button 
                       onClick={() => onNavigate('helpCenter', { requestId: displayData.id })}
-                      className="w-full bg-white dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700 font-bold py-2.5 rounded-xl transition-all text-xs"
+                      className="w-full cursor-pointer bg-red-500/10 dark:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 font-bold py-3 rounded-xl transition-all text-xs hover:bg-red-500/20 flex items-center justify-center gap-2"
                     >
+                      <span className="material-symbols-outlined text-sm">report_problem</span>
                       Tarefa não concluída / Abrir Disputa
                     </button>
                   </div>
@@ -541,9 +556,10 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
             )}
             {displayData.status !== 'cancelled' && (
               <button 
-                onClick={() => onNavigate('helpCenter', { requestId: params?.requestId })}
-                className="w-full h-12 bg-transparent text-slate-500 hover:text-red-500 font-bold rounded-xl transition-colors text-sm"
+                onClick={() => onNavigate('helpCenter', { requestId: displayData.id })}
+                className="w-full h-12 cursor-pointer bg-transparent text-slate-500 hover:text-red-500 font-bold rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
               >
+                <span className="material-symbols-outlined text-sm">help</span>
                 Tive um problema / Abrir Disputa
               </button>
             )}

@@ -68,8 +68,11 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
           attachments,
           rejection_reason,
           display_id,
+          latitude,
+          longitude,
           profiles!service_requests_client_id_fkey(full_name, avatar_url),
-          service_categories(name, icon)
+          service_categories(name, icon),
+          reviews(rating, comment)
         `)
         .order('created_at', { ascending: false });
 
@@ -639,7 +642,6 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
               <h3 className="text-slate-900 dark:text-white text-lg font-bold">
                 {loading ? 'Carregando...' : `${activeTab} (${requests.length})`}
               </h3>
-              <button className="text-sm text-primary font-medium hover:underline">Ver mapa</button>
             </div>
 
           {!loading && requests.length > 0 ? (
@@ -672,6 +674,23 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                              </div>
                           )}
                         </div>
+
+                        {/* Avaliação (Apenas se finalizado e tiver review) */}
+                        {activeTab === 'Finalizados' && req.reviews?.[0] && (
+                          <div className="mt-3 p-3 bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/5">
+                            <div className="flex items-center gap-1 mb-1">
+                              {[...Array(5)].map((_, i) => (
+                                <span key={i} className={`material-symbols-outlined text-sm ${i < req.reviews[0].rating ? 'text-amber-400 fill-amber-400' : 'text-slate-300'}`}>
+                                  star
+                                </span>
+                              ))}
+                              <span className="text-[10px] font-bold text-slate-400 ml-1 uppercase">Avaliação do Cliente</span>
+                            </div>
+                            <p className="text-[11px] text-slate-600 dark:text-slate-400 italic">
+                              "{req.reviews[0].comment}"
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -963,6 +982,15 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                          <div className="mt-3 pt-3 border-t border-emerald-500/20 italic text-xs text-emerald-600 dark:text-emerald-400">
                            Complemento: {detailsModal.request.address_complement}
                          </div>
+                       )}
+                       {detailsModal.request.latitude && detailsModal.request.longitude && (
+                         <button 
+                           onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${detailsModal.request.latitude},${detailsModal.request.longitude}`, '_blank')}
+                           className="mt-4 w-full h-12 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 font-bold rounded-2xl flex items-center justify-center gap-2 hover:bg-emerald-500/20 transition-all cursor-pointer"
+                         >
+                           <span className="material-symbols-outlined">map</span>
+                           Abrir no Google Maps / Waze
+                         </button>
                        )}
                     </div>
                   </section>

@@ -4,6 +4,27 @@ import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
 import { CityAutocomplete } from '../components/CityAutocomplete';
 import { useNotifications } from '../NotificationContext';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import L from 'leaflet';
+
+// Fix para ícones do Leaflet no Vite
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+const DefaultIcon = L.icon({
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41]
+});
+L.Marker.prototype.options.icon = DefaultIcon;
+
+function MapClickHandler({ onClick }: { onClick: (lat: number, lng: number) => void }) {
+  useMapEvents({
+    click: (e) => onClick(e.latlng.lat, e.latlng.lng),
+  });
+  return null;
+}
 
 interface ServiceRequestFormScreenProps extends NavigationProps {
   params?: any;
@@ -26,6 +47,9 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFetchingCep, setIsFetchingCep] = useState(false);
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [showMapPicker, setShowMapPicker] = useState(false);
 
   const [categories, setCategories] = useState<{ id: string, name: string }[]>([]);
   const [activeCities, setActiveCities] = useState<string[]>([]);
@@ -135,7 +159,9 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
           address: combinedAddress,
           desired_date: desiredDateObj.toISOString(),
           status: 'open',
-          attachments: attachments
+          attachments: attachments,
+          latitude,
+          longitude
         })
         .select('id')
         .single();
@@ -468,6 +494,47 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
                       className="form-input w-full p-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary"
                     />
                   </div>
+                </div>
+
+                {/* Seletor de Localização Precisa (Pin) */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Localização Precisa (Pin no Mapa)</label>
+                    <button 
+                      onClick={() => setShowMapPicker(!showMapPicker)}
+                      className="text-[10px] font-bold text-primary uppercase flex items-center gap-1"
+                    >
+                      <span className="material-symbols-outlined text-sm">{showMapPicker ? 'expand_less' : 'map'}</span>
+                      {showMapPicker ? 'Ocultar Mapa' : 'Marcar no Mapa'}
+                    </button>
+                  </div>
+                  
+                  {showMapPicker && (
+                    <div className="h-64 w-full rounded-2xl overflow-hidden border-2 border-primary/20 bg-slate-100 dark:bg-slate-800 relative z-0">
+                      <MapContainer 
+                        center={latitude && longitude ? [latitude, longitude] : [-16.467, -54.633]} 
+                        zoom={15} 
+                        style={{ height: '100%', width: '100%' }}
+                      >
+                        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                        <MapClickHandler onClick={(lat, lng) => {
+                          setLatitude(lat);
+                          setLongitude(lng);
+                        }} />
+                        {latitude && longitude && <Marker position={[latitude, longitude]} />}
+                      </MapContainer>
+                      <div className="absolute bottom-2 left-2 right-2 bg-white/90 dark:bg-slate-900/90 p-2 rounded-lg text-[9px] font-bold text-slate-500 shadow-lg pointer-events-none">
+                        Clique no mapa para colocar o PIN exatamente onde é o serviço.
+                      </div>
+                    </div>
+                  )}
+
+                  {latitude && longitude && !showMapPicker && (
+                    <div className="flex items-center gap-2 p-2 bg-emerald-500/5 border border-emerald-500/20 rounded-xl">
+                      <span className="material-symbols-outlined text-emerald-500 text-sm">check_circle</span>
+                      <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">Localização vinculada com sucesso!</span>
+                    </div>
+                  )}
                 </div>
               </section>
 
