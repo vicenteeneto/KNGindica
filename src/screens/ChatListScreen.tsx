@@ -26,6 +26,7 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
             provider_id,
             client_archived,
             provider_archived,
+            created_at,
             client:profiles!chat_rooms_client_id_fkey(full_name, avatar_url),
             provider:profiles!chat_rooms_provider_id_fkey(full_name, avatar_url),
             service_requests(title, status)
@@ -41,14 +42,17 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
           const opponentId = room.provider_id === user.id ? room.client_id : room.provider_id;
           if (!opponentId) return;
 
-          // Chave única baseada no oponente E no pedido (se houver)
-          const key = room.request_id ? `${opponentId}_${room.request_id}` : opponentId;
+          // Chave única por oponente para evitar duplicados
+          const key = opponentId;
           
           const existing = roomMap.get(key);
           if (!existing) {
             roomMap.set(key, room);
           } else {
-             if (room.id > existing.id) {
+             // Prefer rooms with messages or newer ones
+             // For now, higher ID or room with active request
+             const isNewer = new Date(room.created_at).getTime() > new Date(existing.created_at).getTime();
+             if (isNewer) {
                roomMap.set(key, room);
              }
           }

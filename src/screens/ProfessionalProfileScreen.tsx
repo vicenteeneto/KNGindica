@@ -742,20 +742,20 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
       </main>
 
       {/* Sticky Footer Action: Mobile Only */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-black/95 backdrop-blur-lg border-t border-slate-200 dark:border-white/5 flex flex-col md:flex-row justify-center gap-3 z-[100] lg:hidden">
+      <div className="fixed bottom-0 left-0 right-0 p-3 pb-4 bg-white/90 dark:bg-black/95 backdrop-blur-xl border-t border-slate-200 dark:border-white/10 flex items-center justify-center gap-2 z-[100] lg:hidden">
         {professional.plan_type === 'plus' && professional.whatsapp && (
           <a
             href={`https://wa.me/55${professional.whatsapp.replace(/\D/g, '')}`}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackLead(professional.id, 'whatsapp_click')}
-            className="w-full md:max-w-[200px] bg-emerald-500 hover:bg-emerald-600 text-white py-4 px-6 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-transform active:scale-95 shrink-0"
+            className="h-11 w-11 bg-emerald-500 text-white rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20 transition-transform active:scale-90 shrink-0"
+            title="WhatsApp"
           >
-            <span className="material-symbols-outlined text-[20px]">chat</span>
-            WhatsApp
+            <span className="material-symbols-outlined text-[22px]">chat</span>
           </a>
         )}
-        <div className="flex w-full max-w-2xl gap-3">
+        <div className="flex-1 flex gap-2 max-w-lg">
           <button
             onClick={async () => {
               if (!user) {
@@ -763,17 +763,15 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                 return;
               }
               trackLead(professional.id, 'chat_start');
-              
-              // Tentar encontrar sala existente ou ir para o chat (o chat deve tratar a criação se não houver requestId)
               onNavigate('chat', { 
                 opponentId: professional.id, 
                 opponentName: professional.name, 
                 opponentAvatar: professional.image 
               });
             }}
-            className="flex-1 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 py-2.5 px-6 rounded-xl font-bold flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-sm"
+            className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 h-11 px-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-transform active:scale-95"
           >
-            <span className="material-symbols-outlined text-[20px]">chat_bubble</span>
+            <span className="material-symbols-outlined text-[18px]">chat_bubble</span>
             Mensagem
           </button>
           <button
@@ -781,9 +779,9 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
               trackLead(professional.id, 'chat_start');
               onNavigate('serviceRequestForm', { providerId: professional.id, providerName: professional.name });
             }}
-            className="flex-[2] bg-primary hover:bg-primary/90 text-white py-2.5 px-6 rounded-xl font-bold flex items-center justify-center gap-2 shadow-xl transition-transform active:scale-95 shadow-primary/20"
+            className="flex-[1.5] bg-primary text-white h-11 px-4 rounded-xl font-black text-xs uppercase tracking-tighter flex items-center justify-center gap-1.5 shadow-lg shadow-primary/20 transition-transform active:scale-95"
           >
-            <span className="material-symbols-outlined text-[20px]">design_services</span>
+            <span className="material-symbols-outlined text-[18px]">bolt</span>
             Solicitar Orçamento
           </button>
         </div>

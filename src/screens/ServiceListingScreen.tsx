@@ -41,7 +41,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
             name: p.company_name || p.full_name || 'Profissional',
             service: p.categories?.[0] || 'Serviços',
             category: p.categories?.[0] || 'Serviços Gerais',
-            rating: p.rating !== null ? Number(p.rating).toFixed(1).replace('.', ',') : "0,0",
+            rating: p.rating || 0,
             reviews: p.reviews_count || 0,
             price: p.price_value || 0,
             priceUnit: p.pricing_model || 'hourly',
@@ -320,13 +320,18 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
                       Profissional
                     </span>
                   )}
-                  <div className="flex items-center gap-0.5 text-amber-500">
-                    <span className="material-symbols-outlined text-sm fill-current">
+                  <div className="flex items-center gap-1 text-amber-500 bg-amber-500/5 px-2 py-0.5 rounded-lg border border-amber-500/10">
+                    <span className="material-symbols-outlined text-[14px] filled">
                       star
                     </span>
-                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                      {Number(professional.rating).toFixed(1)}
+                    <span className="text-xs font-black">
+                      {Number(professional.rating || 0).toFixed(1).replace('.', ',')}
                     </span>
+                    {professional.reviews > 0 && (
+                      <span className="text-[10px] text-slate-400 font-medium ml-0.5">
+                        ({professional.reviews})
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5 mt-1 relative z-20 pointer-events-auto">
