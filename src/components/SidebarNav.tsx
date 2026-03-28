@@ -15,6 +15,9 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
   const { unreadNotifications, unreadMessages, unreadRequests } = useNotifications();
   const { user } = useAuth();
 
+  const isClientScreen = ['home', 'listing', 'myRequests', 'serviceStatus', 'serviceRequestForm', 'categories', 'favorites', 'userProfile', 'rewards', 'notifications', 'chatList'].includes(currentScreen);
+  const showProviderIcons = role === 'provider' && !isClientScreen;
+
   const navItems = role === 'admin' 
     ? [
         { id: 'adminDashboard', icon: 'admin_panel_settings', label: 'Painel Admin', screen: 'adminDashboard' as Screen },
@@ -22,11 +25,13 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
       ]
     : [
         { id: 'home', icon: 'home', label: 'Início', screen: 'home' as Screen },
-        ...(role === 'provider' ? [
+        ...(role === 'provider' ? (showProviderIcons ? [
           { id: 'dashboard', icon: 'pie_chart', label: 'Painel', screen: 'dashboard' as Screen },
           { id: 'openOrders', icon: 'gavel', label: 'Freelance', screen: 'openOrders' as Screen },
           { id: 'providerRequests', icon: 'assignment', label: 'Serviços', screen: 'providerRequests' as Screen, badge: unreadRequests },
         ] : [
+          { id: 'myRequests', icon: 'receipt_long', label: 'Serviços', screen: 'myRequests' as Screen },
+        ]) : [
           { id: 'myRequests', icon: 'receipt_long', label: 'Serviços', screen: 'myRequests' as Screen },
         ]),
         { id: 'chatList', icon: 'chat', label: 'Chat', screen: 'chatList' as Screen, badge: unreadMessages },

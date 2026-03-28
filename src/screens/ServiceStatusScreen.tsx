@@ -113,27 +113,31 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
       {/* Floating Action Buttons */}
       {displayData.status !== 'cancelled' && (
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-10 flex flex-col gap-3 max-w-4xl mx-auto">
-          <button 
-            onClick={() => onNavigate('checkout', { requestId: params?.requestId })}
-            className="w-full bg-emerald-500 hover:bg-emerald-600 active:translate-y-0 hover:-translate-y-0.5 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-emerald-500/30 transition-all flex justify-center items-center gap-2"
-          >
-            <span className="material-symbols-outlined">payments</span>
-            Efetuar Pagamento (Taxa R$ 10)
-          </button>
+          {displayData.status !== 'paid' && displayData.status !== 'completed' && (
+            <button 
+              onClick={() => onNavigate('checkout', { requestId: params?.requestId })}
+              className="w-full bg-emerald-500 hover:bg-emerald-600 active:translate-y-0 hover:-translate-y-0.5 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-emerald-500/30 transition-all flex justify-center items-center gap-2"
+            >
+              <span className="material-symbols-outlined">payments</span>
+              Efetuar Pagamento (Taxa R$ 10)
+            </button>
+          )}
           <div className="flex gap-3">
             <button 
-              onClick={() => displayData.provider_id && onNavigate('chat', { requestId: params?.requestId })}
-              className="flex-1 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300 font-bold py-3.5 px-6 rounded-xl transition-all flex justify-center items-center gap-2"
+              onClick={async () => {
+                if (!displayData.provider_id) return;
+                const { data: room } = await supabase.from('chat_rooms').select('id').eq('request_id', request?.id).single();
+                onNavigate('chat', { 
+                  roomId: room?.id,
+                  requestId: request?.id,
+                  opponentName: displayData.provider?.full_name,
+                  opponentAvatar: displayData.provider?.avatar_url
+                });
+              }}
+              className="w-full bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300 font-bold py-3.5 px-6 rounded-xl transition-all flex justify-center items-center gap-2"
             >
               <span className="material-symbols-outlined">chat</span>
-              Chat
-            </button>
-            <button 
-              onClick={() => showToast("Ligação", `Ligando para o profissional...`, "info")}
-              className="flex-1 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300 font-bold py-3.5 px-6 rounded-xl transition-all flex justify-center items-center gap-2"
-            >
-              <span className="material-symbols-outlined">call</span>
-              Ligar
+              Conversar com Profissional
             </button>
           </div>
         </div>
@@ -231,24 +235,19 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <button className="size-10 flex items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors" onClick={(e) => { e.stopPropagation(); showToast("Ligação", 'Iniciando chamada...', 'info'); }}>
-                      <span className="material-symbols-outlined">call</span>
-                    </button>
                     <button className="size-10 flex items-center justify-center rounded-full bg-primary text-white hover:bg-primary/90 transition-colors" onClick={async (e) => { 
                       e.stopPropagation(); 
                       if (!displayData.provider_id) {
                         showToast("Atenção", "Aguarde um profissional aceitar seu pedido para iniciar o chat.", "warning");
                         return;
                       }
-                      const { data: room } = await supabase.from('chat_rooms').select('id').eq('request_id', params?.requestId).single();
-                      if (room) {
-                        onNavigate('chat', { 
-                          roomId: room.id, 
-                          opponentName: displayData.provider?.full_name, 
-                          opponentAvatar: displayData.provider?.avatar_url,
-                          requestId: params?.requestId
-                        });
-                      }
+                      const { data: room } = await supabase.from('chat_rooms').select('id').eq('request_id', request?.id).single();
+                      onNavigate('chat', { 
+                        roomId: room?.id, 
+                        opponentName: displayData.provider?.full_name, 
+                        opponentAvatar: displayData.provider?.avatar_url,
+                        requestId: request?.id
+                      });
                     }}>
                       <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>chat</span>
                     </button>
@@ -314,7 +313,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
               }`}>
                 {displayData.status === 'paid' ? 'Pago' : 
                  displayData.status === 'cancelled' ? 'Recusado' :
-                 displayData.status === 'proposed' ? 'Aprovar Orçamento' : 
+                 displayData.status === 'proposed' ? 'Orçamento' : 
                  displayData.status === 'awaiting_payment' ? 'Aguardando Pagamento' : 'Pendente'}
               </div>
             </div>
@@ -323,7 +322,15 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
           <div className="pt-4 flex flex-col gap-3">
             {(displayData.status === 'proposed' || displayData.status === 'awaiting_payment') && (
               <button 
-                onClick={() => onNavigate('chat', { requestId: params?.requestId })}
+                onClick={async () => {
+                  const { data: room } = await supabase.from('chat_rooms').select('id').eq('request_id', request?.id).single();
+                  onNavigate('chat', { 
+                    roomId: room?.id,
+                    requestId: request?.id,
+                    opponentName: displayData.provider?.full_name,
+                    opponentAvatar: displayData.provider?.avatar_url
+                  });
+                }}
                 className="w-full h-12 bg-orange-500 text-white font-bold rounded-xl hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20"
               >
                 Aceitar Orçamento no Chat
@@ -372,7 +379,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
             <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>calendar_today</span>
             <p className="text-[10px] font-medium leading-normal tracking-[0.015em]">Agenda</p>
           </button>
-          <button className="flex flex-1 flex-col items-center justify-end gap-1 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300">
+          <button onClick={() => onNavigate('userProfile')} className="flex flex-1 flex-col items-center justify-end gap-1 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300">
             <span className="material-symbols-outlined">person</span>
             <p className="text-[10px] font-medium leading-normal tracking-[0.015em]">Perfil</p>
           </button>
