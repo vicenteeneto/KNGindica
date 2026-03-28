@@ -141,8 +141,17 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
         .single();
 
       if (error) throw error;
-
-      // Database trigger tr_notify_new_service_request handles the notification now
+      
+      // Manual notification insertion for direct requests
+      if (params?.providerId) {
+        await supabase.from('notifications').insert({
+          user_id: params.providerId,
+          title: 'Novo Pedido de Orçamento',
+          message: `Você recebeu uma nova solicitação direta para "${categoryName}".`,
+          type: 'order',
+          related_entity_id: requestData.id
+        });
+      }
 
       // Clear draft on success
       localStorage.removeItem('draft_service_request');
@@ -414,29 +423,29 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                  <div className="sm:col-span-1 space-y-1.5">
+                <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                  <div className="sm:col-span-3 space-y-1.5">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Número</label>
                     <input
                       type="text"
                       value={number}
                       onChange={(e) => setNumber(e.target.value)}
-                      placeholder="123"
+                      placeholder="Ex: 123"
                       className="form-input w-full p-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary"
                     />
                   </div>
-                  <div className="sm:col-span-2 space-y-1.5">
+                  <div className="sm:col-span-7 space-y-1.5">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Bairro</label>
                     <input
                       type="text"
                       value={neighborhood}
                       onChange={(e) => setNeighborhood(e.target.value)}
-                      placeholder="Bairro..."
+                      placeholder="Nome do bairro..."
                       className="form-input w-full p-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary"
                     />
                   </div>
-                  <div className="sm:col-span-1 space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Estado (UF)</label>
+                  <div className="sm:col-span-2 space-y-1.5">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Est. (UF)</label>
                     <input
                       type="text"
                       value={state}

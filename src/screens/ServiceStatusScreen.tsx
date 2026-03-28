@@ -110,39 +110,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
 
   return (
     <div className="bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
-      {/* Floating Action Buttons */}
-      {displayData.status !== 'cancelled' && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-10 flex flex-col gap-3 max-w-4xl mx-auto">
-          {displayData.status === 'awaiting_payment' && (
-            <button 
-              onClick={() => onNavigate('checkout', { requestId: params?.requestId })}
-              className="w-full bg-emerald-500 hover:bg-emerald-600 active:translate-y-0 hover:-translate-y-0.5 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-emerald-500/30 transition-all flex justify-center items-center gap-2"
-            >
-              <span className="material-symbols-outlined">payments</span>
-              Efetuar Pagamento (Taxa R$ 10)
-            </button>
-          )}
-          <div className="flex gap-3">
-            <button 
-              onClick={async () => {
-                if (!displayData.provider_id) return;
-                const { data: room } = await supabase.from('chat_rooms').select('id').eq('request_id', request?.id).single();
-                onNavigate('chat', { 
-                  roomId: room?.id,
-                  requestId: request?.id,
-                  opponentId: displayData.provider_id,
-                  opponentName: displayData.provider?.full_name,
-                  opponentAvatar: displayData.provider?.avatar_url
-                });
-              }}
-              className="w-full bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300 font-bold py-3.5 px-6 rounded-xl transition-all flex justify-center items-center gap-2"
-            >
-              <span className="material-symbols-outlined">chat</span>
-              Conversar com Profissional
-            </button>
-          </div>
-        </div>
-      )}
+
 
       {/* Header */}
       <header className="sticky top-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
@@ -325,20 +293,75 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
           
           <div className="pt-4 flex flex-col gap-3">
             {displayData.status === 'proposed' && displayData.budget_amount > 0 && (
+              <div className="flex flex-col gap-3">
+                {/* 1. Aceitar Orçamento */}
+                <button 
+                  onClick={async () => {
+                    try {
+                      const { error } = await supabase
+                        .from('service_requests')
+                        .update({ status: 'awaiting_payment' })
+                        .eq('id', request.id);
+                      if (error) throw error;
+                      onNavigate('checkout', { requestId: request.id });
+                    } catch (e: any) {
+                      showToast("Erro", "Falha ao aceitar orçamento.", "error");
+                    }
+                  }}
+                  className="w-full h-14 bg-orange-500 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-orange-600 active:scale-95 transition-all shadow-xl shadow-orange-500/20 flex items-center justify-center gap-2"
+                >
+                  <span className="material-symbols-outlined">check_circle</span>
+                  Aceitar Orçamento
+                </button>
+
+                {/* 2. Recusar Orçamento */}
+                <button 
+                  onClick={async () => {
+                    if (!window.confirm("Deseja realmente recusar este orçamento?")) return;
+                    try {
+                      const { error } = await supabase
+                        .from('service_requests')
+                        .update({ status: 'cancelled' })
+                        .eq('id', request.id);
+                      if (error) throw error;
+                      showToast("Sucesso", "Orçamento recusado.", "success");
+                    } catch (e: any) {
+                      showToast("Erro", "Falha ao recusar orçamento.", "error");
+                    }
+                  }}
+                  className="w-full h-12 bg-white dark:bg-slate-800 text-red-500 border-2 border-red-100 dark:border-red-900/30 font-bold rounded-xl hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
+                >
+                  <span className="material-symbols-outlined">cancel</span>
+                  Recusar Orçamento
+                </button>
+
+                {/* 3. Conversar pelo chat */}
+                <button 
+                  onClick={async () => {
+                    const { data: room } = await supabase.from('chat_rooms').select('id').eq('request_id', request?.id).single();
+                    onNavigate('chat', { 
+                      roomId: room?.id,
+                      requestId: request?.id,
+                      opponentId: displayData.provider_id,
+                      opponentName: displayData.provider?.full_name,
+                      opponentAvatar: displayData.provider?.avatar_url
+                    });
+                  }}
+                  className="w-full h-12 bg-white dark:bg-slate-800 text-blue-600 border-2 border-blue-100 dark:border-blue-900/30 font-bold rounded-xl hover:bg-blue-50 transition-colors flex items-center justify-center gap-2"
+                >
+                  <span className="material-symbols-outlined">chat</span>
+                  Conversar pelo chat
+                </button>
+              </div>
+            )}
+
+            {displayData.status === 'awaiting_payment' && (
               <button 
-                onClick={async () => {
-                  const { data: room } = await supabase.from('chat_rooms').select('id').eq('request_id', request?.id).single();
-                  onNavigate('chat', { 
-                    roomId: room?.id,
-                    requestId: request?.id,
-                    opponentId: displayData.provider_id,
-                    opponentName: displayData.provider?.full_name,
-                    opponentAvatar: displayData.provider?.avatar_url
-                  });
-                }}
-                className="w-full h-12 bg-orange-500 text-white font-bold rounded-xl hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20"
+                onClick={() => onNavigate('checkout', { requestId: request.id })}
+                className="w-full h-14 bg-emerald-500 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-emerald-600 active:scale-95 transition-all shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2"
               >
-                Aceitar Orçamento no Chat
+                <span className="material-symbols-outlined">payments</span>
+                Ir para Pagamento (Taxa R$ 10)
               </button>
             )}
             {displayData.status === 'cancelled' && (

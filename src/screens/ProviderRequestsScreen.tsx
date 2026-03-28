@@ -207,22 +207,18 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
         room = newRoom;
       }
       
-      // If status is still 'open', move to 'proposed' when chat is opened
-      if (req.status === 'open') {
+      // If the request has no provider_id assigned (it was a broadcast), assign it to the current user
+      // but DO NOT change the status to 'proposed' yet. It should stay 'open' until a budget is sent.
+      if (req.status === 'open' && !req.provider_id) {
         const { error: updateError } = await supabase
           .from('service_requests')
           .update({ 
-            status: 'proposed',
             provider_id: user.id 
           })
           .eq('id', req.id);
-        if (updateError) throw updateError;
         
+        if (updateError) throw updateError;
         fetchRequests();
-        // Auto navigate to Orçados after starting chat on a New request
-        if (activeTab === 'Novos') {
-          setActiveTab('Orçados');
-        }
       }
 
       onNavigate('chat', { 

@@ -228,54 +228,49 @@ export function NotificationProvider({ children, onNavigate }: { children: React
       })
       .subscribe();
 
-    // 2. Canal de Mensagens de Chat
+    // 2. Canal de Mensagens de Chat (Simplificado para ser dinâmico)
     const setupChatSubscription = async () => {
-      const { data: rooms } = await supabase.from('chat_rooms')
-        .select('id')
-        .or(`client_id.eq.${user.id},provider_id.eq.${user.id}`);
-
-      if (rooms && rooms.length > 0) {
-        const roomIds = rooms.map(r => r.id);
-        
-        supabase.channel('realtime_messages')
-          .on('postgres_changes', {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'chat_messages',
-          }, (payload) => {
-            if (roomIds.includes(payload.new.room_id) && payload.new.sender_id !== user.id) {
-              setUnreadMessages(prev => prev + 1);
-              const fetchSender = async () => {
-                const { data: sender } = await supabase.from('profiles').select('full_name, avatar_url').eq('id', payload.new.sender_id).single();
-                
-                // Redirecionamento para o chat específico ao clicar no toast
-                showToast(
-                  sender?.full_name || 'Nova Mensagem', 
-                  payload.new.content.substring(0, 100), 
-                  'message', 
-                  sender?.avatar_url,
-                  'chat',
-                  { 
-                    roomId: payload.new.room_id, 
-                    opponentName: sender?.full_name, 
-                    opponentAvatar: sender?.avatar_url 
-                  }
-                );
-              };
-              fetchSender();
+      // Subscribing to ALL chat_messages inserts. 
+      // RLS ensures we only receive messages for rooms we belong to.
+      supabase.channel('realtime_messages')
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'chat_messages',
+        }, async (payload) => {
+          if (payload.new.sender_id !== user.id) {
+            setUnreadMessages(prev => prev + 1);
+            
+            // Buscar dados do remetente e da sala
+            const [{ data: sender }, { data: room }] = await Promise.all([
+              supabase.from('profiles').select('full_name, avatar_url').eq('id', payload.new.sender_id).single(),
+              supabase.from('chat_rooms').select('id').eq('id', payload.new.room_id).single()
+            ]);
+            
+            if (room) {
+              showToast(
+                sender?.full_name || 'Nova Mensagem', 
+                payload.new.content.substring(0, 100), 
+                'message', 
+                sender?.avatar_url,
+                'chat',
+                { 
+                  roomId: payload.new.room_id, 
+                  opponentName: sender?.full_name, 
+                  opponentAvatar: sender?.avatar_url 
+                }
+              );
             }
-          })
-          .on('postgres_changes', {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'chat_messages',
-          }, (payload) => {
-            if (roomIds.includes(payload.new.room_id)) {
-              fetchCounts();
-            }
-          })
-          .subscribe();
-      }
+          }
+        })
+        .on('postgres_changes', {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'chat_messages',
+        }, () => {
+          fetchCounts();
+        })
+        .subscribe();
     };
 
     // 3. Canal de Pedidos de Serviço (Real-time para profissionais)
