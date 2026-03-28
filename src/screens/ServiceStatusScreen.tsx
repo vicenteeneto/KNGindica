@@ -22,7 +22,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
         // Tentamos primeiro por UUID, depois por display_id se falhar ou for formato de ORD-
         let query = supabase.from('service_requests').select(`
           *,
-          provider:profiles!service_requests_provider_id_fkey(full_name, avatar_url),
+          provider:profiles!service_requests_provider_id_fkey(full_name, avatar_url, rating),
           category:service_categories(name, icon)
         `);
 
@@ -41,7 +41,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                 .from('service_requests')
                 .select(`
                   *,
-                  provider:profiles!service_requests_provider_id_fkey(full_name, avatar_url),
+                  provider:profiles!service_requests_provider_id_fkey(full_name, avatar_url, rating),
                   category:service_categories(name, icon)
                 `)
                 .eq('display_id', params.requestId)
@@ -113,7 +113,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
       {/* Floating Action Buttons */}
       {displayData.status !== 'cancelled' && (
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-10 flex flex-col gap-3 max-w-4xl mx-auto">
-          {displayData.status !== 'paid' && displayData.status !== 'completed' && (
+          {displayData.status === 'awaiting_payment' && (
             <button 
               onClick={() => onNavigate('checkout', { requestId: params?.requestId })}
               className="w-full bg-emerald-500 hover:bg-emerald-600 active:translate-y-0 hover:-translate-y-0.5 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-emerald-500/30 transition-all flex justify-center items-center gap-2"
@@ -166,11 +166,6 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                   {displayData.status === 'cancelled' ? 'cancel' : 'check_circle'}
                 </span>
               </div>
-              <div className={`absolute -bottom-1 -right-1 size-8 rounded-full border-4 border-white dark:border-slate-900 flex items-center justify-center ${displayData.status === 'cancelled' ? 'bg-red-600' : 'bg-green-500'}`}>
-                <span className="material-symbols-outlined text-white text-xs">
-                  {displayData.status === 'cancelled' ? 'close' : 'priority_high'}
-                </span>
-              </div>
             </div>
             
             <div className="flex flex-col items-center gap-2 text-center">
@@ -182,7 +177,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                  displayData.status === 'completed' ? 'Serviço Concluído' : 
                  displayData.status === 'cancelled' ? 'Pedido Recusado' : 'Serviço em Andamento'}
               </h1>
-              <p className="text-slate-600 dark:text-slate-400 text-sm max-w-[320px]">
+              <p className="text-slate-600 dark:text-slate-400 text-sm">
                 {displayData.status === 'open' ? 'Estamos aguardando um profissional aceitar sua solicitação.' : 
                  displayData.status === 'proposed' ? 'Você recebeu uma proposta. Confira os detalhes abaixo.' :
                  displayData.status === 'awaiting_payment' ? 'Sua proposta foi aceita! Realize o pagamento da taxa de intermediação para liberar o contato direto.' :
@@ -231,7 +226,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                       <h3 className="font-bold text-slate-900 dark:text-white">{displayData.provider?.full_name || 'Aguardando Profissional'}</h3>
                       <div className="flex items-center gap-1 text-amber-500">
                         <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                        <span className="text-xs font-bold">{displayData.provider?.rating || '5.0'}</span>
+                        <span className="text-xs font-bold">{displayData.provider?.rating ? displayData.provider.rating : 'Novo'}</span>
                       </div>
                     </div>
                   </div>
@@ -339,7 +334,6 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                 Aceitar Orçamento no Chat
               </button>
             )}
-
             {displayData.status === 'cancelled' && (
               <button 
                 onClick={() => onNavigate('listing')}
@@ -348,13 +342,6 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                 Buscar Outro Profissional
               </button>
             )}
-
-            <button 
-              onClick={() => onNavigate('home')}
-              className="w-full h-12 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700"
-            >
-              Ver Meus Agendamentos
-            </button>
             {displayData.status !== 'cancelled' && (
               <button 
                 onClick={() => onNavigate('helpCenter', { requestId: params?.requestId })}
