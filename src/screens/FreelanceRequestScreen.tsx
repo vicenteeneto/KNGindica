@@ -53,6 +53,35 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
       setIsFetchingCep(false);
     }
   };
+  const handleFetchAddressFromProfile = async () => {
+    if (!user) return;
+    try {
+      const { data, error } = await supabase.from('profiles').select('street, number, neighborhood, city, state, cep').eq('id', user.id).single();
+      
+      if (error) {
+        showToast("Erro", "Não foi possível buscar seus dados", "error");
+        return;
+      }
+
+      if (data && (data.street || data.city || data.cep)) {
+        setFormData(prev => ({
+          ...prev,
+          street: data.street || prev.street,
+          number: data.number || prev.number,
+          neighborhood: data.neighborhood || prev.neighborhood,
+          city: data.city || prev.city,
+          state: data.state || prev.state,
+          cep: data.cep || prev.cep
+        }));
+        showToast("Dados Importados", "Informações preenchidas com sucesso!", "notification");
+      } else {
+         showToast("Perfil Incompleto", "Não há endereço salvo no seu perfil. Por favor, digite manualmente.", "error");
+      }
+    } catch (e) {
+      console.error(e);
+      showToast("Erro", "Ocorreu um erro ao importar dados.", "error");
+    }
+  };
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -233,7 +262,16 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="block text-sm font-bold mb-2 uppercase tracking-widest text-slate-400">CEP</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-bold uppercase tracking-widest text-slate-400">CEP</label>
+                  <button 
+                    type="button"
+                    onClick={handleFetchAddressFromProfile}
+                    className="text-[10px] font-bold text-primary uppercase border border-primary/20 bg-primary/5 px-2 py-1 rounded-lg hover:bg-primary hover:text-white transition-all"
+                  >
+                    Puxar meus dados
+                  </button>
+                </div>
                 <div className="relative">
                   <input 
                     type="text" 
