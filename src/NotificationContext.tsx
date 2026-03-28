@@ -217,6 +217,9 @@ export function NotificationProvider({ children, onNavigate }: { children: React
         } else if (payload.new.type === 'status') {
           target = 'serviceStatus';
           navParams = { requestId: payload.new.related_entity_id };
+        } else if (payload.new.type === 'message') {
+          target = 'chat';
+          navParams = { roomId: payload.new.related_entity_id };
         }
 
         showToast(payload.new.title, payload.new.message, 'notification', undefined, target, navParams);

@@ -481,7 +481,7 @@ export default function ProviderRequestsScreen({ onNavigate }: NavigationProps) 
                 <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-200/50 dark:border-amber-700/30">
                   <p className="text-[10px] text-amber-700 dark:text-amber-400 leading-relaxed font-bold">
                     <span className="material-symbols-outlined text-[14px] align-middle mr-1">info</span> 
-                    Lembre-se que o cliente pagará uma taxa de R$ 10,00 para liberar o contato direto após aprovar este orçamento.
+                    Lembre-se que o cliente pagará uma taxa de R$ 9,90 para liberar o contato direto após aprovar este orçamento.
                   </p>
                 </div>
               </div>

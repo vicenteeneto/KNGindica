@@ -54,13 +54,18 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
       if (error) throw error;
 
       // 2. Registrar transação
+      const totalAmount = (request?.budget_amount || 0) + PLATFORM_FEE;
       await supabase.from('transactions').insert({
         request_id: params.requestId,
         user_id: user.id,
-        type: 'fee_payment',
-        amount: 10,
+        type: 'service_payment',
+        amount: totalAmount,
         status: 'completed',
-        metadata: { method: paymentMethod }
+        metadata: { 
+          method: paymentMethod,
+          service_amount: request?.budget_amount,
+          platform_fee: PLATFORM_FEE
+        }
       });
 
       // 3. Notificar no chat
@@ -95,7 +100,7 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
     service_categories: { name: 'Serviço' }
   };
 
-  const PLATFORM_FEE = 10;
+  const PLATFORM_FEE = 9.90;
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
@@ -141,9 +146,9 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
               </div>
               <div className="flex justify-between font-bold text-lg pt-2 mt-2 border-t border-slate-100 dark:border-slate-700">
                 <span>Total a pagar via App</span>
-                <span className="text-primary">{formatCurrency(PLATFORM_FEE)}</span>
+                <span className="text-primary">{formatCurrency((displayData.budget_amount || 0) + PLATFORM_FEE)}</span>
               </div>
-              <p className="text-[10px] text-slate-400 mt-2">* O valor do serviço será pago diretamente ao profissional após a conclusão.</p>
+              <p className="text-[10px] text-slate-400 mt-2">* O valor do serviço ficará retido com a KNGindica e será liberado ao profissional após a conclusão.</p>
             </div>
           </section>
 
@@ -205,7 +210,7 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
               </div>
               <h3 className="font-bold text-lg mb-1">Escaneie o QR Code</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-[250px]">
-                Abra o app do seu banco e escaneie o código acima para pagar a taxa de intermediação de R$ 10,00.
+                Abra o app do seu banco e escaneie o código acima para pagar a taxa de intermediação de R$ 9,90.
               </p>
               <button onClick={() => showToast('Copiado', 'Código Copiado!', 'success')} className="flex items-center gap-2 font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-6 py-3 rounded-full hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors">
                 <span className="material-symbols-outlined">content_copy</span>
@@ -221,8 +226,8 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 flex justify-center z-20">
         <div className="max-w-4xl mx-auto w-full flex items-center gap-4">
           <div className="flex-col hidden sm:flex">
-            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Total Taxa</span>
-            <span className="text-xl font-black text-slate-900 dark:text-white leading-none">{formatCurrency(PLATFORM_FEE)}</span>
+            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Total</span>
+            <span className="text-xl font-black text-slate-900 dark:text-white leading-none">{formatCurrency((displayData.budget_amount || 0) + PLATFORM_FEE)}</span>
           </div>
           <button 
             type={paymentMethod === 'credit' ? 'submit' : 'button'}
