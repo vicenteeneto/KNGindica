@@ -161,8 +161,8 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
         <div className="flex flex-col px-4 py-8">
           <div className="flex flex-col items-center gap-6">
             <div className="relative">
-              <div className={`size-24 rounded-full flex items-center justify-center ${displayData.status === 'cancelled' ? 'bg-red-500/10' : 'bg-primary/10'}`}>
-                <span className={`material-symbols-outlined text-5xl ${displayData.status === 'cancelled' ? 'text-red-600' : 'text-primary'}`}>
+              <div className="flex items-center justify-center">
+                <span className={`material-symbols-outlined text-6xl ${displayData.status === 'cancelled' ? 'text-red-600' : 'text-primary'}`}>
                   {displayData.status === 'cancelled' ? 'cancel' : 'check_circle'}
                 </span>
               </div>
@@ -317,7 +317,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
           </div>
           
           <div className="pt-4 flex flex-col gap-3">
-            {(displayData.status === 'proposed' || displayData.status === 'awaiting_payment') && (
+            {displayData.status === 'proposed' && displayData.budget_amount > 0 && (
               <button 
                 onClick={async () => {
                   const { data: room } = await supabase.from('chat_rooms').select('id').eq('request_id', request?.id).single();

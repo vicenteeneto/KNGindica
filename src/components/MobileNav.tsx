@@ -61,6 +61,14 @@ export default function MobileNav({ onNavigate, currentScreen, role }: MobileNav
         <span className="text-[10px] font-medium leading-normal">Serviços</span>
       </button>
 
+      <button
+        onClick={() => onNavigate('freelanceRequest')}
+        className={`flex flex-1 flex-col items-center justify-end gap-1 group transition-colors ${currentScreen === 'freelanceRequest' ? 'text-primary' : 'text-slate-400 hover:text-primary'}`}
+      >
+        <span className="material-symbols-outlined text-[24px]" style={currentScreen === 'freelanceRequest' ? { fontVariationSettings: "'FILL' 1" } : {}}>work</span>
+        <span className="text-[10px] font-medium leading-normal">Freelance</span>
+      </button>
+
       
       
       {/* Profile for final user */}
