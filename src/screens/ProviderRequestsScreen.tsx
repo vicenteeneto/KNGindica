@@ -4,13 +4,14 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
 import { formatCurrency, maskCurrency } from '../lib/formatters';
+import { calculateServiceFees } from '../lib/billing';
 import { ProviderHeader } from '../components/ProviderHeader';
 import PullToRefresh from '../components/PullToRefresh';
 
 type Tab = 'Novos' | 'Orçados' | 'Aprovados' | 'Agendados' | 'Finalizados' | 'Recusados';
 
 export default function ProviderRequestsScreen({ onNavigate, params }: NavigationProps) {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { showToast } = useNotifications();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>(
@@ -35,6 +36,9 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
   });
   const [imageModal, setImageModal] = useState<{ isOpen: boolean, url: string }>({
     isOpen: false, url: ''
+  });
+  const [paymentDetailsModal, setPaymentDetailsModal] = useState<{ isOpen: boolean, request: any | null }>({
+    isOpen: false, request: null
   });
   const [rejectionReason, setRejectionReason] = useState('');
 
@@ -736,6 +740,14 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                           <span className="material-symbols-outlined text-indigo-600 dark:text-indigo-400 text-[20px]">check_circle</span>
                           <p className="text-xs text-indigo-700 dark:text-indigo-300 font-medium font-bold uppercase">Cliente Aprovou o Orçamento!</p>
                         </div>
+                        {req.status === 'paid' && (
+                          <button
+                            onClick={() => setPaymentDetailsModal({ isOpen: true, request: req })}
+                            className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 dark:text-emerald-500 text-sm font-bold border border-emerald-200 dark:border-emerald-800/30">
+                            <span className="material-symbols-outlined text-[18px]">payments</span>
+                            Ver Detalhes do Recebimento
+                          </button>
+                        )}
                         <button
                           onClick={() => handleScheduleService(req.id, req.title)}
                           className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold shadow-md shadow-primary/20 hover:brightness-110 active:scale-[0.98] transition-all">
@@ -754,6 +766,12 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                     {activeTab === 'Agendados' && (
                       <div className="mt-4 flex flex-col gap-2">
                         <button
+                          onClick={() => setPaymentDetailsModal({ isOpen: true, request: req })}
+                          className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 dark:text-emerald-500 text-sm font-bold border border-emerald-200 dark:border-emerald-800/30">
+                          <span className="material-symbols-outlined text-[18px]">payments</span>
+                          Ver Detalhes do Recebimento
+                        </button>
+                        <button
                           onClick={() => updateRequestStatus(req.id, 'completed')}
                           className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-emerald-500 text-white text-sm font-bold hover:bg-emerald-600 active:scale-[0.98] transition-all shadow-md shadow-emerald-500/20">
                           <span className="material-symbols-outlined text-[18px]">task_alt</span>
@@ -769,7 +787,13 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                     )}
 
                     {activeTab === 'Finalizados' && (
-                      <div className="mt-4">
+                      <div className="mt-4 flex flex-col gap-2">
+                        <button
+                          onClick={() => setPaymentDetailsModal({ isOpen: true, request: req })}
+                          className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 dark:text-emerald-500 text-sm font-bold border border-emerald-200 dark:border-emerald-800/30">
+                          <span className="material-symbols-outlined text-[18px]">payments</span>
+                          Ver Detalhes do Recebimento
+                        </button>
                         <p className="text-xs text-slate-400 dark:text-slate-500 text-center italic">Pedido finalizado em {new Date(req.updated_at || req.created_at).toLocaleDateString('pt-BR')}</p>
                       </div>
                     )}
@@ -1008,6 +1032,66 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                 className="max-w-full max-h-full object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-300"
                 alt="Visualização ampliada" 
               />
+            </div>
+          </div>
+        )}
+
+        {/* Payment Details Modal */}
+        {paymentDetailsModal.isOpen && paymentDetailsModal.request && (
+          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200">
+              <div className="p-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="size-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center">
+                    <span className="material-symbols-outlined text-emerald-500 text-2xl">payments</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 leading-tight">Detalhamento do Recebimento</h3>
+                    <p className="text-xs text-slate-500 font-medium line-clamp-1">{paymentDetailsModal.request.title}</p>
+                  </div>
+                </div>
+
+                {(() => {
+                  const fees = calculateServiceFees(paymentDetailsModal.request.budget_amount, profile?.plan_type as 'basic' | 'plus');
+                  return (
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                        <span className="text-sm font-medium text-slate-500">Valor do Serviço</span>
+                        <span className="text-sm font-bold text-slate-900 dark:text-white">{formatCurrency(fees.grossAmount)}</span>
+                      </div>
+
+                      <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium text-slate-500">Taxa KNGindica {fees.isPremium && <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded ml-1">PREMIUM</span>}</span>
+                          {!fees.isPremium && <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Comissão de 5% da plataforma</span>}
+                        </div>
+                        <span className="text-sm font-bold text-red-500">-{formatCurrency(fees.providerFee)}</span>
+                      </div>
+
+                      <div className="flex justify-between items-center p-4 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 mt-6 shadow-sm">
+                        <span className="text-base font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter">Líquido a Receber</span>
+                        <span className="text-xl font-black text-emerald-600 dark:text-emerald-400">{formatCurrency(fees.providerNet)}</span>
+                      </div>
+
+                      <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-200/50 dark:border-amber-700/30 flex gap-3">
+                        <span className="material-symbols-outlined text-amber-600 text-xl shrink-0">info</span>
+                        <p className="text-[11px] text-amber-700 dark:text-amber-400 leading-relaxed font-bold">
+                          O valor pago pelo cliente fica retido com segurança pela <span className="text-amber-900 dark:text-amber-200 font-black">KNGindica</span> e será liberado para sua conta após você finalizar o serviço.
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800">
+                <button 
+                  onClick={() => setPaymentDetailsModal({ isOpen: false, request: null })}
+                  className="w-full py-3.5 bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200 dark:border-slate-600 rounded-xl font-bold hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors"
+                >
+                  Fechar Detalhes
+                </button>
+              </div>
             </div>
           </div>
         )}
