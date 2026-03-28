@@ -25,16 +25,15 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
       ]
     : [
         { id: 'home', icon: 'home', label: 'Início', screen: 'home' as Screen },
-        ...(role === 'provider' ? (showProviderIcons ? [
+        ...(role === 'provider' ? [
           { id: 'dashboard', icon: 'pie_chart', label: 'Painel', screen: 'dashboard' as Screen },
           { id: 'openOrders', icon: 'gavel', label: 'Freelance', screen: 'openOrders' as Screen },
           { id: 'providerRequests', icon: 'assignment', label: 'Serviços', screen: 'providerRequests' as Screen, badge: unreadRequests },
+          { id: 'myFreelances', icon: 'work', label: 'Meus Freelances', screen: 'myFreelances' as Screen },
+          { id: 'myRequests', icon: 'receipt_long', label: 'Meus Pedidos', screen: 'myRequests' as Screen },
         ] : [
-          { id: 'myRequests', icon: 'receipt_long', label: 'Serviços', screen: 'myRequests' as Screen },
           { id: 'myFreelances', icon: 'work', label: 'Freelance', screen: 'myFreelances' as Screen },
-        ]) : [
-          { id: 'myRequests', icon: 'receipt_long', label: 'Serviços', screen: 'myRequests' as Screen },
-          { id: 'myFreelances', icon: 'work', label: 'Freelance', screen: 'myFreelances' as Screen },
+          { id: 'myRequests', icon: 'receipt_long', label: 'Meus Pedidos', screen: 'myRequests' as Screen },
         ]),
         { id: 'chatList', icon: 'chat', label: 'Chat', screen: 'chatList' as Screen, badge: unreadMessages },
         { id: 'notifications', icon: 'notifications', label: 'Avisos', screen: 'notifications' as Screen, badge: unreadNotifications },
