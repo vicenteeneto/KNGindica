@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
 import { formatCurrency, maskCurrency, parseCurrency } from '../lib/formatters';
+import { calculateServiceFees } from '../lib/billing';
 
 interface ChatScreenProps extends NavigationProps {
   params?: any;
@@ -11,7 +12,7 @@ interface ChatScreenProps extends NavigationProps {
 }
 
 export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenProps) {
-  const { user, role } = useAuth();
+  const { user, role, profile } = useAuth();
   const { refreshCounts, showModal, showToast } = useNotifications();
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -692,8 +693,24 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
                     className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all font-bold text-lg"
                   />
                 </div>
-                <p className="text-[10px] text-slate-500 mt-2">
-                  * Será cobrada uma taxa de **R$ 10,00** de cada parte após o aceite.
+                {proposalPrice && (
+                  <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 space-y-2">
+                    <div className="flex justify-between text-xs text-slate-500">
+                      <span>Valor Bruto:</span>
+                      <span>{proposalPrice}</span>
+                    </div>
+                    <div className="flex justify-between text-xs text-red-500 font-medium">
+                      <span>Taxa de Intermediação (Garantia):</span>
+                      <span>- {formatCurrency(calculateServiceFees(parseCurrency(proposalPrice), profile?.plan_type).providerFee)}</span>
+                    </div>
+                    <div className="pt-2 border-t border-slate-200 dark:border-slate-700 flex justify-between font-bold text-slate-900 dark:text-white">
+                      <span>Você Receberá (Líquido):</span>
+                      <span className="text-emerald-500">{formatCurrency(calculateServiceFees(parseCurrency(proposalPrice), profile?.plan_type).providerNet)}</span>
+                    </div>
+                  </div>
+                )}
+                <p className="text-[10px] text-slate-500 mt-3 italic">
+                  * O cliente também pagará uma taxa fixa de R$ 9,90 pelo serviço com garantia.
                 </p>
               </div>
 

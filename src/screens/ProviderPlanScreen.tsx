@@ -8,38 +8,42 @@ type PlanType = 'basic' | 'plus';
 const PLANS = [
   {
     id: 'basic' as PlanType,
-    name: 'Prestador Free',
-    subtitle: 'Ideal para quem está começando',
-    price: 'R$ 0',
-    period: '/mês',
+    name: 'Prestador FREE',
+    subtitle: 'Plano gratuito para começar',
+    price: 'Grátis',
+    period: '',
     icon: 'person',
     color: 'slate',
     features: [
-      { text: '10% de comissão por serviço', active: true },
-      { text: 'Perfil básico de exibição', active: true },
-      { text: 'Até 3 fotos no portfólio', active: true },
-      { text: 'Destaque nas buscas', active: false },
-      { text: 'Botão de WhatsApp direto', active: false },
-      { text: 'Suporte prioritário', active: false },
+      { text: 'Cadastro e perfil profissional', active: true },
+      { text: 'Fotos e descrição dos serviços', active: true },
+      { text: 'Recebimento de solicitações', active: true },
+      { text: 'Pagamento Seguro (Garantia KNG)', active: true },
+      { text: 'Taxa de 5% por serviço com garantia', active: true },
+      { text: 'Destaque nas listagens', active: false },
+      { text: 'Prioridade no recebimento', active: false },
+      { text: 'Selo Premium no perfil', active: false },
     ],
-    cta: 'Manter plano Free',
+    cta: 'Plano Atual',
     recommended: false,
   },
   {
     id: 'plus' as PlanType,
-    name: 'Prestador Premium',
-    subtitle: 'Para quem quer escala total',
+    name: 'Prestador PREMIUM',
+    subtitle: 'Mais visibilidade e resultados',
     price: 'R$ 39,90',
     period: '/mês',
     icon: 'verified',
     color: 'primary',
     features: [
-      { text: '0% de comissão por serviço', active: true },
-      { text: 'Perfil completo com fotos ilimitadas', active: true },
-      { text: 'Visibilidade prioritária (2× mais visitas)', active: true },
-      { text: 'Botão de WhatsApp direto no perfil', active: true },
-      { text: 'Avaliações em destaque nos resultados', active: true },
-      { text: 'Suporte prioritário 24h', active: true },
+      { text: 'ISENÇÃO TOTAL de taxas por serviço', active: true },
+      { text: 'Destaque máximo nas listagens', active: true },
+      { text: 'Selo Premium no perfil', active: true },
+      { text: 'Liberação de avaliações de clientes', active: true },
+      { text: 'Prioridade total em solicitações', active: true },
+      { text: 'Notificação antecipada de serviços', active: true },
+      { text: 'Maior exposição na plataforma', active: true },
+      { text: 'Suporte prioritário', active: true },
     ],
     cta: 'Assinar Premium',
     recommended: true,
@@ -197,6 +201,54 @@ export default function ProviderPlanScreen({ onNavigate }: NavigationProps) {
               </div>
             );
           })}
+        </div>
+
+        {/* Como funciona */}
+        <div className="mt-12 mb-8 bg-white dark:bg-slate-800 rounded-3xl p-6 border border-slate-200 dark:border-slate-700">
+          <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary">info</span>
+            Como funciona a KNGindica
+          </h3>
+          
+          <div className="space-y-6 text-sm">
+            <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                <span className="material-symbols-outlined text-emerald-500 text-sm">link</span>
+                1. Conexão livre (gratuita)
+              </h4>
+              <p className="text-slate-600 dark:text-slate-400">
+                Cliente e prestador podem conversar livremente e combinar o pagamento por fora. 
+                <span className="block mt-1 font-medium text-amber-600 dark:text-amber-400 italic">
+                  * Não há garantia da plataforma nesse formato.
+                </span>
+              </p>
+            </div>
+
+            <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10">
+              <h4 className="font-bold text-primary mb-2 flex items-center gap-2">
+                <span className="material-symbols-outlined text-sm">beenhere</span>
+                2. Serviço com garantia (recomendado)
+              </h4>
+              <p className="text-slate-600 dark:text-slate-400">
+                O pagamento é feito pela plataforma. O valor fica retido e só é liberado ao prestador após a conclusão. 
+                Oferece segurança total e intermediação em caso de imprevistos.
+              </p>
+              
+              <div className="mt-4 pt-4 border-t border-primary/10 grid grid-cols-2 gap-4">
+                <div>
+                  <span className="block text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">Taxa Cliente</span>
+                  <span className="font-bold text-slate-900 dark:text-white">R$ 9,90</span>
+                </div>
+                <div>
+                  <span className="block text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">Taxa Prestador</span>
+                  <div className="flex flex-col">
+                    <span className="font-bold text-slate-900 dark:text-white">5% (Free)</span>
+                    <span className="text-emerald-500 font-bold">Grátis (Premium)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <p className="text-center text-[10px] text-slate-400 mt-6 px-4 pb-8">

@@ -3,6 +3,7 @@ import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useNotifications } from '../NotificationContext';
 import { formatCurrency } from '../lib/formatters';
+import { calculateServiceFees } from '../lib/billing';
 import { useAuth } from '../AuthContext';
 
 export default function ServiceStatusScreen({ onNavigate, params }: NavigationProps) {
@@ -299,6 +300,33 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
           <div className="pt-4 flex flex-col gap-3">
             {displayData.status === 'proposed' && user?.id === displayData.client_id && displayData.budget_amount > 0 && (
               <div className="flex flex-col gap-3">
+                {/* Resumo de Taxas para o Cliente */}
+                <div className="bg-emerald-50 dark:bg-emerald-500/5 rounded-2xl p-5 border border-emerald-100 dark:border-emerald-500/20 mb-2">
+                  <h4 className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm">enhanced_encryption</span>
+                    Pagamento com Garantia KNG
+                  </h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm text-slate-600 dark:text-slate-400">
+                      <span>Valor do Serviço:</span>
+                      <span className="font-semibold">{formatCurrency(displayData.budget_amount)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-slate-600 dark:text-slate-400">
+                      <span>Taxa de Intermediação:</span>
+                      <span className="font-semibold">{formatCurrency(9.90)}</span>
+                    </div>
+                    <div className="pt-3 border-t border-emerald-200/50 dark:border-emerald-500/20 flex justify-between items-center font-bold text-slate-900 dark:text-white text-lg">
+                      <span>Total a Pagar:</span>
+                      <span className="text-emerald-600 dark:text-emerald-400">
+                        {formatCurrency(displayData.budget_amount + 9.90)}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-[10px] text-emerald-600/70 dark:text-emerald-400/50 leading-relaxed italic">
+                    * Ao pagar pela plataforma, você tem garantia de serviço concluído ou seu dinheiro de volta.
+                  </p>
+                </div>
+
                 {/* 1. Aceitar Orçamento */}
                 <button 
                   onClick={async () => {

@@ -465,8 +465,13 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                     )}
                   </div>
                   
-                  <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">
-                    {professional.category} • {professional.isAffiliate ? (professional.isVerified ? 'Afiliado Verificado' : 'Afiliado') : 'Profissional'}
+                  <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-2">
+                    {professional.category} • {professional.plan_type === 'plus' ? (
+                      <span className="flex items-center gap-1 text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full scale-90 origin-left border border-amber-500/20">
+                        <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>stars</span>
+                        PREMIUM
+                      </span>
+                    ) : professional.isAffiliate ? (professional.isVerified ? 'Afiliado Verificado' : 'Afiliado') : 'Profissional'}
                   </p>
 
                   <p className="text-slate-500 dark:text-slate-400 text-sm font-bold leading-normal flex items-center gap-1.5">

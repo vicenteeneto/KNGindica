@@ -406,6 +406,40 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
       </section>
 
 
+      {/* Plano Premium - Promo Card */}
+      {profile?.plan_type !== 'plus' && (
+        <section className="pt-4">
+          <div 
+            onClick={() => onNavigate('providerPlan')}
+            className="bg-slate-900 dark:bg-slate-800 rounded-3xl py-4 px-5 shadow-2xl relative overflow-hidden cursor-pointer group hover:scale-[1.02] active:scale-[0.98] transition-all border border-slate-700/50"
+          >
+            <div className="absolute -top-10 -right-10 size-40 bg-primary/20 blur-[60px] rounded-full group-hover:bg-primary/30 transition-colors" />
+            <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform duration-500">
+              <span className="material-symbols-outlined text-7xl text-amber-500" style={{ fontVariationSettings: "'FILL' 1" }}>stars</span>
+            </div>
+            
+            <div className="relative z-10">
+              <div className="inline-flex items-center gap-2 bg-amber-500/20 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-3 text-amber-500 border border-amber-500/20">
+                <span className="material-symbols-outlined text-xs">bolt</span>
+                Upgrade Premium
+              </div>
+              <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic leading-none mb-2">
+                Seja um Prestador <span className="text-amber-500">Premium</span>
+              </h3>
+              <p className="text-slate-400 text-[11px] font-medium leading-[1.4] max-w-[220px]">
+                Tenha isenção total de taxas, selo de destaque e prioridade máxima em novos serviços.
+              </p>
+              <div className="mt-4">
+                <span className="inline-flex items-center gap-2 bg-white text-slate-900 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-white transition-colors">
+                  Saiba Mais
+                  <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Indique e Ganhe - Referral System */}
       <section className="pt-2">
         <div 

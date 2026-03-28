@@ -53,6 +53,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
             city: p.city,
             description: p.bio || 'Sem descrição.',
             isAffiliate: p.plan_type === 'plus',
+            plan_type: p.plan_type || 'basic',
           }));
           setDbProfessionals(mapped);
 
@@ -123,6 +124,13 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
         return 0;
       });
     }
+
+    // Sort by Premium Status (Plus first) - This is the primary sort
+    result = [...result].sort((a, b) => {
+      const aPlus = (a as any).plan_type === 'plus' ? 1 : 0;
+      const bPlus = (b as any).plan_type === 'plus' ? 1 : 0;
+      return bPlus - aPlus;
+    });
 
     return result;
   }, [searchQuery, selectedCategory, sortBy, sortOrder, dbProfessionals, initialParams, selectedCity]);
@@ -298,7 +306,12 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
             <div className="flex flex-col justify-between flex-1">
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  {professional.isAffiliate ? (
+                  {professional.plan_type === 'plus' ? (
+                    <span className="bg-amber-500/10 text-amber-600 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border border-amber-500/20 flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[12px]" style={{ fontVariationSettings: "'FILL' 1" }}>stars</span>
+                      Premium
+                    </span>
+                  ) : professional.isAffiliate ? (
                     <span className="bg-primary/10 text-primary text-[10px] uppercase font-bold px-2 py-0.5 rounded-full">
                       Afiliado
                     </span>
