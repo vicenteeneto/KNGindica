@@ -112,6 +112,11 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
       const categoryName = categories.find(c => c.id === selectedCategoryId)?.name || 'Serviço';
       const fullDescription = `${description}\n\n📅 Preferência de Horário: ${desiredDate.split('-').reverse().join('/')} às ${desiredTime}`;
 
+      const combinedAddress = `${street}${number ? `, ${number}` : ''}${neighborhood ? ` - ${neighborhood}` : ''}${city ? `, ${city}` : ''}${state ? ` - ${state}` : ''}`;
+      const [year, month, day] = desiredDate.split('-').map(Number);
+      const [hour, min] = desiredTime.split(':').map(Number);
+      const desiredDateObj = new Date(year, month - 1, day, hour, min);
+
       const { data: requestData, error } = await supabase
         .from('service_requests')
         .insert({
@@ -127,6 +132,8 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
           state,
           cep,
           address_complement: addressComplement,
+          address: combinedAddress,
+          desired_date: desiredDateObj.toISOString(),
           status: 'open',
           attachments: attachments
         })

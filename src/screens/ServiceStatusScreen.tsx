@@ -277,7 +277,12 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Data e Horário</p>
-                <p className="text-slate-900 dark:text-slate-100 font-semibold">{new Date(displayData.created_at).toLocaleDateString([], { day: 'numeric', month: 'long' })}, {new Date(displayData.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                <p className="text-slate-900 dark:text-slate-100 font-semibold">
+                  {displayData.desired_date 
+                    ? `${new Date(displayData.desired_date).toLocaleDateString([], { day: 'numeric', month: 'long' })}, ${new Date(displayData.desired_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                    : `${new Date(displayData.created_at).toLocaleDateString([], { day: 'numeric', month: 'long' })}, ${new Date(displayData.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                  }
+                </p>
               </div>
             </div>
             
@@ -287,7 +292,9 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Localização</p>
-                <p className="text-slate-900 dark:text-slate-100 font-semibold line-clamp-1">{displayData.address || 'Localização não informada'}</p>
+                <p className="text-slate-900 dark:text-slate-100 font-semibold line-clamp-2">
+                  {displayData.address || 'Localização não informada'}
+                </p>
               </div>
             </div>
             
