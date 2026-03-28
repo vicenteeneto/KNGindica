@@ -693,7 +693,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         {/* Grupo 1: Dados Pessoais e Endereços */}
         <section className="mb-6">
           <div className="flex items-center gap-2 mb-3 px-1">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500/80 italic">01. Dados Pessoais & Endereço</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500/80 italic">Dados Pessoais & Endereço</span>
           </div>
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/60 dark:border-white/5 overflow-hidden group">
             <button
@@ -720,7 +720,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         {role === 'provider' && (
           <section className="mb-6">
             <div className="flex items-center gap-2 mb-3 px-1">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500/80 italic">02. Perfil Profissional & Negócio</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500/80 italic">Perfil Profissional & Negócio</span>
             </div>
             <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/60 dark:border-white/5 overflow-hidden group">
               <button
@@ -747,7 +747,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         {/* Grupo 3: Pagamentos */}
         <section className="mb-6">
           <div className="flex items-center gap-2 mb-3 px-1">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500/80 italic">03. Pagamentos</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500/80 italic">Pagamentos</span>
           </div>
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/60 dark:border-white/5 overflow-hidden group">
             <button
@@ -773,7 +773,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         {/* Grupo 4: Recompensas */}
         <section className="mb-6">
           <div className="flex items-center gap-2 mb-3 px-1">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500/80 italic">04. Fidelidade & Prêmios</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500/80 italic">Fidelidade & Prêmios</span>
           </div>
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/60 dark:border-white/5 overflow-hidden group">
             <button
@@ -800,7 +800,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         {role === 'provider' && (
           <section className="mb-6">
             <div className="flex items-center gap-2 mb-3 px-1">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500/80 italic">05. Feedback dos Clientes</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500/80 italic">Feedback dos Clientes</span>
             </div>
             <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/60 dark:border-white/5 overflow-hidden group">
               <button
@@ -831,7 +831,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         {/* Configs Section */}
         <section className="mb-6">
           <div className="flex items-center gap-2 mb-3 px-1">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500/80 italic">06. Configurações</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500/80 italic">Configurações</span>
           </div>
           <div className="space-y-3">
             <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/60 dark:border-white/5 overflow-hidden group">
