@@ -698,10 +698,10 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
             {/* Editar Dados */}
             <button
               onClick={() => setShowProfileModal(true)}
-              className="w-full flex items-center justify-between px-4 py-3 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:bg-slate-100 dark:active:bg-white/10 border-b border-slate-100 dark:border-white/5 last:border-0"
+              className="w-full flex items-center justify-between px-4 py-2 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:bg-slate-100 dark:active:bg-white/10 border-b border-slate-100 dark:border-white/5 last:border-0"
             >
               <div className="flex items-center gap-3.5">
-                <div className="size-8 rounded-lg bg-blue-500 text-white flex items-center justify-center shadow-sm">
+                <div className="size-7 rounded-lg bg-blue-500 text-white flex items-center justify-center shadow-sm">
                   <span className="material-symbols-outlined text-[20px]">person_pin_circle</span>
                 </div>
                 <div className="text-left">
@@ -715,10 +715,10 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
             {role === 'provider' && (
               <button
                 onClick={() => setShowProviderModal(true)}
-                className="w-full flex items-center justify-between px-4 py-3 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:bg-slate-100 dark:active:bg-white/10 border-b border-slate-100 dark:border-white/5 last:border-0"
+                className="w-full flex items-center justify-between px-4 py-2 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:bg-slate-100 dark:active:bg-white/10 border-b border-slate-100 dark:border-white/5 last:border-0"
               >
                 <div className="flex items-center gap-3.5">
-                  <div className="size-8 rounded-lg bg-orange-500 text-white flex items-center justify-center shadow-sm">
+                  <div className="size-7 rounded-lg bg-orange-500 text-white flex items-center justify-center shadow-sm">
                     <span className="material-symbols-outlined text-[20px]">construction</span>
                   </div>
                   <div className="text-left">
@@ -732,10 +732,10 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
             {/* Meus Cartões & Pix */}
             <button
               onClick={() => onNavigate('providerWallet' as any)}
-              className="w-full flex items-center justify-between px-4 py-3 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:bg-slate-100 dark:active:bg-white/10 border-b border-slate-100 dark:border-white/5 last:border-0"
+              className="w-full flex items-center justify-between px-4 py-2 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:bg-slate-100 dark:active:bg-white/10 border-b border-slate-100 dark:border-white/5 last:border-0"
             >
               <div className="flex items-center gap-3.5">
-                <div className="size-8 rounded-lg bg-purple-500 text-white flex items-center justify-center shadow-sm">
+                <div className="size-7 rounded-lg bg-purple-500 text-white flex items-center justify-center shadow-sm">
                   <span className="material-symbols-outlined text-[20px]">finance</span>
                 </div>
                 <div className="text-left">
@@ -748,10 +748,10 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
             {/* Indique e Ganhe */}
             <button
               onClick={() => onNavigate('rewards')}
-              className="w-full flex items-center justify-between px-4 py-3 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:bg-slate-100 dark:active:bg-white/10 border-b border-slate-100 dark:border-white/5 last:border-0"
+              className="w-full flex items-center justify-between px-4 py-2 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:bg-slate-100 dark:active:bg-white/10 border-b border-slate-100 dark:border-white/5 last:border-0"
             >
               <div className="flex items-center gap-3.5">
-                <div className="size-8 rounded-lg bg-emerald-500 text-white flex items-center justify-center shadow-sm">
+                <div className="size-7 rounded-lg bg-emerald-500 text-white flex items-center justify-center shadow-sm">
                   <span className="material-symbols-outlined text-[20px]">workspace_premium</span>
                 </div>
                 <div className="text-left">
@@ -765,10 +765,10 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
             {role === 'provider' && (
               <button
                 onClick={() => onNavigate('reviews', { professionalId: user?.id, returnTo: 'userProfile' })}
-                className="w-full flex items-center justify-between px-4 py-3 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:bg-slate-100 dark:active:bg-white/10 border-b border-slate-100 dark:border-white/5 last:border-0"
+                className="w-full flex items-center justify-between px-4 py-2 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:bg-slate-100 dark:active:bg-white/10 border-b border-slate-100 dark:border-white/5 last:border-0"
               >
                 <div className="flex items-center gap-3.5">
-                  <div className="size-8 rounded-lg bg-amber-500 text-white flex items-center justify-center shadow-sm">
+                  <div className="size-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shadow-sm">
                     <span className="material-symbols-outlined text-[20px]">star</span>
                   </div>
                   <div className="text-left">
@@ -788,10 +788,10 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 requestNotificationPermission();
                 showToast("Solicitando permissão", "Siga as instruções do navegador para ativar as notificações push.", "notification");
               }}
-              className="w-full flex items-center justify-between px-4 py-3 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:bg-slate-100 dark:active:bg-white/10 border-b border-slate-100 dark:border-white/5 last:border-0"
+              className="w-full flex items-center justify-between px-4 py-2 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:bg-slate-100 dark:active:bg-white/10 border-b border-slate-100 dark:border-white/5 last:border-0"
             >
               <div className="flex items-center gap-3.5">
-                <div className="size-8 rounded-lg bg-rose-500 text-white flex items-center justify-center shadow-sm">
+                <div className="size-7 rounded-lg bg-rose-500 text-white flex items-center justify-center shadow-sm">
                   <span className="material-symbols-outlined text-[20px]">notifications</span>
                 </div>
                 <div className="text-left flex flex-col justify-center">
@@ -811,10 +811,10 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
             {/* Central de Ajuda */}
             <button
               onClick={() => onNavigate('helpCenter' as any)}
-              className="w-full flex items-center justify-between px-4 py-3 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:bg-slate-100 dark:active:bg-white/10 border-b border-slate-100 dark:border-white/5 last:border-0"
+              className="w-full flex items-center justify-between px-4 py-2 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:bg-slate-100 dark:active:bg-white/10 border-b border-slate-100 dark:border-white/5 last:border-0"
             >
               <div className="flex items-center gap-3.5">
-                <div className="size-8 rounded-lg bg-slate-500 text-white flex items-center justify-center shadow-sm">
+                <div className="size-7 rounded-lg bg-slate-500 text-white flex items-center justify-center shadow-sm">
                   <span className="material-symbols-outlined text-[20px]">help_center</span>
                 </div>
                 <div className="text-left">
