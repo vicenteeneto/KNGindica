@@ -56,6 +56,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Listen to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
+        if (_event === 'PASSWORD_RECOVERY') {
+          window.dispatchEvent(new Event('kng-password-recovery'));
+        }
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {

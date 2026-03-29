@@ -24,6 +24,7 @@ import MyFreelancesScreen from './screens/MyFreelancesScreen';
 import ProviderWalletScreen from './screens/ProviderWalletScreen';
 import AuthScreen from './screens/AuthScreen';
 import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
+import UpdatePasswordScreen from './screens/UpdatePasswordScreen';
 import HelpCenterScreen from './screens/HelpCenterScreen';
 import ProviderScheduleScreen from './screens/ProviderScheduleScreen';
 import WriteReviewScreen from './screens/WriteReviewScreen';
@@ -48,7 +49,7 @@ const STORAGE_KEY = 'KNGindica_currentScreen';
 const STORAGE_PARAMS_KEY = 'KNGindica_navParams';
 
 // Telas que nunca devem ser persistidas (sensíveis ou de sessão)
-const NON_PERSISTENT_SCREENS = ['auth', 'forgotPassword', 'chat', 'termsConsent', 'bidRoom'];
+const NON_PERSISTENT_SCREENS = ['auth', 'forgotPassword', 'updatePassword', 'chat', 'termsConsent', 'bidRoom'];
 
 const ADMIN_TABS = [
   { id: 'dashboard', icon: 'grid_view', label: 'Dashboard' },
@@ -129,10 +130,25 @@ function AppContent() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  // Listen for password recovery trigger
+  useEffect(() => {
+    const handlePasswordRecovery = () => {
+      setCurrentScreen('updatePassword');
+    };
+    window.addEventListener('kng-password-recovery', handlePasswordRecovery);
+    
+    // Check if URL has hash with type=recovery just in case event fired before App mounted
+    if (window.location.hash.includes('type=recovery')) {
+      handlePasswordRecovery();
+    }
+
+    return () => window.removeEventListener('kng-password-recovery', handlePasswordRecovery);
+  }, []);
+
   useEffect(() => {
     if (!loading) {
       if (!user) {
-        if (currentScreen !== 'whatsappSearch' && currentScreen !== 'forgotPassword') {
+        if (currentScreen !== 'whatsappSearch' && currentScreen !== 'forgotPassword' && currentScreen !== 'updatePassword') {
           setCurrentScreen('auth');
           localStorage.removeItem(STORAGE_KEY);
           localStorage.removeItem(STORAGE_PARAMS_KEY);
@@ -265,6 +281,8 @@ function AppContent() {
          return <RewardsScreen onNavigate={handleNavigate} />;
        case 'forgotPassword':
          return <ForgotPasswordScreen onNavigate={handleNavigate} />;
+       case 'updatePassword':
+         return <UpdatePasswordScreen onNavigate={handleNavigate} />;
       case 'userProfile':
         return <UserProfileScreen onNavigate={handleNavigate} />;
       case 'adminDashboard':
