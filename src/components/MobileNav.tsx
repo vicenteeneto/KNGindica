@@ -38,8 +38,8 @@ export default function MobileNav({ onNavigate, currentScreen, role, params }: M
             onClick={() => onNavigate(item.screen)} 
             className={`flex flex-1 flex-col items-center justify-end gap-1 group transition-colors relative ${isActive ? 'text-primary' : 'text-slate-400 hover:text-primary'}`}
           >
-            <span className="material-symbols-outlined text-[24px]" style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}>{item.icon}</span>
-            <span className="text-[10px] font-medium leading-normal whitespace-nowrap">{item.label}</span>
+            <span className="material-symbols-outlined text-[26px]" style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}>{item.icon}</span>
+            <span className={`text-[10px] font-medium leading-normal whitespace-nowrap mt-0.5 ${isActive ? 'text-primary' : 'text-slate-500'}`}>{item.label}</span>
             
             {badgeValue > 0 && (
               <span className="absolute top-0 right-1/4 size-4 bg-red-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900">

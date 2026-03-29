@@ -705,8 +705,8 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   <span className="material-symbols-outlined text-[20px]">person_pin_circle</span>
                 </div>
                 <div className="text-left">
-                  <p className="text-[15px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Editar Meus Dados</p>
-                  <p className="text-[10px] text-slate-400 uppercase font-semibold tracking-widest mt-0.5">NOME, CPF, TELEFONE E ENDEREÇO</p>
+                  <p className="text-[17px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Editar Meus Dados</p>
+                  <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5">Nome, CPF, telefone e endereço</p>
                 </div>
               </div>
               <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
@@ -723,8 +723,8 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                     <span className="material-symbols-outlined text-[20px]">construction</span>
                   </div>
                   <div className="text-left">
-                    <p className="text-[15px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Perfis de Trabalho</p>
-                    <p className="text-[10px] text-slate-400 uppercase font-semibold tracking-widest mt-0.5">BIO, SERVIÇOS, HORÁRIOS E PORTFÓLIO</p>
+                    <p className="text-[17px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Perfis de Trabalho</p>
+                    <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5">Bio, serviços, horários e portfólio</p>
                   </div>
                 </div>
                 <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
@@ -741,8 +741,8 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   <span className="material-symbols-outlined text-[20px]">finance</span>
                 </div>
                 <div className="text-left">
-                  <p className="text-[15px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Meus Cartões & Pix</p>
-                  <p className="text-[10px] text-slate-400 uppercase font-semibold tracking-widest mt-0.5">CONFIGURAÇÕES DE FATURAMENTO</p>
+                  <p className="text-[17px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Meus Cartões & Pix</p>
+                  <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5">Configurações de faturamento</p>
                 </div>
               </div>
               <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
@@ -758,8 +758,8 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   <span className="material-symbols-outlined text-[20px]">workspace_premium</span>
                 </div>
                 <div className="text-left">
-                  <p className="text-[15px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Indique e Ganhe</p>
-                  <p className="text-[10px] text-slate-400 uppercase font-semibold tracking-widest mt-0.5">MEUS PONTOS E LINK DE CONVITE</p>
+                  <p className="text-[17px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Indique e Ganhe</p>
+                  <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5">Meus pontos e link de convite</p>
                 </div>
               </div>
               <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
@@ -776,11 +776,11 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                     <span className="material-symbols-outlined text-[20px]">star</span>
                   </div>
                   <div className="text-left">
-                    <p className="text-[15px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Minhas Avaliações</p>
-                    <p className="text-[10px] text-slate-400 uppercase font-semibold tracking-widest mt-0.5">
+                    <p className="text-[17px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Minhas Avaliações</p>
+                    <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5">
                       {((profile as any)?.rating > 0) 
-                        ? `${(profile as any).rating.toFixed(1)} ESTRELAS • ${(profile as any).reviews_count || 0} AVALIAÇÕES` 
-                        : 'NENHUMA AVALIAÇÃO'}
+                        ? `${(profile as any).rating.toFixed(1)} estrelas • ${(profile as any).reviews_count || 0} avaliações` 
+                        : 'Nenhuma avaliação'}
                     </p>
                   </div>
                 </div>
@@ -805,13 +805,13 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 </div>
                 <div className="text-left">
                   <div className="flex items-center gap-2">
-                    <p className="text-[15px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Notificações Push</p>
+                    <p className="text-[17px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Notificações Push</p>
                     {(profile as any)?.onesignal_id && (
                       <span className="bg-emerald-500 size-1.5 rounded-full animate-pulse"></span>
                     )}
                   </div>
-                  <p className="text-[10px] text-slate-400 uppercase font-semibold tracking-widest mt-0.5">
-                    {(profile as any)?.onesignal_id ? 'ATIVADAS' : 'ATIVAR NO CELULAR'}
+                  <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    {(profile as any)?.onesignal_id ? 'Ativadas' : 'Ativar no celular'}
                   </p>
                 </div>
               </div>
@@ -830,8 +830,8 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   <span className="material-symbols-outlined text-[20px]">help_center</span>
                 </div>
                 <div className="text-left">
-                  <p className="text-[15px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Central de Ajuda</p>
-                  <p className="text-[10px] text-slate-400 uppercase font-semibold tracking-widest mt-0.5">DÚVIDAS E SUPORTE</p>
+                  <p className="text-[17px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Central de Ajuda</p>
+                  <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5">Dúvidas e suporte</p>
                 </div>
               </div>
               <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>

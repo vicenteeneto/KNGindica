@@ -202,14 +202,15 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-baseline mb-0.5">
-                      <h3 className={`font-semibold transition-colors ${room.latestMessage && room.latestMessage.sender_id !== user?.id && !room.latestMessage.is_read ? 'text-primary' : 'text-slate-800 dark:text-slate-200'} truncate`}>{profile?.full_name || 'Usuário'}</h3>
-                      <span className="text-xs text-slate-400">{time}</span>
+                      <h3 className={`font-semibold text-[17px] tracking-tight transition-colors ${room.latestMessage && room.latestMessage.sender_id !== user?.id && !room.latestMessage.is_read ? 'text-primary' : 'text-slate-900 dark:text-white'} truncate`}>{profile?.full_name || 'Usuário'}</h3>
+                      <span className="text-[12px] text-slate-500">{time}</span>
                     </div>
-                    <p className="text-xs font-bold text-primary mb-0.5 truncate">{title}</p>
+                    {/* Exibe o nome do serviço requisitado ligeiramente menor */}
+                    <p className="text-[13px] font-medium text-slate-500 mb-0.5 truncate">{title}</p>
                     <div className="flex justify-between items-center">
-                      <p className={`text-sm truncate ${room.latestMessage && room.latestMessage.sender_id !== user?.id && !room.latestMessage.is_read ? 'text-slate-900 dark:text-white font-bold' : 'text-slate-500 dark:text-slate-400'}`}>{latestMessage}</p>
+                      <p className={`text-[15px] truncate ${room.latestMessage && room.latestMessage.sender_id !== user?.id && !room.latestMessage.is_read ? 'text-slate-900 dark:text-white font-semibold' : 'text-slate-500 dark:text-slate-400'}`}>{latestMessage}</p>
                       {room.latestMessage && room.latestMessage.sender_id !== user?.id && !room.latestMessage.is_read && (
-                        <div className="size-2 bg-primary rounded-full"></div>
+                        <div className="size-2.5 bg-primary rounded-full"></div>
                       )}
                     </div>
                   </div>
