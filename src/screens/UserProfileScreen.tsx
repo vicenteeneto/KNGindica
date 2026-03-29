@@ -625,13 +625,13 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           />
           </div>
 
-          <div className="flex flex-col items-center gap-2">
+          <div className="flex flex-col items-center gap-3">
             <h1 className="text-2xl font-bold tracking-tight text-center">{displayUser.name}</h1>
             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest italic shadow-sm ${role === 'provider' ? 'bg-emerald-500 text-white' : 'bg-primary text-white'}`}>
               {role === 'provider' ? 'PRESTADOR DE SERVIÇO' : 'CLIENTE'}
             </span>
           </div>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mb-1">{displayUser.email}</p>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-3 mb-1">{displayUser.email}</p>
           <div className="flex flex-wrap items-center justify-center gap-1 mt-2">
             <span className="bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter text-slate-500 dark:text-gray-400 border border-slate-200 dark:border-white/5 shadow-sm">
               {displayUser.joinDate}
@@ -706,7 +706,6 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 </div>
                 <div className="text-left">
                   <p className="text-[17px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Editar Meus Dados</p>
-                  <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5">Nome, CPF, telefone e endereço</p>
                 </div>
               </div>
               <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
@@ -724,7 +723,6 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   </div>
                   <div className="text-left">
                     <p className="text-[17px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Perfis de Trabalho</p>
-                    <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5">Bio, serviços, horários e portfólio</p>
                   </div>
                 </div>
                 <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
@@ -742,7 +740,6 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 </div>
                 <div className="text-left">
                   <p className="text-[17px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Meus Cartões & Pix</p>
-                  <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5">Configurações de faturamento</p>
                 </div>
               </div>
               <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
@@ -759,7 +756,6 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 </div>
                 <div className="text-left">
                   <p className="text-[17px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Indique e Ganhe</p>
-                  <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5">Meus pontos e link de convite</p>
                 </div>
               </div>
               <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
@@ -777,11 +773,6 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   </div>
                   <div className="text-left">
                     <p className="text-[17px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Minhas Avaliações</p>
-                    <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5">
-                      {((profile as any)?.rating > 0) 
-                        ? `${(profile as any).rating.toFixed(1)} estrelas • ${(profile as any).reviews_count || 0} avaliações` 
-                        : 'Nenhuma avaliação'}
-                    </p>
                   </div>
                 </div>
                 <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
@@ -803,16 +794,13 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 <div className="size-8 rounded-lg bg-rose-500 text-white flex items-center justify-center shadow-sm">
                   <span className="material-symbols-outlined text-[20px]">notifications</span>
                 </div>
-                <div className="text-left">
+                <div className="text-left flex flex-col justify-center">
                   <div className="flex items-center gap-2">
                     <p className="text-[17px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Notificações Push</p>
                     {(profile as any)?.onesignal_id && (
                       <span className="bg-emerald-500 size-1.5 rounded-full animate-pulse"></span>
                     )}
                   </div>
-                  <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5">
-                    {(profile as any)?.onesignal_id ? 'Ativadas' : 'Ativar no celular'}
-                  </p>
                 </div>
               </div>
               <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">
@@ -831,7 +819,6 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 </div>
                 <div className="text-left">
                   <p className="text-[17px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Central de Ajuda</p>
-                  <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5">Dúvidas e suporte</p>
                 </div>
               </div>
               <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
