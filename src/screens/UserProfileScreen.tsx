@@ -690,181 +690,154 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           );
         })()}
 
-        {/* Grupo 1: Dados Pessoais e Endereços */}
-        <section className="mb-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/60 dark:border-white/5 overflow-hidden group">
+        {/* === GRUPOS DE MENUS ESTILO WHATSAPP === */}
+        <div className="space-y-4 mb-6">
+          
+          {/* Grupo 1: Conta & Configurações */}
+          <div className="bg-white dark:bg-[#1C1C1E] rounded-xl shadow-sm border border-slate-200/60 dark:border-white/10 overflow-hidden">
+            {/* Editar Dados */}
             <button
               onClick={() => setShowProfileModal(true)}
-              className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all active:scale-[0.99]"
+              className="w-full flex items-center justify-between px-4 py-3 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:bg-slate-100 dark:active:bg-white/10 border-b border-slate-100 dark:border-white/5 last:border-0"
             >
-              <div className="flex items-center gap-4">
-                <div className="size-11 rounded-xl bg-blue-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform">
-                  <span className="material-symbols-outlined text-2xl">person_pin_circle</span>
+              <div className="flex items-center gap-3.5">
+                <div className="size-8 rounded-lg bg-blue-500 text-white flex items-center justify-center shadow-sm">
+                  <span className="material-symbols-outlined text-[20px]">person_pin_circle</span>
                 </div>
                 <div className="text-left">
-                  <p className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Editar Meus Dados</p>
-                  <p className="text-[10px] text-slate-500/80 dark:text-slate-400 uppercase font-black tracking-widest leading-none mt-0.5">NOME, CPF, TELEFONE E ENDEREÇO</p>
+                  <p className="text-[15px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Editar Meus Dados</p>
+                  <p className="text-[10px] text-slate-400 uppercase font-semibold tracking-widest mt-0.5">NOME, CPF, TELEFONE E ENDEREÇO</p>
                 </div>
               </div>
-              <div className="size-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-blue-500 group-hover:text-white transition-all">
-                <span className="material-symbols-outlined text-lg">edit</span>
-              </div>
+              <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
             </button>
-          </div>
-        </section>
 
-        {/* Grupo 2: Perfil Profissional (Apenas para Prestadores) */}
-        {role === 'provider' && (
-          <section className="mb-4">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/60 dark:border-white/5 overflow-hidden group">
+            {/* Perfil Profissional (Apenas para Prestadores) */}
+            {role === 'provider' && (
               <button
                 onClick={() => setShowProviderModal(true)}
-                className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all active:scale-[0.99]"
+                className="w-full flex items-center justify-between px-4 py-3 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:bg-slate-100 dark:active:bg-white/10 border-b border-slate-100 dark:border-white/5 last:border-0"
               >
-                <div className="flex items-center gap-4">
-                  <div className="size-11 rounded-xl bg-orange-500 text-white flex items-center justify-center shadow-lg shadow-orange-500/20 group-hover:scale-105 transition-transform">
-                    <span className="material-symbols-outlined text-2xl">construction</span>
+                <div className="flex items-center gap-3.5">
+                  <div className="size-8 rounded-lg bg-orange-500 text-white flex items-center justify-center shadow-sm">
+                    <span className="material-symbols-outlined text-[20px]">construction</span>
                   </div>
                   <div className="text-left">
-                    <p className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Perfis de Trabalho</p>
-                    <p className="text-[10px] text-slate-500/80 dark:text-slate-400 uppercase font-black tracking-widest leading-none mt-0.5">BIO, SERVIÇOS, HORÁRIOS E PORTFÓLIO</p>
+                    <p className="text-[15px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Perfis de Trabalho</p>
+                    <p className="text-[10px] text-slate-400 uppercase font-semibold tracking-widest mt-0.5">BIO, SERVIÇOS, HORÁRIOS E PORTFÓLIO</p>
                   </div>
                 </div>
-                <div className="size-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-orange-500 group-hover:text-white transition-all">
-                  <span className="material-symbols-outlined text-lg">edit</span>
-                </div>
+                <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
               </button>
-            </div>
-          </section>
-        )}
+            )}
 
-        {/* Grupo 3: Pagamentos */}
-        <section className="mb-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/60 dark:border-white/5 overflow-hidden group">
+            {/* Meus Cartões & Pix */}
             <button
               onClick={() => onNavigate('providerWallet' as any)}
-              className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors active:bg-slate-100 dark:active:bg-slate-800"
+              className="w-full flex items-center justify-between px-4 py-3 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:bg-slate-100 dark:active:bg-white/10 border-b border-slate-100 dark:border-white/5 last:border-0"
             >
-              <div className="flex items-center gap-4">
-                <div className="size-11 rounded-xl bg-purple-500 text-white flex items-center justify-center shadow-lg shadow-purple-500/20 group-hover:scale-105 transition-transform">
-                  <span className="material-symbols-outlined text-2xl">credit_card</span>
+              <div className="flex items-center gap-3.5">
+                <div className="size-8 rounded-lg bg-purple-500 text-white flex items-center justify-center shadow-sm">
+                  <span className="material-symbols-outlined text-[20px]">finance</span>
                 </div>
                 <div className="text-left">
-                  <p className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Meus Cartões & Pix</p>
-                  <p className="text-[10px] text-slate-500/80 dark:text-slate-400 uppercase font-black tracking-widest leading-none mt-0.5">CONFIGURAÇÕES DE FATURAMENTO</p>
+                  <p className="text-[15px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Meus Cartões & Pix</p>
+                  <p className="text-[10px] text-slate-400 uppercase font-semibold tracking-widest mt-0.5">CONFIGURAÇÕES DE FATURAMENTO</p>
                 </div>
               </div>
-              <div className="size-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-purple-500 group-hover:text-white transition-all">
-                <span className="material-symbols-outlined text-lg">chevron_right</span>
-              </div>
+              <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
             </button>
-          </div>
-        </section>
 
-        {/* Grupo 4: Recompensas */}
-        <section className="mb-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/60 dark:border-white/5 overflow-hidden group">
+            {/* Indique e Ganhe */}
             <button
               onClick={() => onNavigate('rewards')}
-              className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all active:scale-[0.99]"
+              className="w-full flex items-center justify-between px-4 py-3 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:bg-slate-100 dark:active:bg-white/10 border-b border-slate-100 dark:border-white/5 last:border-0"
             >
-              <div className="flex items-center gap-4">
-                <div className="size-11 rounded-xl bg-gradient-to-br from-primary to-orange-600 text-white flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform">
-                  <span className="material-symbols-outlined text-2xl">workspace_premium</span>
+              <div className="flex items-center gap-3.5">
+                <div className="size-8 rounded-lg bg-emerald-500 text-white flex items-center justify-center shadow-sm">
+                  <span className="material-symbols-outlined text-[20px]">workspace_premium</span>
                 </div>
                 <div className="text-left">
-                  <p className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Indique e Ganhe</p>
-                  <p className="text-[10px] text-slate-500/80 dark:text-slate-400 uppercase font-black tracking-widest leading-none mt-0.5">MEUS PONTOS E LINK DE CONVITE</p>
+                  <p className="text-[15px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Indique e Ganhe</p>
+                  <p className="text-[10px] text-slate-400 uppercase font-semibold tracking-widest mt-0.5">MEUS PONTOS E LINK DE CONVITE</p>
                 </div>
               </div>
-              <div className="size-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white transition-all">
-                <span className="material-symbols-outlined text-lg">redeem</span>
-              </div>
+              <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
             </button>
-          </div>
-        </section>
 
-        {/* Grupo 5: Avaliações (Apenas para Prestadores) */}
-        {role === 'provider' && (
-          <section className="mb-4">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/60 dark:border-white/5 overflow-hidden group">
+            {/* Minhas Avaliações (Apenas para Prestadores) */}
+            {role === 'provider' && (
               <button
                 onClick={() => onNavigate('reviews', { professionalId: user?.id, returnTo: 'userProfile' })}
-                className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all active:scale-[0.99]"
+                className="w-full flex items-center justify-between px-4 py-3 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:bg-slate-100 dark:active:bg-white/10 border-b border-slate-100 dark:border-white/5 last:border-0"
               >
-                <div className="flex items-center gap-4">
-                  <div className="size-11 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-105 transition-transform">
-                    <span className="material-symbols-outlined text-2xl">star</span>
+                <div className="flex items-center gap-3.5">
+                  <div className="size-8 rounded-lg bg-amber-500 text-white flex items-center justify-center shadow-sm">
+                    <span className="material-symbols-outlined text-[20px]">star</span>
                   </div>
                   <div className="text-left">
-                    <p className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Minhas Avaliações</p>
-                    <p className="text-[10px] text-slate-500/80 dark:text-slate-400 uppercase font-black tracking-widest leading-none mt-0.5">
+                    <p className="text-[15px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Minhas Avaliações</p>
+                    <p className="text-[10px] text-slate-400 uppercase font-semibold tracking-widest mt-0.5">
                       {((profile as any)?.rating > 0) 
                         ? `${(profile as any).rating.toFixed(1)} ESTRELAS • ${(profile as any).reviews_count || 0} AVALIAÇÕES` 
-                        : 'NENHUMA AVALIAÇÃO RECEBIDA AINDA'}
+                        : 'NENHUMA AVALIAÇÃO'}
                     </p>
                   </div>
                 </div>
-                <div className="size-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-amber-500 group-hover:text-white transition-all">
-                  <span className="material-symbols-outlined text-lg">chevron_right</span>
-                </div>
+                <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
               </button>
-            </div>
-          </section>
-        )}
-
-        {/* Configs Section */}
-        <section className="mb-4">
-          <div className="space-y-3">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/60 dark:border-white/5 overflow-hidden group">
-              <button
-                onClick={() => {
-                  requestNotificationPermission();
-                  showToast("Solicitando permissão", "Siga as instruções do navegador para ativar as notificações push.", "notification");
-                }}
-                className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all active:scale-[0.99]"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="size-11 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-105 transition-transform">
-                    <span className="material-symbols-outlined text-2xl">notifications</span>
-                  </div>
-                  <div className="text-left">
-                    <div className="flex items-center gap-2">
-                      <p className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Notificações Push</p>
-                      {(profile as any)?.onesignal_id && (
-                        <span className="bg-emerald-500 size-2 rounded-full animate-pulse"></span>
-                      )}
-                    </div>
-                    <p className="text-[10px] text-slate-500/80 dark:text-slate-400 uppercase font-black tracking-widest leading-none mt-0.5">{(profile as any)?.onesignal_id ? 'NOTIFICAÇÕES ATIVADAS' : 'ATIVAR NO CELULAR'}</p>
-                  </div>
-                </div>
-                <div className="size-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-amber-500 group-hover:text-white transition-all">
-                  <span className="material-symbols-outlined text-lg">{(profile as any)?.onesignal_id ? 'check' : 'chevron_right'}</span>
-                </div>
-              </button>
-            </div>
-
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/60 dark:border-white/5 overflow-hidden group">
-              <button
-                onClick={() => onNavigate('helpCenter' as any)}
-                className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all active:scale-[0.99]"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="size-11 rounded-xl bg-slate-500 text-white flex items-center justify-center shadow-lg shadow-slate-500/20 group-hover:scale-105 transition-transform">
-                    <span className="material-symbols-outlined text-2xl">help</span>
-                  </div>
-                  <div className="text-left">
-                    <p className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Central de Ajuda</p>
-                    <p className="text-[10px] text-slate-500/80 dark:text-slate-400 uppercase font-black tracking-widest leading-none mt-0.5">DÚVIDAS E SUPORTE</p>
-                  </div>
-                </div>
-                <div className="size-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-slate-500 group-hover:text-white transition-all">
-                  <span className="material-symbols-outlined text-lg">chevron_right</span>
-                </div>
-              </button>
-            </div>
+            )}
           </div>
-        </section>
+
+          {/* Grupo 2: Sistema */}
+          <div className="bg-white dark:bg-[#1C1C1E] rounded-xl shadow-sm border border-slate-200/60 dark:border-white/10 overflow-hidden">
+            {/* Notificações Push */}
+            <button
+              onClick={() => {
+                requestNotificationPermission();
+                showToast("Solicitando permissão", "Siga as instruções do navegador para ativar as notificações push.", "notification");
+              }}
+              className="w-full flex items-center justify-between px-4 py-3 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:bg-slate-100 dark:active:bg-white/10 border-b border-slate-100 dark:border-white/5 last:border-0"
+            >
+              <div className="flex items-center gap-3.5">
+                <div className="size-8 rounded-lg bg-rose-500 text-white flex items-center justify-center shadow-sm">
+                  <span className="material-symbols-outlined text-[20px]">notifications</span>
+                </div>
+                <div className="text-left">
+                  <div className="flex items-center gap-2">
+                    <p className="text-[15px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Notificações Push</p>
+                    {(profile as any)?.onesignal_id && (
+                      <span className="bg-emerald-500 size-1.5 rounded-full animate-pulse"></span>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-slate-400 uppercase font-semibold tracking-widest mt-0.5">
+                    {(profile as any)?.onesignal_id ? 'ATIVADAS' : 'ATIVAR NO CELULAR'}
+                  </p>
+                </div>
+              </div>
+              <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">
+                {(profile as any)?.onesignal_id ? 'check' : 'chevron_right'}
+              </span>
+            </button>
+
+            {/* Central de Ajuda */}
+            <button
+              onClick={() => onNavigate('helpCenter' as any)}
+              className="w-full flex items-center justify-between px-4 py-3 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors active:bg-slate-100 dark:active:bg-white/10 border-b border-slate-100 dark:border-white/5 last:border-0"
+            >
+              <div className="flex items-center gap-3.5">
+                <div className="size-8 rounded-lg bg-slate-500 text-white flex items-center justify-center shadow-sm">
+                  <span className="material-symbols-outlined text-[20px]">help_center</span>
+                </div>
+                <div className="text-left">
+                  <p className="text-[15px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Central de Ajuda</p>
+                  <p className="text-[10px] text-slate-400 uppercase font-semibold tracking-widest mt-0.5">DÚVIDAS E SUPORTE</p>
+                </div>
+              </div>
+              <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
+            </button>
+          </div>
+        </div>
 
         {/* Profile Switcher (Only for clients to upgrade) */}
         {role !== 'provider' && (
