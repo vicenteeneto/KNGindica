@@ -705,7 +705,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   <span className="material-symbols-outlined text-[20px]">person_pin_circle</span>
                 </div>
                 <div className="text-left">
-                  <p className="text-[17px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Editar Meus Dados</p>
+                  <p className="text-[16px] text-slate-900 dark:text-white">Editar Meus Dados</p>
                 </div>
               </div>
               <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
@@ -722,7 +722,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                     <span className="material-symbols-outlined text-[20px]">construction</span>
                   </div>
                   <div className="text-left">
-                    <p className="text-[17px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Perfis de Trabalho</p>
+                    <p className="text-[16px] text-slate-900 dark:text-white">Perfis de Trabalho</p>
                   </div>
                 </div>
                 <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
@@ -739,7 +739,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   <span className="material-symbols-outlined text-[20px]">finance</span>
                 </div>
                 <div className="text-left">
-                  <p className="text-[17px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Meus Cartões & Pix</p>
+                  <p className="text-[16px] text-slate-900 dark:text-white">Meus Cartões & Pix</p>
                 </div>
               </div>
               <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
@@ -755,7 +755,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   <span className="material-symbols-outlined text-[20px]">workspace_premium</span>
                 </div>
                 <div className="text-left">
-                  <p className="text-[17px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Indique e Ganhe</p>
+                  <p className="text-[16px] text-slate-900 dark:text-white">Indique e Ganhe</p>
                 </div>
               </div>
               <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
@@ -772,7 +772,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                     <span className="material-symbols-outlined text-[20px]">star</span>
                   </div>
                   <div className="text-left">
-                    <p className="text-[17px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Minhas Avaliações</p>
+                    <p className="text-[16px] text-slate-900 dark:text-white">Minhas Avaliações</p>
                   </div>
                 </div>
                 <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
@@ -796,7 +796,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 </div>
                 <div className="text-left flex flex-col justify-center">
                   <div className="flex items-center gap-2">
-                    <p className="text-[17px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Notificações Push</p>
+                    <p className="text-[16px] text-slate-900 dark:text-white">Notificações Push</p>
                     {(profile as any)?.onesignal_id && (
                       <span className="bg-emerald-500 size-1.5 rounded-full animate-pulse"></span>
                     )}
@@ -818,7 +818,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   <span className="material-symbols-outlined text-[20px]">help_center</span>
                 </div>
                 <div className="text-left">
-                  <p className="text-[17px] font-medium text-slate-900 dark:text-white tracking-tight leading-snug">Central de Ajuda</p>
+                  <p className="text-[16px] text-slate-900 dark:text-white">Central de Ajuda</p>
                 </div>
               </div>
               <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
