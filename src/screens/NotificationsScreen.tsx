@@ -310,11 +310,11 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
                 </div>
 
                 <div className="flex-1 flex flex-col gap-1 pr-6">
-                  <div className="flex justify-between items-start">
-                    <h3 className={`font-bold ${isUnread ? 'text-slate-900 dark:text-white' : 'text-slate-800 dark:text-slate-200'}`}>{formatNotificationText(notification.title)}</h3>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">{new Date(notification.created_at).toLocaleDateString('pt-BR')} às {new Date(notification.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
+                  <div className="flex justify-between items-baseline mb-0.5">
+                    <h3 className={`text-[17px] font-semibold tracking-tight ${isUnread ? 'text-slate-900 dark:text-white' : 'text-slate-800 dark:text-slate-200'}`}>{formatNotificationText(notification.title)}</h3>
+                    <p className="text-[12px] text-slate-500 font-medium">{new Date(notification.created_at).toLocaleDateString('pt-BR')} às {new Date(notification.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
                   </div>
-                  <p className={`text-sm leading-relaxed ${isUnread ? 'text-slate-700 dark:text-slate-300 font-medium' : 'text-slate-600 dark:text-slate-400'}`}>
+                  <p className={`text-[15px] leading-snug ${isUnread ? 'text-slate-700 dark:text-slate-300 font-medium' : 'text-slate-600 dark:text-slate-400'}`}>
                     {formatNotificationText(notification.message)}
                   </p>
                 </div>

@@ -571,11 +571,11 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
                         </div>
                       </div>
                     ) : (
-                      <p className="text-sm leading-relaxed">{msg.content}</p>
+                      <p className="text-[16px] leading-relaxed">{msg.content}</p>
                     )}
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="text-[10px] text-slate-400">{time}</span>
+                    <span className="text-[11px] text-slate-400">{time}</span>
                     <span className="material-symbols-outlined text-primary text-[14px]">done_all</span>
                   </div>
                 </div>
@@ -619,10 +619,10 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
                           )}
                         </div>
                       ) : (
-                        <p className="text-sm leading-relaxed">{msg.content}</p>
+                        <p className="text-[16px] leading-relaxed">{msg.content}</p>
                       )}
                     </div>
-                    <span className="text-[10px] text-slate-400 ml-1">{time}</span>
+                    <span className="text-[11px] text-slate-400 ml-1">{time}</span>
                   </div>
                 </div>
               );

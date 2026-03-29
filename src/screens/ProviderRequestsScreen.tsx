@@ -654,10 +654,10 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start gap-2">
                           <div className="flex flex-col min-w-0">
-                            <p className="text-slate-900 dark:text-white text-lg font-black tracking-tight truncate">{req.profiles?.full_name || 'Cliente'}</p>
-                            <p className="text-[10px] font-bold text-primary uppercase tracking-widest">{req.display_id || 'Pedido s/ OS'}</p>
+                            <p className="text-[17px] font-semibold tracking-tight text-slate-900 dark:text-white truncate">{req.profiles?.full_name || 'Cliente'}</p>
+                            <p className="text-[13px] font-medium text-slate-500">{req.display_id || 'Pedido s/ OS'}</p>
                           </div>
-                           <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border shrink-0 ${statusMap[req.status]?.color || 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+                           <span className={`text-[10px] font-bold px-3 py-1 rounded-full border shrink-0 ${statusMap[req.status]?.color || 'bg-slate-100 text-slate-600 border-slate-200'}`}>
                             {statusMap[req.status]?.label || req.status}
                           </span>
                         </div>

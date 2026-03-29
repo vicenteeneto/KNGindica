@@ -135,8 +135,8 @@ export default function ProfessionalReviewsScreen({ onNavigate, params }: Profes
                           src={review.reviewer?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"}
                         />
                         <div>
-                          <p className="font-bold text-slate-900 dark:text-white">{review.reviewer?.full_name || 'Usuário'}</p>
-                          <p className="text-xs text-slate-500">{new Date(review.created_at).toLocaleDateString('pt-BR')} • Avaliação validada</p>
+                          <p className="text-[17px] font-semibold tracking-tight text-slate-900 dark:text-white">{review.reviewer?.full_name || 'Usuário'}</p>
+                          <p className="text-[13px] font-medium text-slate-500">{new Date(review.created_at).toLocaleDateString('pt-BR')} • Avaliação validada</p>
                         </div>
                       </div>
                       <div className="flex text-primary">
@@ -182,8 +182,8 @@ export default function ProfessionalReviewsScreen({ onNavigate, params }: Profes
                           src="https://lh3.googleusercontent.com/aida-public/AB6AXuAH_suqoQIXTbTnDeNMJAsx9OiBaLpt35pUG7W4TUvy3kP-Emni_whF9MFdTH-HTsMwrNBdOTlOcq3fugwZOAvoyJUlpC1g6sQJGec5z48pk4JEfn0pxhl1jvg6kXub7OF4mxLknXqnKi9erFbthRv20EzgI4nZ3uTfdULv0mYUwcg6ZQGGXEffOWhVtHdsTOrXNu9KfKA5fLcE-7DW4zrvMrNguZi2ZtF4oTnwH_wkTdEX51FEYvcMwCOeB-GFCdBw1zqs2ZjzXMI"
                         />
                         <div>
-                          <p className="font-bold text-slate-900 dark:text-white">Ana Silva</p>
-                          <p className="text-xs text-slate-500">2 dias atrás • Pintura Residencial</p>
+                          <p className="text-[17px] font-semibold tracking-tight text-slate-900 dark:text-white">Ana Silva</p>
+                          <p className="text-[13px] font-medium text-slate-500">2 dias atrás • Pintura Residencial</p>
                         </div>
                       </div>
                       <div className="flex text-primary">

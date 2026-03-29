@@ -129,8 +129,8 @@ export default function MyRequestsScreen({ onNavigate, params }: NavigationProps
                         />
                       </div>
                       <div>
-                        <h3 className="font-bold text-sm">{req.profiles?.full_name || 'Aguardando Profissional'}</h3>
-                        <p className="text-xs text-slate-500">{req.title || req.service_categories?.name || 'Serviço'}</p>
+                        <h3 className="text-[17px] font-semibold tracking-tight text-slate-900 dark:text-white">{req.profiles?.full_name || 'Aguardando Profissional'}</h3>
+                        <p className="text-[15px] font-medium text-slate-500">{req.title || req.service_categories?.name || 'Serviço'}</p>
                       </div>
                     </div>
                     {/* Status Badge */}
