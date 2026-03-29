@@ -132,7 +132,7 @@ function AppContent() {
   useEffect(() => {
     if (!loading) {
       if (!user) {
-        if (currentScreen !== 'whatsappSearch') {
+        if (currentScreen !== 'whatsappSearch' && currentScreen !== 'forgotPassword') {
           setCurrentScreen('auth');
           localStorage.removeItem(STORAGE_KEY);
           localStorage.removeItem(STORAGE_PARAMS_KEY);
