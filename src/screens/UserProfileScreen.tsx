@@ -596,8 +596,8 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           <span className="material-symbols-outlined">arrow_back</span>
         </button>
 
-        <div className="max-w-4xl mx-auto flex flex-col items-center">
-          <div className="relative mb-4">
+<div className="max-w-4xl lg:mx-0 lg:ml-12 flex flex-col items-center lg:items-start transition-all duration-300">
+    <div className="relative mb-4">
             <div
               className={`size-24 rounded-full bg-cover bg-center border-4 border-white dark:border-slate-900 shadow-xl ${isUploading ? 'opacity-50' : ''}`}
               style={{ backgroundImage: `url('${displayUser.avatar}')` }}
@@ -625,14 +625,14 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           />
           </div>
 
-          <div className="flex flex-col items-center gap-3">
-            <h1 className="text-2xl font-bold tracking-tight text-center">{displayUser.name}</h1>
+          <div className="flex flex-col items-center lg:items-start gap-3">
+            <h1 className="text-2xl font-bold tracking-tight text-center lg:text-left">{displayUser.name}</h1>
             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest italic shadow-sm ${role === 'provider' ? 'bg-emerald-500 text-white' : 'bg-primary text-white'}`}>
               {role === 'provider' ? 'PRESTADOR DE SERVIÇO' : 'CLIENTE'}
             </span>
           </div>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-3 mb-1">{displayUser.email}</p>
-          <div className="flex flex-wrap items-center justify-center gap-1 mt-2">
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-3 mb-1 text-center lg:text-left">{displayUser.email}</p>
+          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-1 mt-2">
             <span className="bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter text-slate-500 dark:text-gray-400 border border-slate-200 dark:border-white/5 shadow-sm">
               {displayUser.joinDate}
             </span>
@@ -651,7 +651,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
       </div>
 
       {/* Main Options */}
-      <main className="flex-1 overflow-y-auto px-4 py-6 max-w-4xl mx-auto w-full pb-32">
+      <main className="flex-1 overflow-y-auto px-4 py-6 max-w-4xl lg:mx-0 lg:ml-12 w-full pb-32 transition-all duration-300">
         
 
         {/* Seção de Alerta de Perfil Incompleto (Apenas para Prestadores) */}

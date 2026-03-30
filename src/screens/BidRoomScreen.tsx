@@ -263,7 +263,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
   return (
     <div className="flex flex-col h-screen bg-slate-50 dark:bg-slate-900 font-display">
       {/* Header */}
-      <header className="shrink-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-4 flex items-center gap-4 z-10 shadow-sm relative">
+      <header className="shrink-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-4 lg:pl-12 flex items-center gap-4 z-10 shadow-sm relative transition-all duration-300">
         <button onClick={() => onNavigate('back')} className="text-slate-500 hover:text-primary transition-colors size-10 flex items-center justify-center bg-slate-100 dark:bg-slate-700/50 rounded-full">
           <span className="material-symbols-outlined">arrow_back</span>
         </button>
@@ -278,7 +278,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto w-full max-w-4xl mx-auto flex flex-col p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto w-full max-w-4xl lg:mx-0 lg:ml-12 flex flex-col p-4 space-y-4 transition-all duration-300">
         
         {/* Order Briefing */}
         <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
@@ -370,8 +370,8 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
 
       {/* Footer Form (Only for Providers) */}
       {!isClient && !isExpired && !hasBidded && role === 'provider' && (
-        <form onSubmit={handleSendBid} className="shrink-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 p-4 pb-safe z-20">
-          <div className="max-w-4xl mx-auto flex gap-2 items-center">
+        <form onSubmit={handleSendBid} className="shrink-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 p-4 pb-safe z-20 transition-all duration-300">
+          <div className="max-w-4xl lg:mx-0 lg:ml-12 flex gap-2 items-center">
             <div className="flex-1 bg-slate-50 dark:bg-slate-900 rounded-2xl border-2 border-transparent focus-within:border-primary/30 flex items-center px-4 py-2 transition-colors">
 
               <input 

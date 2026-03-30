@@ -58,7 +58,7 @@ export default function MyRequestsScreen({ onNavigate, params }: NavigationProps
 
       {/* Header */}
       <header className="flex flex-col bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 relative z-20">
-        <div className="flex items-center gap-3 p-4 max-w-4xl mx-auto w-full">
+        <div className="flex items-center gap-3 p-4 max-w-4xl lg:mx-0 lg:ml-12 w-full transition-all duration-300">
           <button 
             onClick={() => onNavigate('back')}
             className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-all shrink-0"
@@ -69,7 +69,7 @@ export default function MyRequestsScreen({ onNavigate, params }: NavigationProps
         </div>
 
         {/* Tabs */}
-        <div className="px-4 max-w-4xl mx-auto w-full flex gap-6 overflow-x-auto no-scrollbar">
+        <div className="px-4 max-w-4xl lg:mx-0 lg:ml-12 w-full flex gap-6 overflow-x-auto no-scrollbar transition-all duration-300">
           <button
             onClick={() => setActiveTab('ativos')}
             className={`pb-3 text-sm font-bold whitespace-nowrap transition-colors border-b-2 ${activeTab === 'ativos' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
@@ -93,7 +93,7 @@ export default function MyRequestsScreen({ onNavigate, params }: NavigationProps
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto w-full">
-        <div className="max-w-4xl mx-auto w-full p-4 space-y-4">
+        <div className="max-w-4xl lg:mx-0 lg:ml-12 w-full p-4 space-y-4 transition-all duration-300">
 
           {loading ? (
             <div className="flex justify-center p-8">

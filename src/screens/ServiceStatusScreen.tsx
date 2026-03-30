@@ -132,22 +132,22 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
 
       {/* Header */}
       <header className="sticky top-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
-        <div className="flex items-center p-4 justify-between max-w-4xl mx-auto w-full">
+        <div className="flex items-center p-4 justify-between max-w-4xl lg:mx-0 lg:ml-12 w-full transition-all duration-300">
           <button 
             onClick={() => onNavigate('back')}
             className="text-slate-900 dark:text-slate-100 flex size-10 items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
-          <h2 className="text-lg font-bold leading-tight tracking-tight flex-1 text-center pr-10">
+          <h2 className="text-lg font-bold leading-tight tracking-tight flex-1 text-center lg:text-left pr-10">
             {displayData.display_id || 'Status do Serviço'}
           </h2>
         </div>
       </header>
 
-      <main className="flex-1 max-w-4xl mx-auto w-full pb-24">
+      <main className="flex-1 max-w-4xl lg:mx-0 lg:ml-12 w-full pb-24 transition-all duration-300">
         <div className="flex flex-col px-4 py-8">
-          <div className="flex flex-col items-center gap-6">
+          <div className="flex flex-col items-center lg:items-start gap-6">
             <div className="relative">
               <div className="flex items-center justify-center">
                 <span className={`material-symbols-outlined text-6xl ${displayData.status === 'cancelled' ? 'text-red-600' : 'text-primary'}`}>
@@ -156,7 +156,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
               </div>
             </div>
             
-            <div className="flex flex-col items-center gap-2 text-center">
+            <div className="flex flex-col items-center lg:items-start gap-2 text-center lg:text-left">
               <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
                 {displayData.status === 'open' ? 'Solicitação Aberta' : 
                  displayData.status === 'proposed' ? 'Orçamento Recebido' :

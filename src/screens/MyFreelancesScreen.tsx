@@ -75,7 +75,7 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
       
       {/* Header */}
       <header className="flex flex-col bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 relative z-20">
-        <div className="flex items-center justify-between p-4 max-w-4xl mx-auto w-full">
+        <div className="flex items-center justify-between p-4 max-w-4xl lg:mx-0 lg:ml-12 w-full transition-all duration-300">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => onNavigate('home')}
@@ -101,14 +101,14 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto w-full">
-        <div className="max-w-4xl mx-auto w-full p-4 space-y-4">
+        <div className="max-w-4xl lg:mx-0 lg:ml-12 w-full p-4 space-y-4 transition-all duration-300">
           
           {loading ? (
             <div className="flex justify-center p-8">
               <span className="material-symbols-outlined animate-spin text-4xl text-slate-300">progress_activity</span>
             </div>
           ) : freelanceOrders.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center text-slate-500">
+            <div className="flex flex-col items-center lg:items-start justify-center py-20 text-center lg:text-left text-slate-500">
               <div className="size-20 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-6">
                 <span className="material-symbols-outlined text-4xl opacity-30">work</span>
               </div>

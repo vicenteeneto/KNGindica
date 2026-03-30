@@ -515,7 +515,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         ? 'bg-black/95 backdrop-blur-md shadow-2xl border-b border-white/5'
         : 'bg-gradient-to-b from-black/90 via-black/30 to-transparent'
         }`}>
-        <div className="flex items-center justify-between mx-auto max-w-7xl">
+        <div className="flex items-center justify-between lg:ml-12 lg:mr-auto max-w-7xl transition-all duration-300">
           <div className="flex items-center gap-3">
             <div 
               className="relative flex items-center gap-1.5 cursor-pointer group"
@@ -634,7 +634,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         </div>
 
         {/* Category Chips - Prime Style */}
-        <div className="max-w-7xl mx-auto mt-4 overflow-x-auto hide-scrollbar flex items-center gap-2 pb-2">
+        <div className="lg:ml-12 lg:mr-auto max-w-7xl mt-4 overflow-x-auto hide-scrollbar flex items-center gap-2 pb-2 transition-all duration-300">
           {dynamicCategories.map((cat) => (
             <button
               key={cat.name}
@@ -672,8 +672,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                   <div className="absolute inset-0 bg-gradient-to-r from-background-light/40 dark:from-black/80 via-transparent to-transparent"></div>
 
                   {/* Content */}
-                  <div className="absolute bottom-16 md:bottom-24 left-0 w-full px-4 md:px-12 max-w-7xl mx-auto left-1/2 -translate-x-1/2">
-                    <div className="max-w-2xl animate-fade-in-up">
+                  <div className="absolute bottom-16 md:bottom-24 left-0 lg:left-12 w-full px-4 md:px-12 max-w-7xl lg:mx-0 transition-all duration-300">
+                    <div className="max-w-2xl animate-fade-in-up flex flex-col items-center lg:items-start text-center lg:text-left">
                       <div className="flex items-center gap-2 mb-3">
                         {p.isVerified ? (
                           <div className="flex items-center gap-1.5 bg-emerald-500/20 backdrop-blur-md px-2 py-0.5 rounded border border-emerald-500/30">
@@ -690,7 +690,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                         {p.name.split(' ')[0]} <br />
                         <span className="text-primary">{p.name.split(' ').slice(1).join(' ')}</span>
                       </h1>
-                      <div className="flex items-center gap-3 mb-6">
+                      <div className="flex items-center justify-center lg:justify-start gap-3 mb-6">
                         <div className="flex items-center text-yellow-500 gap-1 bg-black/40 backdrop-blur-md px-2 py-1 rounded-md border border-white/10">
                           <span className="material-symbols-outlined text-sm filled">star</span>
                           <span className="text-sm font-black">{p.rating}</span>
@@ -748,7 +748,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
         {/* Active Service Tracker (Live Activity Style) */}
         {activeRequest && (
-          <div className="max-w-7xl mx-auto px-4 -mt-12 md:-mt-16 mb-8 relative z-30">
+          <div className="lg:ml-12 lg:mr-auto max-w-7xl px-4 -mt-12 md:-mt-16 mb-8 relative z-30 transition-all duration-300">
             <div 
               onClick={() => onNavigate('myRequests')}
               className="bg-primary/95 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl flex items-center justify-between cursor-pointer hover:scale-[1.02] transition-transform animate-pulse-subtle"
@@ -779,7 +779,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         )}
 
 
-        <section className="max-w-7xl mx-auto px-4 mb-10 relative z-30">
+        <section className="lg:ml-12 lg:mr-auto max-w-7xl px-4 mb-10 relative z-30 transition-all duration-300">
           <div className="bg-gradient-to-r from-emerald-600/90 to-emerald-800/95 rounded-xl p-4 md:p-6 shadow-xl relative overflow-hidden group border border-emerald-400/20">
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">

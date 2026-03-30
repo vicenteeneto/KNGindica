@@ -213,7 +213,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
     <div className="bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased pb-10">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
-        <div className="flex items-center p-4 justify-between max-w-4xl mx-auto w-full">
+        <div className="flex items-center p-4 justify-between max-w-4xl lg:mx-0 lg:ml-12 w-full transition-all duration-300">
           <button 
             onClick={() => onNavigate('home')}
             className="text-slate-900 dark:text-slate-100 flex size-10 items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
@@ -225,7 +225,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
         </div>
       </header>
 
-      <main className="flex-1 max-w-2xl mx-auto w-full p-4 lg:p-8">
+      <main className="flex-1 max-w-2xl lg:mx-0 lg:ml-12 w-full p-4 lg:p-8 transition-all duration-300">
         <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800">
           <div className="mb-8">
             <h1 className="text-2xl font-black tracking-tight mb-2">Defina seu Preço</h1>

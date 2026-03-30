@@ -144,7 +144,7 @@ export default function RewardsScreen({ onNavigate }: NavigationProps) {
           onNavigate={onNavigate} 
         />
       ) : (
-        <header className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 h-16 flex items-center justify-between">
+        <header className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 lg:pl-12 h-16 flex items-center justify-between transition-all duration-300">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => onNavigate('back')}
@@ -158,16 +158,16 @@ export default function RewardsScreen({ onNavigate }: NavigationProps) {
       )}
 
       <main className="flex-1 overflow-y-auto w-full p-4 pb-24">
-        <div className="max-w-7xl mx-auto space-y-6">
+        <div className="max-w-7xl lg:mx-0 lg:ml-12 space-y-6 transition-all duration-300">
           
           {/* Points Card */}
           <div className="bg-gradient-to-br from-primary to-orange-600 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-700">
                 <span className="material-symbols-outlined text-[120px]">workspace_premium</span>
             </div>
-            <div className="relative z-10 text-center">
+            <div className="relative z-10 text-center lg:text-left">
               <p className="text-white/80 font-bold uppercase tracking-[0.2em] text-xs mb-2">Seu Saldo atual</p>
-              <h2 className="text-6xl font-black mb-4 flex items-center justify-center gap-3">
+              <h2 className="text-6xl font-black mb-4 flex items-center justify-center lg:justify-start gap-3">
                 {profile?.reward_points || 0}
                 <span className="text-2xl font-medium text-white/60">pts</span>
               </h2>
