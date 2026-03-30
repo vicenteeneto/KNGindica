@@ -51,12 +51,19 @@ const formatNotificationText = (text: string) => {
 
 export default function NotificationsScreen({ onNavigate, params }: NotificationsScreenProps) {
   const { role, user } = useAuth();
-  const { refreshCounts } = useNotifications();
+  const { refreshCounts, showToast } = useNotifications();
   const push = usePushNotifications();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'unread'>('all');
   const [showPushBanner, setShowPushBanner] = useState(() => localStorage.getItem('KNGindica_dismissed_push_prompt') !== 'true');
+  const [confirmModal, setConfirmModal] = useState<{ 
+    isOpen: boolean; 
+    action: () => void; 
+  }>({
+    isOpen: false,
+    action: () => {},
+  });
 
   useEffect(() => {
     if (!user) return;
@@ -95,16 +102,29 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
   }, [user]);
 
   const handleClearAll = async () => {
-    if (!user) return;
-    const { error } = await supabase
-      .from('notifications')
-      .delete()
-      .eq('user_id', user.id);
+    setConfirmModal({
+      isOpen: true,
+      action: async () => {
+        if (!user) return;
+        try {
+          const { error } = await supabase
+            .from('notifications')
+            .delete()
+            .eq('user_id', user.id);
 
-    if (!error) {
-      setNotifications([]);
-      refreshCounts();
-    }
+          if (error) throw error;
+
+          setNotifications([]);
+          refreshCounts();
+          showToast("Sucesso", "Todas as notificações foram limpas.", "success");
+        } catch (err: any) {
+          console.error("Erro ao limpar notificações:", err);
+          showToast("Erro", "Não foi possível limpar as notificações.", "error");
+        } finally {
+          setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        }
+      }
+    });
   };
 
   const handleDismissPushBanner = () => {
@@ -324,6 +344,37 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
         )}
       </main>
 
+      {/* Confirm Clear Modal */}
+      {confirmModal.isOpen && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-xs bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200 text-center">
+            <div className="p-6">
+              <div className="size-16 rounded-full bg-amber-100 dark:bg-amber-900/20 text-amber-600 flex items-center justify-center mx-auto mb-4">
+                <span className="material-symbols-outlined text-3xl">delete_sweep</span>
+              </div>
+              <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tighter italic">Limpar Tudo?</h3>
+              <p className="text-sm text-slate-500 font-medium mb-6 leading-relaxed">
+                Deseja apagar todas as suas notificações permanentemente?
+              </p>
+              
+              <div className="flex flex-col gap-2">
+                <button 
+                  onClick={confirmModal.action}
+                  className="w-full py-3.5 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:brightness-110 transition-all shadow-lg"
+                >
+                  Confirmar
+                </button>
+                <button 
+                  onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                  className="w-full py-3.5 text-slate-500 font-bold text-xs"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

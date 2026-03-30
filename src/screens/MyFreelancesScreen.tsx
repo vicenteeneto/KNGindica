@@ -188,6 +188,39 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
           )}
         </div>
       </main>
+
+      {/* Confirm Delete Modal */}
+      {confirmModal.isOpen && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-xs bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200 text-center">
+            <div className="p-6">
+              <div className="size-16 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center mx-auto mb-4">
+                <span className="material-symbols-outlined text-red-600 text-3xl">delete_forever</span>
+              </div>
+              <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tighter">Excluir Freelance?</h3>
+              <p className="text-sm text-slate-500 font-medium mb-1 truncate px-4">"{confirmModal.title}"</p>
+              <p className="text-xs text-slate-400 mb-6 leading-relaxed">
+                Esta ação é irreversível e removerá todos os lances recebidos até agora.
+              </p>
+              
+              <div className="flex flex-col gap-2">
+                <button 
+                  onClick={handleDeleteFreelance}
+                  className="w-full py-3.5 bg-red-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-red-700 transition-colors shadow-lg shadow-red-600/10"
+                >
+                  Confirmar Exclusão
+                </button>
+                <button 
+                  onClick={() => setConfirmModal({ isOpen: false, orderId: null, title: '' })}
+                  className="w-full py-3.5 text-slate-500 font-bold text-xs"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
