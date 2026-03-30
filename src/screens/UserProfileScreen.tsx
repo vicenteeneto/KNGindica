@@ -705,7 +705,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   <span className="material-symbols-outlined text-[20px]">person_pin_circle</span>
                 </div>
                 <div className="text-left">
-                  <p className="text-[15px] text-slate-900 dark:text-white">Editar Meus Dados</p>
+                  <p className="text-[14px] text-slate-900 dark:text-white">Editar Meus Dados</p>
                 </div>
               </div>
               <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
@@ -722,7 +722,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                     <span className="material-symbols-outlined text-[20px]">construction</span>
                   </div>
                   <div className="text-left">
-                    <p className="text-[15px] text-slate-900 dark:text-white">Perfis de Trabalho</p>
+                    <p className="text-[14px] text-slate-900 dark:text-white">Perfis de Trabalho</p>
                   </div>
                 </div>
                 <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
@@ -739,7 +739,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   <span className="material-symbols-outlined text-[20px]">finance</span>
                 </div>
                 <div className="text-left">
-                  <p className="text-[15px] text-slate-900 dark:text-white">Meus Cartões & Pix</p>
+                  <p className="text-[14px] text-slate-900 dark:text-white">Meus Cartões & Pix</p>
                 </div>
               </div>
               <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
@@ -755,7 +755,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   <span className="material-symbols-outlined text-[20px]">workspace_premium</span>
                 </div>
                 <div className="text-left">
-                  <p className="text-[15px] text-slate-900 dark:text-white">Indique e Ganhe</p>
+                  <p className="text-[14px] text-slate-900 dark:text-white">Indique e Ganhe</p>
                 </div>
               </div>
               <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
@@ -772,7 +772,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                     <span className="material-symbols-outlined text-[20px]">star</span>
                   </div>
                   <div className="text-left">
-                    <p className="text-[15px] text-slate-900 dark:text-white">Minhas Avaliações</p>
+                    <p className="text-[14px] text-slate-900 dark:text-white">Minhas Avaliações</p>
                   </div>
                 </div>
                 <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
@@ -796,7 +796,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 </div>
                 <div className="text-left flex flex-col justify-center">
                   <div className="flex items-center gap-2">
-                    <p className="text-[15px] text-slate-900 dark:text-white">Notificações Push</p>
+                    <p className="text-[14px] text-slate-900 dark:text-white">Notificações Push</p>
                     {(profile as any)?.onesignal_id && (
                       <span className="bg-emerald-500 size-1.5 rounded-full animate-pulse"></span>
                     )}
@@ -818,7 +818,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   <span className="material-symbols-outlined text-[20px]">help_center</span>
                 </div>
                 <div className="text-left">
-                  <p className="text-[15px] text-slate-900 dark:text-white">Central de Ajuda</p>
+                  <p className="text-[14px] text-slate-900 dark:text-white">Central de Ajuda</p>
                 </div>
               </div>
               <span className="material-symbols-outlined text-[20px] text-slate-300 dark:text-slate-600">chevron_right</span>
@@ -890,8 +890,8 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   <span className="material-symbols-outlined text-2xl">person_pin_circle</span>
                 </div>
                 <div>
-                  <h3 className="font-black text-lg text-slate-900 dark:text-white uppercase tracking-tighter italic">Editar Meus Dados</h3>
-                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-none">Pessoais e Localização</p>
+                  <h3 className="text-[17px] font-semibold tracking-tight text-slate-900 dark:text-white">Editar Meus Dados</h3>
+                  <p className="text-[13px] text-slate-500 mt-0.5">Pessoais e Localização</p>
                 </div>
               </div>
               <button disabled={isSaving} onClick={() => setShowProfileModal(false)} className="size-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center text-slate-400 transition-colors">
@@ -909,7 +909,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   </div>
                   
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Nome Completo</label>
+                    <label className="block text-[13px] font-medium text-slate-500 mb-1.5 ml-1">Nome Completo</label>
                     <input
                       type="text"
                       required
@@ -922,7 +922,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">CPF / CNPJ</label>
+                      <label className="block text-[13px] font-medium text-slate-500 mb-1.5 ml-1">CPF / CNPJ</label>
                       <input
                         type="text"
                         required
@@ -934,7 +934,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Telefone Celular</label>
+                      <label className="block text-[13px] font-medium text-slate-500 mb-1.5 ml-1">Telefone Celular</label>
                       <input
                         type="tel"
                         required
@@ -957,7 +957,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="sm:col-span-1">
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">CEP</label>
+                      <label className="block text-[13px] font-medium text-slate-500 mb-1.5 ml-1">CEP</label>
                       <div className="relative">
                         <input
                           type="text"
@@ -975,7 +975,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                       </div>
                     </div>
                     <div className="sm:col-span-2">
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Rua / Logradouro</label>
+                      <label className="block text-[13px] font-medium text-slate-500 mb-1.5 ml-1">Rua / Logradouro</label>
                       <input
                         type="text"
                         required
@@ -989,7 +989,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="sm:col-span-1">
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Bairro</label>
+                      <label className="block text-[13px] font-medium text-slate-500 mb-1.5 ml-1">Bairro</label>
                       <input
                         type="text"
                         required
@@ -1000,7 +1000,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                       />
                     </div>
                     <div className="sm:col-span-1">
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Número</label>
+                      <label className="block text-[13px] font-medium text-slate-500 mb-1.5 ml-1">Número</label>
                       <input
                         type="text"
                         required
@@ -1011,7 +1011,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                       />
                     </div>
                     <div className="sm:col-span-1">
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Complemento</label>
+                      <label className="block text-[13px] font-medium text-slate-500 mb-1.5 ml-1">Complemento</label>
                       <input
                         type="text"
                         value={formData.address_complement}
@@ -1024,7 +1024,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="sm:col-span-2">
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Cidade</label>
+                      <label className="block text-[13px] font-medium text-slate-500 mb-1.5 ml-1">Cidade</label>
                       <CityAutocomplete
                         value={formData.city}
                         onChange={(val) => setFormData({...formData, city: val})}
@@ -1034,7 +1034,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                       />
                     </div>
                     <div className="sm:col-span-1">
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Estado (UF)</label>
+                      <label className="block text-[13px] font-medium text-slate-500 mb-1.5 ml-1">Estado (UF)</label>
                       <input
                         type="text"
                         maxLength={2}
@@ -1077,7 +1077,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {/* Frente do Documento */}
                       <div className="relative group">
-                         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Frente do Documento</label>
+                         <label className="block text-[13px] font-medium text-slate-500 mb-1.5 ml-1">Frente do Documento</label>
                          <button
                            type="button"
                            disabled={!!uploadingDoc || verificationStatus === 'approved'}
@@ -1123,7 +1123,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
 
                       {/* Selfie com Documento */}
                       <div className="relative group">
-                         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Selfie com Documento</label>
+                         <label className="block text-[13px] font-medium text-slate-500 mb-1.5 ml-1">Selfie com Documento</label>
                          <button
                            type="button"
                            disabled={!!uploadingDoc || verificationStatus === 'approved'}
@@ -1221,8 +1221,8 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   <span className="material-symbols-outlined text-2xl">construction</span>
                 </div>
                 <div>
-                  <h3 className="font-black text-lg text-slate-900 dark:text-white uppercase tracking-tighter italic">Perfil Profissional</h3>
-                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-none">Serviços, Bio e Configurações</p>
+                  <h3 className="text-[17px] font-semibold tracking-tight text-slate-900 dark:text-white">Perfil Profissional</h3>
+                  <p className="text-[13px] text-slate-500 mt-0.5">Serviços, Bio e Configurações</p>
                 </div>
               </div>
               <button disabled={isSaving} onClick={() => setShowProviderModal(false)} className="size-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center text-slate-400 transition-colors">
@@ -1329,7 +1329,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
 
                   <div className={`grid grid-cols-2 gap-4 transition-all duration-300 ${formData.is_negotiable ? 'opacity-30 pointer-events-none' : 'opacity-100'}`}>
                     <div>
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Preço Inicial (R$)</label>
+                      <label className="block text-[13px] font-medium text-slate-500 mb-1.5 ml-1">Preço Inicial (R$)</label>
                       <input
                         type="text"
                         value={formData.price_value}
@@ -1339,7 +1339,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Unidade</label>
+                      <label className="block text-[13px] font-medium text-slate-500 mb-1.5 ml-1">Unidade</label>
                       <select
                         value={formData.pricing_model}
                         onChange={(e) => setFormData({...formData, pricing_model: e.target.value})}

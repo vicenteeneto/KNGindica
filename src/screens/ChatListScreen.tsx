@@ -202,13 +202,13 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-baseline mb-0.5">
-                      <h3 className={`font-semibold text-[17px] tracking-tight transition-colors ${room.latestMessage && room.latestMessage.sender_id !== user?.id && !room.latestMessage.is_read ? 'text-primary' : 'text-slate-900 dark:text-white'} truncate`}>{profile?.full_name || 'Usuário'}</h3>
+                      <h3 className={`font-semibold text-sm tracking-tight transition-colors ${room.latestMessage && room.latestMessage.sender_id !== user?.id && !room.latestMessage.is_read ? 'text-primary' : 'text-slate-900 dark:text-white'} truncate`}>{profile?.full_name || 'Usuário'}</h3>
                       <span className="text-[12px] text-slate-500">{time}</span>
                     </div>
                     {/* Exibe o nome do serviço requisitado ligeiramente menor */}
                     <p className="text-[13px] font-medium text-slate-500 mb-0.5 truncate">{title}</p>
                     <div className="flex justify-between items-center">
-                      <p className={`text-[15px] truncate ${room.latestMessage && room.latestMessage.sender_id !== user?.id && !room.latestMessage.is_read ? 'text-slate-900 dark:text-white font-semibold' : 'text-slate-500 dark:text-slate-400'}`}>{latestMessage}</p>
+                      <p className={`text-[13px] truncate ${room.latestMessage && room.latestMessage.sender_id !== user?.id && !room.latestMessage.is_read ? 'text-slate-900 dark:text-white font-semibold' : 'text-slate-500 dark:text-slate-400'}`}>{latestMessage}</p>
                       {room.latestMessage && room.latestMessage.sender_id !== user?.id && !room.latestMessage.is_read && (
                         <div className="size-2.5 bg-primary rounded-full"></div>
                       )}
