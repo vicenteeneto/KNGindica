@@ -10,6 +10,15 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
   const { showToast } = useNotifications();
   const [freelanceOrders, setFreelanceOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [confirmModal, setConfirmModal] = useState<{ 
+    isOpen: boolean; 
+    orderId: string | null; 
+    title: string; 
+  }>({
+    isOpen: false,
+    orderId: null,
+    title: ''
+  });
 
   const fetchFreelances = async () => {
     if (!user) return;
@@ -35,6 +44,25 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
       showToast("Erro", "Erro ao buscar seus freelances.", "error");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteFreelance = async () => {
+    if (!confirmModal.orderId) return;
+    try {
+      const { error } = await supabase
+        .from('freelance_orders')
+        .delete()
+        .eq('id', confirmModal.orderId);
+      
+      if (error) throw error;
+      
+      showToast("Sucesso", "Freelance excluído com sucesso.", "success");
+      setFreelanceOrders(prev => prev.filter(o => o.id !== confirmModal.orderId));
+      setConfirmModal({ isOpen: false, orderId: null, title: '' });
+    } catch (err: any) {
+      console.error("Erro ao excluir freelance:", err);
+      showToast("Erro", "Falha ao excluir o freelance.", "error");
     }
   };
 
@@ -117,6 +145,16 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
                           </div>
                         </div>
                       </div>
+
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setConfirmModal({ isOpen: true, orderId: order.id, title: order.title });
+                        }}
+                        className="size-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center justify-center transition-all"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">delete</span>
+                      </button>
                     </div>
 
                     <div className="bg-slate-50 dark:bg-white/5 rounded-xl p-3 mb-4">

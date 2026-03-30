@@ -21,6 +21,21 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
   const [bidAmount, setBidAmount] = useState('');
   const [bidMessage, setBidMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [confirmModal, setConfirmModal] = useState<{ 
+    isOpen: boolean; 
+    title: string; 
+    message: string; 
+    confirmText: string; 
+    action: () => void; 
+    variant: 'danger' | 'success' | 'warning' 
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    confirmText: '',
+    action: () => {},
+    variant: 'warning'
+  });
 
   useEffect(() => {
     if (!params?.orderId) {
@@ -105,30 +120,46 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
   }, [order?.expires_at, order?.status]);
 
   const handleCancelBid = async (bidId: string) => {
-    if (!window.confirm("Certeza que deseja retirar sua proposta?")) return;
-    try {
-      const { error } = await supabase.from('freelance_bids').delete().eq('id', bidId);
-      if (error) throw error;
-      showToast("Sucesso", "Proposta retirada", "success");
-      // O fetchBids precisa ser chamado ou o estado atualizado
-      window.location.reload(); // Simple way as fetchBids isn't easily accessible here if not in scope
-    } catch (e) {
-      console.error(e);
-      showToast("Erro", "Falha ao retirar proposta", "error");
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: "Retirar Proposta?",
+      message: "Tem certeza que deseja retirar sua proposta? Esta ação não pode ser desfeita.",
+      confirmText: "Sim, Retirar",
+      variant: 'danger',
+      action: async () => {
+        try {
+          const { error } = await supabase.from('freelance_bids').delete().eq('id', bidId);
+          if (error) throw error;
+          showToast("Sucesso", "Proposta retirada", "success");
+          setBids(prev => prev.filter(b => b.id !== bidId));
+          setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        } catch (e) {
+          console.error(e);
+          showToast("Erro", "Falha ao retirar proposta", "error");
+        }
+      }
+    });
   };
 
   const handleCancelOrder = async () => {
-    if (!window.confirm("Certeza que deseja CANCELAR este freelance? Esta ação é irreversível.")) return;
-    try {
-      const { error } = await supabase.from('freelance_orders').update({ status: 'cancelled' }).eq('id', order.id);
-      if (error) throw error;
-      showToast("Cancelado", "Freelance cancelado com sucesso", "notification");
-      onNavigate('back');
-    } catch (e) {
-      console.error(e);
-      showToast("Erro", "Falha ao cancelar freelance", "error");
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: "Cancelar Freelance?",
+      message: "Certeza que deseja CANCELAR este freelance? Esta ação é irreversível.",
+      confirmText: "Sim, Cancelar",
+      variant: 'danger',
+      action: async () => {
+        try {
+          const { error } = await supabase.from('freelance_orders').update({ status: 'cancelled' }).eq('id', order.id);
+          if (error) throw error;
+          showToast("Cancelado", "Freelance cancelado com sucesso", "notification");
+          onNavigate('back');
+        } catch (e) {
+          console.error(e);
+          showToast("Erro", "Falha ao cancelar freelance", "error");
+        }
+      }
+    });
   };
 
   const handleSendBid = async (e: React.FormEvent) => {
@@ -163,50 +194,58 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
   };
 
   const handleAcceptBid = async (bid: any) => {
-    if (!window.confirm("Aceitar esta proposta e iniciar serviço?")) return;
-    try {
-      const { data: requestData, error: reqError } = await supabase.from('service_requests').insert([{
-        client_id: user?.id,
-        provider_id: bid.provider_id,
-        title: order.title,
-        description: order.description,
-        city: order.city,
-        street: order.street,
-        number: order.number,
-        neighborhood: order.neighborhood,
-        state: order.state,
-        cep: order.cep,
-        budget_amount: bid.amount,
-        status: 'awaiting_payment',
-        category_id: order.category_id,
-        payment_method: 'credit_card',
-        desired_date: new Date().toISOString()
-      }]).select().single();
-      
-      if (reqError) throw reqError;
-      
-      // Notificar o prestador que ele foi contratado
-      await supabase.from('notifications').insert({
-        user_id: bid.provider_id,
-        title: 'Você foi contratado!',
-        message: `Sua proposta para "${order.title}" foi aceita.`,
-        type: 'order',
-        related_entity_id: requestData.id
-      });
-      
-      const { error: closeError } = await supabase.from('freelance_orders').update({ 
-        status: 'closed',
-        assigned_provider_id: bid.provider_id
-      }).eq('id', order.id);
-      
-      if (closeError) throw closeError;
+    setConfirmModal({
+      isOpen: true,
+      title: "Contratar Prestador?",
+      message: "Deseja aceitar esta proposta e iniciar o serviço agora?",
+      confirmText: "Sim, Contratar",
+      variant: 'success',
+      action: async () => {
+        try {
+          const { data: requestData, error: reqError } = await supabase.from('service_requests').insert([{
+            client_id: user?.id,
+            provider_id: bid.provider_id,
+            title: order.title,
+            description: order.description,
+            city: order.city,
+            street: order.street,
+            number: order.number,
+            neighborhood: order.neighborhood,
+            state: order.state,
+            cep: order.cep,
+            budget_amount: bid.amount,
+            status: 'awaiting_payment',
+            category_id: order.category_id,
+            payment_method: 'credit_card',
+            desired_date: new Date().toISOString()
+          }]).select().single();
+          
+          if (reqError) throw reqError;
+          
+          // Notificar o prestador que ele foi contratado
+          await supabase.from('notifications').insert({
+            user_id: bid.provider_id,
+            title: 'Você foi contratado!',
+            message: `Sua proposta para "${order.title}" foi aceita.`,
+            type: 'order',
+            related_entity_id: requestData.id
+          });
+          
+          const { error: closeError } = await supabase.from('freelance_orders').update({ 
+            status: 'assigned',
+            assigned_provider_id: bid.provider_id
+          }).eq('id', order.id);
+          
+          if (closeError) throw closeError;
 
-      showToast("Sucesso", "Prestador contratado!", "success");
-      onNavigate('home');
-    } catch (err: any) {
-      console.error(err);
-      showToast("Erro", "Ocorreu um erro: " + err.message, "error");
-    }
+          showToast("Sucesso", "Prestador contratado!", "success");
+          onNavigate('home');
+        } catch (err: any) {
+          console.error(err);
+          showToast("Erro", "Ocorreu um erro: " + err.message, "error");
+        }
+      }
+    });
   };
 
   if (loading || !order) {
@@ -365,16 +404,73 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
           <p className="text-sm font-bold text-slate-500 mb-2">Você é o criador deste pedido.</p>
           <div className="flex flex-col gap-2">
             <button onClick={async () => {
-              if (window.confirm('Certeza que deseja encerrar preventivamente? Ninguém mais poderá dar lances.')) {
-                await supabase.from('freelance_orders').update({status: 'closed'}).eq('id', order.id);
-                onNavigate('back');
-              }
+              setConfirmModal({
+                isOpen: true,
+                title: "Encerrar Lances?",
+                message: "Certeza que deseja encerrar preventivamente? Ninguém mais poderá dar lances.",
+                confirmText: "Sim, Encerrar",
+                variant: 'warning',
+                action: async () => {
+                  try {
+                    await supabase.from('freelance_orders').update({status: 'assigned'}).eq('id', order.id);
+                    onNavigate('back');
+                  } catch (e) {
+                    showToast("Erro ao encerrar", "error");
+                  }
+                }
+              });
             }} className="text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-500/10 px-4 py-2 rounded-xl text-xs font-bold transition-colors">
               Encerrar Freelance Antecipadamente
             </button>
             <button onClick={handleCancelOrder} className="text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 px-4 py-2 rounded-xl text-sm font-black uppercase tracking-widest transition-colors">
               CANCELAR ESTE FREELANCE
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Modal Render */}
+      {confirmModal.isOpen && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-xs bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200 text-center">
+            <div className="p-6">
+              <div className={`size-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
+                confirmModal.variant === 'danger' ? 'bg-red-100 dark:bg-red-900/20 text-red-600' : 
+                confirmModal.variant === 'success' ? 'bg-emerald-100 dark:bg-emerald-900/20 text-emerald-600' : 
+                'bg-amber-100 dark:bg-amber-900/20 text-amber-600'
+              }`}>
+                <span className="material-symbols-outlined text-3xl">
+                  {confirmModal.variant === 'danger' ? 'report' : 
+                   confirmModal.variant === 'success' ? 'check_circle' : 
+                   'help'}
+                </span>
+              </div>
+              <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tighter">
+                {confirmModal.title}
+              </h3>
+              <p className="text-sm text-slate-500 font-medium mb-6 leading-relaxed">
+                {confirmModal.message}
+              </p>
+              
+              <div className="flex flex-col gap-2">
+                <button 
+                  onClick={confirmModal.action}
+                  className={`w-full py-3.5 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg ${
+                    confirmModal.variant === 'danger' ? 'bg-red-600 hover:bg-red-700 shadow-red-600/10' : 
+                    confirmModal.variant === 'success' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/10' : 
+                    'bg-primary hover:bg-primary/95 shadow-primary/10'
+                  }`}
+                >
+                  {confirmModal.confirmText}
+                </button>
+                <button 
+                  onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                  className="w-full py-3.5 text-slate-500 font-bold text-xs"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
