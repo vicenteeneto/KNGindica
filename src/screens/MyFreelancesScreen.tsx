@@ -10,6 +10,7 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
   const { showToast } = useNotifications();
   const [freelanceOrders, setFreelanceOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'open' | 'in_progress' | 'completed'>('open');
   const [confirmModal, setConfirmModal] = useState<{ 
     isOpen: boolean; 
     orderId: string | null; 
@@ -97,6 +98,30 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
             Postar Novo
           </button>
         </div>
+
+        {/* Tabs */}
+        <div className="border-t border-slate-200 dark:border-slate-800">
+          <div className="flex max-w-4xl lg:mx-0 lg:ml-12">
+            <button 
+              onClick={() => setActiveTab('open')}
+              className={`flex-1 py-3 text-sm font-bold tracking-widest uppercase transition-colors ${activeTab === 'open' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+            >
+              Abertos
+            </button>
+            <button 
+              onClick={() => setActiveTab('in_progress')}
+              className={`flex-1 py-3 text-sm font-bold tracking-widest uppercase transition-colors ${activeTab === 'in_progress' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+            >
+              Em Andamento
+            </button>
+            <button 
+              onClick={() => setActiveTab('completed')}
+              className={`flex-1 py-3 text-sm font-bold tracking-widest uppercase transition-colors ${activeTab === 'completed' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+            >
+              Finalizados
+            </button>
+          </div>
+        </div>
       </header>
 
       {/* Main Content */}
@@ -107,29 +132,49 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
             <div className="flex justify-center p-8">
               <span className="material-symbols-outlined animate-spin text-4xl text-slate-300">progress_activity</span>
             </div>
-          ) : freelanceOrders.length === 0 ? (
-            <div className="flex flex-col items-center lg:items-start justify-center py-20 text-center lg:text-left text-slate-500">
-              <div className="size-20 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-6">
-                <span className="material-symbols-outlined text-4xl opacity-30">work</span>
-              </div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Nenhum freelance postado</h3>
-              <p className="text-sm max-w-xs mb-8">Você ainda não publicou nenhuma solicitação de freelance para os profissionais.</p>
-              <button 
-                onClick={() => onNavigate('freelanceRequest')}
-                className="px-8 py-3 bg-primary text-white rounded-2xl font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/25"
-              >
-                Postar meu primeiro Freelance
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {freelanceOrders.map((order) => (
-                  <div
-                    key={order.id}
-                    className="group bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm hover:shadow-xl hover:border-primary/50 transition-all cursor-pointer relative overflow-hidden"
-                    onClick={() => onNavigate('bidRoom', { orderId: order.id })}
-                  >
+          ) : (() => {
+            const filteredOrders = freelanceOrders.filter(order => {
+              if (activeTab === 'open') return order.status === 'open';
+              if (activeTab === 'in_progress') return ['assigned', 'awaiting_payment', 'paid', 'in_service'].includes(order.status);
+              if (activeTab === 'completed') return ['completed', 'cancelled', 'closed'].includes(order.status);
+              return false;
+            });
+
+            if (filteredOrders.length === 0) {
+              return (
+                <div className="flex flex-col items-center lg:items-start justify-center py-20 text-center lg:text-left text-slate-500">
+                  <div className="size-20 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-6">
+                    <span className="material-symbols-outlined text-4xl opacity-30">work</span>
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Nenhum freelance listado</h3>
+                  <p className="text-sm max-w-xs mb-8">Não há freelances para a guia selecionada.</p>
+                  {activeTab === 'open' && (
+                    <button 
+                      onClick={() => onNavigate('freelanceRequest')}
+                      className="px-8 py-3 bg-primary text-white rounded-2xl font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/25"
+                    >
+                      Postar um novo Freelance
+                    </button>
+                  )}
+                </div>
+              );
+            }
+
+            return (
+              <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {filteredOrders.map((order) => (
+                    <div
+                      key={order.id}
+                      className="group bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm hover:shadow-xl hover:border-primary/50 transition-all cursor-pointer relative overflow-hidden"
+                      onClick={() => {
+                        if (['assigned', 'awaiting_payment', 'paid', 'in_service', 'completed', 'cancelled'].includes(order.status)) {
+                          onNavigate('freelanceStatus', { orderId: order.id });
+                        } else {
+                          onNavigate('bidRoom', { orderId: order.id });
+                        }
+                      }}
+                    >
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex items-center gap-3">
                         <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
@@ -138,9 +183,14 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
                         <div>
                           <h3 className="font-black text-base tracking-tight uppercase line-clamp-1">{order.title}</h3>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className={`size-2 rounded-full ${order.status === 'open' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`}></span>
+                            <span className={`size-2 rounded-full ${order.status === 'open' ? 'bg-emerald-500 animate-pulse' : (['completed', 'cancelled'].includes(order.status) ? 'bg-slate-400' : 'bg-primary')}`}></span>
                             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">
-                              {order.status === 'open' ? 'Aguardando Lances' : 'Finalizado'}
+                              {order.status === 'open' ? 'Aguardando Lances' : 
+                               order.status === 'awaiting_payment' ? 'Aguardando Pagamento' :
+                               order.status === 'paid' ? 'Em Organização' :
+                               order.status === 'in_service' ? 'Em Progresso' :
+                               order.status === 'completed' ? 'Finalizado' :
+                               order.status === 'cancelled' ? 'Cancelado' : 'Mapeando'}
                             </p>
                           </div>
                         </div>
@@ -185,7 +235,7 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
                 ))}
               </div>
             </div>
-          )}
+          );})()}
         </div>
       </main>
 

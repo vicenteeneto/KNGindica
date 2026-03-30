@@ -19,10 +19,24 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
 
   useEffect(() => {
     const fetchRequest = async () => {
-      if (!params?.requestId) {
+      if (!params?.requestId && !params?.freelanceOrderId) {
         setLoading(false);
         return;
       }
+
+      if (params?.freelanceOrderId) {
+        const { data, error } = await supabase
+          .from('freelance_orders')
+          .select(`*, profiles:assigned_provider_id(full_name, avatar_url), service_categories(name)`)
+          .eq('id', params.freelanceOrderId)
+          .single();
+        if (!error && data) {
+          setRequest({ ...data, is_freelance: true, budget_amount: data.budget });
+        }
+        setLoading(false);
+        return;
+      }
+
       let query = supabase
         .from('service_requests')
         .select(`
@@ -47,24 +61,32 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
 
   const handlePayment = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!params?.requestId || !user) return;
+    if ((!params?.requestId && !params?.freelanceOrderId) || !user) return;
     
     setIsProcessing(true);
     try {
       // 1. Atualizar status para 'paid'
-      const { error } = await supabase
-        .from('service_requests')
-        .update({ status: 'paid' })
-        .eq('id', request?.id || params.requestId);
-
-      if (error) throw error;
+      if (request?.is_freelance) {
+        const { error } = await supabase
+          .from('freelance_orders')
+          .update({ status: 'paid' })
+          .eq('id', params.freelanceOrderId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('service_requests')
+          .update({ status: 'paid' })
+          .eq('id', request?.id || params.requestId);
+        if (error) throw error;
+      }
 
       // 2. Registrar transação
       const totalAmount = (request?.budget_amount || 0) + PLATFORM_FEE;
       await supabase.from('transactions').insert({
-        request_id: params.requestId,
+        request_id: request?.is_freelance ? null : params.requestId,
+        freelance_order_id: request?.is_freelance ? params.freelanceOrderId : null,
         user_id: user.id,
-        type: 'service_payment',
+        type: request?.is_freelance ? 'freelance_payment' : 'service_payment',
         amount: totalAmount,
         status: 'completed',
         metadata: { 
@@ -75,17 +97,40 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
       });
 
       // 3. Notificar no chat
-      const { data: room } = await supabase.from('chat_rooms').select('id').eq('request_id', params.requestId).single();
-      if (room) {
-        await supabase.from('chat_messages').insert({
-          room_id: room.id,
-          sender_id: user.id,
-          content: "💳 Taxa de intermediação paga com sucesso! O serviço foi oficialmente confirmado."
-        });
+      if (request?.is_freelance) {
+        const { data: existingRoom } = await supabase.from('chat_rooms').select('id').eq('freelance_order_id', params.freelanceOrderId).maybeSingle();
+        if (!existingRoom) {
+          const { data: newRoom } = await supabase.from('chat_rooms').insert({
+             freelance_order_id: params.freelanceOrderId,
+             client_id: user.id,
+             provider_id: request.assigned_provider_id,
+             title: request.title
+          }).select().single();
+          if (newRoom) {
+             await supabase.from('chat_messages').insert({
+               room_id: newRoom.id,
+               sender_id: user.id,
+               content: "💳 Taxa paga! O chat está liberado para iniciarem os trabalhos."
+             });
+          }
+        }
+      } else {
+        const { data: room } = await supabase.from('chat_rooms').select('id').eq('request_id', params.requestId).single();
+        if (room) {
+          await supabase.from('chat_messages').insert({
+            room_id: room.id,
+            sender_id: user.id,
+            content: "💳 Taxa de intermediação paga com sucesso! O serviço foi oficialmente confirmado."
+          });
+        }
       }
 
       showToast("Sucesso", "Pagamento confirmado com sucesso!", "success");
-      onNavigate('serviceStatus', { requestId: params.requestId });
+      if (request?.is_freelance) {
+        onNavigate('freelanceStatus', { orderId: params.freelanceOrderId });
+      } else {
+        onNavigate('serviceStatus', { requestId: params.requestId });
+      }
     } catch (err: any) {
       showToast("Erro", "Erro ao processar pagamento: " + err.message, "error");
     } finally {
@@ -114,7 +159,13 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
       {/* Header */}
       <header className="flex items-center p-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10 max-w-4xl mx-auto w-full">
         <button 
-          onClick={() => onNavigate('serviceStatus', { requestId: params?.requestId })} 
+          onClick={() => {
+            if (params?.freelanceOrderId) {
+              onNavigate('freelanceStatus', { orderId: params.freelanceOrderId });
+            } else {
+              onNavigate('serviceStatus', { requestId: params?.requestId });
+            }
+          }} 
           className="flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
         >
           <span className="material-symbols-outlined text-slate-700 dark:text-slate-300">arrow_back</span>

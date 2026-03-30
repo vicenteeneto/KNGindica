@@ -20,6 +20,7 @@ export default function WriteReviewScreen({ onNavigate, params }: WriteReviewScr
   const providerAvatar = params?.providerAvatar || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png';
   const serviceTitle = params?.serviceTitle || 'Serviço';
   const requestId = params?.requestId;
+  const isFreelance = params?.isFreelance;
   const providerId = params?.providerId;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,7 +39,8 @@ export default function WriteReviewScreen({ onNavigate, params }: WriteReviewScr
       const { error } = await supabase
         .from('reviews')
         .insert({
-          request_id: requestId,
+          request_id: isFreelance ? null : requestId,
+          freelance_order_id: isFreelance ? requestId : null,
           reviewer_id: user.id,
           provider_id: providerId,
           rating,
@@ -47,7 +49,7 @@ export default function WriteReviewScreen({ onNavigate, params }: WriteReviewScr
 
       if (error) throw error;
       showToast("Avaliação enviada", "Obrigado por seu feedback!", "success");
-      onNavigate('myRequests');
+      onNavigate(isFreelance ? 'myFreelances' : 'myRequests');
     } catch (err) {
       console.error('Error submitting review:', err);
       showToast("Erro ao enviar", "Tente novamente mais tarde.", "error");
@@ -62,7 +64,7 @@ export default function WriteReviewScreen({ onNavigate, params }: WriteReviewScr
       {/* Header */}
       <header className="flex items-center p-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10 max-w-4xl mx-auto w-full">
         <button
-          onClick={() => onNavigate(params?.returnTo || 'myRequests')}
+          onClick={() => onNavigate(params?.returnTo || (isFreelance ? 'myFreelances' : 'myRequests'))}
           className="flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
         >
           <span className="material-symbols-outlined text-slate-700 dark:text-slate-300">close</span>
@@ -146,7 +148,7 @@ export default function WriteReviewScreen({ onNavigate, params }: WriteReviewScr
             </button>
             <button
               type="button"
-              onClick={() => onNavigate(params?.returnTo || 'myRequests')}
+              onClick={() => onNavigate(params?.returnTo || (isFreelance ? 'myFreelances' : 'myRequests'))}
               className="mt-2 text-sm font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-300"
             >
               Pular por enquanto

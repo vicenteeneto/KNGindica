@@ -127,15 +127,26 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
     // Buscar dados do pedido vinculado
     const fetchRequest = async () => {
       let finalRequestId = params?.requestId;
+      let finalFreelanceId = params?.freelanceOrderId;
       
       // Fallback: se não veio por parâmetro, busca da sala de chat
-      if (!finalRequestId && activeRoomId) {
+      if (!finalRequestId && !finalFreelanceId && activeRoomId) {
         const { data: roomData } = await supabase
           .from('chat_rooms')
-          .select('request_id')
+          .select('request_id, freelance_order_id')
           .eq('id', activeRoomId)
           .single();
         if (roomData?.request_id) finalRequestId = roomData.request_id;
+        if (roomData?.freelance_order_id) finalFreelanceId = roomData.freelance_order_id;
+      }
+
+      if (finalFreelanceId) {
+        const { data } = await supabase.from('freelance_orders').select('*').eq('id', finalFreelanceId).single();
+        if (data) {
+          setServiceRequest({ ...data, is_freelance: true });
+          params.freelanceOrderId = data.id;
+        }
+        return;
       }
 
       if (!finalRequestId) return;
@@ -230,7 +241,8 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
           .insert({
             client_id: clientId,
             provider_id: providerId,
-            request_id: params?.requestId || null
+            request_id: params?.requestId || null,
+            freelance_order_id: params?.freelanceOrderId || null
           })
           .select('id')
           .single();
@@ -639,7 +651,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
             <button onClick={() => fileInputRef.current?.click()} className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors flex items-center justify-center">
               <span className="material-symbols-outlined">add_circle</span>
             </button>
-            {role === 'provider' && (serviceRequest?.status === 'open' || !serviceRequest?.status) && (
+            {role === 'provider' && !serviceRequest?.is_freelance && (serviceRequest?.status === 'open' || !serviceRequest?.status) && (
               <button 
                 onClick={() => setShowProposalModal(true)}
                 className="p-2 text-orange-500 hover:bg-orange-500/10 rounded-full transition-colors flex items-center justify-center"

@@ -22,6 +22,7 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
           .select(`
             id,
             request_id,
+            freelance_order_id,
             client_id,
             provider_id,
             client_archived,
@@ -29,7 +30,8 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
             created_at,
             client:profiles!chat_rooms_client_id_fkey(full_name, avatar_url),
             provider:profiles!chat_rooms_provider_id_fkey(full_name, avatar_url),
-            service_requests(title, status)
+            service_requests(title, status),
+            freelance_orders(title, status)
           `)
           .or(`client_id.eq.${user.id},provider_id.eq.${user.id}`);
 
@@ -181,14 +183,14 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
               return filteredRooms.map((room) => {
                 // Unified logic: opponent is whoever is NOT the current user
                 const profile = room.provider_id === user?.id ? room.client : room.provider;
-              const title = room.service_requests?.title || 'Serviço';
+              const title = room.service_requests?.title || room.freelance_orders?.title || 'Serviço/Freelance';
               const latestMessage = room.latestMessage?.message || 'Inicie a conversa!';
               const time = room.latestMessage ? new Date(room.latestMessage.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
 
               return (
                 <div
                   key={room.id}
-                  onClick={() => handleOpenChat(room.id, title, profile?.full_name || 'Usuário', profile?.avatar_url, room.request_id)}
+                  onClick={() => handleOpenChat(room.id, title, profile?.full_name || 'Usuário', profile?.avatar_url, room.request_id || room.freelance_order_id)}
                   className="flex items-center gap-4 px-4 py-4 border-b border-slate-100 dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors relative"
                 >
                   {room.latestMessage && room.latestMessage.sender_id !== user?.id && !room.latestMessage.is_read && (

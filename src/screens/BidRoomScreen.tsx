@@ -197,49 +197,30 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
     setConfirmModal({
       isOpen: true,
       title: "Contratar Prestador?",
-      message: "Deseja aceitar esta proposta e iniciar o serviço agora?",
+      message: "Deseja aceitar esta proposta e ir para o pagamento?",
       confirmText: "Sim, Contratar",
       variant: 'success',
       action: async () => {
         try {
-          const { data: requestData, error: reqError } = await supabase.from('service_requests').insert([{
-            client_id: user?.id,
-            provider_id: bid.provider_id,
-            title: order.title,
-            description: order.description,
-            city: order.city,
-            street: order.street,
-            number: order.number,
-            neighborhood: order.neighborhood,
-            state: order.state,
-            cep: order.cep,
-            budget_amount: bid.amount,
+          const { error: closeError } = await supabase.from('freelance_orders').update({ 
             status: 'awaiting_payment',
-            category_id: order.category_id,
-            payment_method: 'credit_card',
-            desired_date: new Date().toISOString()
-          }]).select().single();
+            assigned_provider_id: bid.provider_id,
+            budget: bid.amount
+          }).eq('id', order.id);
           
-          if (reqError) throw reqError;
-          
+          if (closeError) throw closeError;
+
           // Notificar o prestador que ele foi contratado
           await supabase.from('notifications').insert({
             user_id: bid.provider_id,
             title: 'Você foi contratado!',
             message: `Sua proposta para "${order.title}" foi aceita.`,
             type: 'order',
-            related_entity_id: requestData.id
+            related_entity_id: order.id
           });
-          
-          const { error: closeError } = await supabase.from('freelance_orders').update({ 
-            status: 'assigned',
-            assigned_provider_id: bid.provider_id
-          }).eq('id', order.id);
-          
-          if (closeError) throw closeError;
 
           showToast("Sucesso", "Prestador contratado!", "success");
-          onNavigate('home');
+          onNavigate('freelanceStatus', { orderId: order.id });
         } catch (err: any) {
           console.error(err);
           showToast("Erro", "Ocorreu um erro: " + err.message, "error");

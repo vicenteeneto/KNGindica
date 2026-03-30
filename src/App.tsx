@@ -35,6 +35,7 @@ import WhatsAppSearchScreen from './screens/WhatsAppSearchScreen';
 import TermsConsentScreen from './screens/TermsConsentScreen';
 import BidRoomScreen from './screens/BidRoomScreen';
 import RewardsScreen from './screens/RewardsScreen';
+import FreelanceStatusScreen from './screens/FreelanceStatusScreen';
 import { initOneSignal } from './lib/OneSignalService';
 import { Screen } from './types';
 import { ThemeProvider, useTheme } from './ThemeContext';
@@ -315,6 +316,8 @@ function AppContent() {
         return <TermsConsentScreen onNavigate={handleNavigate} />;
       case 'bidRoom':
         return <BidRoomScreen onNavigate={handleNavigate} params={navigationParams} />;
+      case 'freelanceStatus':
+        return <FreelanceStatusScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'whatsappSearch':
         return <WhatsAppSearchScreen onNavigate={handleNavigate} params={navigationParams} />;
       default:

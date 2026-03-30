@@ -11,7 +11,7 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
   const { showToast } = useNotifications();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'available' | 'bidded' | 'dismissed'>('available');
+  const [activeTab, setActiveTab] = useState<'available' | 'bidded' | 'assigned' | 'dismissed'>('available');
   const [detailsModal, setDetailsModal] = useState<{ isOpen: boolean, order: any | null }>({
     isOpen: false, order: null
   });
@@ -108,8 +108,19 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
              myBidAmount: userBids?.find(b => b.order_id === o.id)?.amount
            }));
            setOrders(enhanced || []);
-        }
+         }
       }
+    } else if (activeTab === 'assigned') {
+      const { data, error } = await supabase
+        .from('freelance_orders')
+        .select(`
+          *,
+          profiles:client_id(full_name, avatar_url, phone),
+          service_categories(name, icon)
+        `)
+        .eq('assigned_provider_id', user.id)
+        .order('created_at', { ascending: false });
+      if (!error) setOrders(data || []);
     } else {
       // Dismissed tab
       if (dismissedIds.length === 0) {
@@ -194,9 +205,15 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
             >
               Meus Lances
             </button>
+              <button 
+              onClick={() => setActiveTab('assigned')}
+              className={`flex-1 py-3 text-sm font-bold tracking-widest uppercase transition-colors ${activeTab === 'assigned' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+            >
+              Meus Trabalhos
+            </button>
             <button 
               onClick={() => setActiveTab('dismissed')}
-              className={`flex-1 py-3 text-sm font-bold tracking-widest uppercase transition-colors ${activeTab === 'dismissed' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600'}`}
+              className={`flex-1 py-3 text-sm font-bold tracking-widest uppercase transition-colors ${activeTab === 'dismissed' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
             >
               Recusadas
             </button>
@@ -210,9 +227,9 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
             <div className="size-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
               <span className="material-symbols-outlined text-4xl text-slate-300">search_off</span>
             </div>
-            <h3 className="text-xl font-bold">{activeTab === 'available' ? 'Nenhuma ordem aberta' : 'Nenhum lance feito'}</h3>
+            <h3 className="text-xl font-bold">{activeTab === 'available' ? 'Nenhuma ordem aberta' : activeTab === 'assigned' ? 'Nenhum trabalho em andamento' : 'Nenhum lance feito'}</h3>
             <p className="text-slate-500 max-w-[250px] mx-auto">
-              {activeTab === 'available' ? 'Fique ligado! Novas oportunidades podem aparecer a qualquer momento.' : 'Você ainda não enviou propostas para ordens freelance.'}
+              {activeTab === 'available' ? 'Fique ligado! Novas oportunidades podem aparecer a qualquer momento.' : activeTab === 'assigned' ? 'Você ainda não foi escolhido para nenhum freelance.' : 'Você ainda não enviou propostas para ordens freelance.'}
             </p>
           </div>
         ) : (
@@ -295,10 +312,16 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
                   </div>
 
                   <button 
-                    onClick={() => onNavigate('bidRoom', { orderId: order.id })}
+                    onClick={() => {
+                      if (activeTab === 'assigned') {
+                        onNavigate('freelanceStatus', { orderId: order.id });
+                      } else {
+                        onNavigate('bidRoom', { orderId: order.id });
+                      }
+                    }}
                     className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 dark:bg-slate-700 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:brightness-125 transition-all shadow-lg active:scale-95"
                   >
-                    <span>{activeTab === 'available' ? 'Dar Lance' : 'Ver Chat'}</span>
+                    <span>{activeTab === 'available' ? 'Dar Lance' : activeTab === 'assigned' ? 'Ver Trabalho' : 'Ver Chat'}</span>
                     <span className="material-symbols-outlined text-sm">arrow_forward</span>
                   </button>
                 </div>
