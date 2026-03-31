@@ -61,8 +61,10 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
   const { showToast, showModal } = useNotifications();
   const { theme, toggleTheme } = useTheme();
   const [isUploading, setIsUploading] = useState(false);
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [selectedImageSrc, setSelectedImageSrc] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
 
   // States for Modals
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -574,11 +576,47 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
     }
   };
 
+  const handleCoverChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files || event.target.files.length === 0 || !user) return;
+    try {
+      setIsUploadingCover(true);
+      const file = event.target.files[0];
+      const fileExt = file.name.split('.').pop() || 'jpeg';
+      const fileName = `${user.id}-cover-${Math.random()}.${fileExt}`;
+      const filePath = `covers/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars') // Or a dedicated bucket, assuming avatars implies profile pictures
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ cover_image: publicUrl })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+      
+      showToast("Capa atualizada!", "Sua foto de capa foi salva.", "success");
+      await refreshProfile();
+    } catch (error: any) {
+      showToast("Erro ao alterar capa", error.message, "error");
+    } finally {
+      setIsUploadingCover(false);
+    }
+  };
+
   // User presentation data
   const displayUser = {
     name: profile?.full_name || "Usuário",
     email: user?.email || "",
     avatar: profile?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png",
+    cover: (profile as any)?.cover_image || null,
     joinDate: `Membro desde ${new Date(user?.created_at || Date.now()).getFullYear()}`,
     points: profile?.reward_points || 0
   };
@@ -586,8 +624,34 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
   return (
     <div className="flex flex-col min-h-screen bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
 
-      {/* Header Profile Area (Gradient bg) */}
-      <div className="bg-gradient-to-b from-primary/20 to-transparent dark:from-primary/10 pt-12 pb-6 px-4 shrink-0 shadow-sm border-b border-white/20 dark:border-slate-800/50 relative">
+      {/* Header Profile Area */}
+      <div 
+        className={`pt-12 pb-6 px-4 shrink-0 shadow-sm border-b border-white/20 dark:border-slate-800/50 relative bg-cover bg-center ${!displayUser.cover ? 'bg-gradient-to-b from-primary/20 to-transparent dark:from-primary/10' : ''}`}
+        style={displayUser.cover ? { backgroundImage: `url("${displayUser.cover}")` } : undefined}
+      >
+        {displayUser.cover && (
+          <div className="absolute inset-0 bg-black/50" />
+        )}
+        
+        {role === 'provider' && (
+          <div className="absolute top-6 right-4 md:right-24 z-[100]">
+            <input
+              type="file"
+              ref={coverInputRef}
+              className="hidden"
+              accept="image/*"
+              onChange={handleCoverChange}
+            />
+            <button
+              onClick={() => coverInputRef.current?.click()}
+              disabled={isUploadingCover}
+              className="px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/40 transition-all text-xs font-bold gap-2 shadow-sm border border-white/30 disabled:opacity-50"
+            >
+              <span className="material-symbols-outlined text-[16px]">add_photo_alternate</span>
+              {isUploadingCover ? 'Enviando...' : 'Alterar Capa'}
+            </button>
+          </div>
+        )}
         {/* Back Button */}
         <button 
           onClick={() => onNavigate(role === 'admin' ? 'adminDashboard' : 'home')}
@@ -625,14 +689,14 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           />
           </div>
 
-          <div className="flex flex-col items-center lg:items-start gap-3">
-            <h1 className="text-2xl font-bold tracking-tight text-center lg:text-left">{displayUser.name}</h1>
+          <div className="flex flex-col items-center lg:items-start gap-3 relative z-10">
+            <h1 className="text-2xl font-bold tracking-tight text-center lg:text-left text-slate-900 dark:text-white" style={displayUser.cover ? { color: 'white' } : undefined}>{displayUser.name}</h1>
             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest italic shadow-sm ${role === 'provider' ? 'bg-emerald-500 text-white' : 'bg-primary text-white'}`}>
               {role === 'provider' ? 'PRESTADOR DE SERVIÇO' : 'CLIENTE'}
             </span>
           </div>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-3 mb-1 text-center lg:text-left">{displayUser.email}</p>
-          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-1 mt-2">
+          <p className="text-sm mt-3 mb-1 text-center lg:text-left relative z-10 text-slate-500 dark:text-slate-400" style={displayUser.cover ? { color: '#cbd5e1' } : undefined}>{displayUser.email}</p>
+          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-1 mt-2 relative z-10">
             <span className="bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter text-slate-500 dark:text-gray-400 border border-slate-200 dark:border-white/5 shadow-sm">
               {displayUser.joinDate}
             </span>

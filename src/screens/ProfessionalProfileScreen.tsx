@@ -167,6 +167,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
             show_price: data.show_price !== false,
             pricing_model: data.pricing_model || 'hourly',
             image: data.avatar_url || 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a',
+            cover_image: data.cover_image || null,
             isVerified: data.is_verified,
             distance: 'A Combinar',
             description: data.bio || 'Sem descrição.',
@@ -408,7 +409,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                   <div
                     className="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden bg-slate-200 dark:bg-slate-800 rounded-3xl min-h-60 md:min-h-[400px] relative group shadow-2xl"
                     style={{
-                      backgroundImage: `url("${professional.image}")`,
+                      backgroundImage: `url("${professional.cover_image || professional.image}")`,
                     }}
                   >
                     <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-black via-black/60 to-transparent"></div>
@@ -426,32 +427,32 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                       backgroundImage: `url("${professional.image}")`,
                     }}
                   ></div>
-                  <div className="flex-1 flex justify-around items-center gap-4">
+                  <div className="flex-1 flex justify-around items-center gap-2">
                     <div className="flex flex-col items-center">
-                      <p className="text-slate-900 dark:text-slate-100 text-xl font-black italic tracking-tight">{displayReviewsCount}</p>
-                      <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Serviços</p>
+                      <p className="text-slate-900 dark:text-slate-100 text-lg md:text-xl md:font-black font-extrabold italic tracking-tight">{displayReviewsCount}</p>
+                      <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-0.5 md:mt-1 text-center leading-tight">Serviços</p>
                     </div>
                     <div className="flex flex-col items-center">
                       <div className="flex items-center gap-1">
-                        <p className="text-slate-900 dark:text-slate-100 text-xl font-black italic tracking-tight">{displayRating}</p>
-                        <span className="material-symbols-outlined text-amber-400 text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                        <p className="text-slate-900 dark:text-slate-100 text-lg md:text-xl md:font-black font-extrabold italic tracking-tight">{displayRating}</p>
+                        <span className="material-symbols-outlined text-amber-400 text-[16px] md:text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
                       </div>
-                      <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Avaliação</p>
+                      <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-0.5 md:mt-1 text-center leading-tight">Avaliação</p>
                     </div>
-                    <div className="flex flex-col items-center">
+                    <div className="flex flex-col items-center text-center">
                       {professional.show_price ? (
                         <>
-                          <p className="text-slate-900 dark:text-slate-100 text-xl font-black italic tracking-tight">
+                          <p className="text-slate-900 dark:text-slate-100 text-base md:text-lg md:font-black font-extrabold italic tracking-tight shrink-0 whitespace-nowrap">
                             {professional.pricing_model === 'negotiable' ? (
                               'A combinar'
                             ) : (
                               <>
-                                {professional.pricing_model === 'starting_at' && <span className="text-[10px] mr-1 opacity-50">A partir</span>}
+                                {professional.pricing_model === 'starting_at' && <span className="text-[10px] mr-1 opacity-50 block md:inline font-normal leading-none mt-1">A partir</span>}
                                 {formatCurrency(parseFloat(professional.price || '0'))}
                               </>
                             )}
                           </p>
-                          <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">
+                          <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-0.5 md:mt-1 text-center leading-tight">
                             {professional.pricing_model === 'hourly' ? '/ hora' : 
                              professional.pricing_model === 'fixed' ? 'Preço Fixo' : 
                              professional.pricing_model === 'starting_at' ? 'Inicial' : 'Negociável'}
@@ -459,8 +460,8 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                         </>
                       ) : (
                         <>
-                          <p className="text-slate-900 dark:text-slate-100 text-base font-black italic tracking-tight uppercase">Sob Consulta</p>
-                          <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Valores</p>
+                          <p className="text-slate-900 dark:text-slate-100 text-sm md:text-base font-black italic tracking-tight uppercase">Sob Consulta</p>
+                          <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-0.5 md:mt-1 text-center leading-tight">Valores</p>
                         </>
                       )}
                     </div>
@@ -513,12 +514,12 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                     <span className="material-symbols-outlined text-primary text-xl">photo_library</span>
                     Portfólio de Trabalhos
                   </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="flex gap-4 overflow-x-auto snap-x hide-scrollbar pb-4 -mx-4 px-4 md:mx-0 md:px-0">
                     {portfolioImages.map((img, idx) => (
                       <div 
                         key={img.id} 
                         onClick={() => setSelectedImageIndex(idx)}
-                        className="aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 group cursor-pointer shadow-md active:scale-95 transition-all"
+                        className="w-[200px] md:w-[240px] shrink-0 snap-center aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 group cursor-pointer shadow-md active:scale-95 transition-all"
                       >
                         <img 
                           src={img.image_url} 
@@ -769,20 +770,20 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                 opponentAvatar: professional.image 
               });
             }}
-            className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 h-11 px-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-transform active:scale-95"
+            className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 h-11 px-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-transform active:scale-95 min-w-0"
           >
             <span className="material-symbols-outlined text-[18px]">chat_bubble</span>
-            Mensagem
+            <span className="truncate">Mensagem</span>
           </button>
           <button
             onClick={() => {
               trackLead(professional.id, 'chat_start');
               onNavigate('serviceRequestForm', { providerId: professional.id, providerName: professional.name });
             }}
-            className="flex-[1.5] bg-primary text-white h-11 px-4 rounded-xl font-black text-xs uppercase tracking-tighter flex items-center justify-center gap-1.5 shadow-lg shadow-primary/20 transition-transform active:scale-95"
+            className="flex-1 bg-primary text-white h-11 px-2 md:px-4 rounded-xl font-black text-xs uppercase tracking-tighter flex items-center justify-center gap-1.5 shadow-lg shadow-primary/20 transition-transform active:scale-95 min-w-0"
           >
             <span className="material-symbols-outlined text-[18px]">bolt</span>
-            Solicitar Orçamento
+            <span className="truncate">Orçamento</span>
           </button>
         </div>
       </div>

@@ -50,7 +50,7 @@ const STORAGE_KEY = 'KNGindica_currentScreen';
 const STORAGE_PARAMS_KEY = 'KNGindica_navParams';
 
 // Telas que nunca devem ser persistidas (sensíveis ou de sessão)
-const NON_PERSISTENT_SCREENS = ['auth', 'forgotPassword', 'updatePassword', 'chat', 'termsConsent', 'bidRoom'];
+const NON_PERSISTENT_SCREENS = ['auth', 'forgotPassword', 'updatePassword', 'chat', 'termsConsent', 'bidRoom', 'profile'];
 
 const ADMIN_TABS = [
   { id: 'dashboard', icon: 'grid_view', label: 'Dashboard' },
