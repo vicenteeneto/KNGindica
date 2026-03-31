@@ -882,9 +882,9 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                         position={[userCoords.lat, userCoords.lng]}
                         icon={new L.DivIcon({
                           className: 'custom-user-dot',
-                          html: '<div class="size-4 bg-blue-500 rounded-full border-2 border-white shadow-[0_0_10px_rgba(59,130,246,0.8)] relative"><div class="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-75 hidden sm:block"></div></div>',
-                          iconSize: [20, 20],
-                          iconAnchor: [10, 10]
+                          html: '<div class="w-4 h-4 bg-blue-500 rounded-full border-2 border-white relative" style="box-shadow: 0 0 10px rgba(59,130,246,0.8);"><div class="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-75"></div></div>',
+                          iconSize: [16, 16],
+                          iconAnchor: [8, 8]
                         })}
                       >
                         <Popup>📍 Você está aqui</Popup>
