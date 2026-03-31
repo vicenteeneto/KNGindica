@@ -235,24 +235,24 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Número do Cartão</label>
                 <div className="relative">
                   <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">credit_score</span>
-                  <input type="text" required placeholder="0000 0000 0000 0000" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all font-mono" />
+                  <input type="text" required placeholder="0000 0000 0000 0000" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-2.5 pl-10 pr-3.5 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all font-mono" />
                 </div>
               </div>
               
               <div className="space-y-1.5">
                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Nome no Cartão</label>
-                <input type="text" required placeholder="NOME COMO ESTÁ NO CARTÃO" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all uppercase" />
+                <input type="text" required placeholder="NOME COMO ESTÁ NO CARTÃO" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-2.5 px-3.5 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all uppercase" />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Validade</label>
-                  <input type="text" required placeholder="MM/AA" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all font-mono" />
+                  <input type="text" required placeholder="MM/AA" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-2.5 px-3.5 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all font-mono" />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">CVV</label>
                   <div className="relative">
-                    <input type="text" required placeholder="123" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all font-mono" />
+                    <input type="text" required placeholder="123" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-2.5 px-3.5 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all font-mono" />
                     <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg cursor-help" title="3 dígitos no verso do cartão">info</span>
                   </div>
                 </div>

@@ -123,7 +123,7 @@ export default function WriteReviewScreen({ onNavigate, params }: WriteReviewScr
 
             {/* Comment Field */}
             <div className="w-full space-y-2 animate-in fade-in slide-in-from-bottom-4 delay-100 fill-mode-both">
-              <label htmlFor="comment" className="text-sm font-bold text-slate-700 dark:text-slate-300">
+              <label htmlFor="comment" className="text-xs font-bold text-slate-700 dark:text-slate-300">
                 Conte mais sobre a sua experiência (Opcional)
               </label>
               <textarea
@@ -131,7 +131,7 @@ export default function WriteReviewScreen({ onNavigate, params }: WriteReviewScr
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="Como foi o atendimento? O profissional foi pontual?"
-                className="w-full h-32 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-none shadow-sm"
+                className="w-full h-32 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-3 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-none shadow-sm"
               ></textarea>
             </div>
 
@@ -139,7 +139,7 @@ export default function WriteReviewScreen({ onNavigate, params }: WriteReviewScr
             <button
               type="submit"
               disabled={rating === 0 || isSubmitting}
-              className={`w-full py-4 px-6 rounded-xl font-bold shadow-lg transition-all ${rating > 0 && !isSubmitting
+              className={`w-full py-3 px-6 rounded-xl font-bold text-sm shadow-lg transition-all ${rating > 0 && !isSubmitting
                   ? 'bg-primary text-white hover:bg-primary/90 shadow-primary/30 hover:-translate-y-0.5'
                   : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed shadow-none'
                 }`}

@@ -900,7 +900,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
             </div>
             
             <form onSubmit={handleSavePersonalData} className="flex-1 overflow-y-auto p-6 scrollbar-hide">
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {/* Seção: Identificação */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-2 px-1">
@@ -916,7 +916,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                       value={formData.full_name}
                       onChange={(e) => setFormData({...formData, full_name: e.target.value})}
                       placeholder="Seu nome completo"
-                      className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-medium text-slate-900 dark:text-white"
+                      className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all font-medium text-slate-900 dark:text-white"
                     />
                   </div>
 
@@ -930,7 +930,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                         value={formData.cpf}
                         onChange={(e) => setFormData({...formData, cpf: formatCPF_CNPJ(e.target.value)})}
                         placeholder="000.000.000-00"
-                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
+                        className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
                       />
                     </div>
                     <div>
@@ -942,7 +942,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                         value={formData.phone}
                         onChange={(e) => setFormData({...formData, phone: formatPhone(e.target.value)})}
                         placeholder="(00) 00000-0000"
-                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
+                        className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
                       />
                     </div>
                   </div>
@@ -965,7 +965,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                           value={formData.cep}
                           onChange={(e) => handleCepChange(e.target.value)}
                           placeholder="00000-000"
-                          className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all pr-10 font-medium text-slate-900 dark:text-white"
+                          className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all pr-10 font-medium text-slate-900 dark:text-white"
                         />
                         {isFetchingCep && (
                           <div className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500">
@@ -982,7 +982,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                         value={formData.street}
                         onChange={(e) => setFormData({...formData, street: e.target.value})}
                         placeholder="Ex: Rua das Flores"
-                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
+                        className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
                       />
                     </div>
                   </div>
@@ -996,7 +996,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                         value={formData.neighborhood}
                         onChange={(e) => setFormData({...formData, neighborhood: e.target.value})}
                         placeholder="Ex: Centro"
-                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
+                        className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
                       />
                     </div>
                     <div className="sm:col-span-1">
@@ -1007,7 +1007,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                         value={formData.number}
                         onChange={(e) => setFormData({...formData, number: e.target.value})}
                         placeholder="Ex: 123"
-                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
+                        className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
                       />
                     </div>
                     <div className="sm:col-span-1">
@@ -1017,7 +1017,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                         value={formData.address_complement}
                         onChange={(e) => setFormData({...formData, address_complement: e.target.value})}
                         placeholder="Apto, Sala, etc."
-                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
+                        className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
                       />
                     </div>
                   </div>
@@ -1030,7 +1030,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                         onChange={(val) => setFormData({...formData, city: val})}
                         activeCities={activeCities}
                         placeholder="Ex: Itajaí"
-                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
+                        className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
                       />
                     </div>
                     <div className="sm:col-span-1">
@@ -1041,7 +1041,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                         value={formData.state}
                         onChange={(e) => setFormData({...formData, state: e.target.value.toUpperCase()})}
                         placeholder="Ex: SC"
-                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white uppercase"
+                        className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white uppercase"
                       />
                     </div>
                   </div>
@@ -1245,7 +1245,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                     onChange={(e) => setFormData({...formData, bio: e.target.value})}
                     placeholder="Conte sobre sua experiência, especialidades e como você trabalha. Isso ajuda clientes a confiarem no seu serviço!"
                     rows={4}
-                    className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none transition-all font-medium text-slate-900 dark:text-white resize-none"
+                    className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none transition-all font-medium text-slate-900 dark:text-white resize-none"
                   />
                   <p className="text-[10px] text-slate-400 font-medium px-1 uppercase tracking-widest text-right">Mínimo 30 caracteres recomendado</p>
                 </div>
@@ -1273,7 +1273,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                         value={categorySearch}
                         onChange={(e) => setCategorySearch(e.target.value)}
                         placeholder="+ Buscar ou sugerir serviço"
-                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-slate-900 dark:text-white uppercase text-xs"
+                        className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-slate-900 dark:text-white uppercase text-xs"
                       />
                       {categorySearch.trim().length > 0 && (
                         <div className="absolute z-50 left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 max-h-48 overflow-y-auto">
@@ -1287,7 +1287,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                                   setFormData({...formData, categories: [...formData.categories, cat.name]});
                                   setCategorySearch('');
                                 }}
-                                className="w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 text-[10px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-300 border-b border-slate-50 dark:border-slate-700 last:border-0"
+                                className="w-full px-3.5 py-2 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 text-[10px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-300 border-b border-slate-50 dark:border-slate-700 last:border-0"
                               >
                                 {cat.name}
                               </button>
@@ -1335,7 +1335,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                         value={formData.price_value}
                         onChange={(e) => setFormData({...formData, price_value: maskCurrency(e.target.value)})}
                         placeholder="0,00"
-                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all font-black text-slate-900 dark:text-white"
+                        className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all font-black text-slate-900 dark:text-white"
                       />
                     </div>
                     <div>
@@ -1343,7 +1343,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                       <select
                         value={formData.pricing_model}
                         onChange={(e) => setFormData({...formData, pricing_model: e.target.value})}
-                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-slate-900 dark:text-white uppercase text-xs"
+                        className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-slate-900 dark:text-white uppercase text-xs"
                       >
                         <option value="visit">Por Visita</option>
                         <option value="hour">Por Hora</option>

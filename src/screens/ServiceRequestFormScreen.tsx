@@ -318,7 +318,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
             
             {/* Left Column: Core Info */}
-            <div className="space-y-6">
+            <div className="space-y-4">
               {/* Section: Category */}
               <section className="bg-slate-50 dark:bg-white/5 p-4 rounded-2xl border border-slate-100 dark:border-white/5">
                 <h3 className="text-slate-900 dark:text-slate-100 text-base font-black uppercase tracking-widest mb-4 flex items-center gap-2">
@@ -327,7 +327,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {categories.length === 0 && (
-                     <p className="text-sm text-slate-500">Nenhuma categoria correspondente encontrada.</p>
+                     <p className="text-xs text-slate-500">Nenhuma categoria correspondente encontrada.</p>
                   )}
                   {categories.map(cat => (
                     <button
@@ -364,7 +364,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
             </div>
 
             {/* Right Column: Time, Location, Media */}
-            <div className="space-y-6">
+            <div className="space-y-4">
               {/* Section: Schedule (Date Picker) */}
               <section className="bg-slate-50 dark:bg-white/5 p-4 rounded-2xl border border-slate-100 dark:border-white/5">
                  <h3 className="text-slate-900 dark:text-slate-100 text-base font-black uppercase tracking-widest mb-4 flex items-center gap-2">

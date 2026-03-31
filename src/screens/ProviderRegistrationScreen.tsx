@@ -172,7 +172,7 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
           <p className="text-slate-500 dark:text-slate-400 text-sm">Preencha suas informações profissionais para começar a receber solicitações.</p>
         </header>
 
-        <form className="space-y-6" onSubmit={handleSubmit}>
+        <form className="space-y-4" onSubmit={handleSubmit}>
           {/* Profile Photo Upload */}
           <div className="flex flex-col items-center mb-8">
             <div className="relative group">
@@ -194,7 +194,7 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
           <div className="space-y-1.5">
             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300" htmlFor="name">Nome Completo *</label>
             <input 
-              className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" 
+              className="w-full px-3.5 py-2.5 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" 
               id="name" 
               placeholder="Ex: João Silva" 
               type="text"
@@ -208,7 +208,7 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
           <div className="space-y-1.5">
             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300" htmlFor="document">CPF ou CNPJ</label>
             <input 
-              className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" 
+              className="w-full px-3.5 py-2.5 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" 
               id="document" 
               placeholder="000.000.000-00" 
               type="text"
@@ -222,7 +222,7 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300" htmlFor="category">Categoria Profissional *</label>
             <div className="relative">
               <select 
-                className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none appearance-none" 
+                className="w-full px-3.5 py-2.5 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none appearance-none" 
                 id="category"
                 value={formData.category}
                 onChange={e => setFormData({...formData, category: e.target.value})}
@@ -241,7 +241,7 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
           <div className="space-y-1.5">
             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300" htmlFor="bio">Bio / Descrição Profissional</label>
             <textarea 
-              className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none resize-none" 
+              className="w-full px-3.5 py-2.5 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none resize-none" 
               id="bio" 
               placeholder="Conte um pouco sobre sua experiência e diferenciais..." 
               rows={4}
@@ -277,7 +277,7 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">CEP</label>
                 <div className="relative">
                   <input 
-                    className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none" 
+                    className="w-full px-3.5 py-2.5 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none" 
                     placeholder="00000-000" 
                     type="text"
                     value={formData.cep}
@@ -294,7 +294,7 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
                   onChange={val => setFormData({...formData, city: val})}
                   activeCities={activeCities}
                   placeholder="Ex: Rondonópolis/MT"
-                  className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+                  className="w-full px-3.5 py-2.5 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
                 />
               </div>
             </div>
@@ -303,7 +303,7 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
               <div className="space-y-1.5">
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Logradouro / Rua</label>
                 <input 
-                  className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none" 
+                  className="w-full px-3.5 py-2.5 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none" 
                   placeholder="Rua..." 
                   type="text"
                   value={formData.street}
@@ -314,7 +314,7 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
                 <div className="space-y-1.5">
                   <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Número</label>
                   <input 
-                    className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none" 
+                    className="w-full px-3.5 py-2.5 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none" 
                     placeholder="123" 
                     type="text"
                     value={formData.number}
@@ -324,7 +324,7 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
                 <div className="space-y-1.5">
                   <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Bairro</label>
                   <input 
-                    className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none" 
+                    className="w-full px-3.5 py-2.5 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none" 
                     placeholder="Bairro..." 
                     type="text"
                     value={formData.neighborhood}
@@ -337,7 +337,7 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
             <div className="space-y-1.5">
               <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Estado (UF)</label>
               <input 
-                className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none uppercase" 
+                className="w-full px-3.5 py-2.5 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none uppercase" 
                 placeholder="MT" 
                 maxLength={2}
                 type="text"
