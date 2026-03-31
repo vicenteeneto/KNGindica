@@ -673,7 +673,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
                   {/* Content */}
                   <div className="absolute bottom-16 md:bottom-24 left-0 lg:left-12 w-full px-4 md:px-12 max-w-7xl lg:mx-0 transition-all duration-300">
-                    <div className="max-w-2xl animate-fade-in-up flex flex-col items-center lg:items-start text-center lg:text-left">
+                    <div className="max-w-2xl animate-fade-in-up flex flex-col items-start text-left ml-4 md:ml-0">
                       <div className="flex items-center gap-2 mb-3">
                         {p.isVerified ? (
                           <div className="flex items-center gap-1.5 bg-emerald-500/20 backdrop-blur-md px-2 py-0.5 rounded border border-emerald-500/30">
@@ -690,8 +690,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                         {p.name.split(' ')[0]} <br />
                         <span className="text-primary">{p.name.split(' ').slice(1).join(' ')}</span>
                       </h1>
-                      <div className="flex items-center justify-center lg:justify-start gap-3 mb-6">
-                        <div className="flex items-center text-yellow-500 gap-1 bg-black/40 backdrop-blur-md px-2 py-1 rounded-md border border-white/10">
+                      <div className="flex items-center justify-start gap-1 sm:gap-3 mb-6 flex-wrap">
+                        <div className="flex items-center text-yellow-500 gap-1 bg-black/40 backdrop-blur-md px-2 py-1 rounded-md border border-white/10 shrink-0">
                           <span className="material-symbols-outlined text-sm filled">star</span>
                           <span className="text-sm font-black">{p.rating}</span>
                         </div>

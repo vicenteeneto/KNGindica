@@ -90,13 +90,6 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
             </div>
           </div>
 
-          <button 
-            onClick={() => onNavigate('freelanceRequest')}
-            className="bg-primary text-white px-4 py-2 rounded-xl text-xs font-bold hover:scale-105 transition-all flex items-center gap-2 shadow-lg shadow-primary/20"
-          >
-            <span className="material-symbols-outlined text-sm">add</span>
-            Postar Novo
-          </button>
         </div>
 
         {/* Tabs */}
@@ -104,19 +97,19 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
           <div className="flex max-w-4xl lg:mx-0 lg:ml-12">
             <button 
               onClick={() => setActiveTab('open')}
-              className={`flex-1 py-3 text-sm font-bold tracking-widest uppercase transition-colors ${activeTab === 'open' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+              className={`flex-1 py-3 text-[11px] font-bold tracking-widest uppercase transition-colors ${activeTab === 'open' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
             >
               Abertos
             </button>
             <button 
               onClick={() => setActiveTab('in_progress')}
-              className={`flex-1 py-3 text-sm font-bold tracking-widest uppercase transition-colors ${activeTab === 'in_progress' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+              className={`flex-1 py-3 text-[11px] font-bold tracking-widest uppercase transition-colors ${activeTab === 'in_progress' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
             >
               Em Andamento
             </button>
             <button 
               onClick={() => setActiveTab('completed')}
-              className={`flex-1 py-3 text-sm font-bold tracking-widest uppercase transition-colors ${activeTab === 'completed' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+              className={`flex-1 py-3 text-[11px] font-bold tracking-widest uppercase transition-colors ${activeTab === 'completed' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
             >
               Finalizados
             </button>

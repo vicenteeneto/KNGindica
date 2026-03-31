@@ -226,9 +226,9 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
       </header>
 
       <main className="flex-1 max-w-2xl lg:mx-0 lg:ml-12 w-full p-4 lg:p-8 transition-all duration-300">
-        <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800">
+        <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 sm:p-6 shadow-xl border border-slate-100 dark:border-slate-800">
           <div className="mb-8">
-            <h1 className="text-2xl font-black tracking-tight mb-2">Defina seu Preço</h1>
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight mb-2">Defina seu Preço</h1>
             <p className="text-slate-500 text-sm">Descreva o que você precisa e os prestadores virão até você.</p>
           </div>
 
@@ -239,7 +239,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
                 type="text" 
                 required
                 placeholder="Ex: Cortar grama de jardim pequeno"
-                className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium"
+                className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-4 py-3 transition-all outline-none font-medium"
                 value={formData.title}
                 onChange={e => setFormData({...formData, title: e.target.value})}
               />
@@ -249,7 +249,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
               <label className="block text-sm font-bold mb-2 uppercase tracking-widest text-slate-400">Categoria</label>
               <select 
                 required
-                className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium appearance-none"
+                className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-4 py-3 transition-all outline-none font-medium appearance-none"
                 value={formData.category_id}
                 onChange={e => setFormData({...formData, category_id: e.target.value})}
               >
@@ -276,7 +276,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
                   <input 
                     type="text" 
                     placeholder="00000-000"
-                    className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium"
+                    className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-4 py-3 transition-all outline-none font-medium"
                     value={formData.cep}
                     onChange={e => setFormData({...formData, cep: e.target.value})}
                     onBlur={handleCepBlur}
@@ -291,7 +291,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
                   onChange={val => setFormData({...formData, city: val})}
                   activeCities={activeCities}
                   placeholder="Onde o serviço será realizado?"
-                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium"
+                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-4 py-3 transition-all outline-none font-medium"
                 />
               </div>
             </div>
@@ -301,7 +301,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
               <input 
                 type="text" 
                 placeholder="Nome da rua..."
-                className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium"
+                className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-4 py-3 transition-all outline-none font-medium"
                 value={formData.street}
                 onChange={e => setFormData({...formData, street: e.target.value})}
               />
@@ -313,7 +313,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
                 <input 
                   type="text" 
                   placeholder="123"
-                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium"
+                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-4 py-3 transition-all outline-none font-medium"
                   value={formData.number}
                   onChange={e => setFormData({...formData, number: e.target.value})}
                 />
@@ -323,7 +323,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
                 <input 
                   type="text" 
                   placeholder="Bairro..."
-                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium"
+                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-4 py-3 transition-all outline-none font-medium"
                   value={formData.neighborhood}
                   onChange={e => setFormData({...formData, neighborhood: e.target.value})}
                 />
@@ -334,7 +334,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
                   type="text" 
                   maxLength={2}
                   placeholder="MT"
-                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium uppercase"
+                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-4 py-3 transition-all outline-none font-medium uppercase"
                   value={formData.state}
                   onChange={e => setFormData({...formData, state: e.target.value.toUpperCase()})}
                 />
@@ -349,7 +349,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
                   type="text" 
                   required
                   placeholder="0,00"
-                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-black text-xl"
+                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-4 py-3 transition-all outline-none font-black text-xl"
                   value={formData.budget}
                   onChange={e => {
                     const masked = maskCurrency(e.target.value);
@@ -363,7 +363,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
               <label className="block text-sm font-bold mb-2 uppercase tracking-widest text-slate-400">Duração do Freelance</label>
               <select 
                 required
-                className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium appearance-none"
+                className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-4 py-3 transition-all outline-none font-medium appearance-none"
                 value={formData.expiresInHours}
                 onChange={e => setFormData({...formData, expiresInHours: e.target.value})}
               >
@@ -411,7 +411,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
                 required
                 rows={4}
                 placeholder="Dê mais detalhes para os profissionais entenderem melhor o serviço..."
-                className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-5 py-4 transition-all outline-none font-medium resize-none"
+                className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-4 py-3 transition-all outline-none font-medium resize-none"
                 value={formData.description}
                 onChange={e => setFormData({...formData, description: e.target.value})}
               />
