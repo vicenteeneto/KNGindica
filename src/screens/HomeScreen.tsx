@@ -95,6 +95,23 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
     return null;
   };
 
+  // Reverse geocoding de lat,lng para cidade
+  const reverseGeocode = async (lat: number, lng: number): Promise<string | null> => {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`,
+        { headers: { 'Accept-Language': 'pt-BR' } }
+      );
+      const data = await res.json();
+      if (data && data.address) {
+        return data.address.city || data.address.town || data.address.municipality || data.address.village || null;
+      }
+    } catch (e) {
+      console.warn('Reverse Geocoding falhou:', e);
+    }
+    return null;
+  };
+
   const handleCitySelect = async (city: string) => {
     setManualCityInput(city);
     isManualLocation.current = true;
@@ -139,7 +156,16 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             const lng = position.coords.longitude;
             setUserCoords({ lat, lng });
             setMapCenter([lat, lng]);
-            setLocationName("Sua Localização Atual");
+            
+            // Tenta obter o nome da cidade para exibi-la imediatamente
+            setLocationName("Buscando cidade...");
+            reverseGeocode(lat, lng).then(cidade => {
+              if (cidade && !isManualLocation.current) {
+                setLocationName(cidade);
+              } else if (!isManualLocation.current) {
+                setLocationName("Sua Localização Atual");
+              }
+            });
           }
         },
         (error) => {
