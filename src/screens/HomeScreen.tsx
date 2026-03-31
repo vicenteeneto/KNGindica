@@ -5,7 +5,7 @@ import MobileNav from '../components/MobileNav';
 import { useAuth } from '../AuthContext';
 import { formatCurrency, normalizeText } from '../lib/formatters';
 import { supabase } from '../lib/supabase';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, CircleMarker } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { CityAutocomplete } from '../components/CityAutocomplete';
@@ -873,22 +873,23 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                     className="z-0"
                   >
                     <TileLayer
-                      url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     />
                     <MapUpdater center={mapCenter} />
                     {userCoords && (
-                      <Marker 
-                        position={[userCoords.lat, userCoords.lng]}
-                        icon={new L.DivIcon({
-                          className: 'custom-user-dot',
-                          html: '<div style="width: 16px; height: 16px; background-color: #3b82f6; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 12px rgba(59,130,246,0.9); position: relative; margin: -8px 0 0 -8px;"><div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #60a5fa; border-radius: 50%; animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite; opacity: 0.8;"></div></div>',
-                          iconSize: [0, 0],
-                          iconAnchor: [0, 0]
-                        })}
+                      <CircleMarker 
+                        center={[userCoords.lat, userCoords.lng]}
+                        radius={8}
+                        pathOptions={{ 
+                          fillColor: '#3b82f6', 
+                          color: '#ffffff', 
+                          weight: 3, 
+                          fillOpacity: 1 
+                        }}
                       >
                         <Popup>📍 Você está aqui</Popup>
-                      </Marker>
+                      </CircleMarker>
                     )}
                     {providers.map(p => {
                       if (!p.latitude || !p.longitude) return null;
