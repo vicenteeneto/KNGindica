@@ -521,8 +521,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
               className="relative flex items-center gap-1.5 cursor-pointer group"
               onClick={() => setShowLocationDropdown(!showLocationDropdown)}
             >
-              <span className="material-symbols-outlined text-primary text-xl group-hover:scale-110 transition-transform">location_on</span>
-              <div className="flex flex-col">
+              <span className="material-symbols-outlined text-primary text-xl group-hover:scale-110 transition-transform mt-0.5">location_on</span>
+              <div className="flex flex-col items-start text-left">
                 <span className="text-[9px] uppercase tracking-[0.2em] font-black text-slate-400">Localização</span>
                 <span className="text-sm font-bold flex items-center gap-1 group-hover:text-primary transition-colors">
                   {locationName}
@@ -852,7 +852,15 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                     />
                     <MapUpdater center={mapCenter} />
                     {userCoords && (
-                      <Marker position={[userCoords.lat, userCoords.lng]}>
+                      <Marker 
+                        position={[userCoords.lat, userCoords.lng]}
+                        icon={new L.DivIcon({
+                          className: 'custom-user-dot',
+                          html: '<div class="size-4 bg-blue-500 rounded-full border-2 border-white shadow-[0_0_10px_rgba(59,130,246,0.8)] relative"><div class="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-75 hidden sm:block"></div></div>',
+                          iconSize: [20, 20],
+                          iconAnchor: [10, 10]
+                        })}
+                      >
                         <Popup>📍 Você está aqui</Popup>
                       </Marker>
                     )}
