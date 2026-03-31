@@ -873,8 +873,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                     className="z-0"
                   >
                     <TileLayer
-                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                      className="dark-map-filter"
+                      url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                     />
                     <MapUpdater center={mapCenter} />
                     {userCoords && (
@@ -882,9 +882,9 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                         position={[userCoords.lat, userCoords.lng]}
                         icon={new L.DivIcon({
                           className: 'custom-user-dot',
-                          html: '<div class="w-4 h-4 bg-blue-500 rounded-full border-2 border-white relative" style="box-shadow: 0 0 10px rgba(59,130,246,0.8);"><div class="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-75"></div></div>',
-                          iconSize: [16, 16],
-                          iconAnchor: [8, 8]
+                          html: '<div style="width: 16px; height: 16px; background-color: #3b82f6; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 12px rgba(59,130,246,0.9); position: relative; margin: -8px 0 0 -8px;"><div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #60a5fa; border-radius: 50%; animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite; opacity: 0.8;"></div></div>',
+                          iconSize: [0, 0],
+                          iconAnchor: [0, 0]
                         })}
                       >
                         <Popup>📍 Você está aqui</Popup>
@@ -1008,7 +1008,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48; }
-        .dark-map-filter { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
+        
         @keyframes pulse-subtle {
           0%, 100% { opacity: 1; transform: scale(1); }
           50% { opacity: 0.95; transform: scale(0.99); }
