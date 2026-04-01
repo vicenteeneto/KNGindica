@@ -412,86 +412,88 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                       backgroundImage: `url("${professional.cover_image || professional.image}")`,
                     }}
                   >
-                    <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-black via-black/60 to-transparent"></div>
-                    <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 overflow-hidden">
-                {/* Instagram Style Profile Row */}
-                <div className="flex px-6 pt-4 pb-1 items-center gap-6 md:gap-10">
+              <div className="bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 relative">
+                {/* Overlapping Avatar Container */}
+                <div className="px-6 flex flex-col md:flex-row md:items-end gap-4 -mt-10 md:-mt-14 relative z-20">
                   <div
-                    className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-20 w-20 md:h-28 md:w-28 border-4 border-white dark:border-black shadow-2xl shrink-0"
+                    className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-20 w-20 md:h-28 md:w-28 border-[6px] border-white dark:border-slate-900 shadow-xl shrink-0"
                     style={{
                       backgroundImage: `url("${professional.image}")`,
                     }}
                   ></div>
-                  <div className="flex-1 flex justify-around items-center gap-2">
-                    <div className="flex flex-col items-center">
-                      <p className="text-slate-900 dark:text-slate-100 text-base md:text-lg md:font-black font-extrabold italic tracking-tight">{displayReviewsCount}</p>
-                      <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-0.5 md:mt-1 text-center leading-tight">Serviços</p>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="flex items-center gap-1">
-                        <p className="text-slate-900 dark:text-slate-100 text-base md:text-lg md:font-black font-extrabold italic tracking-tight">{displayRating}</p>
-                        <span className="material-symbols-outlined text-amber-400 text-[16px] md:text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                      </div>
-                      <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-0.5 md:mt-1 text-center leading-tight">Avaliação</p>
-                    </div>
-                    <div className="flex flex-col items-center text-center">
-                      {professional.show_price ? (
-                        <>
-                          <p className="text-slate-900 dark:text-slate-100 text-sm md:text-base md:font-black font-extrabold italic tracking-tight shrink-0 whitespace-nowrap">
-                            {professional.pricing_model === 'negotiable' ? (
-                              'A combinar'
-                            ) : (
-                              <>
-                                {professional.pricing_model === 'starting_at' && <span className="text-[10px] mr-1 opacity-50 block md:inline font-normal leading-none mt-1">A partir</span>}
-                                {formatCurrency(parseFloat(professional.price || '0'))}
-                              </>
-                            )}
-                          </p>
-                          <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-0.5 md:mt-1 text-center leading-tight">
-                            {professional.pricing_model === 'hourly' ? '/ hora' : 
-                             professional.pricing_model === 'fixed' ? 'Preço Fixo' : 
-                             professional.pricing_model === 'starting_at' ? 'Inicial' : 'Negociável'}
-                          </p>
-                        </>
-                      ) : (
-                        <>
-                          <p className="text-slate-900 dark:text-slate-100 text-sm md:text-base font-black italic tracking-tight uppercase">Sob Consulta</p>
-                          <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-0.5 md:mt-1 text-center leading-tight">Valores</p>
-                        </>
+                  
+                  {/* Name and Location (LinkedIn Style - directly next to or below avatar) */}
+                  <div className="flex-1 pb-1 md:pb-2">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <p className="text-slate-900 dark:text-slate-100 text-xl font-black leading-tight tracking-tight">
+                        {professional.name}
+                      </p>
+                      {professional.isVerified && (
+                        <VerifiedBadge className="scale-110" />
                       )}
                     </div>
+                    <p className="text-slate-500 dark:text-slate-400 text-xs font-bold leading-normal flex items-center gap-1.5 uppercase tracking-wider">
+                      {professional.category} • {professional.city ? `${professional.city}` : 'Localização a combinar'}
+                    </p>
                   </div>
                 </div>
 
-                <div className="px-6 pt-1 pb-3 flex flex-col gap-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <p className="text-slate-900 dark:text-slate-100 text-lg font-black leading-none tracking-tight">
-                      {professional.name}
-                    </p>
-                    {professional.isVerified && (
-                      <VerifiedBadge className="scale-110" />
-                    )}
+                {/* Stats Row - Clean and Compact */}
+                <div className="flex px-6 py-4 items-center justify-between border-b border-slate-100 dark:border-white/5 mt-2 bg-slate-50/50 dark:bg-white/5">
+                  <div className="flex flex-col items-center flex-1 border-r border-slate-100 dark:border-white/5">
+                    <p className="text-slate-900 dark:text-slate-100 text-base md:text-lg font-black italic tracking-tight leading-none">{displayReviewsCount}</p>
+                    <p className="text-slate-500 text-[9px] font-black uppercase tracking-[0.2em] mt-1 text-center leading-none">Serviços</p>
                   </div>
                   
-                  <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-2">
-                    {professional.category} • {professional.plan_type === 'plus' ? (
-                      <span className="flex items-center gap-1 text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full scale-90 origin-left border border-amber-500/20">
-                        <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>stars</span>
-                        PREMIUM
-                      </span>
-                    ) : professional.isAffiliate ? (professional.isVerified ? 'Afiliado Verificado' : 'Afiliado') : 'Profissional'}
-                  </p>
+                  <div className="flex flex-col items-center flex-1 border-r border-slate-100 dark:border-white/5">
+                    <div className="flex items-center gap-1 leading-none">
+                      <p className="text-slate-900 dark:text-slate-100 text-base md:text-lg font-black italic tracking-tight">{displayRating}</p>
+                      <span className="material-symbols-outlined text-amber-400 text-[16px] md:text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                    </div>
+                    <p className="text-slate-500 text-[9px] font-black uppercase tracking-[0.2em] mt-1 text-center leading-none">Avaliação</p>
+                  </div>
 
-                  <p className="text-slate-500 dark:text-slate-400 text-sm font-bold leading-normal flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-base">location_on</span>
-                    {professional.city ? `${professional.city}, ${professional.state || ''}` : 'Localização a combinar'}
-                  </p>
+                  <div className="flex flex-col items-center flex-1">
+                    {professional.show_price ? (
+                      <>
+                        <p className="text-slate-900 dark:text-slate-100 text-[11px] md:text-sm font-black italic tracking-tight whitespace-nowrap overflow-hidden text-ellipsis leading-none">
+                          {professional.pricing_model === 'negotiable' ? (
+                            'A COMBINAR'
+                          ) : (
+                            <>
+                              {professional.pricing_model === 'starting_at' && <span className="text-[9px] mr-1 opacity-50 font-normal">A PARTIR</span>}
+                              {formatCurrency(parseFloat(professional.price || '0'))}
+                            </>
+                          )}
+                        </p>
+                        <p className="text-slate-500 text-[9px] font-black uppercase tracking-[0.2em] mt-1 text-center leading-none">
+                          {professional.pricing_model === 'hourly' ? 'POR HORA' : 
+                           professional.pricing_model === 'fixed' ? 'FIXO' : 
+                           professional.pricing_model === 'starting_at' ? 'INICIAL' : 'NEGOCIAVEL'}
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-slate-900 dark:text-slate-100 text-[11px] md:text-xs font-black italic tracking-tight uppercase whitespace-nowrap leading-none">Sob Consulta</p>
+                        <p className="text-slate-500 text-[9px] font-black uppercase tracking-[0.2em] mt-1 text-center leading-none">Valores</p>
+                      </>
+                    )}
+                  </div>
                 </div>
+
+                {/* Premium Badge */}
+                {professional.plan_type === 'plus' && (
+                  <div className="px-6 pt-3">
+                    <span className="inline-flex items-center gap-1.5 text-amber-500 bg-amber-500/10 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-amber-500/20">
+                      <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>stars</span>
+                      MEMBRO PREMIUM KNG
+                    </span>
+                  </div>
+                )}
 
                 {/* Bio Section */}
                 <div className="px-8 py-3 border-t border-slate-100 dark:border-white/5">
