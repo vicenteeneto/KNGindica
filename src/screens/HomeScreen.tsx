@@ -274,7 +274,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             city: p.city,
             latitude: p.latitude,
             longitude: p.longitude,
-            image: p.avatar_url || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
+            image: p.cover_image || p.avatar_url || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png',
             isAffiliate: p.plan_type === 'plus',
             isVerified: p.is_verified,
             plan_type: p.plan_type || 'basic',
@@ -356,7 +356,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             service: p.categories?.[0] || 'Serviços Gerais',
             rating: p.rating || 5.0,
             distance: p.city ? 'Distância N/A' : '99+', // Basic mock for now
-            image: p.avatar_url || 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a'
+            image: p.cover_image || p.avatar_url || 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a'
           }));
           setPreviousProviders(mapped);
         }
@@ -392,7 +392,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
               service: p.categories?.[0] || 'Serviços Gerais',
               rating: p.rating || 5.0,
               distance: p.city ? `Em ${p.city}` : 'N/A',
-              image: p.avatar_url || 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a',
+              image: p.cover_image || p.avatar_url || 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a',
               plan_type: p.plan_type || 'basic'
             };
           }).filter(Boolean);

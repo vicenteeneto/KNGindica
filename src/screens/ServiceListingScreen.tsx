@@ -47,7 +47,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
             priceUnit: p.pricing_model || 'hourly',
             show_price: p.show_price !== false,
             pricing_model: p.pricing_model || 'hourly',
-            image: p.avatar_url || 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a',
+            image: p.cover_image || p.avatar_url || 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a',
             isVerified: p.is_verified,
             distance: p.city ? 0 : 99, // Basic distance mock
             city: p.city,
