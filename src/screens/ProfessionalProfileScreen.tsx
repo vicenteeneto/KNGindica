@@ -418,7 +418,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
 
               <div className="bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 relative z-10">
                 {/* Overlapping Avatar Container - Fail-Safe Positioning */}
-                <div className="px-6 flex flex-col md:flex-row md:items-end gap-4 relative z-20 -top-12 md:-top-16">
+                <div className="px-6 flex flex-col md:flex-row md:items-end gap-2 md:gap-4 relative z-20 -top-12 md:-top-16">
                   <div
                     className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-24 w-24 md:h-32 md:w-32 border-[6px] border-white dark:border-slate-900 shadow-xl shrink-0"
                     style={{
@@ -427,7 +427,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                   ></div>
                   
                   {/* Name and Location (LinkedIn Style - directly next to or below avatar) */}
-                  <div className="flex-1 pb-1 md:pb-2 md:mt-10">
+                  <div className="flex-1 pb-0.5 md:pb-2 md:mt-10">
                     <div className="flex items-center gap-2 mb-0.5">
                       <p className="text-slate-900 dark:text-slate-100 text-xl font-black leading-tight tracking-tight">
                         {professional.name}
@@ -443,7 +443,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                 </div>
 
                 {/* Stats Row - 2-Row Architecture (Mathematically Guaranteed Alignment) */}
-                <div className="flex flex-col px-6 py-3 md:py-4 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 -mt-12 md:-mt-16">
+                <div className="flex flex-col px-6 py-3 md:py-4 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 -mt-14 md:-mt-16">
                   {/* Top Row: Values */}
                   <div className="flex items-end justify-between">
                     <div className="flex-1 flex justify-center border-r border-slate-100 dark:border-white/5 h-8 md:h-10 items-end">
@@ -496,8 +496,8 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                 )}
 
                 {/* Bio Section */}
-                <div className="px-8 py-3 border-t border-slate-100 dark:border-white/5">
-                  <h3 className="text-slate-900 dark:text-slate-100 text-[9px] font-black uppercase tracking-widest mb-2 flex items-center gap-2">
+                <div className="px-8 py-2 border-t border-slate-100 dark:border-white/5">
+                  <h3 className="text-slate-900 dark:text-slate-100 text-[9px] font-black uppercase tracking-widest mb-1.5 flex items-center gap-2">
                     <span className="size-1 w-1 rounded-full bg-primary" />
                     Sobre o Profissional
                   </h3>
@@ -511,7 +511,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
 
               {/* Portfolio Gallery */}
               {portfolioImages.length > 0 && (
-                <div className="bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 p-5">
+                <div className="bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 p-4 mt-3">
                   <h3 className="text-slate-900 dark:text-slate-100 text-[9px] font-black uppercase tracking-widest mb-3 flex items-center gap-2">
                     <span className="material-symbols-outlined text-primary text-base">photo_library</span>
                     Portfólio de Trabalhos
@@ -535,7 +535,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
               )}
 
               {/* Reviews Section */}
-              <div className="bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 p-5">
+              <div className="bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 p-4 mt-3">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-slate-900 dark:text-slate-100 text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
                     <span className="material-symbols-outlined text-amber-500 text-base">reviews</span>
