@@ -402,7 +402,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
           <div className="lg:grid lg:grid-cols-3 lg:gap-10 items-start">
             
             {/* Left Column: Main Profile Content */}
-            <div className="lg:col-span-2 space-y-8">
+            <div className="lg:col-span-2 space-y-3">
               {/* Hero Section / Gallery */}
               <div className="@container">
                 <div className="md:px-0">
@@ -420,7 +420,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
 
               <div className="bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 overflow-hidden">
                 {/* Instagram Style Profile Row */}
-                <div className="flex px-6 pt-8 pb-4 items-center gap-6 md:gap-10">
+                <div className="flex px-6 pt-5 pb-2 items-center gap-6 md:gap-10">
                   <div
                     className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-24 w-24 md:h-32 md:w-32 border-4 border-white dark:border-black shadow-2xl shrink-0"
                     style={{
@@ -468,7 +468,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                   </div>
                 </div>
 
-                <div className="px-8 pt-4 pb-6 flex flex-col gap-1">
+                <div className="px-8 pt-2 pb-5 flex flex-col gap-1">
                   <div className="flex items-center gap-2 mb-1">
                     <p className="text-slate-900 dark:text-slate-100 text-2xl font-black leading-none tracking-tight">
                       {professional.name}
@@ -494,13 +494,13 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                 </div>
 
                 {/* Bio Section */}
-                <div className="px-8 py-6 border-t border-slate-100 dark:border-white/5">
-                  <h3 className="text-slate-900 dark:text-slate-100 text-sm font-black uppercase tracking-widest mb-4 flex items-center gap-2">
-                    <span className="size-1.5 w-1.5 rounded-full bg-primary" />
+                <div className="px-8 py-3 border-t border-slate-100 dark:border-white/5">
+                  <h3 className="text-slate-900 dark:text-slate-100 text-[9px] font-black uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <span className="size-1 w-1 rounded-full bg-primary" />
                     Sobre o Profissional
                   </h3>
-                  <div className="bg-slate-50 dark:bg-white/5 p-5 rounded-2xl border border-slate-100 dark:border-white/5">
-                    <p className="text-slate-600 dark:text-gray-400 text-base leading-relaxed font-medium">
+                  <div className="bg-slate-50 dark:bg-white/5 p-3 rounded-2xl border border-slate-100 dark:border-white/5">
+                    <p className="text-slate-600 dark:text-gray-400 text-sm leading-relaxed font-semibold">
                       {professional.description}
                     </p>
                   </div>
@@ -509,17 +509,17 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
 
               {/* Portfolio Gallery */}
               {portfolioImages.length > 0 && (
-                <div className="bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 p-8">
-                  <h3 className="text-slate-900 dark:text-slate-100 text-sm font-black uppercase tracking-widest mb-6 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary text-xl">photo_library</span>
+                <div className="bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 p-5">
+                  <h3 className="text-slate-900 dark:text-slate-100 text-[9px] font-black uppercase tracking-widest mb-3 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary text-base">photo_library</span>
                     Portfólio de Trabalhos
                   </h3>
-                  <div className="flex gap-4 overflow-x-auto snap-x hide-scrollbar pb-4 -mx-4 px-4 md:mx-0 md:px-0">
+                  <div className="flex gap-3 overflow-x-auto snap-x hide-scrollbar pb-2 -mx-4 px-4 md:mx-0 md:px-0">
                     {portfolioImages.map((img, idx) => (
                       <div 
                         key={img.id} 
                         onClick={() => setSelectedImageIndex(idx)}
-                        className="w-[200px] md:w-[240px] shrink-0 snap-center aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 group cursor-pointer shadow-md active:scale-95 transition-all"
+                        className="w-[180px] md:w-[220px] shrink-0 snap-center aspect-[3/2] rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 group cursor-pointer shadow-md active:scale-95 transition-all"
                       >
                         <img 
                           src={img.image_url} 
@@ -533,22 +533,22 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
               )}
 
               {/* Reviews Section */}
-              <div className="bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 p-8">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-slate-900 dark:text-slate-100 text-sm font-black uppercase tracking-widest flex items-center gap-2">
-                    <span className="material-symbols-outlined text-amber-500">reviews</span>
+              <div className="bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-slate-900 dark:text-slate-100 text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
+                    <span className="material-symbols-outlined text-amber-500 text-base">reviews</span>
                     Avaliações dos Clientes
                   </h3>
-                  <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full">
+                  <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
                     <span className="text-sm font-bold">{displayRating}</span>
                     <span className="material-symbols-outlined text-[16px] text-amber-400" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
                     <span className="text-[10px] text-slate-400 uppercase font-black">({displayReviewsCount})</span>
                   </div>
                 </div>
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-4">
                   {dbReviews.length > 0 ? (
                     dbReviews.map((review, i) => (
-                      <div key={i} className="p-5 rounded-2xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 transition-all hover:shadow-md">
+                      <div key={i} className="p-4 rounded-2xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 transition-all hover:shadow-md">
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-4">
                             <div className="size-12 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden text-slate-500 font-bold border-2 border-white dark:border-slate-700 shadow-sm">
