@@ -7,9 +7,19 @@ interface ImageCropperProps {
     imageSrc: string;
     onCropSave: (croppedImageBase64: File) => void;
     onCropCancel: () => void;
+    aspect?: number;
+    cropShape?: 'round' | 'rect';
+    title?: string;
 }
 
-export default function ImageCropper({ imageSrc, onCropSave, onCropCancel }: ImageCropperProps) {
+export default function ImageCropper({ 
+    imageSrc, 
+    onCropSave, 
+    onCropCancel,
+    aspect = 1,
+    cropShape = 'round',
+    title = 'Ajustar Foto'
+}: ImageCropperProps) {
     const { showToast } = useNotifications();
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
@@ -37,23 +47,26 @@ export default function ImageCropper({ imageSrc, onCropSave, onCropCancel }: Ima
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/90 backdrop-blur-sm p-4">
-            <div className="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-[400px] flex flex-col overflow-hidden shadow-2xl ring-1 ring-white/10">
+            <div className={`bg-white dark:bg-slate-900 rounded-[2rem] w-full ${aspect > 1 ? 'max-w-[600px]' : 'max-w-[400px]'} flex flex-col overflow-hidden shadow-2xl ring-1 ring-white/10 transition-all duration-300`}>
 
                 {/* Header */}
                 <div className="px-6 py-4 flex items-center flex-col gap-1 border-b border-slate-100 dark:border-slate-800">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Ajustar Foto</h3>
-                    <p className="text-xs text-slate-500 text-center">Arraste a imagem ou ajuste o zoom para centralizar no círculo</p>
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">{title}</h3>
+                    <p className="text-xs text-slate-500 text-center">Arraste a imagem ou ajuste o zoom para centralizar no {cropShape === 'round' ? 'círculo' : 'retângulo'}</p>
                 </div>
 
                 {/* Cropper Container */}
                 <div className="p-6 pb-2">
-                    <div className="relative w-full aspect-square bg-slate-100 dark:bg-slate-800 rounded-[2rem] overflow-hidden shadow-inner ring-1 ring-black/5 dark:ring-white/5">
+                    <div 
+                        className="relative w-full bg-slate-100 dark:bg-slate-800 rounded-[2rem] overflow-hidden shadow-inner ring-1 ring-black/5 dark:ring-white/5"
+                        style={{ aspectRatio: aspect > 1 ? '16/9' : '1/1' }}
+                    >
                         <Cropper
                             image={imageSrc}
                             crop={crop}
                             zoom={zoom}
-                            aspect={1} // 1:1 Aspect ratio for avatars
-                            cropShape="round" // Circular crop area to match avatars
+                            aspect={aspect}
+                            cropShape={cropShape}
                             onCropChange={setCrop}
                             onCropComplete={onCropComplete}
                             onZoomChange={setZoom}

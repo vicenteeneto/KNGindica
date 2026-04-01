@@ -63,6 +63,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [selectedImageSrc, setSelectedImageSrc] = useState<string | null>(null);
+  const [selectedCoverSrc, setSelectedCoverSrc] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
@@ -576,18 +577,30 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
     }
   };
 
-  const handleCoverChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!event.target.files || event.target.files.length === 0 || !user) return;
+  const handleCoverChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        setSelectedCoverSrc(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCoverCropSave = async (croppedFile: File) => {
+    if (!user) return;
     try {
       setIsUploadingCover(true);
-      const file = event.target.files[0];
-      const fileExt = file.name.split('.').pop() || 'jpeg';
+      setSelectedCoverSrc(null); // Close cropper
+      
+      const fileExt = croppedFile.name.split('.').pop() || 'jpeg';
       const fileName = `${user.id}-cover-${Math.random()}.${fileExt}`;
       const filePath = `covers/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('avatars') // Or a dedicated bucket, assuming avatars implies profile pictures
-        .upload(filePath, file);
+        .from('avatars')
+        .upload(filePath, croppedFile);
 
       if (uploadError) throw uploadError;
 
@@ -937,10 +950,22 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
 
 
       {selectedImageSrc && (
-        <ImageCropper
+        <ImageCropper 
           imageSrc={selectedImageSrc}
           onCropSave={uploadCroppedAvatar}
           onCropCancel={() => setSelectedImageSrc(null)}
+          title="Ajustar Foto de Perfil"
+        />
+      )}
+
+      {selectedCoverSrc && (
+        <ImageCropper 
+          imageSrc={selectedCoverSrc}
+          onCropSave={handleCoverCropSave}
+          onCropCancel={() => setSelectedCoverSrc(null)}
+          aspect={16 / 9}
+          cropShape="rect"
+          title="Ajustar Foto de Capa"
         />
       )}
 
