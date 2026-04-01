@@ -420,21 +420,21 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
 
               <div className="bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 overflow-hidden">
                 {/* Instagram Style Profile Row */}
-                <div className="flex px-6 pt-5 pb-2 items-center gap-6 md:gap-10">
+                <div className="flex px-6 pt-4 pb-1 items-center gap-6 md:gap-10">
                   <div
-                    className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-24 w-24 md:h-32 md:w-32 border-4 border-white dark:border-black shadow-2xl shrink-0"
+                    className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-20 w-20 md:h-28 md:w-28 border-4 border-white dark:border-black shadow-2xl shrink-0"
                     style={{
                       backgroundImage: `url("${professional.image}")`,
                     }}
                   ></div>
                   <div className="flex-1 flex justify-around items-center gap-2">
                     <div className="flex flex-col items-center">
-                      <p className="text-slate-900 dark:text-slate-100 text-lg md:text-xl md:font-black font-extrabold italic tracking-tight">{displayReviewsCount}</p>
+                      <p className="text-slate-900 dark:text-slate-100 text-base md:text-lg md:font-black font-extrabold italic tracking-tight">{displayReviewsCount}</p>
                       <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-0.5 md:mt-1 text-center leading-tight">Serviços</p>
                     </div>
                     <div className="flex flex-col items-center">
                       <div className="flex items-center gap-1">
-                        <p className="text-slate-900 dark:text-slate-100 text-lg md:text-xl md:font-black font-extrabold italic tracking-tight">{displayRating}</p>
+                        <p className="text-slate-900 dark:text-slate-100 text-base md:text-lg md:font-black font-extrabold italic tracking-tight">{displayRating}</p>
                         <span className="material-symbols-outlined text-amber-400 text-[16px] md:text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
                       </div>
                       <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-0.5 md:mt-1 text-center leading-tight">Avaliação</p>
@@ -442,7 +442,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                     <div className="flex flex-col items-center text-center">
                       {professional.show_price ? (
                         <>
-                          <p className="text-slate-900 dark:text-slate-100 text-base md:text-lg md:font-black font-extrabold italic tracking-tight shrink-0 whitespace-nowrap">
+                          <p className="text-slate-900 dark:text-slate-100 text-sm md:text-base md:font-black font-extrabold italic tracking-tight shrink-0 whitespace-nowrap">
                             {professional.pricing_model === 'negotiable' ? (
                               'A combinar'
                             ) : (
@@ -468,9 +468,9 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                   </div>
                 </div>
 
-                <div className="px-8 pt-2 pb-5 flex flex-col gap-1">
+                <div className="px-6 pt-1 pb-3 flex flex-col gap-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <p className="text-slate-900 dark:text-slate-100 text-2xl font-black leading-none tracking-tight">
+                    <p className="text-slate-900 dark:text-slate-100 text-lg font-black leading-none tracking-tight">
                       {professional.name}
                     </p>
                     {professional.isVerified && (
