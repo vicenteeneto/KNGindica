@@ -416,9 +416,9 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 relative -mt-10 md:mt-3 md:-mt-0 z-10">
-                {/* Avatar Container - No negative margin here, it's on the parent box now */}
-                <div className="px-6 flex flex-col md:flex-row md:items-end gap-4 relative z-20">
+              <div className="bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 relative z-10">
+                {/* Overlapping Avatar Container - Independent overlap for 50/50 effect */}
+                <div className="px-6 flex flex-col md:flex-row md:items-end gap-4 -mt-10 md:-mt-14 relative z-20">
                   <div
                     className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-20 w-20 md:h-28 md:w-28 border-[6px] border-white dark:border-slate-900 shadow-xl shrink-0"
                     style={{
