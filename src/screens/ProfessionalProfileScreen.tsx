@@ -398,7 +398,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
 
       <main className="flex-1 overflow-y-auto pb-24">
         {/* Profile Info Container */}
-        <div className="max-w-7xl mx-auto w-full px-0 md:px-4 py-6 md:py-10">
+        <div className="max-w-7xl mx-auto w-full px-0 md:px-4 pt-0 pb-6 md:pt-0 md:pb-10">
           <div className="lg:grid lg:grid-cols-3 lg:gap-10 items-start">
             
             {/* Left Column: Main Profile Content */}
@@ -407,7 +407,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
               <div className="@container">
                 <div className="md:px-0">
                   <div
-                    className="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden bg-slate-200 dark:bg-slate-800 rounded-b-3xl rounded-t-none h-44 md:h-64 relative group shadow-2xl"
+                    className="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden bg-slate-200 dark:bg-slate-800 rounded-none h-44 md:h-64 relative group shadow-2xl"
                     style={{
                       backgroundImage: `url("${professional.cover_image || professional.image}")`,
                     }}
@@ -443,7 +443,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                 </div>
 
                 {/* Stats Row - 2-Row Architecture (Mathematically Guaranteed Alignment) */}
-                <div className="flex flex-col px-6 py-6 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 -mt-12 md:-mt-16">
+                <div className="flex flex-col px-6 py-3 md:py-4 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 -mt-12 md:-mt-16">
                   {/* Top Row: Values */}
                   <div className="flex items-end justify-between">
                     <div className="flex-1 flex justify-center border-r border-slate-100 dark:border-white/5 h-8 md:h-10 items-end">
