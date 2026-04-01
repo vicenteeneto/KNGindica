@@ -418,7 +418,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
 
               <div className="bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 relative">
                 {/* Overlapping Avatar Container */}
-                <div className="px-6 flex flex-col md:flex-row md:items-end gap-4 -mt-14 md:-mt-20 relative z-20">
+                <div className="px-6 flex flex-col md:flex-row md:items-end gap-4 -mt-10 md:-mt-14 relative z-20">
                   <div
                     className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-20 w-20 md:h-28 md:w-28 border-[6px] border-white dark:border-slate-900 shadow-xl shrink-0"
                     style={{
@@ -445,14 +445,14 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                 {/* Stats Row - Clean and Compact with Precision Alignment */}
                 <div className="flex px-6 py-4 items-center justify-between border-b border-slate-100 dark:border-white/5 mt-2 bg-slate-50/50 dark:bg-white/5">
                   <div className="flex flex-col items-center flex-1 border-r border-slate-100 dark:border-white/5 h-full">
-                    <div className="h-6 md:h-7 flex items-end justify-center w-full">
+                    <div className="h-8 md:h-9 flex items-end justify-center w-full pb-0.5">
                       <p className="text-slate-900 dark:text-slate-100 text-sm md:text-base font-black italic tracking-tight leading-none">{displayReviewsCount}</p>
                     </div>
                     <p className="text-slate-500 text-[9px] font-black uppercase tracking-[0.2em] mt-2 text-center leading-none">Serviços</p>
                   </div>
                   
                   <div className="flex flex-col items-center flex-1 border-r border-slate-100 dark:border-white/5 h-full">
-                    <div className="h-6 md:h-7 flex items-end justify-center w-full gap-1">
+                    <div className="h-8 md:h-9 flex items-end justify-center w-full pb-0.5 gap-1">
                       <p className="text-slate-900 dark:text-slate-100 text-sm md:text-base font-black italic tracking-tight leading-none">{displayRating}</p>
                       <span className="material-symbols-outlined text-amber-400 text-[14px] md:text-[16px] leading-none" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
                     </div>
@@ -460,7 +460,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                   </div>
 
                   <div className="flex flex-col items-center flex-1 h-full">
-                    <div className="h-6 md:h-7 flex items-end justify-center w-full">
+                    <div className="h-8 md:h-9 flex items-end justify-center w-full pb-0.5">
                       {professional.show_price ? (
                         <p className="text-slate-900 dark:text-slate-100 text-sm md:text-base font-black italic tracking-tight whitespace-nowrap overflow-hidden text-ellipsis leading-none uppercase">
                           {professional.pricing_model === 'negotiable' ? (
