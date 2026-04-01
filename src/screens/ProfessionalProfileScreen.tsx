@@ -427,7 +427,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                   ></div>
                   
                   {/* Name and Location (LinkedIn Style - directly next to or below avatar) */}
-                  <div className="flex-1 pb-0.5 md:pb-2 md:mt-10">
+                  <div className="flex-1 pb-1 md:pb-2 md:mt-10">
                     <div className="flex items-center gap-2 mb-0.5">
                       <p className="text-slate-900 dark:text-slate-100 text-xl font-black leading-tight tracking-tight">
                         {professional.name}
@@ -443,7 +443,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                 </div>
 
                 {/* Stats Row - 2-Row Architecture (Mathematically Guaranteed Alignment) */}
-                <div className="flex flex-col px-6 py-3 md:py-4 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 -mt-14 md:-mt-16">
+                <div className="flex flex-col px-6 py-3 md:py-4 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 -mt-10 md:-mt-16">
                   {/* Top Row: Values */}
                   <div className="flex items-end justify-between">
                     <div className="flex-1 flex justify-center border-r border-slate-100 dark:border-white/5 h-8 md:h-10 items-end">
