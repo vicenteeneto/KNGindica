@@ -310,8 +310,7 @@ function AppContent() {
         return <FreelanceRequestScreen onNavigate={handleNavigate} />;
       case 'openOrders':
         return <OpenOrdersScreen onNavigate={handleNavigate} />;
-      case 'categories':
-        return <CategoriesScreen onNavigate={handleNavigate} params={navigationParams} />;
+
       case 'termsConsent':
         return <TermsConsentScreen onNavigate={handleNavigate} />;
       case 'bidRoom':
@@ -365,5 +364,3 @@ export default function App() {
     </AuthProvider>
   );
 }
-/ /   d u m m y   c h a n g e  
- 
