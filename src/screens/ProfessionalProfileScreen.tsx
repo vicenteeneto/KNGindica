@@ -418,7 +418,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
 
               <div className="bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 relative">
                 {/* Overlapping Avatar Container */}
-                <div className="px-6 flex flex-col md:flex-row md:items-end gap-4 -mt-12 md:-mt-16 relative z-20">
+                <div className="px-6 flex flex-col md:flex-row md:items-end gap-4 -mt-14 md:-mt-20 relative z-20">
                   <div
                     className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-20 w-20 md:h-28 md:w-28 border-[6px] border-white dark:border-slate-900 shadow-xl shrink-0"
                     style={{
@@ -442,24 +442,26 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                   </div>
                 </div>
 
-                {/* Stats Row - Clean and Compact */}
-                <div className="flex px-6 py-4 items-center justify-between border-b border-slate-100 dark:border-white/5 mt-2 bg-slate-50/50 dark:bg-white/5 min-h-[70px]">
-                  <div className="flex flex-col items-center flex-1 border-r border-slate-100 dark:border-white/5 h-full justify-center">
-                    <p className="text-slate-900 dark:text-slate-100 text-sm md:text-base font-black italic tracking-tight leading-none">{displayReviewsCount}</p>
-                    <p className="text-slate-500 text-[9px] font-black uppercase tracking-[0.2em] mt-1.5 text-center leading-none">Serviços</p>
+                {/* Stats Row - Clean and Compact with Precision Alignment */}
+                <div className="flex px-6 py-4 items-center justify-between border-b border-slate-100 dark:border-white/5 mt-2 bg-slate-50/50 dark:bg-white/5">
+                  <div className="flex flex-col items-center flex-1 border-r border-slate-100 dark:border-white/5 h-full">
+                    <div className="h-6 md:h-7 flex items-end justify-center w-full">
+                      <p className="text-slate-900 dark:text-slate-100 text-sm md:text-base font-black italic tracking-tight leading-none">{displayReviewsCount}</p>
+                    </div>
+                    <p className="text-slate-500 text-[9px] font-black uppercase tracking-[0.2em] mt-2 text-center leading-none">Serviços</p>
                   </div>
                   
-                  <div className="flex flex-col items-center flex-1 border-r border-slate-100 dark:border-white/5 h-full justify-center">
-                    <div className="flex items-center gap-1 leading-none">
-                      <p className="text-slate-900 dark:text-slate-100 text-sm md:text-base font-black italic tracking-tight">{displayRating}</p>
-                      <span className="material-symbols-outlined text-amber-400 text-[14px] md:text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                  <div className="flex flex-col items-center flex-1 border-r border-slate-100 dark:border-white/5 h-full">
+                    <div className="h-6 md:h-7 flex items-end justify-center w-full gap-1">
+                      <p className="text-slate-900 dark:text-slate-100 text-sm md:text-base font-black italic tracking-tight leading-none">{displayRating}</p>
+                      <span className="material-symbols-outlined text-amber-400 text-[14px] md:text-[16px] leading-none" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
                     </div>
-                    <p className="text-slate-500 text-[9px] font-black uppercase tracking-[0.2em] mt-1.5 text-center leading-none">Avaliação</p>
+                    <p className="text-slate-500 text-[9px] font-black uppercase tracking-[0.2em] mt-2 text-center leading-none">Avaliação</p>
                   </div>
 
-                  <div className="flex flex-col items-center flex-1 h-full justify-center">
-                    {professional.show_price ? (
-                      <>
+                  <div className="flex flex-col items-center flex-1 h-full">
+                    <div className="h-6 md:h-7 flex items-end justify-center w-full">
+                      {professional.show_price ? (
                         <p className="text-slate-900 dark:text-slate-100 text-sm md:text-base font-black italic tracking-tight whitespace-nowrap overflow-hidden text-ellipsis leading-none uppercase">
                           {professional.pricing_model === 'negotiable' ? (
                             'A COMBINAR'
@@ -470,18 +472,17 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                             </>
                           )}
                         </p>
-                        <p className="text-slate-500 text-[9px] font-black uppercase tracking-[0.2em] mt-1.5 text-center leading-none">
-                          {professional.pricing_model === 'hourly' ? 'POR HORA' : 
-                           professional.pricing_model === 'fixed' ? 'FIXO' : 
-                           professional.pricing_model === 'starting_at' ? 'INICIAL' : 'NEGOCIAVEL'}
-                        </p>
-                      </>
-                    ) : (
-                      <>
+                      ) : (
                         <p className="text-slate-900 dark:text-slate-100 text-sm md:text-base font-black italic tracking-tight uppercase whitespace-nowrap leading-none">Sob Consulta</p>
-                        <p className="text-slate-500 text-[9px] font-black uppercase tracking-[0.2em] mt-1.5 text-center leading-none">Valores</p>
-                      </>
-                    )}
+                      )}
+                    </div>
+                    <p className="text-slate-500 text-[9px] font-black uppercase tracking-[0.2em] mt-2 text-center leading-none">
+                      {professional.show_price ? (
+                         professional.pricing_model === 'hourly' ? 'POR HORA' : 
+                         professional.pricing_model === 'fixed' ? 'FIXO' : 
+                         professional.pricing_model === 'starting_at' ? 'INICIAL' : 'NEGOCIAVEL'
+                      ) : 'Valores'}
+                    </p>
                   </div>
                 </div>
 
