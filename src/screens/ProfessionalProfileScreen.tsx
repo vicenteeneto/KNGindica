@@ -443,17 +443,17 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                 </div>
 
                 {/* Stats Row - 2-Row Architecture (Mathematically Guaranteed Alignment) */}
-                <div className="flex flex-col px-6 py-3 md:py-4 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 -mt-10 md:-mt-16">
+                <div className="flex flex-col px-6 py-5 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 -mt-10 md:-mt-16">
                   {/* Top Row: Values */}
                   <div className="flex items-end justify-between">
-                    <div className="flex-1 flex justify-center border-r border-slate-100 dark:border-white/5 h-8 md:h-10 items-end">
+                    <div className="flex-1 flex justify-center border-r border-slate-100 dark:border-white/5 h-7 md:h-10 items-center">
                       <p className="text-slate-900 dark:text-slate-100 text-sm md:text-base font-black italic tracking-tight leading-none pb-0.5">{displayReviewsCount}</p>
                     </div>
-                    <div className="flex-1 flex justify-center border-r border-slate-100 dark:border-white/5 h-8 md:h-10 items-end gap-1">
+                    <div className="flex-1 flex justify-center border-r border-slate-100 dark:border-white/5 h-7 md:h-10 items-center gap-1">
                       <p className="text-slate-900 dark:text-slate-100 text-sm md:text-base font-black italic tracking-tight leading-none pb-0.5">{displayRating}</p>
                       <span className="material-symbols-outlined text-amber-400 text-[14px] md:text-[18px] leading-none mb-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
                     </div>
-                    <div className="flex-1 flex justify-center h-8 md:h-10 items-end">
+                    <div className="flex-1 flex justify-center h-7 md:h-10 items-center">
                       {professional.show_price ? (
                         <p className="text-slate-900 dark:text-slate-100 text-sm md:text-base font-black italic tracking-tight whitespace-nowrap overflow-hidden text-ellipsis leading-none uppercase pb-0.5">
                           {professional.pricing_model === 'negotiable' ? (
@@ -496,7 +496,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                 )}
 
                 {/* Bio Section */}
-                <div className="px-8 py-2 border-t border-slate-100 dark:border-white/5">
+                <div className="px-8 pt-6 pb-2 border-t border-slate-100 dark:border-white/5">
                   <h3 className="text-slate-900 dark:text-slate-100 text-[9px] font-black uppercase tracking-widest mb-1.5 flex items-center gap-2">
                     <span className="size-1 w-1 rounded-full bg-primary" />
                     Sobre o Profissional
