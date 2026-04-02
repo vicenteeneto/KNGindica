@@ -10,6 +10,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
   const { showToast } = useNotifications();
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [hasReviewed, setHasReviewed] = useState(false);
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -42,6 +43,20 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
         
         if (data) {
           setOrder(data);
+          
+          // Verificar se já existe uma avaliação
+          if (data.status === 'completed' && user?.id === data.client_id) {
+            const { data: reviewData } = await supabase
+              .from('reviews')
+              .select('id')
+              .eq('freelance_order_id', params.orderId)
+              .eq('reviewer_id', user.id)
+              .maybeSingle();
+            
+            if (reviewData) {
+              setHasReviewed(true);
+            }
+          }
         }
       } catch (err: any) {
         console.error("Erro ao buscar freelance:", err);
@@ -140,18 +155,23 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
               
               {displayData.status === 'completed' && isClient && (
                 <button 
-                  onClick={() => onNavigate('writeReview', {
+                  onClick={() => !hasReviewed && onNavigate('writeReview', {
                     requestId: displayData.id,
-                    providerId: displayData.provider_id,
+                    providerId: displayData.assigned_provider_id,
                     providerName: displayData.provider?.full_name,
                     providerAvatar: displayData.provider?.avatar_url,
                     serviceTitle: displayData.title || displayData.category?.name || 'Freelance',
                     isFreelance: true
                   })}
-                  className="mt-4 px-8 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-lg shadow-amber-500/30 transition-all flex items-center gap-2 animate-bounce"
+                  disabled={hasReviewed}
+                  className={`mt-4 px-8 py-3 font-bold rounded-xl shadow-lg transition-all flex items-center gap-2 ${
+                    hasReviewed 
+                      ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed shadow-none' 
+                      : 'bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/30 animate-bounce'
+                  }`}
                 >
                   <span className="material-symbols-outlined">star</span>
-                  Avaliar Profissional
+                  {hasReviewed ? 'Serviço Avaliado' : 'Avaliar Profissional'}
                 </button>
               )}
             </div>

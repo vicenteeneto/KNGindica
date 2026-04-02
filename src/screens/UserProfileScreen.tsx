@@ -655,14 +655,19 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
               accept="image/*"
               onChange={handleCoverChange}
             />
-            <button
-              onClick={() => coverInputRef.current?.click()}
-              disabled={isUploadingCover}
-              className="px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/40 transition-all text-xs font-bold gap-2 shadow-sm border border-white/30 disabled:opacity-50"
-            >
-              <span className="material-symbols-outlined text-[16px]">add_photo_alternate</span>
-              {isUploadingCover ? 'Enviando...' : 'Alterar Capa'}
-            </button>
+            <div className="flex flex-col items-end gap-2">
+              <span className="text-[10px] font-black text-white/60 uppercase tracking-tighter bg-black/20 px-2 py-0.5 rounded-full backdrop-blur-sm">
+                Ideal: 1090 x 1980 px
+              </span>
+              <button
+                onClick={() => coverInputRef.current?.click()}
+                disabled={isUploadingCover}
+                className="px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/40 transition-all text-xs font-bold gap-2 shadow-sm border border-white/30 disabled:opacity-50"
+              >
+                <span className="material-symbols-outlined text-[16px]">add_photo_alternate</span>
+                {isUploadingCover ? 'Enviando...' : 'Alterar Capa'}
+              </button>
+            </div>
           </div>
         )}
         {/* Back Button */}
