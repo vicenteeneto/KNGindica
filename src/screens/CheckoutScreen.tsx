@@ -119,7 +119,7 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
             user_id: request.assigned_provider_id,
             title: 'Pagamento Confirmado! 💰',
             message: `O cliente realizou o pagamento do serviço: "${request.title}". Você já pode iniciar o atendimento!`,
-            type: 'status',
+            type: 'freelance_status',
             related_entity_id: params.freelanceOrderId
           });
         }

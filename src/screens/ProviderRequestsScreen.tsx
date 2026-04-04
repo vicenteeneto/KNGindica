@@ -190,7 +190,41 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
     if (params?.tab && params.tab !== activeTab) {
       setActiveTab(params.tab as Tab);
     }
-  }, [params?.tab]);
+    
+    // Deep Linking: Auto-open request details from notification
+    if (params?.requestId) {
+      const loadInitialRequest = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('service_requests')
+            .select(`
+              *,
+              profiles!service_requests_client_id_fkey(full_name, avatar_url),
+              service_categories(name, icon),
+              reviews(rating, comment)
+            `)
+            .eq('id', params.requestId)
+            .single();
+          
+          if (data && !error) {
+            // Determine active tab based on status
+            let tab: Tab = 'Novos';
+            if (['proposed', 'awaiting_payment'].includes(data.status)) tab = 'Orçados';
+            else if (['accepted', 'paid'].includes(data.status)) tab = 'Aprovados';
+            else if (data.status === 'scheduled') tab = 'Agendados';
+            else if (data.status === 'completed') tab = 'Finalizados';
+            else if (data.status === 'cancelled') tab = 'Recusados';
+            
+            setActiveTab(tab);
+            setDetailsModal({ isOpen: true, request: data });
+          }
+        } catch (e) {
+          console.warn("Could not load initial deep-linked request", e);
+        }
+      };
+      loadInitialRequest();
+    }
+  }, [params?.tab, params?.requestId]);
 
   useEffect(() => {
     fetchRequests();
@@ -843,9 +877,21 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
 
                     {activeTab === 'Orçados' && (
                       <div className="mt-4 flex flex-col gap-2">
-                        <div className="bg-blue-50 dark:bg-blue-900/10 p-3 rounded-lg border border-blue-100 dark:border-blue-800/30 flex items-center gap-2">
-                          <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-[20px]">sync</span>
-                          <p className="text-xs text-blue-700 dark:text-blue-300 font-medium">Aguardando aprovação do cliente...</p>
+                        <div className={`p-3 rounded-lg border flex items-center gap-2 ${
+                          req.status === 'awaiting_payment' 
+                            ? 'bg-purple-50 dark:bg-purple-900/10 border-purple-100 dark:border-purple-800/30' 
+                            : 'bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-800/30'
+                        }`}>
+                          <span className={`material-symbols-outlined text-[20px] ${
+                            req.status === 'awaiting_payment' ? 'text-purple-600 dark:text-purple-400' : 'text-blue-600 dark:text-blue-400'
+                          }`}>
+                            {req.status === 'awaiting_payment' ? 'payments' : 'sync'}
+                          </span>
+                          <p className={`text-xs font-medium ${
+                            req.status === 'awaiting_payment' ? 'text-purple-700 dark:text-purple-300' : 'text-blue-700 dark:text-blue-300'
+                          }`}>
+                            {req.status === 'awaiting_payment' ? 'Aguardando pagamento do cliente...' : 'Aguardando aprovação do cliente...'}
+                          </p>
                         </div>
                         <div className="flex gap-2">
                           <p className="flex-1 text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1">

@@ -459,17 +459,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
         content: "✅ Proposta aceita! Aguardando confirmação do pagamento da taxa de intermediação."
       });
 
-      // Notificar o prestador via tabela de notificações (sininho)
-      const { data: requestData } = await supabase.from('service_requests').select('provider_id, title').eq('id', params.requestId).single();
-      if (requestData?.provider_id) {
-        await supabase.from('notifications').insert({
-          user_id: requestData.provider_id,
-          title: 'Orçamento Aceito!',
-          message: `O cliente aceitou seu orçamento para "${requestData.title}".`,
-          type: 'status',
-          related_entity_id: params.requestId
-        });
-      }
+      // Notificação enviada pelo ServiceStatusScreen ao aceitar o orçamento — não duplicar aqui
 
       const { data } = await supabase.from('service_requests').select('*').eq('id', params.requestId).single();
       setServiceRequest(data);

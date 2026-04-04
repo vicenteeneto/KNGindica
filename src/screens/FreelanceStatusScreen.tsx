@@ -114,7 +114,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
         user_id: order.client_id,
         title: 'Serviço Agendado! 📅',
         message: `O profissional agendou o início do freelance para ${new Date(scheduledAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}.`,
-        type: 'freelance_approved',
+        type: 'freelance_status',
         related_entity_id: order.id
       });
 
@@ -380,7 +380,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                         user_id: order.client_id,
                         title: 'Trabalho Iniciado! 🚀',
                         message: `O profissional iniciou a execução do freelance: "${order.title}".`,
-                        type: 'freelance_approved',
+                        type: 'freelance_status',
                         related_entity_id: order.id
                       });
                       showToast('Sucesso', 'Status atualizado para Em Andamento', 'success');
@@ -434,7 +434,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                             user_id: displayData.assigned_provider_id,
                             title: 'Pagamento Liberado! 🎉',
                             message: `O cliente confirmou a conclusão do freelance "${displayData.title}" e o valor foi liberado.`,
-                            type: 'payment',
+                            type: 'freelance_status',
                             related_entity_id: order.id
                           });
                         }

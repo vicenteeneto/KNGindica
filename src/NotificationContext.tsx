@@ -232,7 +232,10 @@ export function NotificationProvider({ children, onNavigate }: { children: React
           navParams = { orderId: payload.new.related_entity_id };
         } else if (payload.new.type === 'freelance_approved') {
           target = 'openOrders';
-          navParams = { tab: 'approved' };
+          navParams = { tab: 'approved', orderId: payload.new.related_entity_id };
+        } else if (payload.new.type === 'freelance_status') {
+          target = 'freelanceStatus';
+          navParams = { orderId: payload.new.related_entity_id };
         }
 
         showToast(payload.new.title, payload.new.message, 'notification', undefined, target, navParams);

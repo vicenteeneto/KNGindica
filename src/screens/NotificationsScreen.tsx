@@ -165,7 +165,10 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
       navParams = { orderId: notification.related_entity_id };
     } else if (notification.type === 'freelance_approved') {
       target = 'openOrders';
-      navParams = { tab: 'approved' };
+      navParams = { tab: 'approved', orderId: notification.related_entity_id };
+    } else if (notification.type === 'freelance_status') {
+      target = 'freelanceStatus';
+      navParams = { orderId: notification.related_entity_id };
     } else if (notification.type === 'status') {
       // Para o prestador: vai para a lista de serviços (tela certa)
       // Para o cliente: vai para o status do serviço

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { NavigationProps, Screen } from '../types';
-import { professionals as mockProfessionals } from '../data/mockData';
+// import { professionals as mockProfessionals } from '../data/mockData';
 import MobileNav from '../components/MobileNav';
 import { useAuth } from '../AuthContext';
 import { formatCurrency, normalizeText } from '../lib/formatters';
@@ -416,15 +416,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
     }
 
     if (list.length === 0 && !loadingProviders) {
-      return mockProfessionals.filter(mp => mp.isAffiliate).map(mp => ({
-        ...mp,
-        price: String(mp.price),
-        distance: String(mp.distance),
-        city: 'N/A',
-        isAffiliate: mp.isAffiliate ?? false,
-        isVerified: mp.isVerified ?? false,
-        rawDistance: 999999
-      }));
+      return [];
     }
 
     return list;
