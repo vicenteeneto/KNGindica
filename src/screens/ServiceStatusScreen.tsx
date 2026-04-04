@@ -23,7 +23,6 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
   });
   const [isActing, setIsActing] = useState(false);
   const [isSendingBudget, setIsSendingBudget] = useState(false);
-  const [expandedStep, setExpandedStep] = useState<string | null>(null);
 
   const fetchRequest = async () => {
     if (!params?.requestId) {
@@ -411,18 +410,14 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                      ].map((step, idx, arr) => {
                        const isDone = step.status.includes(displayData.status);
                        const isLast = idx === arr.length - 1;
-                       const isExpanded = expandedStep === step.id;
                        
                        return (
                          <div 
                            key={idx} 
-                           className={`flex items-start gap-6 relative group cursor-pointer p-3 rounded-2xl transition-all ${
-                             isExpanded ? 'bg-white/5 border border-white/10' : 'hover:bg-white/5'
-                           }`}
-                           onClick={() => setExpandedStep(expandedStep === step.id ? null : step.id)}
+                           className="flex items-start gap-6 relative group p-3 rounded-2xl transition-all"
                          >
                             {!isLast && (
-                              <div className="absolute left-[33px] top-14 bottom-0 w-[2px] bg-slate-800 z-0">
+                              <div className="absolute left-[31px] top-[48px] bottom-[-12px] w-[2px] bg-slate-800 z-0 overflow-hidden">
                                  <div className={`w-full transition-all duration-1000 ${isDone ? 'h-full bg-primary' : 'h-0'}`} />
                               </div>
                             )}
@@ -438,7 +433,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                                </div>
                                <h4 className={`text-sm font-black uppercase tracking-tighter italic leading-none mt-1 ${isDone ? 'text-white' : 'text-slate-700'}`}>{step.label}</h4>
                                
-                               {(isExpanded || (isDone && !['budget', 'payment'].includes(step.id))) && (
+                               {(isDone || (idx > 0 && arr[idx-1].status.includes(displayData.status))) && (
                                  <p className="text-[11px] text-slate-400 mt-2 font-medium leading-relaxed animate-in fade-in slide-in-from-top-1 duration-300">
                                    {step.getDetails(isDone)}
                                  </p>
