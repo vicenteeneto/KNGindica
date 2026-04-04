@@ -25,8 +25,19 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
   const [budgetModal, setBudgetModal] = useState<{ isOpen: boolean, requestId: string | null, requestTitle: string, currentAmount: string }>({ 
     isOpen: false, requestId: null, requestTitle: '', currentAmount: '' 
   });
-  const [scheduleModal, setScheduleModal] = useState<{ isOpen: boolean, requestId: string | null, requestTitle: string, date: string, time: string }>({
-    isOpen: false, requestId: null, requestTitle: '', date: '', time: '09:00'
+  const [scheduleModal, setScheduleModal] = useState<{ 
+    isOpen: boolean; 
+    requestId: string | null; 
+    requestTitle: string; 
+    date: string; 
+    time: string;
+    preferredDate: string | null;
+    address: string;
+    description: string;
+    clientName: string;
+  }>({
+    isOpen: false, requestId: null, requestTitle: '', date: '', time: '09:00',
+    preferredDate: null, address: '', description: '', clientName: ''
   });
   const [detailsModal, setDetailsModal] = useState<{ isOpen: boolean, request: any | null }>({
     isOpen: false, request: null
@@ -377,15 +388,17 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
 
       if (error) throw error;
       
-      // Notify client
-      await supabase.from('notifications').insert({
-        user_id: requests.find(r => r.id === budgetModal.requestId)?.client_id,
-        title: 'Orçamento Recebido',
-        message: `O profissional enviou um orçamento de ${formatCurrency(amount)} para o seu pedido.`,
-        type: 'order',
-        related_entity_id: budgetModal.requestId
-      });
-
+      // Notificar o cliente sobre o orçamento recebido
+      const req = requests.find(r => r.id === budgetModal.requestId);
+      if (req?.client_id) {
+        await supabase.from('notifications').insert({
+          user_id: req.client_id,
+          title: 'Orçamento Recebido',
+          message: `O profissional enviou um orçamento de ${formatCurrency(amount)} para o seu pedido "${req.title || 'Serviço'}".`,
+          type: 'order',
+          related_entity_id: budgetModal.requestId
+        });
+      }
       showToast('Orçamento enviado com sucesso!', 'success');
       setBudgetModal({ isOpen: false, requestId: null, requestTitle: '', currentAmount: '' });
       
@@ -403,13 +416,29 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
     }
   };
 
-  const handleScheduleService = (id: string, title?: string) => {
+  const handleScheduleService = (req: any) => {
+    // Try to pre-fill with client's preferred date
+    let prefilledDate = new Date().toISOString().split('T')[0];
+    if (req.desired_date) {
+      const d = new Date(req.desired_date);
+      if (!isNaN(d.getTime())) {
+        prefilledDate = d.toISOString().split('T')[0];
+      }
+    }
+
+    const addressParts = [req.street, req.number, req.neighborhood, req.city, req.state].filter(Boolean);
+    const address = addressParts.join(', ');
+
     setScheduleModal({
       isOpen: true,
-      requestId: id,
-      requestTitle: title || 'Serviço',
-      date: new Date().toISOString().split('T')[0],
-      time: '09:00'
+      requestId: req.id,
+      requestTitle: req.title || 'Serviço',
+      date: prefilledDate,
+      time: '09:00',
+      preferredDate: req.desired_date || null,
+      address,
+      description: req.description || '',
+      clientName: req.profiles?.full_name || 'Cliente'
     });
   };
 
@@ -573,10 +602,10 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
       {/* Schedule Modal */}
       {scheduleModal.isOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200">
+          <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             <div className="p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="size-12 rounded-2xl bg-orange-500/10 flex items-center justify-center">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="size-12 rounded-2xl bg-orange-500/10 flex items-center justify-center shrink-0">
                   <span className="material-symbols-outlined text-orange-500 text-2xl">calendar_today</span>
                 </div>
                 <div>
@@ -585,33 +614,73 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Data</label>
-                    <input 
-                      type="date"
-                      value={scheduleModal.date}
-                      onChange={(e) => setScheduleModal(prev => ({ ...prev, date: e.target.value }))}
-                      className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold text-sm text-slate-900 dark:text-slate-100 focus:border-orange-500 transition-colors outline-none"
-                    />
+              {/* Client Request Details */}
+              <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-4 mb-5 space-y-3">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pedido do cliente</p>
+                
+                {scheduleModal.clientName && (
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary text-sm">person</span>
+                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">{scheduleModal.clientName}</span>
                   </div>
-                  <div>
-                    <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Horário</label>
-                    <input 
-                      type="time"
-                      value={scheduleModal.time}
-                      onChange={(e) => setScheduleModal(prev => ({ ...prev, time: e.target.value }))}
-                      className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold text-sm text-slate-900 dark:text-slate-100 focus:border-orange-500 transition-colors outline-none"
-                    />
+                )}
+
+                {scheduleModal.preferredDate && (
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-amber-500 text-sm">event</span>
+                    <div>
+                      <p className="text-[10px] font-black text-amber-500 uppercase tracking-widest">Data preferida pelo cliente</p>
+                      <p className="text-sm font-bold text-slate-900 dark:text-white">
+                        {new Date(scheduleModal.preferredDate).toLocaleDateString('pt-BR', { 
+                          weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+                        })}
+                      </p>
+                    </div>
                   </div>
+                )}
+
+                {scheduleModal.address && (
+                  <div className="flex items-start gap-2">
+                    <span className="material-symbols-outlined text-emerald-500 text-sm mt-0.5">location_on</span>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">{scheduleModal.address}</p>
+                  </div>
+                )}
+
+                {scheduleModal.description && (
+                  <div className="flex items-start gap-2">
+                    <span className="material-symbols-outlined text-slate-400 text-sm mt-0.5">description</span>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-3 italic">"{scheduleModal.description}"</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Date & Time Picker */}
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Confirmar data e horário</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Data</label>
+                  <input 
+                    type="date"
+                    value={scheduleModal.date}
+                    onChange={(e) => setScheduleModal(prev => ({ ...prev, date: e.target.value }))}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold text-sm text-slate-900 dark:text-slate-100 focus:border-orange-500 transition-colors outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Horário</label>
+                  <input 
+                    type="time"
+                    value={scheduleModal.time}
+                    onChange={(e) => setScheduleModal(prev => ({ ...prev, time: e.target.value }))}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold text-sm text-slate-900 dark:text-slate-100 focus:border-orange-500 transition-colors outline-none"
+                  />
                 </div>
               </div>
             </div>
 
             <div className="p-4 bg-slate-50 dark:bg-slate-800/50 flex gap-3">
               <button 
-                onClick={() => setScheduleModal({ isOpen: false, requestId: null, requestTitle: '', date: '', time: '09:00' })}
+                onClick={() => setScheduleModal({ isOpen: false, requestId: null, requestTitle: '', date: '', time: '09:00', preferredDate: null, address: '', description: '', clientName: '' })}
                 className="flex-1 py-3.5 rounded-xl font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
                 Cancelar
@@ -807,7 +876,7 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                           </button>
                         )}
                         <button
-                          onClick={() => handleScheduleService(req.id, req.title)}
+                          onClick={() => handleScheduleService(req)}
                           className="w-full cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold shadow-md shadow-primary/20 hover:brightness-110 active:scale-[0.98] transition-all">
                           <span className="material-symbols-outlined text-[18px]">calendar_month</span>
                           Agendar Data/Hora

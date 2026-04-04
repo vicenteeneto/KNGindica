@@ -223,12 +223,12 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
           
           if (closeError) throw closeError;
 
-          // Notificar o prestador que ele foi contratado
+          // Notificar o prestador que ele foi contratado (redireciona para Freelance > Aprovados)
           await supabase.from('notifications').insert({
             user_id: bid.provider_id,
-            title: 'Você foi contratado!',
-            message: `Sua proposta para "${order.title}" foi aceita.`,
-            type: 'order',
+            title: 'Você foi contratado! 🎉',
+            message: `Sua proposta para "${order.title}" foi aceita. Aguarde o pagamento do cliente.`,
+            type: 'freelance_approved',
             related_entity_id: order.id
           });
 

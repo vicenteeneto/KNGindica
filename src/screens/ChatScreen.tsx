@@ -424,18 +424,7 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
       });
 
       if (msgError) throw msgError;
-      
-      // 3. Enviar notificação para o cliente
-      const { data: clientData } = await supabase.from('service_requests').select('client_id, title').eq('id', params.requestId).single();
-      if (clientData?.client_id) {
-        await supabase.from('notifications').insert({
-          user_id: clientData.client_id,
-          title: 'Novo Orçamento Recebido',
-          message: `Você recebeu um orçamento para "${clientData.title}"`,
-          type: 'status',
-          related_entity_id: params.requestId
-        });
-      }
+      // Notificação enviada pelo ProviderRequestsScreen ao confirmar o orçamento — não duplicar aqui
 
       setShowProposalModal(false);
       setProposalPrice('');

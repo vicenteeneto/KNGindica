@@ -163,9 +163,14 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
     } else if (notification.type === 'freelance_bid') {
       target = 'bidRoom';
       navParams = { orderId: notification.related_entity_id };
+    } else if (notification.type === 'freelance_approved') {
+      target = 'openOrders';
+      navParams = { tab: 'approved' };
     } else if (notification.type === 'status') {
-      target = role === 'provider' ? 'freelanceStatus' : 'serviceStatus';
-      navParams = { requestId: notification.related_entity_id, orderId: notification.related_entity_id };
+      // Para o prestador: vai para a lista de serviços (tela certa)
+      // Para o cliente: vai para o status do serviço
+      target = role === 'provider' ? 'providerRequests' : 'serviceStatus';
+      navParams = { requestId: notification.related_entity_id };
     } else if (notification.type === 'message' || notification.type === 'chat') {
       target = 'chatList';
     }

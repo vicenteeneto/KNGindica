@@ -6,12 +6,12 @@ import { useNotifications } from '../NotificationContext';
 import { formatCurrency } from '../lib/formatters';
 import { ProviderHeader } from '../components/ProviderHeader';
 
-export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
+export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps) {
   const { user } = useAuth();
   const { showToast } = useNotifications();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'available' | 'bidded' | 'approved' | 'scheduled' | 'in_progress' | 'completed' | 'dismissed'>('available');
+  const [activeTab, setActiveTab] = useState<'available' | 'bidded' | 'approved' | 'scheduled' | 'in_progress' | 'completed' | 'dismissed'>(params?.tab || 'available');
   const [detailsModal, setDetailsModal] = useState<{ isOpen: boolean, order: any | null }>({
     isOpen: false, order: null
   });
@@ -124,7 +124,7 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
         .order('created_at', { ascending: false });
       if (!error) setOrders(data || []);
     } else if (activeTab === 'scheduled') {
-      // Agendados: cliente pagou, pronto para iniciar
+      // Agendados: cliente pagou E prestador definiu data/hora
       const { data, error } = await supabase
         .from('freelance_orders')
         .select(`
@@ -133,7 +133,7 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
           service_categories(name, icon)
         `)
         .eq('assigned_provider_id', user.id)
-        .eq('status', 'paid')
+        .in('status', ['paid', 'assigned'])
         .order('created_at', { ascending: false });
       if (!error) setOrders(data || []);
     } else if (activeTab === 'in_progress') {
@@ -190,20 +190,26 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
   const confirmDismiss = async () => {
     if (!confirmModal.orderId || !user) return;
     
+    const dismissedOrderId = confirmModal.orderId;
+    
     try {
       const { error } = await supabase
         .from('provider_dismissals')
         .insert({
           provider_id: user.id,
-          order_id: confirmModal.orderId,
+          order_id: dismissedOrderId,
           order_type: 'freelance'
         });
 
       if (error) throw error;
       
-      showToast('Oportunidade movida para recusadas', 'success');
+      // Remove immediately from the visible list — no need to wait for refetch
+      setOrders(prev => prev.filter(o => o.id !== dismissedOrderId));
       setConfirmModal({ isOpen: false, orderId: null });
-      fetchDismissedIds().then(() => fetchOrders());
+      showToast('Oportunidade movida para recusados', 'success');
+      
+      // Sync dismissed IDs in background for consistency
+      fetchDismissedIds();
     } catch (error: any) {
       showToast('Erro ao recusar: ' + error.message, 'error');
     }

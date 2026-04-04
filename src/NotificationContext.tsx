@@ -230,6 +230,9 @@ export function NotificationProvider({ children, onNavigate }: { children: React
         } else if (payload.new.type === 'freelance_bid') {
           target = 'bidRoom';
           navParams = { orderId: payload.new.related_entity_id };
+        } else if (payload.new.type === 'freelance_approved') {
+          target = 'openOrders';
+          navParams = { tab: 'approved' };
         }
 
         showToast(payload.new.title, payload.new.message, 'notification', undefined, target, navParams);
