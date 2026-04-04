@@ -15,7 +15,7 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
   const [activeTab, setActiveTab] = useState<Tab>((params?.tab as Tab) || 'Novos');
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(params?.requestId || null);
   
   const tabs: Tab[] = ['Novos', 'Orçados', 'Aprovados', 'Agendados', 'Finalizados', 'Recusados'];
 
@@ -146,15 +146,19 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
         
         {/* MASTER LIST (WhatsApp Style) */}
         <div className={`flex flex-col border-r border-white/5 bg-slate-900/50 ${selectedRequestId ? 'hidden lg:flex' : 'flex'} w-full lg:w-[400px] shrink-0 overflow-hidden`}>
-          <div className="p-2 border-b border-white/5 bg-slate-900/80 backdrop-blur-md">
-            <div className="flex gap-1.5 overflow-x-auto no-scrollbar scroll-smooth">
+          <div className="p-1 px-2 border-b border-white/5 bg-slate-900/80 backdrop-blur-md">
+            <div className="flex w-full gap-1">
               {tabs.map(tab => (
                 <button
                   key={tab}
-                  onClick={() => { setActiveTab(tab); setSelectedRequestId(null); }}
-                  className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all border whitespace-nowrap ${
+                  onClick={() => { 
+                    setActiveTab(tab); 
+                    setSelectedRequestId(null);
+                    onNavigate('providerRequests', { tab, requestId: null });
+                  }}
+                  className={`flex-1 flex items-center justify-center py-1.5 rounded-md text-[8px] font-black uppercase tracking-tighter transition-all border whitespace-nowrap ${
                     activeTab === tab 
-                      ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20 scale-95' 
+                      ? 'bg-primary border-primary text-white shadow-md' 
                       : 'bg-white/5 border-transparent text-slate-500 hover:text-slate-300'
                   }`}
                 >
@@ -186,6 +190,7 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                         onNavigate('serviceStatus', { requestId: req.id });
                       } else {
                         setSelectedRequestId(req.id);
+                        onNavigate('providerRequests', { tab: activeTab, requestId: req.id });
                       }
                     }}
                     className={`p-4 flex gap-4 cursor-pointer transition-all relative group ${

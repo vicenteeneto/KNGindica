@@ -50,7 +50,7 @@ const STORAGE_KEY = 'KNGindica_currentScreen';
 const STORAGE_PARAMS_KEY = 'KNGindica_navParams';
 
 // Telas que nunca devem ser persistidas (sensíveis ou de sessão)
-const NON_PERSISTENT_SCREENS = ['auth', 'forgotPassword', 'updatePassword', 'chat', 'termsConsent', 'bidRoom', 'profile'];
+const NON_PERSISTENT_SCREENS = ['auth', 'forgotPassword', 'updatePassword', 'termsConsent', 'bidRoom', 'profile'];
 
 const ADMIN_TABS = [
   { id: 'dashboard', icon: 'grid_view', label: 'Dashboard' },
@@ -105,7 +105,12 @@ function AppContent() {
 
   const [currentScreen, setCurrentScreen] = useState<Screen>(getSavedScreen());
   const [navigationParams, setNavigationParams] = useState<any>(getSavedParams());
-  const [activeChat, setActiveChat] = useState<any>(null);
+  const [activeChat, setActiveChat] = useState<any>(() => {
+    try {
+      const saved = localStorage.getItem('KNGindica_activeChat');
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
+  });
 
   // Sync state with browser history (back/forward buttons)
   useEffect(() => {
@@ -205,6 +210,7 @@ function AppContent() {
 
     if (screen === 'chat') {
       setActiveChat(params);
+      localStorage.setItem('KNGindica_activeChat', JSON.stringify(params));
       return;
     }
 
@@ -350,7 +356,14 @@ function AppContent() {
       </div>
       {activeChat && (
         <div className="fixed bottom-0 right-0 z-[100] md:bottom-4 md:right-4 w-full h-full md:w-auto md:h-auto font-display">
-          <ChatScreen onNavigate={handleNavigate} params={activeChat} onClose={() => setActiveChat(null)} />
+          <ChatScreen 
+            onNavigate={handleNavigate} 
+            params={activeChat} 
+            onClose={() => {
+              setActiveChat(null);
+              localStorage.removeItem('KNGindica_activeChat');
+            }} 
+          />
         </div>
       )}
     </NotificationProvider>
