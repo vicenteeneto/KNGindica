@@ -456,29 +456,67 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
               </div>
             )}
 
-            {/* Fluxo de Conclusão e Liberação de Pagamento */}
-            {(displayData.status === 'completed' || displayData.status === 'in_service' || displayData.status === 'scheduled' || displayData.status === 'paid') && user?.id === displayData.client_id && (
+            {/* Ações do Prestador */}
+            {user?.id === displayData.provider_id && (
               <div className="flex flex-col gap-3 mt-4">
-                <div className="p-4 bg-primary/5 dark:bg-primary/10 rounded-2xl border border-primary/20">
-                  <h4 className="text-xs font-bold text-primary uppercase tracking-widest mb-2 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-sm">
-                      {displayData.status === 'completed' ? 'celebration' : 'check_circle'}
-                    </span>
-                    {displayData.status === 'completed' ? 'Serviço finalizado pelo Prestador!' : 'O serviço foi finalizado?'}
-                  </h4>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
-                    {displayData.status === 'completed' 
-                      ? "O profissional informou que já concluiu o trabalho. Se estiver tudo OK, confirme para liberar o pagamento."
-                      : "Confirme se o serviço foi realizado conforme o acordado para liberar o pagamento ao profissional."
-                    }
-                  </p>
-                  
-                  <div className="flex flex-col gap-2">
+                {(displayData.status === 'scheduled' || displayData.status === 'in_service') && (
+                  <div className="p-4 bg-primary/5 dark:bg-primary/10 rounded-2xl border border-primary/20">
+                    <h4 className="text-xs font-bold text-primary uppercase tracking-widest mb-2 flex items-center gap-2">
+                      <span className="material-symbols-outlined text-sm">construction</span>
+                      O serviço foi finalizado?
+                    </h4>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                      Ao clicar em concluir, o cliente será avisado que o trabalho foi entregue e poderá liberar seu pagamento.
+                    </p>
                     <button 
                       onClick={async () => {
                         try {
-                          // Se já estiver completed, apenas abre avaliação
-                          if (displayData.status === 'completed') {
+                          const { error } = await supabase
+                            .from('service_requests')
+                            .update({ status: 'completed' })
+                            .eq('id', request.id);
+                          if (error) throw error;
+                          showToast("Sucesso", "Serviço finalizado! O cliente já pode liberar o pagamento.", "success");
+                          // Refresh data
+                          const { data } = await supabase.from('service_requests').select('*').eq('id', request.id).single();
+                          setRequest(data);
+                        } catch (e: any) {
+                          showToast("Erro", "Falha ao finalizar serviço.", "error");
+                        }
+                      }}
+                      className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
+                    >
+                      <span className="material-symbols-outlined">task_alt</span>
+                      Finalizar e Avisar Cliente
+                    </button>
+                  </div>
+                )}
+                {displayData.status === 'completed' && (
+                  <div className="p-4 bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl border border-emerald-200 dark:border-emerald-500/20 flex items-center gap-3">
+                    <span className="material-symbols-outlined text-emerald-500">check_circle</span>
+                    <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400 truncate">Serviço finalizado. Aguardando liberação do pagamento pelo cliente.</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Fluxo de Conclusão e Liberação de Pagamento (Cliente) */}
+            {user?.id === displayData.client_id && (
+              <div className="flex flex-col gap-3 mt-4">
+                {displayData.status === 'completed' ? (
+                  <div className="p-4 bg-primary/5 dark:bg-primary/10 rounded-2xl border border-primary/20">
+                    <h4 className="text-xs font-bold text-primary uppercase tracking-widest mb-2 flex items-center gap-2">
+                      <span className="material-symbols-outlined text-sm">celebration</span>
+                      Serviço finalizado pelo Prestador!
+                    </h4>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                      O profissional informou que já concluiu o trabalho. Se estiver tudo OK, confirme para liberar o pagamento.
+                    </p>
+                    
+                    <div className="flex flex-col gap-2">
+                      <button 
+                        onClick={async () => {
+                          try {
                             onNavigate('writeReview', {
                               requestId: displayData.id,
                               providerId: displayData.provider_id,
@@ -486,45 +524,43 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                               providerAvatar: displayData.provider?.avatar_url,
                               serviceTitle: displayData.title || displayData.category?.name || 'Serviço'
                             });
-                            return;
+                          } catch (e: any) {
+                            showToast("Erro", "Falha ao finalizar serviço.", "error");
                           }
+                        }}
+                        className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
+                      >
+                        <span className="material-symbols-outlined">payments</span>
+                        Confirmar e Liberar Valor
+                      </button>
 
-                          // Senão marca como completed
-                          const { error } = await supabase
-                            .from('service_requests')
-                            .update({ status: 'completed' })
-                            .eq('id', request.id);
-                          if (error) throw error;
-
-                          // Notificar o prestador removida - Gatilho do banco de dados gerencia isso
-                          
-                          showToast("Sucesso", "Serviço finalizado com sucesso!", "success");
-                          onNavigate('writeReview', {
-                            requestId: displayData.id,
-                            providerId: displayData.provider_id,
-                            providerName: displayData.provider?.full_name,
-                            providerAvatar: displayData.provider?.avatar_url,
-                            serviceTitle: displayData.title || displayData.category?.name || 'Serviço'
-                          });
-                        } catch (e: any) {
-                          showToast("Erro", "Falha ao finalizar serviço.", "error");
-                        }
-                      }}
-                      className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
-                    >
-                      <span className="material-symbols-outlined">payments</span>
-                      Confirmar e Liberar Valor
-                    </button>
-
+                      <button 
+                        onClick={() => onNavigate('helpCenter', { requestId: displayData.id })}
+                        className="w-full cursor-pointer bg-red-500/10 dark:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 font-bold py-3 rounded-xl transition-all text-xs hover:bg-red-500/20 flex items-center justify-center gap-2"
+                      >
+                        <span className="material-symbols-outlined text-sm">report_problem</span>
+                        Tarefa não concluída / Abrir Disputa
+                      </button>
+                    </div>
+                  </div>
+                ) : (['paid', 'scheduled', 'in_service'].includes(displayData.status)) ? (
+                  <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
+                    <h4 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                      <span className="material-symbols-outlined text-sm">hourglass_empty</span>
+                      Trabalho em andamento
+                    </h4>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                      O valor do serviço está seguro com a KNG. A opção de liberar pagamento aparecerá assim que o profissional finalizar a tarefa.
+                    </p>
                     <button 
                       onClick={() => onNavigate('helpCenter', { requestId: displayData.id })}
-                      className="w-full cursor-pointer bg-red-500/10 dark:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 font-bold py-3 rounded-xl transition-all text-xs hover:bg-red-500/20 flex items-center justify-center gap-2"
+                      className="w-full cursor-pointer bg-transparent text-slate-400 font-bold py-2 rounded-xl transition-all text-[10px] uppercase tracking-widest hover:text-red-500 flex items-center justify-center gap-2"
                     >
-                      <span className="material-symbols-outlined text-sm">report_problem</span>
-                      Tarefa não concluída / Abrir Disputa
+                      <span className="material-symbols-outlined text-sm">help</span>
+                      Tive um problema / Abrir Disputa
                     </button>
                   </div>
-                </div>
+                ) : null}
               </div>
             )}
 

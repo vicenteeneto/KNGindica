@@ -455,11 +455,30 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
               </div>
             )}
 
-            {/* Prestador em andamento: mensagem informativa */}
+            {/* Prestador em andamento: botão para concluir */}
             {displayData.status === 'in_service' && isProvider && (
-              <div className="bg-primary/5 dark:bg-primary/10 rounded-2xl p-4 border border-primary/20 flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary animate-pulse">construction</span>
-                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Trabalho em andamento. Conclua e o cliente liberará o pagamento.</p>
+              <div className="flex flex-col gap-3">
+                <div className="bg-primary/5 dark:bg-primary/10 rounded-2xl p-4 border border-primary/20 flex items-center gap-3 mb-2">
+                  <span className="material-symbols-outlined text-primary animate-pulse">construction</span>
+                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Trabalho em andamento. Ao finalizar, clique no botão abaixo para avisar o cliente.</p>
+                </div>
+                <button
+                  disabled={isActing}
+                  onClick={async () => {
+                    setIsActing(true);
+                    try {
+                      const { error } = await supabase.from('freelance_orders').update({ status: 'completed' }).eq('id', order.id);
+                      if (error) throw error;
+                      showToast('Sucesso', 'Freelance marcado como concluído!', 'success');
+                    } catch (e) {
+                      showToast('Erro', 'Falha ao concluir trabalho.', 'error');
+                    } finally { setIsActing(false); }
+                  }}
+                  className="w-full h-14 bg-emerald-500 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-emerald-600 active:scale-95 transition-all shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 disabled:opacity-60"
+                >
+                  <span className="material-symbols-outlined">task_alt</span>
+                  Finalizar Trabalho
+                </button>
               </div>
             )}
             
