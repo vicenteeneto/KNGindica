@@ -114,14 +114,7 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
              });
           }
 
-          // Notificar o prestador via sistema
-          await supabase.from('notifications').insert({
-            user_id: request.assigned_provider_id,
-            title: 'Pagamento Confirmado! 💰',
-            message: `O cliente realizou o pagamento do serviço: "${request.title}". Você já pode iniciar o atendimento!`,
-            type: 'freelance_status',
-            related_entity_id: params.freelanceOrderId
-          });
+          // Notificação manual removida - Gatilho do banco de dados gerencia isso
         }
       } else {
         const { data: room } = await supabase.from('chat_rooms').select('id').eq('request_id', params.requestId).single();
@@ -133,19 +126,9 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
           });
         }
         
-        // Notificar o prestador da solicitação direta
-        if (request?.provider_id) {
-          await supabase.from('notifications').insert({
-            user_id: request.provider_id,
-            title: 'Pagamento Confirmado! 💰',
-            message: `O cliente realizou o pagamento do serviço: "${request.title}". O contato está liberado!`,
-            type: 'status',
-            related_entity_id: request.id
-          });
-        }
+        // Notificação manual removida - Gatilho do banco de dados gerencia isso
       }
 
-      showToast("Sucesso", "Pagamento confirmado com sucesso!", "success");
       if (request?.is_freelance) {
         onNavigate('freelanceStatus', { orderId: params.freelanceOrderId });
       } else {

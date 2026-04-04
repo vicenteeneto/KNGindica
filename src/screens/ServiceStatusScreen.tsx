@@ -402,17 +402,8 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                             .eq('id', request.id);
                           if (error) throw error;
 
-                          // Notificar o prestador (sininho)
-                          if (request?.provider_id) {
-                            await supabase.from('notifications').insert({
-                              user_id: request.provider_id,
-                              title: 'Orçamento Aceito!',
-                              message: `O cliente aceitou seu orçamento para "${request.title || 'Serviço'}".`,
-                              type: 'status',
-                              related_entity_id: request.id
-                            });
-                          }
-
+                          // Notificação manual removida - Gatilho do banco de dados gerencia isso
+                          
                           onNavigate('checkout', { requestId: request.id });
                         } catch (e: any) {
                           showToast("Erro", "Falha ao aceitar orçamento.", "error");
@@ -505,17 +496,8 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                             .eq('id', request.id);
                           if (error) throw error;
 
-                          // Notificar o prestador
-                          if (displayData.provider_id) {
-                            await supabase.from('notifications').insert({
-                              user_id: displayData.provider_id,
-                              title: 'Pagamento Liberado! 🎉',
-                              message: `O cliente confirmou a conclusão do serviço "${displayData.title || 'Serviço'}" e o valor foi liberado.`,
-                              type: 'payment',
-                              related_entity_id: request.id
-                            });
-                          }
-
+                          // Notificar o prestador removida - Gatilho do banco de dados gerencia isso
+                          
                           showToast("Sucesso", "Serviço finalizado com sucesso!", "success");
                           onNavigate('writeReview', {
                             requestId: displayData.id,

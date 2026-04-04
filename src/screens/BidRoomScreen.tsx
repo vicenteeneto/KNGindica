@@ -184,17 +184,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
       } else {
         showToast("Sucesso", "Lance enviado e visível para o cliente!", "success");
         
-        // Notificar o cliente sobre o novo lance (sala de freelance)
-        const recipientId = order.client_id;
-        if (recipientId) {
-          await supabase.from('notifications').insert({
-            user_id: recipientId,
-            title: 'Novo Lance Recebido',
-            message: `Um profissional enviou um lance de ${formatCurrency(amountNum)} para "${order.title}".`,
-            type: 'freelance_bid',
-            related_entity_id: order.id
-          });
-        }
+        // Notificação manual removida - Gatilho do banco de dados gerencia isso
 
         setBidAmount('');
         setBidMessage('');

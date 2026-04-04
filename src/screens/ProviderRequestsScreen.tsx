@@ -422,17 +422,8 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
 
       if (error) throw error;
       
-      // Notificar o cliente sobre o orçamento recebido
-      const req = requests.find(r => r.id === budgetModal.requestId);
-      if (req?.client_id) {
-        await supabase.from('notifications').insert({
-          user_id: req.client_id,
-          title: 'Orçamento Recebido',
-          message: `O profissional enviou um orçamento de ${formatCurrency(amount)} para o seu pedido "${req.title || 'Serviço'}".`,
-          type: 'order',
-          related_entity_id: budgetModal.requestId
-        });
-      }
+      // Notificação manual removida - Gatilho do banco de dados gerencia isso
+      
       showToast('Orçamento enviado com sucesso!', 'success');
       setBudgetModal({ isOpen: false, requestId: null, requestTitle: '', currentAmount: '' });
       
@@ -452,11 +443,14 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
 
   const handleScheduleService = (req: any) => {
     // Try to pre-fill with client's preferred date
+    // Try to pre-fill with client's preferred date and time
     let prefilledDate = new Date().toISOString().split('T')[0];
+    let prefilledTime = '09:00';
     if (req.desired_date) {
       const d = new Date(req.desired_date);
       if (!isNaN(d.getTime())) {
         prefilledDate = d.toISOString().split('T')[0];
+        prefilledTime = d.toTimeString().split(' ')[0].substring(0, 5);
       }
     }
 
@@ -468,7 +462,7 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
       requestId: req.id,
       requestTitle: req.title || 'Serviço',
       date: prefilledDate,
-      time: '09:00',
+      time: prefilledTime,
       preferredDate: req.desired_date || null,
       address,
       description: req.description || '',
@@ -496,18 +490,8 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
 
       if (error) throw error;
       
-      // Notificar cliente sobre o agendamento
-      const req = requests.find(r => r.id === scheduleModal.requestId);
-      if (req && req.client_id) {
-        await supabase.from('notifications').insert({
-          user_id: req.client_id,
-          title: 'Serviço Agendado!',
-          message: `O profissional agendou o serviço para ${new Date(scheduledAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}.`,
-          type: 'status',
-          related_entity_id: scheduleModal.requestId
-        });
-      }
-
+      // Notificar cliente removida - Gatilho do banco de dados gerencia isso
+      
       showToast('Serviço agendado com sucesso!', 'success');
       setScheduleModal({ isOpen: false, requestId: null, requestTitle: '', date: '', time: '09:00' });
       // Changing tab triggers useEffect re-fetch automatically
@@ -696,8 +680,9 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                   <input 
                     type="date"
                     value={scheduleModal.date}
+                    onClick={(e) => e.currentTarget.showPicker?.()}
                     onChange={(e) => setScheduleModal(prev => ({ ...prev, date: e.target.value }))}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold text-sm text-slate-900 dark:text-slate-100 focus:border-orange-500 transition-colors outline-none"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold text-sm text-slate-900 dark:text-slate-100 focus:border-orange-500 transition-colors outline-none cursor-pointer"
                   />
                 </div>
                 <div>
@@ -705,8 +690,9 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                   <input 
                     type="time"
                     value={scheduleModal.time}
+                    onClick={(e) => e.currentTarget.showPicker?.()}
                     onChange={(e) => setScheduleModal(prev => ({ ...prev, time: e.target.value }))}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold text-sm text-slate-900 dark:text-slate-100 focus:border-orange-500 transition-colors outline-none"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold text-sm text-slate-900 dark:text-slate-100 focus:border-orange-500 transition-colors outline-none cursor-pointer"
                   />
                 </div>
               </div>

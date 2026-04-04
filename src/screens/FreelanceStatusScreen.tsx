@@ -109,14 +109,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
         .eq('id', order.id);
       if (error) throw error;
 
-      // Notificar o cliente sobre o agendamento
-      await supabase.from('notifications').insert({
-        user_id: order.client_id,
-        title: 'Serviço Agendado! 📅',
-        message: `O profissional agendou o início do freelance para ${new Date(scheduledAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}.`,
-        type: 'freelance_status',
-        related_entity_id: order.id
-      });
+      // Notificar o cliente removida - Gatilho do banco de dados gerencia isso
 
       showToast('Sucesso', 'Serviço agendado!', 'success');
       setScheduleModal({ isOpen: false, date: '', time: '09:00' });
@@ -336,7 +329,21 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
             {/* PASSO 2 — Prestador: Agendar data/hora (status paid) */}
             {displayData.status === 'paid' && isProvider && (
               <button
-                onClick={() => setScheduleModal({ isOpen: true, date: new Date().toISOString().split('T')[0], time: '09:00' })}
+                onClick={() => {
+                  let prefilledDate = new Date().toISOString().split('T')[0];
+                  let prefilledTime = '09:00';
+                  
+                  // if there's a deadline or preference already mentioned
+                  if (displayData.delivery_deadline) {
+                    const d = new Date(displayData.delivery_deadline);
+                    if (!isNaN(d.getTime())) {
+                      prefilledDate = d.toISOString().split('T')[0];
+                      prefilledTime = d.toTimeString().split(' ')[0].substring(0, 5);
+                    }
+                  }
+
+                  setScheduleModal({ isOpen: true, date: prefilledDate, time: prefilledTime });
+                }}
                 className="w-full h-14 bg-orange-500 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-orange-600 active:scale-95 transition-all shadow-xl shadow-orange-500/20 flex items-center justify-center gap-2"
               >
                 <span className="material-symbols-outlined">calendar_month</span>
@@ -376,13 +383,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                     try {
                       const { error } = await supabase.from('freelance_orders').update({ status: 'in_service' }).eq('id', order.id);
                       if (error) throw error;
-                      await supabase.from('notifications').insert({
-                        user_id: order.client_id,
-                        title: 'Trabalho Iniciado! 🚀',
-                        message: `O profissional iniciou a execução do freelance: "${order.title}".`,
-                        type: 'freelance_status',
-                        related_entity_id: order.id
-                      });
+                      // Notificação manual removida - Gatilho do banco de dados gerencia isso
                       showToast('Sucesso', 'Status atualizado para Em Andamento', 'success');
                     } catch (e) { showToast('Erro', 'Erro ao atualizar status', 'error'); }
                     finally { setIsActing(false); }
@@ -430,13 +431,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                         const { error } = await supabase.from('freelance_orders').update({ status: 'completed' }).eq('id', order.id);
                         if (error) throw error;
                         if (displayData.assigned_provider_id) {
-                          await supabase.from('notifications').insert({
-                            user_id: displayData.assigned_provider_id,
-                            title: 'Pagamento Liberado! 🎉',
-                            message: `O cliente confirmou a conclusão do freelance "${displayData.title}" e o valor foi liberado.`,
-                            type: 'freelance_status',
-                            related_entity_id: order.id
-                          });
+                          // Notificação manual removida - Gatilho do banco de dados gerencia isso
                         }
                         showToast('Sucesso', 'Freelance finalizado!', 'success');
                         onNavigate('writeReview', {
@@ -504,8 +499,9 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                   <input
                     type="date"
                     value={scheduleModal.date}
+                    onClick={(e) => e.currentTarget.showPicker?.()}
                     onChange={(e) => setScheduleModal(prev => ({ ...prev, date: e.target.value }))}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold text-sm text-slate-900 dark:text-slate-100 focus:border-orange-500 outline-none"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold text-sm text-slate-900 dark:text-slate-100 focus:border-orange-500 outline-none cursor-pointer"
                   />
                 </div>
                 <div>
@@ -513,8 +509,9 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                   <input
                     type="time"
                     value={scheduleModal.time}
+                    onClick={(e) => e.currentTarget.showPicker?.()}
                     onChange={(e) => setScheduleModal(prev => ({ ...prev, time: e.target.value }))}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold text-sm text-slate-900 dark:text-slate-100 focus:border-orange-500 outline-none"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold text-sm text-slate-900 dark:text-slate-100 focus:border-orange-500 outline-none cursor-pointer"
                   />
                 </div>
               </div>
