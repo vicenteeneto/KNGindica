@@ -152,56 +152,116 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
 
       <main className="flex-1 max-w-4xl lg:mx-0 lg:ml-12 w-full pb-24 transition-all duration-300">
         <div className="flex flex-col px-4 py-8">
-          <div className="flex flex-col items-center lg:items-start gap-6">
-            <div className="relative">
-              <div className="flex items-center justify-center">
-                <span className={`material-symbols-outlined text-6xl ${displayData.status === 'cancelled' ? 'text-red-600' : 'text-primary'}`}>
-                  {displayData.status === 'cancelled' ? 'cancel' : 'check_circle'}
-                </span>
+          <div className="flex flex-col gap-6">
+            {/* Freelance Roadmap (Stepper) */}
+            <div className="w-full bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+              <div className="flex items-center justify-between mb-8 relative">
+                {/* Connecting Line */}
+                <div className="absolute top-5 left-8 right-8 h-0.5 bg-slate-100 dark:bg-slate-800 -z-0"></div>
+                <div 
+                  className="absolute top-5 left-8 h-0.5 bg-primary transition-all duration-500 -z-0"
+                  style={{ 
+                    width: `${
+                      displayData.status === 'open' ? '0%' :
+                      displayData.status === 'awaiting_payment' ? '25%' :
+                      displayData.status === 'paid' ? '50%' :
+                      displayData.status === 'assigned' ? '50%' :
+                      displayData.status === 'in_service' ? '75%' :
+                      displayData.status === 'completed' ? '100.1%' : '0%'
+                    }`
+                  }}
+                ></div>
+
+                {[
+                  { id: 'open', label: 'Lances', icon: 'gavel' },
+                  { id: 'awaiting_payment', label: 'Pagamento', icon: 'payments' },
+                  { id: 'assigned', label: 'Agenda', icon: 'calendar_today' },
+                  { id: 'in_service', label: 'Execução', icon: 'construction' },
+                  { id: 'completed', label: 'Conclusão', icon: 'verified' }
+                ].map((step, idx) => {
+                  const isCompleted = (
+                    (step.id === 'open' && ['open', 'awaiting_payment', 'paid', 'assigned', 'in_service', 'completed'].includes(displayData.status)) ||
+                    (step.id === 'awaiting_payment' && ['paid', 'assigned', 'in_service', 'completed'].includes(displayData.status)) ||
+                    (step.id === 'assigned' && ['assigned', 'in_service', 'completed'].includes(displayData.status)) ||
+                    (step.id === 'in_service' && ['in_service', 'completed'].includes(displayData.status)) ||
+                    (step.id === 'completed' && displayData.status === 'completed')
+                  );
+                  const isCurrent = (
+                    (step.id === 'open' && displayData.status === 'open') ||
+                    (step.id === 'awaiting_payment' && displayData.status === 'awaiting_payment') ||
+                    (step.id === 'assigned' && displayData.status === 'paid') ||
+                    (step.id === 'in_service' && displayData.status === 'assigned') ||
+                    (step.id === 'completed' && (displayData.status === 'in_service' || (displayData.status === 'completed' && !hasReviewed)))
+                  );
+
+                  return (
+                    <div key={step.id} className="flex flex-col items-center gap-2 relative z-10">
+                      <div className={`size-10 rounded-full flex items-center justify-center transition-all duration-300 border-4 ${
+                        isCompleted ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20 scale-110' :
+                        isCurrent ? 'bg-white dark:bg-slate-900 border-primary text-primary animate-pulse' :
+                        'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-300'
+                      }`}>
+                        <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: isCompleted ? "'FILL' 1" : "'FILL' 0" }}>
+                          {isCompleted ? 'check' : step.icon}
+                        </span>
+                      </div>
+                      <span className={`text-[9px] font-black uppercase tracking-tighter ${isCurrent ? 'text-primary' : isCompleted ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>
+                        {step.label}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-            </div>
-            
-            <div className="flex flex-col items-center lg:items-start gap-2 text-center lg:text-left">
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                {displayData.status === 'open' ? 'Aguardando Lances' : 
-                 displayData.status === 'awaiting_payment' ? 'Aguardando Pagamento' :
-                 displayData.status === 'paid' ? 'Pagamento Confirmado' :
-                 displayData.status === 'assigned' ? 'Agendado ✅' :
-                 displayData.status === 'in_service' ? 'Em Andamento' :
-                 displayData.status === 'completed' ? 'Trabalho Concluído' : 
-                 displayData.status === 'cancelled' ? 'Freelance Cancelado' : 'Mapeando Status'}
-              </h1>
-              <p className="text-slate-600 dark:text-slate-400 text-sm">
-                {displayData.status === 'open' ? 'Os profissionais estão dando lances no seu pedido.' : 
-                 displayData.status === 'awaiting_payment' ? (isClient ? 'Você escolheu o profissional. Realize o pagamento de forma segura.' : 'Aguardando o cliente realizar o pagamento pela plataforma.') :
-                 displayData.status === 'paid' ? (isProvider ? 'Pagamento confirmado! Defina uma data e horário para iniciar o trabalho.' : 'Pagamento confirmado! Aguardando o profissional agendar o início.') :
-                 displayData.status === 'assigned' ? (isProvider ? 'Serviço agendado! Clique em Iniciar quando estiver no local.' : `Agendado para ${displayData.delivery_deadline ? new Date(displayData.delivery_deadline).toLocaleString('pt-BR', {dateStyle:'short',timeStyle:'short'}) : '—'}`) :
-                 displayData.status === 'in_service' ? 'O trabalho está em pleno andamento.' :
-                 displayData.status === 'completed' ? 'Trabalho encerrado! Muito obrigado.' :
-                 displayData.status === 'cancelled' ? 'Este freelance foi cancelado.' : 'O profissional está pronto para realizar o seu atendimento.'}
-              </p>
-              
-              {displayData.status === 'completed' && isClient && (
-                <button 
-                  onClick={() => !hasReviewed && onNavigate('writeReview', {
-                    requestId: displayData.id,
-                    providerId: displayData.assigned_provider_id,
-                    providerName: displayData.provider?.full_name,
-                    providerAvatar: displayData.provider?.avatar_url,
-                    serviceTitle: displayData.title || displayData.category?.name || 'Freelance',
-                    isFreelance: true
-                  })}
-                  disabled={hasReviewed}
-                  className={`mt-4 px-8 py-3 font-bold rounded-xl shadow-lg transition-all flex items-center gap-2 ${
-                    hasReviewed 
-                      ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed shadow-none' 
-                      : 'bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/30 animate-bounce'
-                  }`}
-                >
-                  <span className="material-symbols-outlined">star</span>
-                  {hasReviewed ? 'Serviço Avaliado' : 'Avaliar Profissional'}
-                </button>
-              )}
+
+              {/* Status Header Contextual */}
+              <div className="flex flex-col items-center text-center gap-2 mt-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                <div className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                  displayData.status === 'cancelled' ? 'bg-red-100 text-red-600' : 'bg-primary/10 text-primary'
+                }`}>
+                  Freelance: {
+                    displayData.status === 'open' ? 'Em Leilão' : 
+                    displayData.status === 'awaiting_payment' ? 'Aguardando Pagamento' :
+                    displayData.status === 'paid' ? 'Pagamento Garantido' :
+                    displayData.status === 'assigned' ? 'Início Agendado' : 
+                    displayData.status === 'in_service' ? 'Em Execução' :
+                    displayData.status === 'completed' ? 'Finalizado' : 
+                    displayData.status === 'cancelled' ? 'Cancelado' : 'Status Desconhecido'
+                  }
+                </div>
+                <h1 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter italic">
+                  {displayData.status === 'open' ? 'Aguardando Lances' : 
+                   displayData.status === 'awaiting_payment' ? 'Profissional Escolhido!' :
+                   displayData.status === 'paid' ? 'Contrato Confirmado' :
+                   displayData.status === 'assigned' ? 'Tudo pronto para começar' : 
+                   displayData.status === 'in_service' ? 'Em pleno andamento' :
+                   displayData.status === 'completed' ? 'Trabalho Entregue' : 'Aguarde...'}
+                </h1>
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed max-w-xs">
+                  {displayData.status === 'open' ? 'Os melhores especialistas estão analisando seu projeto.' : 
+                   displayData.status === 'awaiting_payment' ? (isClient ? 'Realize o pagamento para que o profissional possa agendar o início.' : 'O cliente está processando o pagamento da garantia.') :
+                   displayData.status === 'paid' ? (isProvider ? 'O dinheiro já está seguro com a KNG. Agende agora o início do trabalho.' : 'O profissional recebeu seu pagamento e irá definir a data de início.') :
+                   displayData.status === 'assigned' ? (isProvider ? 'Trabalho agendado. Clique em Iniciar quando começar a tarefa.' : `Início confirmado para ${displayData.delivery_deadline ? new Date(displayData.delivery_deadline).toLocaleString('pt-BR', {dateStyle:'short',timeStyle:'short'}) : '—'}`) : 
+                   displayData.status === 'in_service' ? 'Execução técnica em andamento. Qualquer dúvida, use o chat.' :
+                   displayData.status === 'completed' ? 'O trabalho foi finalizado pelo prestador. Não esqueça de avaliar!' : ''}
+                </p>
+
+                {displayData.status === 'completed' && isClient && !hasReviewed && (
+                  <button 
+                    onClick={() => onNavigate('writeReview', {
+                      requestId: displayData.id,
+                      providerId: displayData.assigned_provider_id,
+                      providerName: displayData.provider?.full_name,
+                      providerAvatar: displayData.provider?.avatar_url,
+                      serviceTitle: displayData.title || displayData.category?.name || 'Freelance',
+                      isFreelance: true
+                    })}
+                    className="mt-4 w-full h-12 bg-amber-500 hover:bg-amber-600 text-white font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-amber-500/20 transition-all flex items-center justify-center gap-2 animate-bounce"
+                  >
+                    <span className="material-symbols-outlined">star</span>
+                    Avaliar e Finalizar
+                  </button>
+                )}
+              </div>
             </div>
             
             {displayData.provider && (
@@ -383,8 +443,12 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                     try {
                       const { error } = await supabase.from('freelance_orders').update({ status: 'in_service' }).eq('id', order.id);
                       if (error) throw error;
-                      // Notificação manual removida - Gatilho do banco de dados gerencia isso
                       showToast('Sucesso', 'Status atualizado para Em Andamento', 'success');
+                      
+                      // Refresh logic
+                      const { data: updated } = await supabase.from('freelance_orders').select('*, provider:profiles!freelance_orders_assigned_provider_id_fkey(id, full_name, avatar_url, rating), client:profiles!freelance_orders_client_id_fkey(id, full_name, avatar_url), category:service_categories(name, icon)').eq('id', order.id).single();
+                      if (updated) setOrder(updated);
+
                     } catch (e) { showToast('Erro', 'Erro ao atualizar status', 'error'); }
                     finally { setIsActing(false); }
                   }}
@@ -423,34 +487,37 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
                     Confirme se o trabalho foi entregue conforme o acordado para liberar o pagamento ao profissional.
                   </p>
-                  <button
-                    disabled={isActing}
-                    onClick={async () => {
-                      setIsActing(true);
-                      try {
-                        const { error } = await supabase.from('freelance_orders').update({ status: 'completed' }).eq('id', order.id);
-                        if (error) throw error;
-                        if (displayData.assigned_provider_id) {
-                          // Notificação manual removida - Gatilho do banco de dados gerencia isso
-                        }
-                        showToast('Sucesso', 'Freelance finalizado!', 'success');
-                        onNavigate('writeReview', {
-                          requestId: displayData.id,
-                          providerId: displayData.assigned_provider_id,
-                          providerName: displayData.provider?.full_name,
-                          providerAvatar: displayData.provider?.avatar_url,
-                          serviceTitle: displayData.title || displayData.category?.name || 'Freelance',
-                          isFreelance: true
-                        });
-                      } catch (e: any) {
-                        showToast('Erro', 'Falha ao finalizar freelance.', 'error');
-                      } finally { setIsActing(false); }
-                    }}
-                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 disabled:opacity-60"
-                  >
-                    <span className="material-symbols-outlined">payments</span>
-                    Confirmar e Liberar Valor
-                  </button>
+                      <button
+                        disabled={isActing}
+                        onClick={async () => {
+                          setIsActing(true);
+                          try {
+                            const { error } = await supabase.from('freelance_orders').update({ status: 'completed' }).eq('id', order.id);
+                            if (error) throw error;
+                            
+                            showToast('Sucesso', 'Freelance finalizado!', 'success');
+                            
+                            // Refresh logic
+                            const { data: updated } = await supabase.from('freelance_orders').select('*, provider:profiles!freelance_orders_assigned_provider_id_fkey(id, full_name, avatar_url, rating), client:profiles!freelance_orders_client_id_fkey(id, full_name, avatar_url), category:service_categories(name, icon)').eq('id', order.id).single();
+                            if (updated) setOrder(updated);
+
+                            onNavigate('writeReview', {
+                              requestId: displayData.id,
+                              providerId: displayData.assigned_provider_id,
+                              providerName: displayData.provider?.full_name,
+                              providerAvatar: displayData.provider?.avatar_url,
+                              serviceTitle: displayData.title || displayData.category?.name || 'Freelance',
+                              isFreelance: true
+                            });
+                          } catch (e: any) {
+                            showToast('Erro', 'Falha ao finalizar freelance.', 'error');
+                          } finally { setIsActing(false); }
+                        }}
+                        className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 disabled:opacity-60"
+                      >
+                        <span className="material-symbols-outlined">payments</span>
+                        Confirmar e Liberar Valor
+                      </button>
                 </div>
               </div>
             )}
@@ -470,6 +537,11 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                       const { error } = await supabase.from('freelance_orders').update({ status: 'completed' }).eq('id', order.id);
                       if (error) throw error;
                       showToast('Sucesso', 'Freelance marcado como concluído!', 'success');
+                      
+                      // Refresh logic
+                      const { data: updated } = await supabase.from('freelance_orders').select('*, provider:profiles!freelance_orders_assigned_provider_id_fkey(id, full_name, avatar_url, rating), client:profiles!freelance_orders_client_id_fkey(id, full_name, avatar_url), category:service_categories(name, icon)').eq('id', order.id).single();
+                      if (updated) setOrder(updated);
+
                     } catch (e) {
                       showToast('Erro', 'Falha ao concluir trabalho.', 'error');
                     } finally { setIsActing(false); }

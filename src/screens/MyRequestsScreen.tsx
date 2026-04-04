@@ -14,6 +14,34 @@ export default function MyRequestsScreen({ onNavigate, params }: NavigationProps
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    if (!user) return;
+    
+    // Configurar assinatura real-time para atualizar a lista automaticamente
+    const channel = supabase.channel('my_requests_realtime')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'service_requests',
+        filter: `client_id=eq.${user.id}`
+      }, () => {
+        fetchRequests();
+      })
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'freelance_orders',
+        filter: `client_id=eq.${user.id}`
+      }, () => {
+        fetchRequests();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   const fetchRequests = async () => {
     if (!user) return;
     setLoading(true);

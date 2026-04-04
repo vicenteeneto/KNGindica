@@ -11,6 +11,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
   const { showToast } = useNotifications();
   const [request, setRequest] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [hasBeenReviewed, setHasBeenReviewed] = useState(false);
   const [showRefuseModal, setShowRefuseModal] = useState(false);
   const [refusalReason, setRefusalReason] = useState('');
   const [isRefusing, setIsRefusing] = useState(false);
@@ -67,6 +68,9 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
               
               if (!fallbackError && fallbackData) {
                 setRequest(fallbackData);
+                // Check review too
+                const { data: reviewData } = await supabase.from('reviews').select('id').eq('request_id', fallbackData.id).limit(1);
+                if (reviewData && reviewData.length > 0) setHasBeenReviewed(true);
                 setLoading(false);
                 return;
               }
@@ -76,6 +80,9 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
         
         if (data) {
           setRequest(data);
+          // Check review too
+          const { data: reviewData } = await supabase.from('reviews').select('id').eq('request_id', data.id).limit(1);
+          if (reviewData && reviewData.length > 0) setHasBeenReviewed(true);
           console.log("ServiceStatusScreen carregado:", data);
         }
       } catch (err: any) {
@@ -147,57 +154,119 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
 
       <main className="flex-1 max-w-4xl lg:mx-0 lg:ml-12 w-full pb-24 transition-all duration-300">
         <div className="flex flex-col px-4 py-8">
-          <div className="flex flex-col items-center lg:items-start gap-6">
-            <div className="relative">
-              <div className="flex items-center justify-center">
-                <span className={`material-symbols-outlined text-6xl ${displayData.status === 'cancelled' ? 'text-red-600' : 'text-primary'}`}>
-                  {displayData.status === 'cancelled' ? 'cancel' : 'check_circle'}
-                </span>
+          <div className="flex flex-col gap-6">
+            {/* Project Roadmap (Stepper) */}
+            <div className="w-full bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+              <div className="flex items-center justify-between mb-8 relative">
+                {/* Connecting Line */}
+                <div className="absolute top-5 left-8 right-8 h-0.5 bg-slate-100 dark:bg-slate-800 -z-0"></div>
+                <div 
+                  className="absolute top-5 left-8 h-0.5 bg-primary transition-all duration-500 -z-0"
+                  style={{ 
+                    width: `${
+                      displayData.status === 'open' ? '0%' :
+                      displayData.status === 'proposed' ? '0%' :
+                      displayData.status === 'awaiting_payment' ? '25%' :
+                      displayData.status === 'paid' ? '50%' :
+                      displayData.status === 'scheduled' ? '50%' :
+                      displayData.status === 'in_service' ? '75%' :
+                      displayData.status === 'completed' ? '100.1%' : '0%'
+                    }`
+                  }}
+                ></div>
+
+                {[
+                  { id: 'proposed', label: 'Orçamento', icon: 'sell' },
+                  { id: 'paid', label: 'Pagamento', icon: 'payments' },
+                  { id: 'scheduled', label: 'Agenda', icon: 'calendar_today' },
+                  { id: 'in_service', label: 'Execução', icon: 'construction' },
+                  { id: 'completed', label: 'Conclusão', icon: 'verified' }
+                ].map((step, idx) => {
+                  const isCompleted = (
+                    (step.id === 'proposed' && ['proposed', 'awaiting_payment', 'paid', 'scheduled', 'in_service', 'completed'].includes(displayData.status)) ||
+                    (step.id === 'paid' && ['paid', 'scheduled', 'in_service', 'completed'].includes(displayData.status)) ||
+                    (step.id === 'scheduled' && ['scheduled', 'in_service', 'completed'].includes(displayData.status)) ||
+                    (step.id === 'in_service' && ['in_service', 'completed'].includes(displayData.status)) ||
+                    (step.id === 'completed' && displayData.status === 'completed')
+                  );
+                  const isCurrent = (
+                    (step.id === 'proposed' && displayData.status === 'proposed') ||
+                    (step.id === 'paid' && displayData.status === 'awaiting_payment') ||
+                    (step.id === 'scheduled' && displayData.status === 'paid') ||
+                    (step.id === 'in_service' && displayData.status === 'scheduled') ||
+                    (step.id === 'completed' && displayData.status === 'in_service')
+                  );
+
+                  return (
+                    <div key={step.id} className="flex flex-col items-center gap-2 relative z-10">
+                      <div className={`size-10 rounded-full flex items-center justify-center transition-all duration-300 border-4 ${
+                        isCompleted ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20 scale-110' :
+                        isCurrent ? 'bg-white dark:bg-slate-900 border-primary text-primary animate-pulse' :
+                        'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-300'
+                      }`}>
+                        <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: isCompleted ? "'FILL' 1" : "'FILL' 0" }}>
+                          {isCompleted ? 'check' : step.icon}
+                        </span>
+                      </div>
+                      <span className={`text-[9px] font-black uppercase tracking-tighter ${isCurrent ? 'text-primary' : isCompleted ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>
+                        {step.label}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-            </div>
-            
-            <div className="flex flex-col items-center lg:items-start gap-2 text-center lg:text-left">
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                {displayData.status === 'open' ? 'Solicitação Aberta' : 
-                 displayData.status === 'proposed' ? 'Orçamento Recebido' :
-                 displayData.status === 'awaiting_payment' ? 'Aguardando Pagamento' :
-                 displayData.status === 'paid' ? 'Pedido Pago' :
-                 displayData.status === 'completed' ? 'Serviço Concluído' : 
-                 displayData.status === 'cancelled' ? 'Pedido Recusado' : 'Serviço em Andamento'}
-              </h1>
-              <p className="text-slate-600 dark:text-slate-400 text-sm">
-                {displayData.status === 'open' ? 'Estamos aguardando um profissional aceitar sua solicitação.' : 
-                 displayData.status === 'proposed' ? 'Você recebeu uma proposta. Confira os detalhes abaixo.' :
-                 displayData.status === 'awaiting_payment' ? 'Sua proposta foi aceita! Realize o pagamento da taxa de intermediação para liberar o contato direto.' :
-                 displayData.status === 'paid' ? 'Pagamento confirmado! O profissional entrará em contato em breve.' :
-                 displayData.status === 'completed' ? 'Obrigado por utilizar o KNGindica! Por favor, avalie o atendimento do profissional.' :
-                 displayData.status === 'cancelled' ? (
-                   <>
-                     Infelizmente o profissional recusou este serviço.
-                     {displayData.rejection_reason && (
-                       <span className="block mt-2 font-bold text-red-600 dark:text-red-400 italic">
-                         " {displayData.rejection_reason} "
-                       </span>
-                     )}
-                   </>
-                 ) : 'O profissional está pronto para realizar o seu atendimento.'}
-              </p>
-              
-              {displayData.status === 'completed' && (
-                <button 
-                  onClick={() => onNavigate('writeReview', {
-                    requestId: displayData.id,
-                    providerId: displayData.provider_id,
-                    providerName: displayData.provider?.full_name,
-                    providerAvatar: displayData.provider?.avatar_url,
-                    serviceTitle: displayData.title || displayData.category?.name || 'Serviço'
-                  })}
-                  className="mt-4 px-8 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-lg shadow-amber-500/30 transition-all flex items-center gap-2 animate-bounce"
-                >
-                  <span className="material-symbols-outlined">star</span>
-                  Avaliar Profissional
-                </button>
-              )}
+
+              {/* Status Header Contextual */}
+              <div className="flex flex-col items-center text-center gap-2 mt-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                <div className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                  displayData.status === 'cancelled' ? 'bg-red-100 text-red-600' : 'bg-primary/10 text-primary'
+                }`}>
+                  Status: {
+                    displayData.status === 'open' ? 'Aguardando Profissional' : 
+                    displayData.status === 'proposed' ? 'Orçamento Recebido' :
+                    displayData.status === 'awaiting_payment' ? 'Aguardando Pagamento' :
+                    displayData.status === 'paid' ? 'Contatos Liberados' :
+                    displayData.status === 'scheduled' ? 'Serviço Agendado' : 
+                    displayData.status === 'in_service' ? 'Em Execução' :
+                    displayData.status === 'completed' ? 'Serviço Finalizado' : 
+                    displayData.status === 'cancelled' ? 'Pedido Cancelado' : 'Status Desconhecido'
+                  }
+                </div>
+                <h1 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter italic">
+                  {displayData.status === 'open' ? 'Solicitação em Análise' : 
+                   displayData.status === 'proposed' ? 'Proposta Recebida' :
+                   displayData.status === 'awaiting_payment' ? 'Quase lá! Falta o pagamento' :
+                   displayData.status === 'paid' ? 'Pagamento Confirmado' :
+                   displayData.status === 'scheduled' ? 'Prepare o ambiente!' : 
+                   displayData.status === 'in_service' ? 'Mão na massa!' :
+                   displayData.status === 'completed' ? 'Missão Cumprida' : 'Aguarde...'}
+                </h1>
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed max-w-xs">
+                  {displayData.status === 'open' ? 'Sua solicitação foi enviada aos melhores profissionais da região.' : 
+                   displayData.status === 'proposed' ? 'Confira o valor e os detalhes do orçamento enviado pelo profissional.' :
+                   displayData.status === 'awaiting_payment' ? 'Realize o pagamento da taxa para liberar o chat e agendar o serviço.' :
+                   displayData.status === 'paid' ? 'O profissional já pode ver seus dados. Combine os detalhes pelo chat.' :
+                   displayData.status === 'scheduled' ? 'O serviço está agendado e o profissional virá na data combinada.' : 
+                   displayData.status === 'in_service' ? 'O profissional iniciou a execução do serviço. Acompanhe por aqui.' :
+                   displayData.status === 'completed' ? 'O serviço foi finalizado. Não esqueça de avaliar o profissional!' : ''}
+                </p>
+
+                {displayData.status === 'completed' && !hasBeenReviewed && (
+                  <button 
+                    onClick={() => onNavigate('writeReview', {
+                      requestId: displayData.id,
+                      providerId: displayData.provider_id,
+                      providerName: displayData.provider?.full_name,
+                      providerAvatar: displayData.provider?.avatar_url,
+                      serviceTitle: displayData.title || displayData.category?.name || 'Serviço'
+                    })}
+                    className="mt-4 w-full h-12 bg-amber-500 hover:bg-amber-600 text-white font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-amber-500/20 transition-all flex items-center justify-center gap-2 animate-bounce"
+                  >
+                    <span className="material-symbols-outlined">star</span>
+                    Avaliar e Finalizar
+                  </button>
+                )}
+              </div>
             </div>
             
             <div className="w-full bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm cursor-pointer hover:border-primary/50 transition-colors" onClick={() => displayData.provider_id && onNavigate('profile', { professionalId: displayData.provider_id })}>
@@ -389,7 +458,6 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                     * Ao pagar pela plataforma, você tem garantia de serviço concluído ou seu dinheiro de volta.
                   </p>
                 </div>
-
                 {displayData.status === 'proposed' && (
                   <>
                     {/* 1. Aceitar Orçamento */}
@@ -402,9 +470,28 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                             .eq('id', request.id);
                           if (error) throw error;
 
-                          // Notificação manual removida - Gatilho do banco de dados gerencia isso
+                          // Notificar o prestador que o orçamento foi aceito
+                          if (displayData.provider_id) {
+                            await supabase.from('notifications').insert({
+                              user_id: displayData.provider_id,
+                              title: 'Orçamento Aceito!',
+                              message: `O cliente aceitou sua proposta para "${displayData.title || 'Serviço'}". Aguardando confirmação do pagamento.`,
+                              type: 'status',
+                              related_entity_id: request.id
+                            });
+                          }
                           
-                          onNavigate('checkout', { requestId: request.id });
+                          showToast("Sucesso", "Orçamento aceito! Continue para o pagamento da taxa.", "success");
+                          // Recarregar imediatamente para atualizar a UI
+                          const { data: updated } = await supabase.from('service_requests').select(`
+                            *,
+                            provider:profiles!service_requests_provider_id_fkey(
+                              id, full_name, avatar_url, rating, 
+                              profiles_private(cpf, birth_date)
+                            ),
+                            category:service_categories(name, icon)
+                          `).eq('id', request.id).single();
+                          if (updated) setRequest(updated);
                         } catch (e: any) {
                           showToast("Erro", "Falha ao aceitar orçamento.", "error");
                         }
@@ -501,7 +588,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
             )}
 
             {/* Fluxo de Conclusão e Liberação de Pagamento (Cliente) */}
-            {user?.id === displayData.client_id && (
+            {user?.id === displayData.client_id && !hasBeenReviewed && (
               <div className="flex flex-col gap-3 mt-4">
                 {displayData.status === 'completed' ? (
                   <div className="p-4 bg-primary/5 dark:bg-primary/10 rounded-2xl border border-primary/20">
@@ -561,6 +648,24 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                     </button>
                   </div>
                 ) : null}
+              </div>
+            )}
+
+            {hasBeenReviewed && displayData.status === 'completed' && (
+              <div className="mt-6 p-6 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-3xl border border-emerald-500/20 flex flex-col items-center text-center">
+                 <div className="size-16 rounded-full bg-emerald-500/10 flex items-center justify-center mb-4">
+                    <span className="material-symbols-outlined text-emerald-500 text-3xl">verified</span>
+                 </div>
+                 <h3 className="text-lg font-bold text-emerald-700 dark:text-emerald-400">Serviço Concluído e Avaliado</h3>
+                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
+                   O pagamento foi liberado ao profissional e seu feedback foi registrado. Obrigado por confiar na KNG!
+                 </p>
+                 <button 
+                   onClick={() => onNavigate('home')}
+                   className="mt-6 text-sm font-bold text-primary hover:underline"
+                 >
+                   Voltar para o Início
+                 </button>
               </div>
             )}
 
