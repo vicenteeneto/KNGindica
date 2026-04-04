@@ -17,624 +17,261 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
   const [isActing, setIsActing] = useState(false);
   const [imageModal, setImageModal] = useState<{ isOpen: boolean, url: string }>({ isOpen: false, url: '' });
 
-  useEffect(() => {
-    const fetchOrder = async () => {
-      if (!params?.orderId) {
-        setLoading(false);
-        return;
-      }
-      
-      try {
-        const { data, error } = await supabase.from('freelance_orders').select(`
-          *,
-          provider:profiles!freelance_orders_assigned_provider_id_fkey(
-            id, 
-            full_name, 
-            avatar_url, 
-            rating, 
-            profiles_private(cpf, birth_date)
-          ),
-          client:profiles!freelance_orders_client_id_fkey(
-            id,
-            full_name,
-            avatar_url
-          ),
-          category:service_categories(name, icon)
-        `).eq('id', params.orderId).single();
-        
-        if (error) {
-           throw error;
-        }
-        
-        if (data) {
-          setOrder(data);
-          
-          // Verificar se já existe uma avaliação
-          if (data.status === 'completed' && user?.id === data.client_id) {
-            const { data: reviewData } = await supabase
-              .from('reviews')
-              .select('id')
-              .eq('freelance_order_id', params.orderId)
-              .eq('reviewer_id', user.id)
-              .maybeSingle();
-            
-            if (reviewData) {
-              setHasReviewed(true);
-            }
-          }
-        }
-      } catch (err: any) {
-        console.error("Erro ao buscar freelance:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOrder();
-
-    if (params?.orderId) {
-      const subscription = supabase
-        .channel(`freelance_order_${params.orderId}`)
-        .on('postgres_changes', {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'freelance_orders',
-          filter: `id=eq.${params.orderId}`
-        }, (payload) => {
-          fetchOrder();
-        })
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(subscription);
-      };
+  const fetchOrder = async () => {
+    if (!params?.orderId) {
+      setLoading(false);
+      return;
     }
+    
+    try {
+      const { data, error } = await supabase.from('freelance_orders').select(`
+        *,
+        provider:profiles!freelance_orders_assigned_provider_id_fkey(
+          id, full_name, avatar_url, rating, 
+          profiles_private(cpf, birth_date)
+        ),
+        client:profiles!freelance_orders_client_id_fkey(id, full_name, avatar_url),
+        category:service_categories(name, icon)
+      `).eq('id', params.orderId).single();
+      
+      if (data) {
+        setOrder(data);
+        if (data.status === 'completed' && user?.id === data.client_id) {
+          const { data: rev } = await supabase.from('reviews').select('id').eq('freelance_order_id', params.orderId).maybeSingle();
+          setHasReviewed(!!rev);
+        }
+      }
+    } catch (err: any) {
+      console.error("Erro ao buscar freelance:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrder();
+    const sub = supabase.channel(`freelance_${params?.orderId}`).on('postgres_changes', { event: '*', schema: 'public', table: 'freelance_orders', filter: `id=eq.${params.orderId}` }, () => fetchOrder()).subscribe();
+    return () => { supabase.removeChannel(sub); };
   }, [params?.orderId]);
 
   if (loading && params?.orderId) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-900">
+      <div className="flex items-center justify-center min-h-screen bg-slate-950">
         <span className="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span>
       </div>
     );
   }
 
-  const handleScheduleFreelance = async () => {
-    if (!scheduleModal.date || !scheduleModal.time || !order) return;
-    setIsActing(true);
-    try {
-      const scheduledAt = `${scheduleModal.date}T${scheduleModal.time}:00`;
-      const { error } = await supabase
-        .from('freelance_orders')
-        .update({ status: 'assigned', delivery_deadline: scheduledAt })
-        .eq('id', order.id);
-      if (error) throw error;
-
-      // Notificar o cliente removida - Gatilho do banco de dados gerencia isso
-
-      showToast('Sucesso', 'Serviço agendado!', 'success');
-      setScheduleModal({ isOpen: false, date: '', time: '09:00' });
-    } catch (e: any) {
-      showToast('Erro', 'Falha ao agendar: ' + e.message, 'error');
-    } finally {
-      setIsActing(false);
-    }
-  };
-
-  const displayData = order || {
-    title: 'Carregando...',
-    category: { name: 'Freelance', icon: 'work' },
-    provider: null,
-    budget: 0,
-    created_at: new Date().toISOString(),
-    status: 'open'
-  };
-
+  const displayData = order || { title: 'Carregando...', status: 'open', budget: 0 };
   const isClient = user?.id === displayData.client_id;
   const isProvider = user?.id === displayData.assigned_provider_id;
 
   return (
-    <div className="bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
-
+    <div className="bg-slate-950 font-display text-slate-100 min-h-screen lg:h-screen flex flex-col antialiased overflow-hidden">
+      
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
-        <div className="flex items-center p-4 justify-between max-w-4xl lg:mx-0 lg:ml-12 w-full transition-all duration-300">
-          <button 
-            onClick={() => onNavigate('back')}
-            className="text-slate-900 dark:text-slate-100 flex size-10 items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
-          >
-            <span className="material-symbols-outlined">arrow_back</span>
+      <header className="h-14 lg:h-20 shrink-0 flex items-center justify-between px-4 lg:px-8 bg-slate-900 border-b border-white/5 z-50">
+        <div className="flex items-center gap-4">
+          <button onClick={() => onNavigate('home')} className="size-10 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
+            <span className="material-symbols-outlined text-slate-400">arrow_back</span>
           </button>
-          <h2 className="text-lg font-bold leading-tight tracking-tight flex-1 text-center lg:text-left pr-10">
-            {displayData.title || 'Status do Freelance'}
-          </h2>
+          <div>
+            <p className="text-[10px] font-black text-primary uppercase tracking-[2px] mb-1 leading-none">Freelance Workspace</p>
+            <h1 className="text-sm lg:text-xl font-black text-white uppercase tracking-tighter italic leading-none">{displayData.title || 'Projeto'}</h1>
+          </div>
         </div>
       </header>
 
-      <main className="flex-1 max-w-4xl lg:mx-0 lg:ml-12 w-full pb-24 transition-all duration-300">
-        <div className="flex flex-col px-4 py-8">
-          <div className="flex flex-col gap-6">
-            {/* Freelance Roadmap (Stepper) */}
-            <div className="w-full bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
-              <div className="flex items-center justify-between mb-8 relative">
-                {/* Connecting Line */}
-                <div className="absolute top-5 left-8 right-8 h-0.5 bg-slate-100 dark:bg-slate-800 -z-0"></div>
-                <div 
-                  className="absolute top-5 left-8 h-0.5 bg-primary transition-all duration-500 -z-0"
-                  style={{ 
-                    width: `${
-                      displayData.status === 'open' ? '0%' :
-                      displayData.status === 'awaiting_payment' ? '25%' :
-                      displayData.status === 'paid' ? '50%' :
-                      displayData.status === 'assigned' ? '50%' :
-                      displayData.status === 'in_service' ? '75%' :
-                      displayData.status === 'completed' ? '100.1%' : '0%'
-                    }`
-                  }}
-                ></div>
-
-                {[
-                  { id: 'open', label: 'Lances', icon: 'gavel' },
-                  { id: 'awaiting_payment', label: 'Pagamento', icon: 'payments' },
-                  { id: 'assigned', label: 'Agenda', icon: 'calendar_today' },
-                  { id: 'in_service', label: 'Execução', icon: 'construction' },
-                  { id: 'completed', label: 'Conclusão', icon: 'verified' }
-                ].map((step, idx) => {
-                  const isCompleted = (
-                    (step.id === 'open' && ['open', 'awaiting_payment', 'paid', 'assigned', 'in_service', 'completed'].includes(displayData.status)) ||
-                    (step.id === 'awaiting_payment' && ['paid', 'assigned', 'in_service', 'completed'].includes(displayData.status)) ||
-                    (step.id === 'assigned' && ['assigned', 'in_service', 'completed'].includes(displayData.status)) ||
-                    (step.id === 'in_service' && ['in_service', 'completed'].includes(displayData.status)) ||
-                    (step.id === 'completed' && displayData.status === 'completed')
-                  );
-                  const isCurrent = (
-                    (step.id === 'open' && displayData.status === 'open') ||
-                    (step.id === 'awaiting_payment' && displayData.status === 'awaiting_payment') ||
-                    (step.id === 'assigned' && displayData.status === 'paid') ||
-                    (step.id === 'in_service' && displayData.status === 'assigned') ||
-                    (step.id === 'completed' && (displayData.status === 'in_service' || (displayData.status === 'completed' && !hasReviewed)))
-                  );
-
-                  return (
-                    <div key={step.id} className="flex flex-col items-center gap-2 relative z-10">
-                      <div className={`size-10 rounded-full flex items-center justify-center transition-all duration-300 border-4 ${
-                        isCompleted ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20 scale-110' :
-                        isCurrent ? 'bg-white dark:bg-slate-900 border-primary text-primary animate-pulse' :
-                        'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-300'
-                      }`}>
-                        <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: isCompleted ? "'FILL' 1" : "'FILL' 0" }}>
-                          {isCompleted ? 'check' : step.icon}
-                        </span>
-                      </div>
-                      <span className={`text-[9px] font-black uppercase tracking-tighter ${isCurrent ? 'text-primary' : isCompleted ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>
-                        {step.label}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Status Header Contextual */}
-              <div className="flex flex-col items-center text-center gap-2 mt-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                <div className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                  displayData.status === 'cancelled' ? 'bg-red-100 text-red-600' : 'bg-primary/10 text-primary'
-                }`}>
-                  Freelance: {
-                    displayData.status === 'open' ? 'Em Leilão' : 
-                    displayData.status === 'awaiting_payment' ? 'Aguardando Pagamento' :
-                    displayData.status === 'paid' ? 'Pagamento Garantido' :
-                    displayData.status === 'assigned' ? 'Início Agendado' : 
-                    displayData.status === 'in_service' ? 'Em Execução' :
-                    displayData.status === 'completed' ? 'Finalizado' : 
-                    displayData.status === 'cancelled' ? 'Cancelado' : 'Status Desconhecido'
-                  }
-                </div>
-                <h1 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter italic">
-                  {displayData.status === 'open' ? 'Aguardando Lances' : 
-                   displayData.status === 'awaiting_payment' ? (isClient ? 'Profissional Escolhido!' : 'Seu lance foi o vencedor!') :
-                   displayData.status === 'paid' ? (isClient ? 'Contrato Confirmado' : 'Pagamento da Garantia OK') :
-                   displayData.status === 'assigned' ? 'Tudo pronto para começar' : 
-                   displayData.status === 'in_service' ? 'Em pleno andamento' :
-                   displayData.status === 'completed' ? 'Trabalho Entregue' : 'Aguarde...'}
-                </h1>
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed max-w-xs">
-                  {displayData.status === 'open' ? (isClient ? 'Os melhores especialistas estão analisando seu projeto.' : 'Analise os requisitos e envie sua melhor proposta para o cliente.') : 
-                   displayData.status === 'awaiting_payment' ? (isClient ? 'O profissional foi selecionado. Realize o pagamento para agendar o serviço.' : 'O cliente aceitou sua proposta! Ele agora está processando o pagamento da garantia.') :
-                   displayData.status === 'paid' ? (isClient ? 'O profissional recebeu seu pagamento e irá definir a data de início.' : 'O dinheiro já está seguro com a KNG. Agende agora o início do trabalho.') :
-                   displayData.status === 'assigned' ? (isClient ? `Início confirmado para ${displayData.delivery_deadline ? new Date(displayData.delivery_deadline).toLocaleString('pt-BR', {dateStyle:'short',timeStyle:'short'}) : '—'}` : 'Trabalho agendado. Clique em Iniciar quando começar a tarefa.') : 
-                   displayData.status === 'in_service' ? 'Execução técnica em andamento. Qualquer dúvida, utilize o chat.' :
-                   displayData.status === 'completed' ? (isClient ? 'O trabalho foi finalizado pelo prestador. Não esqueça de avaliar!' : 'Trabalho concluído com sucesso. Aguardando liberação do pagamento pelo cliente.') : ''}
-                </p>
-
-                {displayData.status === 'completed' && isClient && !hasReviewed && (
-                  <button 
-                    onClick={() => onNavigate('writeReview', {
-                      requestId: displayData.id,
-                      providerId: displayData.assigned_provider_id,
-                      providerName: displayData.provider?.full_name,
-                      providerAvatar: displayData.provider?.avatar_url,
-                      serviceTitle: displayData.title || displayData.category?.name || 'Freelance',
-                      isFreelance: true
-                    })}
-                    className="mt-4 w-full h-12 bg-amber-500 hover:bg-amber-600 text-white font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-amber-500/20 transition-all flex items-center justify-center gap-2 animate-bounce"
-                  >
-                    <span className="material-symbols-outlined">star</span>
-                    Avaliar e Finalizar
-                  </button>
-                )}
-              </div>
-            </div>
+      <main className="flex-1 overflow-y-auto lg:overflow-hidden p-4 lg:p-8">
+        <div className="max-w-[1600px] mx-auto h-full">
+          <div className="flex flex-col lg:grid lg:grid-cols-[1.2fr_0.8fr] gap-8 h-full">
             
-            {displayData.provider && (
-              <div className="w-full bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm cursor-pointer hover:border-primary/50 transition-colors" onClick={() => onNavigate('profile', { professionalId: isClient ? displayData.assigned_provider_id : displayData.client_id })}>
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="size-16 rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden border-2 border-white dark:border-slate-800 shadow-sm">
-                        <img 
-                          src={isClient ? (displayData.provider?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png") : (displayData.client?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png")} 
-                          className="w-full h-full object-cover" 
-                          alt="" 
-                        />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-slate-900 dark:text-white">
-                          {isClient ? displayData.provider?.full_name : displayData.client?.full_name}
-                        </h3>
-                        {isClient && (
-                          <div className="flex items-center gap-1 text-amber-500">
-                            <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                            <span className="text-xs font-bold">{displayData.provider?.rating ? displayData.provider.rating : 'Novo'}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <button className="size-10 flex items-center justify-center rounded-full bg-primary text-white hover:bg-primary/90 transition-colors" onClick={async (e) => { 
-                        e.stopPropagation(); 
-                        if (!displayData.assigned_provider_id) {
-                          showToast("Atenção", "O prestador ainda não foi atribuído.", "warning");
-                          return;
-                        }
-                        const { data: room } = await supabase.from('chat_rooms').select('id').eq('freelance_order_id', order?.id).single();
-                        onNavigate('chat', { 
-                          roomId: room?.id, 
-                          freelanceOrderId: order?.id,
-                          opponentId: isClient ? displayData.assigned_provider_id : displayData.client_id,
-                          opponentName: isClient ? displayData.provider?.full_name : displayData.client?.full_name, 
-                          opponentAvatar: isClient ? displayData.provider?.avatar_url : displayData.client?.avatar_url
-                        });
-                      }}>
-                        <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>chat</span>
-                      </button>
-                    </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Service Details */}
-        <div className="px-4 space-y-4">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Detalhes do Freelance</h3>
-          
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 divide-y divide-slate-100 dark:divide-slate-700 overflow-hidden shadow-sm">
-            <div className="flex items-center gap-4 p-4">
-                  <div className="size-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
-                    <span className="material-symbols-outlined">{displayData.category?.icon || 'work'}</span>
+            {/* COLUNA ESQUERDA: INFOS E AÇÕES */}
+            <div className="flex flex-col gap-6 h-full overflow-y-auto no-scrollbar pb-24 lg:pb-0">
+               
+               {/* Centro de Ação Próximo Passo */}
+               <div className="bg-slate-900 rounded-[32px] p-6 lg:p-10 border border-white/5 shadow-2xl relative overflow-hidden shrink-0">
+                  <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
+                    <span className="material-symbols-outlined text-[140px] italic">rocket_launch</span>
                   </div>
-                  <div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Serviço / Projeto</p>
-                    <p className="font-bold text-sm text-slate-900 dark:text-white capitalize">
-                      {displayData.title || displayData.category?.name || 'Carregando...'}
+                  <div className="relative z-10 flex flex-col items-center text-center">
+                    <div className="px-4 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest mb-4">
+                       {displayData.status === 'open' ? 'Em Leilão' : 
+                        displayData.status === 'awaiting_payment' ? 'Pendente de Pagamento' :
+                        displayData.status === 'paid' ? 'Contrato Garantido' : 
+                        displayData.status === 'assigned' ? 'Agendado' :
+                        displayData.status === 'in_service' ? 'Desenvolvimento' : 'Finalizado'}
+                    </div>
+                    <h2 className="text-2xl lg:text-4xl font-black text-white uppercase tracking-tighter italic leading-tight mb-3">
+                      {displayData.status === 'open' ? 'Aguardando Lances' : 
+                       displayData.status === 'awaiting_payment' ? (isClient ? 'Profissional Escolhido' : 'Você Venceu o Leilão!') :
+                       displayData.status === 'paid' ? (isClient ? 'Tudo Pronto para Iniciar' : 'Mãos à Obra!') :
+                       displayData.status === 'assigned' ? 'Cronograma Definido' : 
+                       displayData.status === 'in_service' ? 'Execução Técnica' : 'Projeto Entregue'}
+                    </h2>
+                    <p className="text-sm text-slate-400 max-w-sm mb-8 font-medium leading-relaxed">
+                       {displayData.status === 'open' ? (isClient ? 'Especialistas estão enviando propostas para o seu projeto agora.' : 'Analise os requisitos e lance sua melhor oferta para o cliente.') : 
+                        displayData.status === 'awaiting_payment' ? (isClient ? 'Realize o pagamento para que o profissional possa garantir sua vaga e agendar.' : 'O cliente aceitou seu lance! Ele está agora processando o pagamento da garantia.') :
+                        displayData.status === 'paid' ? (isClient ? 'O pagamento foi confirmado. O profissional irá agendar o início do trabalho em breve.' : 'O valor já está seguro com a KNG. Agende agora o início da execução.') :
+                        displayData.status === 'assigned' ? (isClient ? 'O cronograma foi definido. Você receberá atualizações constantes por aqui.' : 'Tudo certo. No horário combinado, basta clicar em Iniciar Trabalho.') : ''}
                     </p>
-                  </div>
-            </div>
-            
-            <div className="flex items-center gap-4 p-4">
-              <div className="size-10 flex items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <span className="material-symbols-outlined">payments</span>
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Valor Acordado</p>
-                <p className="text-slate-900 dark:text-slate-100 font-bold text-lg">
-                  {displayData.budget && displayData.budget > 0 
-                    ? formatCurrency(displayData.budget) 
-                    : 'A definir'}
-                </p>
-              </div>
-              <div className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest ${
-                displayData.status === 'paid' || displayData.status === 'in_service' || displayData.status === 'completed' ? 'bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400' : 
-                displayData.status === 'cancelled' ? 'bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400' :
-                'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400'
-              }`}>
-                {displayData.status === 'paid' || displayData.status === 'in_service' || displayData.status === 'completed' ? 'Pago' : 
-                 displayData.status === 'cancelled' ? 'Cancelado' :
-                 displayData.status === 'awaiting_payment' ? 'Aguardando Pagamento' : 'Pendente'}
-              </div>
-            </div>
-          </div>
-          
-          <div className="pt-4 flex flex-col gap-3">
-            {/* PASSO 1 — Cliente: Ir para pagamento */}
-            {displayData.status === 'awaiting_payment' && isClient && displayData.budget > 0 && (
-              <div className="flex flex-col gap-3">
-                <div className="bg-emerald-50 dark:bg-emerald-500/5 rounded-2xl p-5 border border-emerald-100 dark:border-emerald-500/20 mb-2">
-                  <h4 className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-sm">enhanced_encryption</span>
-                    Pagamento com Garantia KNG
-                  </h4>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm text-slate-600 dark:text-slate-400">
-                      <span>Valor Acordado:</span>
-                      <span className="font-semibold">{formatCurrency(displayData.budget)}</span>
-                    </div>
-                    <div className="pt-3 border-t border-emerald-200/50 dark:border-emerald-500/20 flex justify-between items-center font-bold text-slate-900 dark:text-white text-lg">
-                      <span>Total a Pagar:</span>
-                      <span className="text-emerald-600 dark:text-emerald-400">{formatCurrency(displayData.budget)}</span>
-                    </div>
-                  </div>
-                  <p className="mt-3 text-[10px] text-emerald-600/70 dark:text-emerald-400/50 leading-relaxed italic">
-                    * Ao pagar pela plataforma, você garante que o dinheiro só será repassado ao concluir o trabalho.
-                  </p>
-                </div>
-                <button 
-                  onClick={() => onNavigate('checkout', { freelanceOrderId: order.id })}
-                  className="w-full h-14 bg-emerald-500 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-emerald-600 active:scale-95 transition-all shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2"
-                >
-                  <span className="material-symbols-outlined">payments</span>
-                  Ir para Pagamento
-                </button>
-              </div>
-            )}
 
-            {/* PASSO 2 — Prestador: Agendar data/hora (status paid) */}
-            {displayData.status === 'paid' && isProvider && (
-              <button
-                onClick={() => {
-                  let prefilledDate = new Date().toISOString().split('T')[0];
-                  let prefilledTime = '09:00';
-                  
-                  // if there's a deadline or preference already mentioned
-                  if (displayData.delivery_deadline) {
-                    const d = new Date(displayData.delivery_deadline);
-                    if (!isNaN(d.getTime())) {
-                      prefilledDate = d.toISOString().split('T')[0];
-                      prefilledTime = d.toTimeString().split(' ')[0].substring(0, 5);
-                    }
-                  }
+                    <div className="w-full max-w-sm space-y-4">
+                       {isClient && (
+                         <>
+                            {displayData.status === 'awaiting_payment' && (
+                              <button onClick={() => onNavigate('checkout', { freelanceOrderId: displayData.id })} className="w-full h-14 bg-emerald-500 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2">
+                                <span className="material-symbols-outlined">payments</span> Ir para Pagamento
+                              </button>
+                            )}
+                            {displayData.status === 'completed' && !hasReviewed && (
+                               <button onClick={() => onNavigate('writeReview', { requestId: displayData.id, providerId: displayData.assigned_provider_id, providerName: displayData.provider?.full_name, isFreelance: true })} className="w-full h-14 bg-amber-500 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-amber-500/20 flex items-center justify-center gap-2">
+                                <span className="material-symbols-outlined">star</span> Avaliar e Liberar
+                               </button>
+                            )}
+                         </>
+                       )}
 
-                  setScheduleModal({ isOpen: true, date: prefilledDate, time: prefilledTime });
-                }}
-                className="w-full h-14 bg-orange-500 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-orange-600 active:scale-95 transition-all shadow-xl shadow-orange-500/20 flex items-center justify-center gap-2"
-              >
-                <span className="material-symbols-outlined">calendar_month</span>
-                Agendar Data e Horário
-              </button>
-            )}
+                       {isProvider && (
+                         <>
+                            {displayData.status === 'paid' && (
+                               <button onClick={() => setScheduleModal({ isOpen: true, date: '', time: '09:00' })} className="w-full h-14 bg-orange-500 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-orange-500/20 flex items-center justify-center gap-2 animate-bounce">
+                                <span className="material-symbols-outlined">calendar_month</span> Agendar Cronograma
+                               </button>
+                            )}
+                            {displayData.status === 'assigned' && (
+                               <button onClick={async () => {
+                                 await supabase.from('freelance_orders').update({ status: 'in_service' }).eq('id', displayData.id);
+                                 showToast("Sucesso", "Trabalho iniciado!", "success");
+                                 fetchOrder();
+                               }} className="w-full h-14 bg-blue-600 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2">
+                                <span className="material-symbols-outlined">play_arrow</span> Começar Trabalho Agora
+                               </button>
+                            )}
+                            {displayData.status === 'in_service' && (
+                               <button onClick={async () => {
+                                 await supabase.from('freelance_orders').update({ status: 'completed' }).eq('id', displayData.id);
+                                 showToast("Sucesso", "Trabalho finalizado!", "success");
+                                 fetchOrder();
+                               }} className="w-full h-14 bg-emerald-600 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2">
+                                <span className="material-symbols-outlined">task_alt</span> Finalizar e Entregar
+                               </button>
+                            )}
+                         </>
+                       )}
 
-            {/* Cliente: mensagem aguardando agendamento */}
-            {displayData.status === 'paid' && isClient && (
-              <div className="bg-amber-50 dark:bg-amber-500/10 rounded-2xl p-4 border border-amber-200 dark:border-amber-500/20 flex items-start gap-3">
-                <span className="material-symbols-outlined text-amber-500 mt-0.5">pending</span>
-                <div>
-                  <p className="text-sm font-bold text-amber-700 dark:text-amber-400">Aguardando agendamento</p>
-                  <p className="text-xs text-amber-600/70 dark:text-amber-400/60 mt-1">O profissional irá propor uma data e horário para início.</p>
-                </div>
-              </div>
-            )}
-
-            {/* PASSO 3 — Prestador: Iniciar Trabalho (status assigned) */}
-            {displayData.status === 'assigned' && isProvider && (
-              <div className="flex flex-col gap-2">
-                {displayData.delivery_deadline && (
-                  <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3 flex items-center gap-3 border border-slate-100 dark:border-slate-700">
-                    <span className="material-symbols-outlined text-primary text-xl">event</span>
-                    <div>
-                      <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Agendado para</p>
-                      <p className="font-bold text-slate-900 dark:text-white">
-                        {new Date(displayData.delivery_deadline).toLocaleString('pt-BR', { dateStyle: 'full', timeStyle: 'short' })}
-                      </p>
+                       {displayData.assigned_provider_id && (
+                         <button onClick={async () => {
+                             const { data: room } = await supabase.from('chat_rooms').select('id').eq('freelance_order_id', displayData.id).single();
+                             onNavigate('chat', { roomId: room?.id, freelanceOrderId: displayData.id, opponentId: isClient ? displayData.assigned_provider_id : displayData.client_id, opponentName: isClient ? displayData.provider?.full_name : displayData.client?.full_name });
+                         }} className="w-full h-12 bg-white/5 text-slate-300 font-bold rounded-2xl flex items-center justify-center gap-2">
+                            <span className="material-symbols-outlined">chat</span> Abrir Chat do Projeto
+                         </button>
+                       )}
                     </div>
                   </div>
-                )}
-                <button
-                  disabled={isActing}
-                  onClick={async () => {
-                    setIsActing(true);
-                    try {
-                      const { error } = await supabase.from('freelance_orders').update({ status: 'in_service' }).eq('id', order.id);
-                      if (error) throw error;
-                      showToast('Sucesso', 'Status atualizado para Em Andamento', 'success');
-                      
-                      // Refresh logic
-                      const { data: updated } = await supabase.from('freelance_orders').select('*, provider:profiles!freelance_orders_assigned_provider_id_fkey(id, full_name, avatar_url, rating), client:profiles!freelance_orders_client_id_fkey(id, full_name, avatar_url), category:service_categories(name, icon)').eq('id', order.id).single();
-                      if (updated) setOrder(updated);
+               </div>
 
-                    } catch (e) { showToast('Erro', 'Erro ao atualizar status', 'error'); }
-                    finally { setIsActing(false); }
-                  }}
-                  className="w-full h-14 bg-indigo-500 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-indigo-600 active:scale-95 transition-all shadow-xl shadow-indigo-500/20 flex items-center justify-center gap-2 disabled:opacity-60"
-                >
-                  <span className="material-symbols-outlined">play_arrow</span>
-                  Iniciar Trabalho
-                </button>
-              </div>
-            )}
+               {/* Grid de Detalhes */}
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-slate-900/50 p-4 rounded-[24px] border border-white/5 flex items-center gap-4">
+                     <div className="size-16 rounded-full bg-slate-800 overflow-hidden border-2 border-white/5">
+                        <img src={isClient ? (displayData.provider?.avatar_url || "#") : (displayData.client?.avatar_url || "#")} className="w-full h-full object-cover" />
+                     </div>
+                     <div>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{isClient ? 'Especialista' : 'Cliente'}</p>
+                        <h3 className="font-black text-white uppercase tracking-tighter italic">{isClient ? displayData.provider?.full_name : displayData.client?.full_name}</h3>
+                     </div>
+                  </div>
+                  <div className="bg-slate-900/50 p-4 rounded-[24px] border border-white/5 flex flex-col justify-center">
+                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Custo do Projeto</p>
+                     <p className="text-xl font-black text-white uppercase tracking-tighter italic">{formatCurrency(displayData.budget || 0)}</p>
+                  </div>
+               </div>
 
-            {/* Cliente: aguardando início (status assigned) */}
-            {displayData.status === 'assigned' && isClient && (
-              <div className="bg-indigo-50 dark:bg-indigo-500/10 rounded-2xl p-4 border border-indigo-200 dark:border-indigo-500/20 flex items-start gap-3">
-                <span className="material-symbols-outlined text-indigo-500 mt-0.5">schedule</span>
-                <div>
-                  <p className="text-sm font-bold text-indigo-700 dark:text-indigo-400">Serviço agendado</p>
-                  {displayData.delivery_deadline && (
-                    <p className="text-xs text-indigo-600/70 dark:text-indigo-400/60 mt-0.5 font-semibold">
-                      {new Date(displayData.delivery_deadline).toLocaleString('pt-BR', { dateStyle: 'full', timeStyle: 'short' })}
-                    </p>
+               <div className="bg-slate-900/50 rounded-[28px] border border-white/5 overflow-hidden p-6 space-y-4">
+                  <div className="flex items-center gap-3">
+                     <span className="material-symbols-outlined text-primary">{displayData.category?.icon}</span>
+                     <h4 className="font-black text-white uppercase tracking-tighter italic">{displayData.title || displayData.category?.name}</h4>
+                  </div>
+                  <p className="text-sm text-slate-400 leading-relaxed italic">"{displayData.description || 'Nenhuma descrição detalhada.'}"</p>
+                  {displayData.attachments?.length > 0 && (
+                     <div className="flex gap-3 overflow-x-auto no-scrollbar pt-2">
+                        {displayData.attachments.map((u: string, i: number) => (
+                           <button key={i} onClick={() => setImageModal({ isOpen: true, url: u })} className="size-24 rounded-2xl overflow-hidden shrink-0 border border-white/10">
+                              <img src={u} className="w-full h-full object-cover" />
+                           </button>
+                        ))}
+                     </div>
                   )}
-                  <p className="text-xs text-indigo-600/60 dark:text-indigo-400/50 mt-1">Aguardando o profissional iniciar o trabalho.</p>
-                </div>
-              </div>
-            )}
+               </div>
+            </div>
 
-            {/* PASSO 4 — Cliente: Liberar pagamento (status in_service) */}
-            {displayData.status === 'in_service' && isClient && (
-              <div className="flex flex-col gap-3 mt-4">
-                <div className="p-4 bg-primary/5 dark:bg-primary/10 rounded-2xl border border-primary/20">
-                  <h4 className="text-xs font-bold text-primary uppercase tracking-widest mb-2 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-sm">check_circle</span>
-                    O trabalho foi finalizado?
-                  </h4>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
-                    Confirme se o trabalho foi entregue conforme o acordado para liberar o pagamento ao profissional.
-                  </p>
-                      <button
-                        disabled={isActing}
-                        onClick={async () => {
-                          setIsActing(true);
-                          try {
-                            const { error } = await supabase.from('freelance_orders').update({ status: 'completed' }).eq('id', order.id);
-                            if (error) throw error;
-                            
-                            showToast('Sucesso', 'Freelance finalizado!', 'success');
-                            
-                            // Refresh logic
-                            const { data: updated } = await supabase.from('freelance_orders').select('*, provider:profiles!freelance_orders_assigned_provider_id_fkey(id, full_name, avatar_url, rating), client:profiles!freelance_orders_client_id_fkey(id, full_name, avatar_url), category:service_categories(name, icon)').eq('id', order.id).single();
-                            if (updated) setOrder(updated);
+            {/* COLUNA DIREITA: ROADMAP (STEPPER) */}
+            <div className="hidden lg:flex flex-col bg-slate-900 rounded-[40px] border border-white/5 p-10 relative overflow-hidden">
+               <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent pointer-events-none" />
+               <div className="relative z-10 h-full flex flex-col">
+                  <div className="mb-12">
+                     <p className="text-xs font-black text-primary uppercase tracking-[4px] mb-2 leading-none">Freelance workflow</p>
+                     <h2 className="text-4xl font-black text-white uppercase tracking-tighter italic">Roteiro Técnico</h2>
+                  </div>
 
-                            onNavigate('writeReview', {
-                              requestId: displayData.id,
-                              providerId: displayData.assigned_provider_id,
-                              providerName: displayData.provider?.full_name,
-                              providerAvatar: displayData.provider?.avatar_url,
-                              serviceTitle: displayData.title || displayData.category?.name || 'Freelance',
-                              isFreelance: true
-                            });
-                          } catch (e: any) {
-                            showToast('Erro', 'Falha ao finalizar freelance.', 'error');
-                          } finally { setIsActing(false); }
-                        }}
-                        className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 disabled:opacity-60"
-                      >
-                        <span className="material-symbols-outlined">payments</span>
-                        Confirmar e Liberar Valor
-                      </button>
-                </div>
-              </div>
-            )}
+                  <div className="flex-1 flex flex-col justify-center space-y-2 max-w-sm mx-auto w-full">
+                     {[
+                       { label: 'Leilão', icon: 'gavel', status: ['open', 'awaiting_payment', 'paid', 'assigned', 'in_service', 'completed'] },
+                       { label: 'Garantia', icon: 'payments', status: ['awaiting_payment', 'paid', 'assigned', 'in_service', 'completed'] },
+                       { label: 'Sprint', icon: 'calendar_today', status: ['paid', 'assigned', 'in_service', 'completed'] },
+                       { label: 'Produção', icon: 'construction', status: ['in_service', 'completed'] },
+                       { label: 'Entrega', icon: 'verified', status: ['completed'] }
+                     ].map((step, idx, arr) => {
+                       const isDone = step.status.includes(displayData.status);
+                       return (
+                         <div key={idx} className="flex items-center gap-8 relative group">
+                            {idx !== arr.length - 1 && <div className="absolute left-7 top-14 bottom-0 w-1 bg-slate-800" />}
+                            <div className={`size-14 rounded-[20px] flex items-center justify-center shrink-0 border-2 z-10 shadow-2xl ${isDone ? 'bg-primary border-primary text-white' : 'bg-slate-800 border-slate-700 text-slate-600'}`}>
+                               <span className="material-symbols-outlined text-2xl">{isDone ? 'check' : step.icon}</span>
+                            </div>
+                            <div>
+                               <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isDone ? 'text-primary' : 'text-slate-600'}`}>Passo {idx+1}</p>
+                               <h4 className={`text-xl font-black uppercase tracking-tighter italic leading-none ${isDone ? 'text-white' : 'text-slate-700'}`}>{step.label}</h4>
+                            </div>
+                         </div>
+                       )
+                     })}
+                  </div>
+               </div>
+            </div>
 
-            {/* Prestador em andamento: botão para concluir */}
-            {displayData.status === 'in_service' && isProvider && (
-              <div className="flex flex-col gap-3">
-                <div className="bg-primary/5 dark:bg-primary/10 rounded-2xl p-4 border border-primary/20 flex items-center gap-3 mb-2">
-                  <span className="material-symbols-outlined text-primary animate-pulse">construction</span>
-                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Trabalho em andamento. Ao finalizar, clique no botão abaixo para avisar o cliente.</p>
-                </div>
-                <button
-                  disabled={isActing}
-                  onClick={async () => {
-                    setIsActing(true);
-                    try {
-                      const { error } = await supabase.from('freelance_orders').update({ status: 'completed' }).eq('id', order.id);
-                      if (error) throw error;
-                      showToast('Sucesso', 'Freelance marcado como concluído!', 'success');
-                      
-                      // Refresh logic
-                      const { data: updated } = await supabase.from('freelance_orders').select('*, provider:profiles!freelance_orders_assigned_provider_id_fkey(id, full_name, avatar_url, rating), client:profiles!freelance_orders_client_id_fkey(id, full_name, avatar_url), category:service_categories(name, icon)').eq('id', order.id).single();
-                      if (updated) setOrder(updated);
-
-                    } catch (e) {
-                      showToast('Erro', 'Falha ao concluir trabalho.', 'error');
-                    } finally { setIsActing(false); }
-                  }}
-                  className="w-full h-14 bg-emerald-500 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-emerald-600 active:scale-95 transition-all shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 disabled:opacity-60"
-                >
-                  <span className="material-symbols-outlined">task_alt</span>
-                  Finalizar Trabalho
-                </button>
-              </div>
-            )}
-            
-            {displayData.status !== 'cancelled' && (
-              <button 
-                onClick={() => onNavigate('helpCenter', { freelanceId: displayData.id })}
-                className="w-full h-12 cursor-pointer bg-transparent text-slate-500 hover:text-red-500 font-bold rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
-              >
-                <span className="material-symbols-outlined text-sm">help</span>
-                Tive um problema / Abrir Disputa
-              </button>
-            )}
           </div>
         </div>
       </main>
 
-      {/* Image Preview Modal */}
-      {imageModal.isOpen && (
-        <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/90 backdrop-blur-xl animate-in fade-in duration-300 p-4" onClick={() => setImageModal({ isOpen: false, url: '' })}>
-          <button className="absolute top-6 right-6 text-white text-4xl">&times;</button>
-          <img src={imageModal.url} className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" alt="" onClick={e => e.stopPropagation()} />
+      {/* Modals */}
+      {scheduleModal.isOpen && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+           <div className="bg-slate-900 w-full max-w-sm rounded-[32px] p-8 border border-white/5">
+              <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic mb-6 text-center">Agendar Entrega</h3>
+              <div className="space-y-4">
+                 <input type="date" value={scheduleModal.date} onChange={e => setScheduleModal(p => ({...p, date: e.target.value}))} className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-4 text-white" />
+                 <input type="time" value={scheduleModal.time} onChange={e => setScheduleModal(p => ({...p, time: e.target.value}))} className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-4 text-white" />
+                 <button onClick={async () => {
+                    setIsActing(true);
+                    try {
+                      await supabase.from('freelance_orders').update({ status: 'assigned', delivery_deadline: new Date(`${scheduleModal.date}T${scheduleModal.time}`).toISOString() }).eq('id', order.id);
+                      showToast("Sucesso", "Cronograma definido!", "success");
+                      setScheduleModal({ isOpen: false, date: '', time: '' });
+                      fetchOrder();
+                    } finally { setIsActing(false); }
+                 }} className="w-full h-14 bg-primary text-white font-black uppercase tracking-widest rounded-2xl shadow-xl">{isActing ? 'Processando...' : 'Confirmar Agenda'}</button>
+                 <button onClick={() => setScheduleModal({ isOpen: false, date: '', time: '' })} className="w-full py-2 text-slate-500 font-bold">Voltar</button>
+              </div>
+           </div>
         </div>
       )}
 
-      {/* Schedule Modal */}
-      {scheduleModal.isOpen && (
-        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200">
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="size-12 rounded-2xl bg-orange-500/10 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-orange-500 text-2xl">calendar_month</span>
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">Agendar Início</h3>
-                  <p className="text-xs text-slate-500">{order?.title || 'Freelance'}</p>
-                </div>
-              </div>
-              <p className="text-xs text-slate-500 mb-4 leading-relaxed">
-                Defina a data e horário em que você irá iniciar o trabalho. O cliente será notificado.
-              </p>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Data</label>
-                  <input
-                    type="date"
-                    value={scheduleModal.date}
-                    onClick={(e) => e.currentTarget.showPicker?.()}
-                    onChange={(e) => setScheduleModal(prev => ({ ...prev, date: e.target.value }))}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold text-sm text-slate-900 dark:text-slate-100 focus:border-orange-500 outline-none cursor-pointer"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Horário</label>
-                  <input
-                    type="time"
-                    value={scheduleModal.time}
-                    onClick={(e) => e.currentTarget.showPicker?.()}
-                    onChange={(e) => setScheduleModal(prev => ({ ...prev, time: e.target.value }))}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold text-sm text-slate-900 dark:text-slate-100 focus:border-orange-500 outline-none cursor-pointer"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 flex gap-3">
-              <button
-                onClick={() => setScheduleModal({ isOpen: false, date: '', time: '09:00' })}
-                className="flex-1 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                disabled={isActing || !scheduleModal.date}
-                onClick={handleScheduleFreelance}
-                className="flex-[1.5] py-3 bg-orange-500 text-white rounded-xl font-bold hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-60"
-              >
-                {isActing 
-                  ? <span className="material-symbols-outlined animate-spin">progress_activity</span>
-                  : <><span>Confirmar</span><span className="material-symbols-outlined">done</span></>
-                }
-              </button>
-            </div>
-          </div>
+      {imageModal.isOpen && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/95 p-4" onClick={() => setImageModal({ isOpen: false, url: '' })}>
+           <img src={imageModal.url} className="max-w-full max-h-full object-contain rounded-2xl" />
         </div>
       )}
     </div>

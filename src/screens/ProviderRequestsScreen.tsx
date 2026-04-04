@@ -39,9 +39,6 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
     isOpen: false, requestId: null, requestTitle: '', date: '', time: '09:00',
     preferredDate: null, address: '', description: '', clientName: ''
   });
-  const [detailsModal, setDetailsModal] = useState<{ isOpen: boolean, request: any | null }>({
-    isOpen: false, request: null
-  });
   const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean, requestId: string | null, action: 'cancel' | 'dismiss' | null }>({
     isOpen: false, requestId: null, action: null
   });
@@ -191,38 +188,9 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
       setActiveTab(params.tab as Tab);
     }
     
-    // Deep Linking: Auto-open request details from notification
+    // Deep Linking: Redirect to unified status screen from notification
     if (params?.requestId) {
-      const loadInitialRequest = async () => {
-        try {
-          const { data, error } = await supabase
-            .from('service_requests')
-            .select(`
-              *,
-              profiles!service_requests_client_id_fkey(full_name, avatar_url),
-              service_categories(name, icon),
-              reviews(rating, comment)
-            `)
-            .eq('id', params.requestId)
-            .single();
-          
-          if (data && !error) {
-            // Determine active tab based on status
-            let tab: Tab = 'Novos';
-            if (['proposed', 'awaiting_payment'].includes(data.status)) tab = 'Orçados';
-            else if (['accepted', 'paid'].includes(data.status)) tab = 'Aprovados';
-            else if (data.status === 'scheduled') tab = 'Agendados';
-            else if (data.status === 'completed') tab = 'Finalizados';
-            else if (data.status === 'cancelled') tab = 'Recusados';
-            
-            setActiveTab(tab);
-            setDetailsModal({ isOpen: true, request: data });
-          }
-        } catch (e) {
-          console.warn("Could not load initial deep-linked request", e);
-        }
-      };
-      loadInitialRequest();
+      onNavigate('serviceStatus', { requestId: params.requestId });
     }
   }, [params?.tab, params?.requestId]);
 
@@ -976,176 +944,6 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
           <div className="h-24"></div> {/* Spacer for BottomNav */}
         </div>
       </PullToRefresh>
-
-        {/* Details Modal */}
-        {detailsModal.isOpen && detailsModal.request && (
-          <div className="fixed inset-0 z-[250] flex items-center justify-center p-0 md:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
-            <div className="w-full h-full md:h-auto md:max-h-[90vh] md:max-w-4xl bg-white dark:bg-slate-900 md:rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
-              
-              {/* Header */}
-              <div className="p-4 md:p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 sticky top-0 z-10">
-                <div className="flex items-center gap-4">
-                  <button 
-                    onClick={() => setDetailsModal({ isOpen: false, request: null })}
-                    className="md:hidden size-10 flex items-center justify-center text-slate-400"
-                  >
-                    <span className="material-symbols-outlined">arrow_back</span>
-                  </button>
-                  <div className="size-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
-                    <span className="material-symbols-outlined text-primary text-2xl">{detailsModal.request.service_categories?.icon || 'work'}</span>
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="text-lg font-black text-slate-900 dark:text-white leading-tight uppercase tracking-tighter truncate">
-                      {detailsModal.request.profiles?.full_name || 'Detalhes do Pedido'}
-                    </h3>
-                    <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Orçamento para {detailsModal.request.service_categories?.name}</p>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => setDetailsModal({ isOpen: false, request: null })}
-                  className="hidden md:flex size-10 items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
-                >
-                  <span className="material-symbols-outlined">close</span>
-                </button>
-              </div>
-
-              {/* Scrollable Content */}
-              <div className="flex-1 overflow-y-auto p-6 md:p-10 space-y-10">
-                
-                {/* 1. Descrição */}
-                <section>
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className="size-2 bg-primary rounded-full"></span>
-                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Descrição do Serviço</h4>
-                  </div>
-                  <div className="bg-slate-50 dark:bg-white/5 p-6 rounded-3xl border border-slate-100 dark:border-white/5">
-                    <p className="text-lg text-slate-800 dark:text-slate-200 font-medium leading-relaxed whitespace-pre-line">
-                      {(detailsModal.request.description || 'Nenhuma descrição detalhada fornecida.').split('📅 Preferência de Horário:')[0].trim()}
-                    </p>
-                  </div>
-                </section>
-
-                {/* 2. Fotos */}
-                {detailsModal.request.attachments && detailsModal.request.attachments.length > 0 && (
-                  <section>
-                    <div className="flex items-center gap-2 mb-4">
-                      <span className="size-2 bg-amber-500 rounded-full"></span>
-                      <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Anexos ({detailsModal.request.attachments.length})</h4>
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                      {detailsModal.request.attachments.map((url: string, idx: number) => (
-                        <button 
-                          key={idx} 
-                          onClick={() => setImageModal({ isOpen: true, url })}
-                          className="aspect-square rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 hover:ring-4 hover:ring-primary/20 transition-all group"
-                        >
-                          <img src={url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={`Anexo ${idx + 1}`} />
-                        </button>
-                      ))}
-                    </div>
-                  </section>
-                )}
-
-                {/* 3. Informações de Agendamento e Local */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <section>
-                    <div className="flex items-center gap-2 mb-4">
-                      <span className="size-2 bg-orange-500 rounded-full"></span>
-                      <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Preferência de Horário</h4>
-                    </div>
-                    <div className="bg-orange-500/5 border border-orange-500/10 p-6 rounded-3xl flex items-center gap-4">
-                      <div className="size-12 rounded-2xl bg-orange-500 text-white flex items-center justify-center">
-                        <span className="material-symbols-outlined text-2xl">event_available</span>
-                      </div>
-                      <div>
-                        <p className="text-xl font-black text-slate-900 dark:text-white">
-                          {detailsModal.request.desired_date ? new Date(detailsModal.request.desired_date).toLocaleDateString('pt-BR') : 'A combinar'}
-                        </p>
-                        <p className="text-sm font-bold text-orange-500 uppercase tracking-widest">
-                          {detailsModal.request.desired_date ? new Date(detailsModal.request.desired_date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : 'Qualquer horário'}
-                        </p>
-                      </div>
-                    </div>
-                  </section>
-
-                  <section>
-                    <div className="flex items-center gap-2 mb-4">
-                      <span className="size-2 bg-emerald-500 rounded-full"></span>
-                      <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Endereço Completo</h4>
-                    </div>
-                    <div className="bg-emerald-500/5 border border-emerald-500/10 p-6 rounded-3xl space-y-2">
-                       <p className="text-lg font-black text-slate-900 dark:text-white leading-tight">
-                         {detailsModal.request.street}, {detailsModal.request.number || 'S/N'}
-                       </p>
-                       <p className="text-base font-bold text-slate-600 dark:text-slate-300">
-                         {detailsModal.request.neighborhood}
-                       </p>
-                       <p className="text-sm font-medium text-slate-400 uppercase tracking-widest">
-                         {detailsModal.request.city} - {detailsModal.request.state} | CEP: {detailsModal.request.cep}
-                       </p>
-                       {detailsModal.request.address_complement && (
-                         <div className="mt-3 pt-3 border-t border-emerald-500/20 italic text-xs text-emerald-600 dark:text-emerald-400">
-                           Complemento: {detailsModal.request.address_complement}
-                         </div>
-                       )}
-                       {detailsModal.request.latitude && detailsModal.request.longitude && (
-                         <button 
-                           onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${detailsModal.request.latitude},${detailsModal.request.longitude}`, '_blank')}
-                           className="mt-4 w-full h-12 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 font-bold rounded-2xl flex items-center justify-center gap-2 hover:bg-emerald-500/20 transition-all cursor-pointer"
-                         >
-                           <span className="material-symbols-outlined">map</span>
-                           Abrir no Google Maps / Waze
-                         </button>
-                       )}
-                    </div>
-                  </section>
-                </div>
-
-                {/* 4. Numero da OS */}
-                <section className="px-6 pb-6 md:px-10">
-                  <div className="flex items-center justify-between p-6 bg-slate-900 dark:bg-black rounded-3xl border border-white/5">
-                    <div>
-                      <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1">Identificação do Pedido (OS)</h4>
-                      <p className="text-2xl font-black text-white">{detailsModal.request.display_id || 'Não Gerada'}</p>
-                    </div>
-                    <div className="size-14 rounded-2xl bg-white/10 flex items-center justify-center text-white shrink-0">
-                      <span className="material-symbols-outlined text-3xl">qr_code_2</span>
-                    </div>
-                  </div>
-                </section>
-
-                <div className="h-10 md:h-0"></div>
-              </div>
-
-              {/* Action Buttons Footer */}
-              <div className="p-6 bg-slate-50 dark:bg-slate-800 border-t border-slate-100 dark:border-slate-800 flex flex-col md:flex-row gap-3">
-                 {detailsModal.request.status === 'open' && (
-                   <button 
-                     onClick={() => {
-                       handleSendBudget(detailsModal.request.id, detailsModal.request.budget_amount, detailsModal.request.title);
-                       setDetailsModal({ isOpen: false, request: null });
-                     }}
-                     className="flex-1 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
-                   >
-                     <span className="material-symbols-outlined">receipt_long</span>
-                     Enviar Orçamento
-                   </button>
-                 )}
-                 <button 
-                   onClick={() => {
-                     handleOpenChat(detailsModal.request);
-                     setDetailsModal({ isOpen: false, request: null });
-                   }}
-                   className="flex-1 py-4 bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200 dark:border-slate-600 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-600 transition-all flex items-center justify-center gap-2"
-                 >
-                   <span className="material-symbols-outlined">chat</span>
-                   Abrir Chat
-                 </button>
-              </div>
-
-            </div>
-          </div>
-        )}
 
         {/* Confirm Recusal Modal */}
         {confirmModal.isOpen && (

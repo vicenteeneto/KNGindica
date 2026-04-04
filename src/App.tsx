@@ -212,14 +212,16 @@ function AppContent() {
     window.history.pushState({ screen, params }, '', '');
 
     setCurrentScreen(screen);
-    if (params) {
-      setNavigationParams(params);
-      if (!NON_PERSISTENT_SCREENS.includes(screen)) {
-        localStorage.setItem(STORAGE_PARAMS_KEY, JSON.stringify(params));
-      }
-    }
+    const newParams = params || {};
+    setNavigationParams(newParams);
+    
     if (!NON_PERSISTENT_SCREENS.includes(screen)) {
       localStorage.setItem(STORAGE_KEY, screen);
+      if (params) {
+        localStorage.setItem(STORAGE_PARAMS_KEY, JSON.stringify(params));
+      } else {
+        localStorage.removeItem(STORAGE_PARAMS_KEY);
+      }
     }
   };
 
