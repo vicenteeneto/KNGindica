@@ -177,7 +177,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
             </div>
             
             {displayData.provider && (
-              <div className="w-full bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm cursor-pointer hover:border-primary/50 transition-colors" onClick={() => onNavigate('profile', { professionalId: isClient ? displayData.provider_id : displayData.client_id })}>
+              <div className="w-full bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm cursor-pointer hover:border-primary/50 transition-colors" onClick={() => onNavigate('profile', { professionalId: isClient ? displayData.assigned_provider_id : displayData.client_id })}>
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="size-16 rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden border-2 border-white dark:border-slate-800 shadow-sm">

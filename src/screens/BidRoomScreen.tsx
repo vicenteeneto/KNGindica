@@ -318,7 +318,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
                       </div>
                       <div className="text-right">
                         <p className={`text-lg font-black ${isMine ? 'text-primary' : 'text-emerald-500'}`}>{formatCurrency(bid.amount || 0)}</p>
-                        {isMine && !isExpired && (
+                        {isMine && !isExpired && order.status === 'open' && (
                           <button 
                             onClick={() => handleCancelBid(bid.id)}
                             className="text-[10px] text-red-500 font-bold uppercase hover:bg-red-50 px-2 py-1 rounded-lg transition-colors mt-1"

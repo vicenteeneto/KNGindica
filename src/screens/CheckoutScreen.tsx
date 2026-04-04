@@ -113,6 +113,15 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
                content: "💳 Taxa paga! O chat está liberado para iniciarem os trabalhos."
              });
           }
+
+          // Notificar o prestador via sistema
+          await supabase.from('notifications').insert({
+            user_id: request.assigned_provider_id,
+            title: 'Pagamento Confirmado! 💰',
+            message: `O cliente realizou o pagamento do serviço: "${request.title}". Você já pode iniciar o atendimento!`,
+            type: 'status',
+            related_entity_id: params.freelanceOrderId
+          });
         }
       } else {
         const { data: room } = await supabase.from('chat_rooms').select('id').eq('request_id', params.requestId).single();
