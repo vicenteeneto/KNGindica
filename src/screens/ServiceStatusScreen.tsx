@@ -23,6 +23,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
   });
   const [isActing, setIsActing] = useState(false);
   const [isSendingBudget, setIsSendingBudget] = useState(false);
+  const [expandedStep, setExpandedStep] = useState<string | null>(null);
 
   const fetchRequest = async () => {
     if (!params?.requestId) {
@@ -40,7 +41,8 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
         profiles!service_requests_client_id_fkey(
           id, full_name, avatar_url
         ),
-        category:service_categories(name, icon)
+        category:service_categories(name, icon),
+        reviews(*)
       `);
 
       if (params.requestId.startsWith('ORD-')) {
@@ -54,8 +56,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
       
       if (data) {
         setRequest(data);
-        const { data: rev } = await supabase.from('reviews').select('id').eq('service_request_id', data.id).maybeSingle();
-        setHasBeenReviewed(!!rev);
+        setHasBeenReviewed(!!data.reviews?.length);
       }
     } catch (e) {
       console.error("Erro ao buscar pedido:", e);
@@ -368,30 +369,88 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
 
                   <div className="flex-1 flex flex-col justify-center space-y-2 max-w-sm mx-auto w-full">
                      {[
-                       { id: 'budget', label: 'Proposta', icon: 'sell', status: ['proposed', 'awaiting_payment', 'paid', 'scheduled', 'in_service', 'completed'] },
-                       { id: 'payment', label: 'Pagamento', icon: 'payments', status: ['awaiting_payment', 'paid', 'scheduled', 'in_service', 'completed'] },
-                       { id: 'schedule', label: 'Agendamento', icon: 'calendar_today', status: ['paid', 'scheduled', 'in_service', 'completed'] },
-                       { id: 'execution', label: 'Execução', icon: 'construction', status: ['in_service', 'completed'] },
-                       { id: 'final', label: 'Conclusão', icon: 'verified', status: ['completed'] }
+                       { 
+                         id: 'budget', 
+                         label: 'Proposta', 
+                         icon: 'sell', 
+                         status: ['proposed', 'awaiting_payment', 'paid', 'scheduled', 'in_service', 'completed'],
+                         getDetails: (isDone: boolean) => isDone ? `Enviada por ${displayData.provider?.full_name || 'Profissional'} no valor de ${formatCurrency(displayData.budget_amount)}` : 'Aguardando envio do profissional.'
+                       },
+                       { 
+                         id: 'payment', 
+                         label: 'Pagamento', 
+                         icon: 'payments', 
+                         status: ['awaiting_payment', 'paid', 'scheduled', 'in_service', 'completed'],
+                         getDetails: (isDone: boolean) => isDone ? 'Confirmado e garantido via KNGindica.' : (displayData.status === 'proposed' ? 'Aguardando seu aceite.' : 'Aguardando etapa anterior.')
+                       },
+                       { 
+                         id: 'schedule', 
+                         label: 'Agendamento', 
+                         icon: 'calendar_today', 
+                         status: ['paid', 'scheduled', 'in_service', 'completed'],
+                         getDetails: (isDone: boolean) => displayData.status === 'scheduled' || isDone ? `Marcado para ${new Date(displayData.desired_date).toLocaleDateString('pt-BR')} às ${new Date(displayData.desired_date).toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}` : 'Aguardando confirmação da data.'
+                       },
+                       { 
+                         id: 'execution', 
+                         label: 'Execução', 
+                         icon: 'construction', 
+                         status: ['in_service', 'completed'],
+                         getDetails: (isDone: boolean) => displayData.status === 'in_service' ? 'O profissional iniciou o trabalho!' : (isDone ? 'Trabalho realizado com sucesso.' : 'Aguardando início.')
+                       },
+                       { 
+                         id: 'final', 
+                         label: 'Conclusão', 
+                         icon: 'verified', 
+                         status: ['completed'],
+                         getDetails: (isDone: boolean) => {
+                           const review = displayData.reviews?.[0];
+                           if (review) return `Avaliado com ${review.rating} estrelas: "${review.comment}"`;
+                           return isDone ? 'Serviço finalizado com sucesso!' : 'Aguardando finalização.';
+                         }
+                       }
                      ].map((step, idx, arr) => {
                        const isDone = step.status.includes(displayData.status);
                        const isLast = idx === arr.length - 1;
+                       const isExpanded = expandedStep === step.id;
                        
                        return (
-                         <div key={idx} className="flex items-center gap-8 relative group">
+                         <div 
+                           key={idx} 
+                           className={`flex items-start gap-6 relative group cursor-pointer p-3 rounded-2xl transition-all ${
+                             isExpanded ? 'bg-white/5 border border-white/10' : 'hover:bg-white/5'
+                           }`}
+                           onClick={() => setExpandedStep(expandedStep === step.id ? null : step.id)}
+                         >
                             {!isLast && (
-                              <div className="absolute left-7 top-14 bottom-0 w-1 bg-slate-800 z-0">
+                              <div className="absolute left-[33px] top-14 bottom-0 w-[2px] bg-slate-800 z-0">
                                  <div className={`w-full transition-all duration-1000 ${isDone ? 'h-full bg-primary' : 'h-0'}`} />
                               </div>
                             )}
-                            <div className={`size-14 rounded-[20px] flex items-center justify-center shrink-0 border-2 transition-all duration-500 z-10 shadow-2xl ${
+                            <div className={`size-10 rounded-xl flex items-center justify-center shrink-0 border transition-all duration-500 z-10 shadow-2xl ${
                               isDone ? 'bg-primary border-primary text-white shadow-primary/20' : 'bg-slate-800 border-slate-700 text-slate-600'
                             }`}>
-                               <span className="material-symbols-outlined text-2xl">{isDone ? 'check' : step.icon}</span>
+                               <span className="material-symbols-outlined text-lg">{isDone ? 'check' : step.icon}</span>
                             </div>
-                            <div className="flex flex-col">
-                               <p className={`text-[10px] font-black uppercase tracking-widest leading-none mb-1 ${isDone ? 'text-primary' : 'text-slate-600'}`}>Etapa {idx+1}</p>
-                               <h4 className={`text-xl font-black uppercase tracking-tighter italic leading-none ${isDone ? 'text-white' : 'text-slate-700'}`}>{step.label}</h4>
+                            <div className="flex flex-col pt-1">
+                               <div className="flex items-center gap-2">
+                                 <p className={`text-[9px] font-black uppercase tracking-widest leading-none ${isDone ? 'text-primary' : 'text-slate-600'}`}>Etapa {idx+1}</p>
+                                 {isDone && <span className="size-1 rounded-full bg-primary animate-pulse" />}
+                               </div>
+                               <h4 className={`text-sm font-black uppercase tracking-tighter italic leading-none mt-1 ${isDone ? 'text-white' : 'text-slate-700'}`}>{step.label}</h4>
+                               
+                               {(isExpanded || (isDone && !['budget', 'payment'].includes(step.id))) && (
+                                 <p className="text-[11px] text-slate-400 mt-2 font-medium leading-relaxed animate-in fade-in slide-in-from-top-1 duration-300">
+                                   {step.getDetails(isDone)}
+                                 </p>
+                               )}
+
+                               {isDone && step.id === 'final' && displayData.reviews?.[0] && (
+                                 <div className="flex gap-1 mt-2">
+                                   {[...Array(5)].map((_, i) => (
+                                     <span key={i} className={`material-symbols-outlined text-[10px] ${i < displayData.reviews[0].rating ? 'text-amber-500' : 'text-slate-800'}`}>star</span>
+                                   ))}
+                                 </div>
+                               )}
                             </div>
                          </div>
                        )
