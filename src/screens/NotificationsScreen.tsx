@@ -155,7 +155,7 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
     let navParams: any = {};
 
     if (notification.type === 'order') {
-      target = role === 'provider' ? 'providerRequests' : 'serviceStatus';
+      target = 'serviceStatus';
       navParams = { requestId: notification.related_entity_id };
     } else if (notification.type === 'new_bid') {
       target = 'serviceStatus';
@@ -164,15 +164,13 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
       target = 'bidRoom';
       navParams = { orderId: notification.related_entity_id };
     } else if (notification.type === 'freelance_approved') {
-      target = 'openOrders';
-      navParams = { tab: 'approved', orderId: notification.related_entity_id };
+      target = 'freelanceStatus';
+      navParams = { orderId: notification.related_entity_id };
     } else if (notification.type === 'freelance_status') {
       target = 'freelanceStatus';
       navParams = { orderId: notification.related_entity_id };
     } else if (notification.type === 'status') {
-      // Para o prestador: vai para a lista de serviços (tela certa)
-      // Para o cliente: vai para o status do serviço
-      target = role === 'provider' ? 'providerRequests' : 'serviceStatus';
+      target = 'serviceStatus';
       navParams = { requestId: notification.related_entity_id };
     } else if (notification.type === 'message' || notification.type === 'chat') {
       target = 'chatList';

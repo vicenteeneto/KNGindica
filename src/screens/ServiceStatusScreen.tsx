@@ -15,6 +15,11 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
   const [showRefuseModal, setShowRefuseModal] = useState(false);
   const [refusalReason, setRefusalReason] = useState('');
   const [isRefusing, setIsRefusing] = useState(false);
+  const [imageModal, setImageModal] = useState<{ isOpen: boolean, url: string }>({ isOpen: false, url: '' });
+  const [budgetModal, setBudgetModal] = useState<{ isOpen: boolean; amount: string; description: string }>({
+    isOpen: false, amount: '', description: ''
+  });
+  const [isSendingBudget, setIsSendingBudget] = useState(false);
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -350,23 +355,66 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
             </div>
           </div>
         )}
-
-        {/* Service Details */}
+{/* Service Details */}
         <div className="px-4 space-y-4">
           <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Detalhes do Agendamento</h3>
           
           <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 divide-y divide-slate-100 dark:divide-slate-700 overflow-hidden shadow-sm">
-            <div className="flex items-center gap-4 p-4">
+            <div className="flex items-center gap-4 p-4 border-b border-slate-100 dark:border-slate-700">
                   <div className="size-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
                     <span className="material-symbols-outlined">{displayData.category?.icon || 'work'}</span>
                   </div>
-                  <div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Serviço</p>
+                  <div className="flex-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Serviço / Projeto</p>
                     <p className="font-bold text-sm text-slate-900 dark:text-white capitalize">
                       {displayData.title || displayData.category?.name || 'Carregando...'}
                     </p>
                   </div>
+                  {displayData.latitude && displayData.longitude && (
+                    <div className="flex gap-2">
+                       <button 
+                        onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${displayData.latitude},${displayData.longitude}`, '_blank')}
+                        className="size-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center hover:bg-emerald-500/20 transition-all"
+                        title="Abrir no Google Maps"
+                       >
+                        <span className="material-symbols-outlined text-xl">map</span>
+                       </button>
+                       <button 
+                        onClick={() => window.open(`google.navigation:q=${displayData.latitude},${displayData.longitude}`, '_blank')}
+                        className="size-10 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center hover:bg-blue-500/20 transition-all"
+                        title="Abrir no Waze"
+                       >
+                        <span className="material-symbols-outlined text-xl">navigation</span>
+                       </button>
+                    </div>
+                  )}
             </div>
+
+            {/* Descrição Detalhada */}
+            <div className="p-4 bg-slate-50 dark:bg-slate-900/50">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Descrição do Pedido</p>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                {(displayData.description || 'Nenhuma descrição detalhada fornecida.')}
+              </p>
+            </div>
+
+            {/* Galeria de Anexos */}
+            {displayData.attachments && displayData.attachments.length > 0 && (
+              <div className="p-4 border-t border-slate-100 dark:border-slate-700">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Anexos ({displayData.attachments.length})</p>
+                <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+                  {displayData.attachments.map((url: string, idx: number) => (
+                    <button 
+                      key={idx} 
+                      onClick={() => setImageModal({ isOpen: true, url })}
+                      className="size-20 rounded-xl overflow-hidden shrink-0 border border-slate-200 dark:border-slate-700"
+                    >
+                      <img src={url} className="w-full h-full object-cover" alt="" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             
             <div className="flex items-center gap-4 p-4">
               <div className="size-10 flex items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -565,8 +613,15 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                           if (error) throw error;
                           showToast("Sucesso", "Serviço finalizado! O cliente já pode liberar o pagamento.", "success");
                           // Refresh data
-                          const { data } = await supabase.from('service_requests').select('*').eq('id', request.id).single();
-                          setRequest(data);
+                          const { data: updated } = await supabase.from('service_requests').select(`
+                            *,
+                            provider:profiles!service_requests_provider_id_fkey(
+                              id, full_name, avatar_url, rating, 
+                              profiles_private(cpf, birth_date)
+                            ),
+                            category:service_categories(name, icon)
+                          `).eq('id', request.id).single();
+                          if (updated) setRequest(updated);
                         } catch (e: any) {
                           showToast("Erro", "Falha ao finalizar serviço.", "error");
                         }
@@ -584,6 +639,21 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                     <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400 truncate">Serviço finalizado. Aguardando liberação do pagamento pelo cliente.</p>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Caso o prestador ainda não tenha enviado orçamento (ou seja um broadcast aberto) */}
+            {displayData.status === 'open' && !displayData.provider_id && (
+              <div className="mt-4 p-4 bg-primary/5 dark:bg-primary/10 rounded-2xl border border-primary/20">
+                 <h4 className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Enviar sua Proposta</h4>
+                 <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-4">Analise os detalhes acima e envie seu orçamento para este cliente.</p>
+                 <button 
+                  onClick={() => setBudgetModal({ isOpen: true, amount: '', description: '' })}
+                  className="w-full h-12 bg-primary text-white font-black uppercase tracking-widest text-xs rounded-xl shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+                 >
+                   <span className="material-symbols-outlined">send</span>
+                   Enviar Orçamento
+                 </button>
               </div>
             )}
 
@@ -798,6 +868,108 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
               >
                 Voltar
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Image Preview Modal */}
+      {imageModal.isOpen && (
+        <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/90 backdrop-blur-xl animate-in fade-in duration-300 p-4" onClick={() => setImageModal({ isOpen: false, url: '' })}>
+          <button className="absolute top-6 right-6 text-white text-4xl">&times;</button>
+          <img src={imageModal.url} className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" alt="" onClick={e => e.stopPropagation()} />
+        </div>
+      )}
+
+      {/* Budget Submission Modal */}
+      {budgetModal.isOpen && (
+        <div className="fixed inset-0 z-[400] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800">
+            <div className="p-6">
+               <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Enviar Orçamento</h3>
+               <p className="text-xs text-slate-500 mb-6 font-medium italic">"{displayData.title || 'Serviço'}"</p>
+               
+               <div className="space-y-4">
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Valor do Serviço (Mão de Obra)</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">R$</span>
+                      <input 
+                        type="number"
+                        placeholder="0,00"
+                        value={budgetModal.amount}
+                        onChange={(e) => setBudgetModal(prev => ({ ...prev, amount: e.target.value }))}
+                        className="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border-2 border-slate-100 dark:border-slate-800 outline-none focus:border-primary text-lg font-black text-slate-900 dark:text-white"
+                      />
+                    </div>
+                  </div>
+                  
+                  <button 
+                    disabled={isSendingBudget || !budgetModal.amount}
+                    onClick={async () => {
+                      if (!user || !displayData.id) return;
+                      setIsSendingBudget(true);
+                      try {
+                        const amount = parseFloat(budgetModal.amount);
+                        const { error } = await supabase
+                          .from('service_requests')
+                          .update({ 
+                            status: 'proposed',
+                            budget_amount: amount,
+                            provider_id: user.id,
+                            budget_description: budgetModal.description
+                          })
+                          .eq('id', displayData.id);
+                        
+                        if (error) throw error;
+                        
+                        // Notificar Cliente
+                        await supabase.from('notifications').insert({
+                          user_id: displayData.client_id,
+                          title: 'Novo Orçamento!',
+                          message: `Um profissional enviou um orçamento de ${formatCurrency(amount)} para seu pedido.`,
+                          type: 'status',
+                          related_entity_id: displayData.id
+                        });
+
+                        showToast("Sucesso", "Orçamento enviado com sucesso!", "success");
+                        setBudgetModal({ isOpen: false, amount: '', description: '' });
+                        
+                        // Refresh data
+                        const { data: updated } = await supabase.from('service_requests').select(`
+                            *,
+                            provider:profiles!service_requests_provider_id_fkey(
+                              id, full_name, avatar_url, rating, 
+                              profiles_private(cpf, birth_date)
+                            ),
+                            category:service_categories(name, icon)
+                          `).eq('id', request.id).single();
+                        if (updated) setRequest(updated);
+
+                      } catch (e: any) {
+                        showToast("Erro", "Falha ao enviar orçamento.", "error");
+                      } finally {
+                        setIsSendingBudget(false);
+                      }
+                    }}
+                    className="w-full h-14 bg-primary text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-primary/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {isSendingBudget ? (
+                      <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                    ) : (
+                      <>
+                        <span className="material-symbols-outlined">send</span>
+                        Confirmar Envio
+                      </>
+                    )}
+                  </button>
+                  
+                  <button 
+                    onClick={() => setBudgetModal({ isOpen: false, amount: '', description: '' })}
+                    className="w-full py-2 text-xs font-bold text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    Cancelar
+                  </button>
+               </div>
             </div>
           </div>
         </div>

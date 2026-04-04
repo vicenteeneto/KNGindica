@@ -736,7 +736,11 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
           {!loading && requests.length > 0 ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {requests.map(req => (
-                <div key={req.id} className="flex flex-col rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden transition-all hover:shadow-md">
+                <div 
+                  key={req.id} 
+                  onClick={() => onNavigate('serviceStatus', { requestId: req.id })}
+                  className="flex flex-col rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden transition-all hover:shadow-md cursor-pointer hover:border-primary/50 group"
+                >
                   <div className="p-4 flex flex-col h-full">
                     <div className="flex gap-4 items-start flex-1">
                       <div className="w-16 h-16 rounded-lg bg-cover bg-center shrink-0 border border-slate-100 dark:border-slate-800" style={{ backgroundImage: `url('${req.profiles?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"}')` }}></div>
@@ -820,7 +824,7 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                         {(req.description || 'Sem descrição.').split('📅 Preferência de Horário:')[0].trim()}
                       </p>
                       <button 
-                        onClick={() => setDetailsModal({ isOpen: true, request: req })}
+                        onClick={(e) => { e.stopPropagation(); onNavigate('serviceStatus', { requestId: req.id }); }}
                         className="mt-3 text-xs font-black text-primary uppercase tracking-widest flex items-center gap-1 hover:underline"
                       >
                         Visualizar Pedido Completo
@@ -838,7 +842,7 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                         </button>
                         <div className="flex gap-2">
                           <button
-                            onClick={() => handleOpenChat(req)}
+                            onClick={(e) => { e.stopPropagation(); handleOpenChat(req); }}
                             className="flex-1 cursor-pointer flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-bold border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                             <span className="material-symbols-outlined text-[18px]">chat</span>
                             Conversar

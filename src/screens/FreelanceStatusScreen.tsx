@@ -15,6 +15,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
     isOpen: false, date: '', time: '09:00'
   });
   const [isActing, setIsActing] = useState(false);
+  const [imageModal, setImageModal] = useState<{ isOpen: boolean, url: string }>({ isOpen: false, url: '' });
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -566,6 +567,14 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
           </div>
         </div>
       </main>
+
+      {/* Image Preview Modal */}
+      {imageModal.isOpen && (
+        <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/90 backdrop-blur-xl animate-in fade-in duration-300 p-4" onClick={() => setImageModal({ isOpen: false, url: '' })}>
+          <button className="absolute top-6 right-6 text-white text-4xl">&times;</button>
+          <img src={imageModal.url} className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" alt="" onClick={e => e.stopPropagation()} />
+        </div>
+      )}
 
       {/* Schedule Modal */}
       {scheduleModal.isOpen && (

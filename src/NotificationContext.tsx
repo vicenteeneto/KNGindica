@@ -209,20 +209,17 @@ export function NotificationProvider({ children, onNavigate }: { children: React
         let navParams: any = {};
         
         if (payload.new.type === 'order') {
-          target = role === 'provider' ? 'providerRequests' : 'serviceStatus';
+          target = 'serviceStatus';
           navParams = { 
-            requestId: payload.new.related_entity_id,
-            tab: role === 'provider' ? 'Novos' : undefined 
+            requestId: payload.new.related_entity_id
           };
         } else if (payload.new.type === 'new_bid') {
           target = 'serviceStatus';
           navParams = { requestId: payload.new.related_entity_id };
         } else if (payload.new.type === 'status') {
-          target = role === 'provider' ? 'providerRequests' : 'serviceStatus';
-          // Se for prestador e status mudou, provavelmente vai para Orçados ou Aprovados
+          target = 'serviceStatus';
           navParams = { 
-            requestId: payload.new.related_entity_id,
-            tab: role === 'provider' ? 'Orçados' : undefined
+            requestId: payload.new.related_entity_id
           };
         } else if (payload.new.type === 'message') {
           target = 'chat';
@@ -231,8 +228,8 @@ export function NotificationProvider({ children, onNavigate }: { children: React
           target = 'bidRoom';
           navParams = { orderId: payload.new.related_entity_id };
         } else if (payload.new.type === 'freelance_approved') {
-          target = 'openOrders';
-          navParams = { tab: 'approved', orderId: payload.new.related_entity_id };
+          target = 'freelanceStatus';
+          navParams = { orderId: payload.new.related_entity_id };
         } else if (payload.new.type === 'freelance_status') {
           target = 'freelanceStatus';
           navParams = { orderId: payload.new.related_entity_id };
