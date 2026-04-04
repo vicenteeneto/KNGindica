@@ -90,6 +90,15 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
             </div>
           </div>
 
+          <button 
+            onClick={() => onNavigate('freelanceRequest')}
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl font-bold text-[11px] uppercase tracking-widest hover:opacity-90 transition-all shadow-lg shadow-primary/20 shrink-0"
+          >
+            <span className="material-symbols-outlined text-[18px]">add</span>
+            <span className="hidden sm:inline">Pedir Freelance</span>
+            <span className="sm:hidden">Pedir</span>
+          </button>
+
         </div>
 
         {/* Tabs */}

@@ -306,9 +306,21 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                <button 
                  onClick={async () => {
                    try {
-                     const { error } = await supabase.from('freelance_orders').update({status: 'in_service'}).eq('id', order.id);
-                     if (error) throw error;
-                     showToast("Sucesso", "Status atualizado para Em Andamento", "success");
+                      const { error } = await supabase.from('freelance_orders').update({status: 'in_service'}).eq('id', order.id);
+                      if (error) throw error;
+
+                      // Notificar o cliente que o trabalho começou
+                      if (order.client_id) {
+                        await supabase.from('notifications').insert({
+                          user_id: order.client_id,
+                          title: 'Trabalho Iniciado! 🚀',
+                          message: `O profissional iniciou a execução do serviço: "${order.title}".`,
+                          type: 'status',
+                          related_entity_id: order.id
+                        });
+                      }
+
+                      showToast("Sucesso", "Status atualizado para Em Andamento", "success");
                    } catch (e) {
                      showToast("Erro", "Erro ao atualizar status", "error");
                    }

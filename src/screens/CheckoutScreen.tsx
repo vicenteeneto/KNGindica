@@ -132,6 +132,17 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
             content: "💳 Taxa de intermediação paga com sucesso! O serviço foi oficialmente confirmado."
           });
         }
+        
+        // Notificar o prestador da solicitação direta
+        if (request?.provider_id) {
+          await supabase.from('notifications').insert({
+            user_id: request.provider_id,
+            title: 'Pagamento Confirmado! 💰',
+            message: `O cliente realizou o pagamento do serviço: "${request.title}". O contato está liberado!`,
+            type: 'status',
+            related_entity_id: request.id
+          });
+        }
       }
 
       showToast("Sucesso", "Pagamento confirmado com sucesso!", "success");

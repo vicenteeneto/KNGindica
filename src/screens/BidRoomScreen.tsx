@@ -183,6 +183,18 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
         else throw error;
       } else {
         showToast("Sucesso", "Lance enviado e visível para o cliente!", "success");
+        
+        // Notificar o cliente sobre o novo lance
+        if (order.client_id) {
+          await supabase.from('notifications').insert({
+            user_id: order.client_id,
+            title: 'Novo Lance Recebido',
+            message: `Um profissional enviou um lance de ${formatCurrency(amountNum)} para "${order.title}".`,
+            type: 'order',
+            related_entity_id: order.id
+          });
+        }
+
         setBidAmount('');
         setBidMessage('');
       }

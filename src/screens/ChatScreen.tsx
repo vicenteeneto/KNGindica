@@ -345,6 +345,26 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
           content: contentStr
         });
         if (error) throw error;
+
+        // Notificar o destinatário sobre o anexo
+        const { data: roomData } = await supabase
+          .from('chat_rooms')
+          .select('client_id, provider_id')
+          .eq('id', activeRoomId)
+          .single();
+
+        if (roomData) {
+          const recipientId = roomData.client_id === user.id ? roomData.provider_id : roomData.client_id;
+          if (recipientId) {
+            await supabase.from('notifications').insert({
+              user_id: recipientId,
+              title: 'Novo anexo recebido',
+              message: 'Você recebeu uma foto na conversa.',
+              type: 'message',
+              related_entity_id: activeRoomId
+            });
+          }
+        }
       } catch (err) {
         console.error(err);
       }
