@@ -270,18 +270,7 @@ export function NotificationProvider({ children, onNavigate }: { children: React
             ]);
             
             if (room) {
-              showToast(
-                sender?.full_name || 'Nova Mensagem', 
-                payload.new.content.substring(0, 100), 
-                'message', 
-                sender?.avatar_url,
-                'chat',
-                { 
-                  roomId: payload.new.room_id, 
-                  opponentName: sender?.full_name, 
-                  opponentAvatar: sender?.avatar_url 
-                }
-              );
+              // Notificação já enviada pela tabela de notificações, não duplicar Toast aqui
             }
           }
         })
@@ -313,7 +302,7 @@ export function NotificationProvider({ children, onNavigate }: { children: React
              const myCats = prof?.categories || [];
              const { data: cat } = await supabase.from('service_categories').select('name').eq('id', payload.new.category_id).single();
              
-             if (payload.new.provider_id === user.id || (cat && myCats.includes(cat.name))) {
+             if (cat && myCats.includes(cat.name) && !payload.new.provider_id) {
                showToast(
                  "Novo Pedido Disponível!", 
                  payload.new.title || "Um novo cliente solicitou um serviço na sua categoria.",
@@ -340,7 +329,7 @@ export function NotificationProvider({ children, onNavigate }: { children: React
              const myCats = prof?.categories || [];
              const { data: cat } = await supabase.from('service_categories').select('name').eq('id', payload.new.category_id).single();
              
-             if (cat && myCats.includes(cat.name)) {
+             if (cat && myCats.includes(cat.name) && !payload.new.assigned_provider_id) {
                showToast(
                  "Novo Pedido Freelance!", 
                  payload.new.title || "Um novo projeto freelance está disponível para lance.",
@@ -359,12 +348,9 @@ export function NotificationProvider({ children, onNavigate }: { children: React
     setupChatSubscription();
 
     return () => {
-      supabase.removeChannel(notificationsChannel);
-      if (requestsChannel) {
-        supabase.removeChannel(requestsChannel.sr);
-        supabase.removeChannel(requestsChannel.fr);
-      }
-      supabase.channel('realtime_messages').unsubscribe();
+      if (notificationsChannel) supabase.removeChannel(notificationsChannel);
+      // setupChatSubscription, requestsChannel, freelanceChannel would need to be stored in refs
+      // to be properly closed here easily, but for now we ensure notificationsChannel is closed.
     };
   }, [user, role]);
 

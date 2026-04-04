@@ -93,7 +93,7 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, activeTab]);
+  }, [user, activeTab, params?.orderId]);
 
   const fetchOrders = async () => {
     if (!user) return;

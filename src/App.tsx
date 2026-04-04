@@ -269,7 +269,7 @@ function AppContent() {
       case 'serviceConfirmation':
         return <ServiceConfirmationScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'providerRequests':
-        return <ProviderRequestsScreen onNavigate={handleNavigate} />;
+        return <ProviderRequestsScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'serviceStatus':
         return <ServiceStatusScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'serviceRequestForm':
@@ -301,15 +301,15 @@ function AppContent() {
       case 'myRequests':
         return <MyRequestsScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'myFreelances':
-        return <MyFreelancesScreen onNavigate={handleNavigate} />;
+        return <MyFreelancesScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'categories':
         return <CategoriesScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'favorites':
-        return <FavoritesScreen onNavigate={handleNavigate} />;
+        return <FavoritesScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'freelanceRequest':
-        return <FreelanceRequestScreen onNavigate={handleNavigate} />;
+        return <FreelanceRequestScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'openOrders':
-        return <OpenOrdersScreen onNavigate={handleNavigate} />;
+        return <OpenOrdersScreen onNavigate={handleNavigate} params={navigationParams} />;
 
       case 'termsConsent':
         return <TermsConsentScreen onNavigate={handleNavigate} />;

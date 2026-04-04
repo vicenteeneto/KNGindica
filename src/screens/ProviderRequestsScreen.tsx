@@ -244,7 +244,7 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [activeTab, user]);
+  }, [activeTab, user, params?.requestId, params?.tab]);
 
   const handleOpenChat = async (req: any) => {
     if (!user) return;
