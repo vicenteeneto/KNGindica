@@ -24,47 +24,47 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
   const [isActing, setIsActing] = useState(false);
   const [isSendingBudget, setIsSendingBudget] = useState(false);
 
-  useEffect(() => {
-    const fetchRequest = async () => {
-      if (!params?.requestId) {
-        setLoading(false);
-        return;
+  const fetchRequest = async () => {
+    if (!params?.requestId) {
+      setLoading(false);
+      return;
+    }
+    
+    try {
+      let query = supabase.from('service_requests').select(`
+        *,
+        provider:profiles!service_requests_provider_id_fkey(
+          id, full_name, avatar_url, rating, 
+          profiles_private(cpf, birth_date)
+        ),
+        profiles!service_requests_client_id_fkey(
+          id, full_name, avatar_url
+        ),
+        category:service_categories(name, icon)
+      `);
+
+      if (params.requestId.startsWith('ORD-')) {
+        query = query.eq('display_id', params.requestId);
+      } else {
+        query = query.eq('id', params.requestId);
       }
+
+      const { data, error } = await query.single();
+      if (error) throw error;
       
-      try {
-        let query = supabase.from('service_requests').select(`
-          *,
-          provider:profiles!service_requests_provider_id_fkey(
-            id, full_name, avatar_url, rating, 
-            profiles_private(cpf, birth_date)
-          ),
-          profiles!service_requests_client_id_fkey(
-            id, full_name, avatar_url
-          ),
-          category:service_categories(name, icon)
-        `);
-
-        if (params.requestId.startsWith('ORD-')) {
-          query = query.eq('display_id', params.requestId);
-        } else {
-          query = query.eq('id', params.requestId);
-        }
-
-        const { data, error } = await query.single();
-        if (error) throw error;
-        
-        if (data) {
-          setRequest(data);
-          const { data: rev } = await supabase.from('reviews').select('id').eq('service_request_id', data.id).maybeSingle();
-          setHasBeenReviewed(!!rev);
-        }
-      } catch (e) {
-        console.error("Erro ao buscar pedido:", e);
-      } finally {
-        setLoading(false);
+      if (data) {
+        setRequest(data);
+        const { data: rev } = await supabase.from('reviews').select('id').eq('service_request_id', data.id).maybeSingle();
+        setHasBeenReviewed(!!rev);
       }
-    };
+    } catch (e) {
+      console.error("Erro ao buscar pedido:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchRequest();
 
     const channel = supabase
@@ -79,6 +79,53 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
 
     return () => { supabase.removeChannel(channel); };
   }, [params?.requestId]);
+
+  const refreshData = async () => {
+     await fetchRequest();
+  };
+
+  const handleBudgetSubmit = async () => {
+    if (!budgetModal.amount) return;
+    setIsSendingBudget(true);
+    try {
+      const amount = parseFloat(budgetModal.amount.replace(/[^\d]/g, '')) / 100;
+      const { error } = await supabase.from('service_requests').update({
+        budget_amount: amount,
+        status: 'proposed',
+        provider_id: user?.id
+      }).eq('id', request.id);
+
+      if (error) throw error;
+      showToast("Sucesso", "Orçamento enviado com sucesso!", "success");
+      setBudgetModal({ ...budgetModal, isOpen: false });
+      refreshData();
+    } catch (e: any) {
+      showToast("Erro", e.message, "error");
+    } finally {
+      setIsSendingBudget(false);
+    }
+  };
+
+  const handleScheduleSubmit = async () => {
+    if (!scheduleModal.date || !scheduleModal.time) return;
+    setIsActing(true);
+    try {
+      const scheduledAt = `${scheduleModal.date}T${scheduleModal.time}:00`;
+      const { error } = await supabase.from('service_requests').update({
+        desired_date: scheduledAt,
+        status: 'scheduled'
+      }).eq('id', request.id);
+
+      if (error) throw error;
+      showToast("Sucesso", "Agendamento realizado!", "success");
+      setScheduleModal({ ...scheduleModal, isOpen: false });
+      refreshData();
+    } catch (e: any) {
+      showToast("Erro", e.message, "error");
+    } finally {
+      setIsActing(false);
+    }
+  };
 
   if (loading && params?.requestId) {
     return (
@@ -96,20 +143,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
   };
 
   const isClient = user?.id === displayData.client_id;
-  const isProvider = user?.id === displayData.provider_id;
-
-  const refreshData = async () => {
-     const { data } = await supabase.from('service_requests').select(`
-        *,
-        provider:profiles!service_requests_provider_id_fkey(
-          id, full_name, avatar_url, rating, 
-          profiles_private(cpf, birth_date)
-        ),
-        profiles!service_requests_client_id_fkey(id, full_name, avatar_url),
-        category:service_categories(name, icon)
-      `).eq('id', displayData.id).single();
-     if (data) setRequest(data);
-  };
+  const isProvider = user?.id !== displayData.client_id;
 
   return (
     <div className="bg-slate-950 font-display text-slate-100 min-h-screen lg:h-screen flex flex-col antialiased overflow-hidden">
@@ -197,29 +231,34 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
 
                        {isProvider && (
                          <>
-                            {displayData.status === 'paid' && (
-                               <button onClick={() => setScheduleModal({ isOpen: true, date: '', time: '09:00' })} className="w-full h-14 bg-orange-500 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-orange-500/20 flex items-center justify-center gap-2 animate-bounce">
-                                <span className="material-symbols-outlined">calendar_month</span> Agendar Data e Horário
+                             {displayData.status === 'open' && (
+                               <button onClick={() => setBudgetModal({ isOpen: true, amount: '', description: '' })} className="w-full h-14 bg-primary text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-primary/20 flex items-center justify-center gap-2 animate-pulse">
+                                <span className="material-symbols-outlined">receipt_long</span> Enviar Orçamento Profissional
                                </button>
-                            )}
-                            {displayData.status === 'scheduled' && (
-                               <button onClick={async () => {
-                                 await supabase.from('service_requests').update({ status: 'in_service' }).eq('id', request.id);
-                                 showToast("Sucesso", "Trabalho iniciado!", "success");
-                                 refreshData();
-                               }} className="w-full h-14 bg-blue-600 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2">
-                                <span className="material-symbols-outlined">play_arrow</span> Iniciar Trabalho Agora
-                               </button>
-                            )}
-                            {displayData.status === 'in_service' && (
-                               <button onClick={async () => {
-                                 await supabase.from('service_requests').update({ status: 'completed' }).eq('id', request.id);
-                                 showToast("Sucesso", "Serviço finalizado!", "success");
-                                 refreshData();
-                               }} className="w-full h-14 bg-emerald-600 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2">
-                                <span className="material-symbols-outlined">task_alt</span> Concluir Serviço
-                               </button>
-                            )}
+                             )}
+                             {displayData.status === 'paid' && (
+                                <button onClick={() => setScheduleModal({ isOpen: true, date: '', time: '09:00' })} className="w-full h-14 bg-orange-500 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-orange-500/20 flex items-center justify-center gap-2">
+                                 <span className="material-symbols-outlined">calendar_month</span> Agendar Data e Horário
+                                </button>
+                             )}
+                             {displayData.status === 'scheduled' && (
+                                <button onClick={async () => {
+                                  await supabase.from('service_requests').update({ status: 'in_service' }).eq('id', request.id);
+                                  showToast("Sucesso", "Trabalho iniciado!", "success");
+                                  refreshData();
+                                }} className="w-full h-14 bg-blue-600 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2">
+                                 <span className="material-symbols-outlined">play_arrow</span> Iniciar Trabalho Agora
+                                </button>
+                             )}
+                             {displayData.status === 'in_service' && (
+                                <button onClick={async () => {
+                                  await supabase.from('service_requests').update({ status: 'completed' }).eq('id', request.id);
+                                  showToast("Sucesso", "Serviço finalizado!", "success");
+                                  refreshData();
+                                }} className="w-full h-14 bg-emerald-600 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2">
+                                 <span className="material-symbols-outlined">task_alt</span> Concluir Serviço
+                                </button>
+                             )}
                          </>
                        )}
 
@@ -241,7 +280,7 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                   {/* Card do Prestador/Cliente */}
                   <div className="bg-slate-900/50 p-4 rounded-[24px] border border-white/5 flex items-center gap-4">
                      <div className="size-16 rounded-full bg-slate-800 overflow-hidden border-2 border-white/5">
-                        <img src={isClient ? (displayData.provider?.avatar_url || "#") : (displayData.profiles?.avatar_url || "#")} className="w-full h-full object-cover" />
+                        <img src={isClient ? (displayData.provider?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png") : (displayData.profiles?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png")} className="w-full h-full object-cover" />
                      </div>
                      <div>
                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{isClient ? 'Prestador' : 'Cliente'}</p>
@@ -259,9 +298,13 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
 
                   {/* Valor e Data */}
                   <div className="bg-slate-900/50 p-4 rounded-[24px] border border-white/5 grid grid-cols-2 gap-4">
-                     <div>
+                     <div className="relative group/price">
                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Custo Total</p>
-                        <p className="text-xl font-black text-white uppercase tracking-tighter italic">{formatCurrency(displayData.budget_amount || 0)}</p>
+                        {displayData.status === 'open' ? (
+                          <p className="text-sm font-black text-primary uppercase tracking-tighter italic animate-pulse">A DEFINIR</p>
+                        ) : (
+                          <p className="text-xl font-black text-white uppercase tracking-tighter italic">{formatCurrency(displayData.budget_amount || 0)}</p>
+                        )}
                         <div className="mt-2 px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 text-[8px] font-black uppercase inline-block border border-emerald-500/20">Pago via KNG</div>
                      </div>
                      <div className="text-right">
@@ -382,68 +425,113 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
         </div>
       </main>
 
-      {/* Modals */}
-      {imageModal.isOpen && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/95 p-4" onClick={() => setImageModal({ isOpen: false, url: '' })}>
-           <img src={imageModal.url} className="max-w-full max-h-full object-contain rounded-2xl" />
-        </div>
-      )}
+      {/* Modals Section */}
+      <div className="modals-container">
+        {/* Budget Modal */}
+        {budgetModal.isOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-xl animate-in fade-in duration-300">
+             <div className="w-full max-w-md bg-slate-900 border border-white/10 rounded-[32px] overflow-hidden shadow-2xl scale-in-center transition-all">
+                <div className="p-8">
+                  <div className="flex items-center gap-4 mb-8">
+                    <div className="size-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                      <span className="material-symbols-outlined text-3xl">receipt_long</span>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-black text-white uppercase tracking-tighter italic">Enviar Orçamento</h3>
+                      <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Defina o valor do seu serviço</p>
+                    </div>
+                  </div>
 
-      {scheduleModal.isOpen && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="bg-slate-900 w-full max-w-sm rounded-[32px] p-8 border border-white/5 shadow-2xl animate-in zoom-in-95 duration-300">
-            <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic mb-6">Agendar Serviço</h3>
-            <div className="space-y-4">
-               <div>
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Data do Início</label>
-                  <input type="date" value={scheduleModal.date} onChange={e => setScheduleModal(p => ({...p, date: e.target.value}))} className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-4 text-white outline-none focus:border-primary transition-all" />
-               </div>
-               <div>
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Horário Previsto</label>
-                  <input type="time" value={scheduleModal.time} onChange={e => setScheduleModal(p => ({...p, time: e.target.value}))} className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-4 text-white outline-none focus:border-primary transition-all" />
-               </div>
-               <button 
-                  disabled={isActing || !scheduleModal.date} 
-                  onClick={async () => {
-                   setIsActing(true);
-                   try {
-                     const scheduleDate = new Date(`${scheduleModal.date}T${scheduleModal.time}`);
-                     await supabase.from('service_requests').update({ status: 'scheduled', desired_date: scheduleDate.toISOString() }).eq('id', request.id);
-                     showToast("Sucesso", "Serviço agendado!", "success");
-                     setScheduleModal({ isOpen: false, date: '', time: '' });
-                     refreshData();
-                   } finally { setIsActing(false); }
-                 }} 
-                 className="w-full h-14 bg-primary text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-primary/20 flex items-center justify-center gap-2 disabled:opacity-50"
-               >
-                 {isActing ? <span className="material-symbols-outlined animate-spin">progress_activity</span> : 'Confirmar Agendamento'}
-               </button>
-               <button onClick={() => setScheduleModal({ isOpen: false, date: '', time: '' })} className="w-full py-2 text-slate-500 font-bold hover:text-white transition-colors">Cancelar</button>
-            </div>
+                  <div className="space-y-6">
+                     <div className="relative">
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Valor do Orçamento (R$)</p>
+                        <input 
+                          type="text"
+                          value={budgetModal.amount}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, "");
+                            const formatted = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(parseFloat(val) / 100);
+                            setBudgetModal({ ...budgetModal, amount: val ? formatted : "" });
+                          }}
+                          placeholder="R$ 0,00"
+                          className="w-full h-16 bg-slate-800 border border-white/5 rounded-2xl px-6 text-2xl font-black text-white focus:border-primary/50 outline-none transition-all placeholder:text-slate-700"
+                        />
+                     </div>
+
+                     <button 
+                       onClick={handleBudgetSubmit}
+                       disabled={isSendingBudget || !budgetModal.amount}
+                       className="w-full h-16 bg-primary text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-primary/20 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:grayscale"
+                     >
+                       {isSendingBudget ? (
+                         <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                       ) : (
+                         <>Enviar Proposta Agora <span className="material-symbols-outlined">send</span></>
+                       )}
+                     </button>
+                     
+                     <button onClick={() => setBudgetModal({ ...budgetModal, isOpen: false })} className="w-full text-slate-500 text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors">Voltar para o Painel</button>
+                  </div>
+                </div>
+             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {budgetModal.isOpen && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
-           <div className="bg-slate-900 w-full max-w-sm rounded-[32px] p-8 border border-white/5 shadow-2xl">
-              <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic mb-6">Enviar Orçamento</h3>
-              <div className="space-y-4">
-                 <input type="number" placeholder="Valor Mão de Obra" value={budgetModal.amount} onChange={e => setBudgetModal(p => ({...p, amount: e.target.value}))} className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-4 text-white outline-none focus:border-primary transition-all" />
-                 <button onClick={async () => {
-                    setIsSendingBudget(true);
-                    try {
-                      await supabase.from('service_requests').update({ status: 'proposed', budget_amount: parseFloat(budgetModal.amount), provider_id: user.id }).eq('id', request.id);
-                      showToast("Sucesso", "Orçamento enviado!", "success");
-                      setBudgetModal({ isOpen: false, amount: '', description: '' });
-                      refreshData();
-                    } finally { setIsSendingBudget(false); }
-                 }} className="w-full h-14 bg-primary text-white font-black uppercase tracking-widest rounded-2xl">Enviar Agora</button>
-                 <button onClick={() => setBudgetModal({ isOpen: false, amount: '', description: '' })} className="w-full py-2 text-slate-500 font-bold">Cancelar</button>
-              </div>
-           </div>
-        </div>
-      )}
+        {/* Schedule Modal */}
+        {scheduleModal.isOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-xl animate-in fade-in duration-300">
+             <div className="w-full max-w-md bg-slate-900 border border-white/10 rounded-[32px] overflow-hidden shadow-2xl">
+                <div className="p-8 text-center">
+                  <div className="size-20 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 mx-auto mb-6">
+                    <span className="material-symbols-outlined text-4xl">calendar_month</span>
+                  </div>
+                  <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic mb-2">Agendar Serviço</h3>
+                  <p className="text-sm text-slate-400 mb-8 leading-relaxed px-4">Combine com o cliente e defina o melhor momento para realizar o trabalho.</p>
+
+                  <div className="space-y-4">
+                     <input 
+                      type="date"
+                      value={scheduleModal.date}
+                      onChange={(e) => setScheduleModal({ ...scheduleModal, date: e.target.value })}
+                      className="w-full h-14 bg-slate-800 border border-white/5 rounded-2xl px-6 text-white font-bold focus:border-orange-500/50 outline-none transition-all"
+                     />
+                     <input 
+                      type="time"
+                      value={scheduleModal.time}
+                      onChange={(e) => setScheduleModal({ ...scheduleModal, time: e.target.value })}
+                      className="w-full h-14 bg-slate-800 border border-white/5 rounded-2xl px-6 text-white font-bold focus:border-orange-500/50 outline-none transition-all"
+                     />
+                     
+                     <button 
+                       onClick={handleScheduleSubmit}
+                       disabled={isActing || !scheduleModal.date || !scheduleModal.time}
+                       className="w-full h-14 bg-orange-500 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-orange-500/20 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 mt-4 disabled:opacity-50"
+                     >
+                       {isActing ? (
+                         <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                       ) : (
+                         'Confirmar Agendamento'
+                       )}
+                     </button>
+                     
+                     <button onClick={() => setScheduleModal({ ...scheduleModal, isOpen: false })} className="w-full text-slate-500 text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors pt-2">Cancelar</button>
+                  </div>
+                </div>
+             </div>
+          </div>
+        )}
+
+        {/* Image Viewer */}
+        {imageModal.isOpen && (
+          <div className="fixed inset-0 z-[1000] bg-black/95 flex items-center justify-center p-4 lg:p-20 animate-in fade-in zoom-in duration-300" onClick={() => setImageModal({ isOpen: false, url: '' })}>
+            <button className="absolute top-8 right-8 text-white/50 hover:text-white transition-colors">
+              <span className="material-symbols-outlined text-4xl">close</span>
+            </button>
+            <img src={imageModal.url} className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl" />
+          </div>
+        )}
+      </div>
+
     </div>
   );
 }
