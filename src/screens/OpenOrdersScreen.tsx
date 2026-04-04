@@ -11,7 +11,7 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
   const { showToast } = useNotifications();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'available' | 'bidded' | 'assigned' | 'dismissed'>('available');
+  const [activeTab, setActiveTab] = useState<'available' | 'bidded' | 'approved' | 'scheduled' | 'in_progress' | 'completed' | 'dismissed'>('available');
   const [detailsModal, setDetailsModal] = useState<{ isOpen: boolean, order: any | null }>({
     isOpen: false, order: null
   });
@@ -88,7 +88,7 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
       const { data, error } = await query;
       if (!error) setOrders(data || []);
     } else if (activeTab === 'bidded') {
-      // Bidded tab
+      // Meus Lances: dei lance mas ainda não fui selecionado (order ainda open)
       if (bidOrderIds.length === 0) {
         setOrders([]);
       } else {
@@ -100,9 +100,9 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
             service_categories(name, icon)
           `)
           .in('id', bidOrderIds)
+          .eq('status', 'open')
           .order('created_at', { ascending: false });
         if (!error) {
-           // Attach user's bid amount locally
            const enhanced = data.map((o: any) => ({
              ...o,
              myBidAmount: userBids?.find(b => b.order_id === o.id)?.amount
@@ -110,7 +110,8 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
            setOrders(enhanced || []);
          }
       }
-    } else if (activeTab === 'assigned') {
+    } else if (activeTab === 'approved') {
+      // Aprovados: fui selecionado, aguardando pagamento
       const { data, error } = await supabase
         .from('freelance_orders')
         .select(`
@@ -119,10 +120,50 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
           service_categories(name, icon)
         `)
         .eq('assigned_provider_id', user.id)
+        .in('status', ['assigned', 'awaiting_payment'])
+        .order('created_at', { ascending: false });
+      if (!error) setOrders(data || []);
+    } else if (activeTab === 'scheduled') {
+      // Agendados: cliente pagou, pronto para iniciar
+      const { data, error } = await supabase
+        .from('freelance_orders')
+        .select(`
+          *,
+          profiles:client_id(full_name, avatar_url, phone),
+          service_categories(name, icon)
+        `)
+        .eq('assigned_provider_id', user.id)
+        .eq('status', 'paid')
+        .order('created_at', { ascending: false });
+      if (!error) setOrders(data || []);
+    } else if (activeTab === 'in_progress') {
+      // Em Andamento
+      const { data, error } = await supabase
+        .from('freelance_orders')
+        .select(`
+          *,
+          profiles:client_id(full_name, avatar_url, phone),
+          service_categories(name, icon)
+        `)
+        .eq('assigned_provider_id', user.id)
+        .eq('status', 'in_service')
+        .order('created_at', { ascending: false });
+      if (!error) setOrders(data || []);
+    } else if (activeTab === 'completed') {
+      // Finalizados
+      const { data, error } = await supabase
+        .from('freelance_orders')
+        .select(`
+          *,
+          profiles:client_id(full_name, avatar_url, phone),
+          service_categories(name, icon)
+        `)
+        .eq('assigned_provider_id', user.id)
+        .eq('status', 'completed')
         .order('created_at', { ascending: false });
       if (!error) setOrders(data || []);
     } else {
-      // Dismissed tab
+      // Recusados
       if (dismissedIds.length === 0) {
         setOrders([]);
       } else {
@@ -190,33 +231,26 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
           }
         />
         
-        {/* Tabs */}
-        <div className="border-b border-slate-200 dark:border-slate-800">
-          <div className="flex max-w-7xl mx-auto">
-            <button 
-              onClick={() => setActiveTab('available')}
-              className={`flex-1 py-3 text-sm font-bold tracking-widest uppercase transition-colors ${activeTab === 'available' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600'}`}
-            >
-              Disponíveis
-            </button>
-            <button 
-              onClick={() => setActiveTab('bidded')}
-              className={`flex-1 py-3 text-sm font-bold tracking-widest uppercase transition-colors ${activeTab === 'bidded' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600'}`}
-            >
-              Meus Lances
-            </button>
-              <button 
-              onClick={() => setActiveTab('assigned')}
-              className={`flex-1 py-3 text-sm font-bold tracking-widest uppercase transition-colors ${activeTab === 'assigned' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
-            >
-              Meus Trabalhos
-            </button>
-            <button 
-              onClick={() => setActiveTab('dismissed')}
-              className={`flex-1 py-3 text-sm font-bold tracking-widest uppercase transition-colors ${activeTab === 'dismissed' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
-            >
-              Recusadas
-            </button>
+        {/* Tabs - scrollable for 7 items */}
+        <div className="border-b border-slate-200 dark:border-slate-800 overflow-x-auto scrollbar-none">
+          <div className="flex min-w-max max-w-7xl mx-auto">
+            {([
+              { key: 'available', label: 'Disponíveis' },
+              { key: 'bidded', label: 'Meus Lances' },
+              { key: 'approved', label: 'Aprovados' },
+              { key: 'scheduled', label: 'Agendados' },
+              { key: 'in_progress', label: 'Em Andamento' },
+              { key: 'completed', label: 'Finalizados' },
+              { key: 'dismissed', label: 'Recusados' },
+            ] as const).map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`px-4 py-3 text-xs font-bold tracking-widest uppercase transition-colors whitespace-nowrap ${activeTab === tab.key ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -227,9 +261,23 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
             <div className="size-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
               <span className="material-symbols-outlined text-4xl text-slate-300">search_off</span>
             </div>
-            <h3 className="text-xl font-bold">{activeTab === 'available' ? 'Nenhuma ordem aberta' : activeTab === 'assigned' ? 'Nenhum trabalho em andamento' : 'Nenhum lance feito'}</h3>
-            <p className="text-slate-500 max-w-[250px] mx-auto">
-              {activeTab === 'available' ? 'Fique ligado! Novas oportunidades podem aparecer a qualquer momento.' : activeTab === 'assigned' ? 'Você ainda não foi escolhido para nenhum freelance.' : 'Você ainda não enviou propostas para ordens freelance.'}
+            <h3 className="text-xl font-bold">
+              {activeTab === 'available' ? 'Nenhuma ordem disponível' :
+               activeTab === 'bidded' ? 'Nenhum lance enviado' :
+               activeTab === 'approved' ? 'Nenhum aprovado ainda' :
+               activeTab === 'scheduled' ? 'Nenhum agendado' :
+               activeTab === 'in_progress' ? 'Nenhum em andamento' :
+               activeTab === 'completed' ? 'Nenhum finalizado' :
+               'Nenhum recusado'}
+            </h3>
+            <p className="text-slate-500 max-w-[250px] mx-auto mt-2">
+              {activeTab === 'available' ? 'Fique ligado! Novas oportunidades aparecem a qualquer momento.' :
+               activeTab === 'bidded' ? 'Acesse "Disponíveis" e envie suas propostas.' :
+               activeTab === 'approved' ? 'Quando o cliente aceitar seu lance, ele aparecerá aqui.' :
+               activeTab === 'scheduled' ? 'Trabalhos pagos e prontos para iniciar aparecerão aqui.' :
+               activeTab === 'in_progress' ? 'Trabalhos em execução aparecerão aqui.' :
+               activeTab === 'completed' ? 'Trabalhos concluídos aparecerão aqui.' :
+               'Ordens que você recusou aparecerão aqui.'}
             </p>
           </div>
         ) : (
@@ -313,7 +361,7 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
 
                   <button 
                     onClick={() => {
-                      if (activeTab === 'assigned') {
+                      if (['approved', 'scheduled', 'in_progress', 'completed'].includes(activeTab)) {
                         onNavigate('freelanceStatus', { orderId: order.id });
                       } else {
                         onNavigate('bidRoom', { orderId: order.id });
@@ -321,7 +369,15 @@ export default function OpenOrdersScreen({ onNavigate }: NavigationProps) {
                     }}
                     className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 dark:bg-slate-700 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:brightness-125 transition-all shadow-lg active:scale-95"
                   >
-                    <span>{activeTab === 'available' ? 'Dar Lance' : activeTab === 'assigned' ? 'Ver Trabalho' : 'Ver Chat'}</span>
+                    <span>
+                      {activeTab === 'available' ? 'Dar Lance' :
+                       activeTab === 'bidded' ? 'Ver Lance' :
+                       activeTab === 'approved' ? 'Ver Aprovação' :
+                       activeTab === 'scheduled' ? 'Iniciar Trabalho' :
+                       activeTab === 'in_progress' ? 'Ver Progresso' :
+                       activeTab === 'completed' ? 'Ver Finalizado' :
+                       'Ver Ordem'}
+                    </span>
                     <span className="material-symbols-outlined text-sm">arrow_forward</span>
                   </button>
                 </div>

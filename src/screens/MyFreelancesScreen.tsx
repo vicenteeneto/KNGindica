@@ -10,7 +10,7 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
   const { showToast } = useNotifications();
   const [freelanceOrders, setFreelanceOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'open' | 'in_progress' | 'completed'>('open');
+  const [activeTab, setActiveTab] = useState<'open' | 'in_progress' | 'completed' | 'cancelled'>('open');
   const [confirmModal, setConfirmModal] = useState<{ 
     isOpen: boolean; 
     orderId: string | null; 
@@ -122,6 +122,12 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
             >
               Finalizados
             </button>
+            <button 
+              onClick={() => setActiveTab('cancelled')}
+              className={`flex-1 py-3 text-[11px] font-bold tracking-widest uppercase transition-colors ${activeTab === 'cancelled' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+            >
+              Cancelados
+            </button>
           </div>
         </div>
       </header>
@@ -138,7 +144,8 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
             const filteredOrders = freelanceOrders.filter(order => {
               if (activeTab === 'open') return order.status === 'open';
               if (activeTab === 'in_progress') return ['assigned', 'awaiting_payment', 'paid', 'in_service'].includes(order.status);
-              if (activeTab === 'completed') return ['completed', 'cancelled', 'closed'].includes(order.status);
+              if (activeTab === 'completed') return ['completed', 'closed'].includes(order.status);
+              if (activeTab === 'cancelled') return order.status === 'cancelled';
               return false;
             });
 

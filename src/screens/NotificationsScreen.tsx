@@ -160,11 +160,13 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
     } else if (notification.type === 'new_bid') {
       target = 'serviceStatus';
       navParams = { requestId: notification.related_entity_id };
+    } else if (notification.type === 'freelance_bid') {
+      target = 'bidRoom';
+      navParams = { orderId: notification.related_entity_id };
     } else if (notification.type === 'status') {
-      target = 'serviceStatus';
-      navParams = { requestId: notification.related_entity_id };
+      target = role === 'provider' ? 'freelanceStatus' : 'serviceStatus';
+      navParams = { requestId: notification.related_entity_id, orderId: notification.related_entity_id };
     } else if (notification.type === 'message' || notification.type === 'chat') {
-      // Para mensagens na lista geral de notificações (se houver)
       target = 'chatList';
     }
 
