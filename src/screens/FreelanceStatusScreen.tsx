@@ -231,19 +231,19 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                 </div>
                 <h1 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter italic">
                   {displayData.status === 'open' ? 'Aguardando Lances' : 
-                   displayData.status === 'awaiting_payment' ? 'Profissional Escolhido!' :
-                   displayData.status === 'paid' ? 'Contrato Confirmado' :
+                   displayData.status === 'awaiting_payment' ? (isClient ? 'Profissional Escolhido!' : 'Seu lance foi o vencedor!') :
+                   displayData.status === 'paid' ? (isClient ? 'Contrato Confirmado' : 'Pagamento da Garantia OK') :
                    displayData.status === 'assigned' ? 'Tudo pronto para começar' : 
                    displayData.status === 'in_service' ? 'Em pleno andamento' :
                    displayData.status === 'completed' ? 'Trabalho Entregue' : 'Aguarde...'}
                 </h1>
                 <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed max-w-xs">
-                  {displayData.status === 'open' ? 'Os melhores especialistas estão analisando seu projeto.' : 
-                   displayData.status === 'awaiting_payment' ? (isClient ? 'Realize o pagamento para que o profissional possa agendar o início.' : 'O cliente está processando o pagamento da garantia.') :
-                   displayData.status === 'paid' ? (isProvider ? 'O dinheiro já está seguro com a KNG. Agende agora o início do trabalho.' : 'O profissional recebeu seu pagamento e irá definir a data de início.') :
-                   displayData.status === 'assigned' ? (isProvider ? 'Trabalho agendado. Clique em Iniciar quando começar a tarefa.' : `Início confirmado para ${displayData.delivery_deadline ? new Date(displayData.delivery_deadline).toLocaleString('pt-BR', {dateStyle:'short',timeStyle:'short'}) : '—'}`) : 
-                   displayData.status === 'in_service' ? 'Execução técnica em andamento. Qualquer dúvida, use o chat.' :
-                   displayData.status === 'completed' ? 'O trabalho foi finalizado pelo prestador. Não esqueça de avaliar!' : ''}
+                  {displayData.status === 'open' ? (isClient ? 'Os melhores especialistas estão analisando seu projeto.' : 'Analise os requisitos e envie sua melhor proposta para o cliente.') : 
+                   displayData.status === 'awaiting_payment' ? (isClient ? 'O profissional foi selecionado. Realize o pagamento para agendar o serviço.' : 'O cliente aceitou sua proposta! Ele agora está processando o pagamento da garantia.') :
+                   displayData.status === 'paid' ? (isClient ? 'O profissional recebeu seu pagamento e irá definir a data de início.' : 'O dinheiro já está seguro com a KNG. Agende agora o início do trabalho.') :
+                   displayData.status === 'assigned' ? (isClient ? `Início confirmado para ${displayData.delivery_deadline ? new Date(displayData.delivery_deadline).toLocaleString('pt-BR', {dateStyle:'short',timeStyle:'short'}) : '—'}` : 'Trabalho agendado. Clique em Iniciar quando começar a tarefa.') : 
+                   displayData.status === 'in_service' ? 'Execução técnica em andamento. Qualquer dúvida, utilize o chat.' :
+                   displayData.status === 'completed' ? (isClient ? 'O trabalho foi finalizado pelo prestador. Não esqueça de avaliar!' : 'Trabalho concluído com sucesso. Aguardando liberação do pagamento pelo cliente.') : ''}
                 </p>
 
                 {displayData.status === 'completed' && isClient && !hasReviewed && (

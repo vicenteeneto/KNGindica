@@ -137,6 +137,8 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
     created_at: new Date().toISOString(),
     status: 'open'
   };
+  const isClient = user?.id === displayData.client_id;
+  const isProvider = user?.id === displayData.provider_id;
 
   return (
     <div className="bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
@@ -239,21 +241,21 @@ export default function ServiceStatusScreen({ onNavigate, params }: NavigationPr
                 </div>
                 <h1 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter italic">
                   {displayData.status === 'open' ? 'Solicitação em Análise' : 
-                   displayData.status === 'proposed' ? 'Proposta Recebida' :
-                   displayData.status === 'awaiting_payment' ? 'Quase lá! Falta o pagamento' :
-                   displayData.status === 'paid' ? 'Pagamento Confirmado' :
-                   displayData.status === 'scheduled' ? 'Prepare o ambiente!' : 
+                   displayData.status === 'proposed' ? (isClient ? 'Proposta Recebida' : 'Proposta Enviada') :
+                   displayData.status === 'awaiting_payment' ? (isClient ? 'Quase lá! Falta o pagamento' : 'Aguardando Pagamento do Cliente') :
+                   displayData.status === 'paid' ? (isClient ? 'Pagamento Confirmado' : 'Pagamento Liberado!') :
+                   displayData.status === 'scheduled' ? (isClient ? 'Prepare o ambiente!' : 'Tudo certo para o Serviço') : 
                    displayData.status === 'in_service' ? 'Mão na massa!' :
                    displayData.status === 'completed' ? 'Missão Cumprida' : 'Aguarde...'}
                 </h1>
                 <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed max-w-xs">
-                  {displayData.status === 'open' ? 'Sua solicitação foi enviada aos melhores profissionais da região.' : 
-                   displayData.status === 'proposed' ? 'Confira o valor e os detalhes do orçamento enviado pelo profissional.' :
-                   displayData.status === 'awaiting_payment' ? 'Realize o pagamento da taxa para liberar o chat e agendar o serviço.' :
-                   displayData.status === 'paid' ? 'O profissional já pode ver seus dados. Combine os detalhes pelo chat.' :
-                   displayData.status === 'scheduled' ? 'O serviço está agendado e o profissional virá na data combinada.' : 
-                   displayData.status === 'in_service' ? 'O profissional iniciou a execução do serviço. Acompanhe por aqui.' :
-                   displayData.status === 'completed' ? 'O serviço foi finalizado. Não esqueça de avaliar o profissional!' : ''}
+                  {displayData.status === 'open' ? (isClient ? 'Sua solicitação foi enviada aos melhores profissionais da região.' : 'Você recebeu uma nova oportunidade. Analise os detalhes e envie seu orçamento.') : 
+                   displayData.status === 'proposed' ? (isClient ? 'Confira o valor e os detalhes do orçamento enviado pelo profissional.' : 'Seu orçamento foi enviado ao cliente. Você será notificado assim que ele for aceito.') :
+                   displayData.status === 'awaiting_payment' ? (isClient ? 'Realize o pagamento da taxa para liberar o chat e agendar o serviço.' : 'O cliente aceitou seu orçamento! Ele está realizando o pagamento da taxa de intermediação.') :
+                   displayData.status === 'paid' ? (isClient ? 'O profissional já pode ver seus dados. Combine os detalhes pelo chat.' : 'O cliente pagou a taxa! Vocês já podem combinar os detalhes finais pelo chat.') :
+                   displayData.status === 'scheduled' ? (isClient ? 'O serviço está agendado e o profissional virá na data combinada.' : 'O horário foi combinado com o cliente. Prepare suas ferramentas para a execução.') : 
+                   displayData.status === 'in_service' ? (isClient ? 'O profissional iniciou a execução do serviço. Acompanhe por aqui.' : 'Você iniciou os trabalhos. Lembre-se de concluir por aqui ao finalizar a tarefa.') :
+                   displayData.status === 'completed' ? (isClient ? 'O serviço foi finalizado. Não esqueça de avaliar o profissional!' : 'Parabéns pelo trabalho! O cliente foi notificado da conclusão e deve liberar seu pagamento.') : ''}
                 </p>
 
                 {displayData.status === 'completed' && !hasBeenReviewed && (
