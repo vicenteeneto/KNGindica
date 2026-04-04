@@ -146,7 +146,27 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
   return (
     <div className={`flex flex-col h-full bg-slate-950 font-display text-slate-100 antialiased overflow-hidden ${isEmbedded ? 'rounded-[40px] border border-white/5' : ''}`}>
       
-      {!isEmbedded && (
+      {isEmbedded ? (
+        <header className="h-16 shrink-0 flex items-center justify-between px-6 bg-slate-900/80 backdrop-blur-md border-b border-white/5 z-50">
+          <div className="flex items-center gap-4">
+            <div className="size-10 rounded-full bg-slate-800 border border-white/10 overflow-hidden shadow-lg">
+              <img src={displayData.profiles?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} className="w-full h-full object-cover" />
+            </div>
+            <div>
+              <h2 className="text-sm font-black text-white uppercase tracking-tighter italic leading-none mb-1">{displayData.profiles?.full_name || 'Cliente'}</h2>
+              <div className="flex items-center gap-1.5 font-bold uppercase tracking-widest text-[8px] text-emerald-500">
+                <div className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Pedido Ativo • {displayData.display_id || 'ID'}
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+             <div className="px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest bg-primary/20 text-primary border border-primary/20">
+                {displayData.status}
+             </div>
+          </div>
+        </header>
+      ) : (
         <header className="h-16 lg:h-20 shrink-0 flex items-center justify-between px-4 lg:px-8 bg-slate-900 border-b border-white/5 z-50">
           <div className="flex items-center gap-4">
             <button onClick={() => onNavigate('home')} className="size-10 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition-colors">

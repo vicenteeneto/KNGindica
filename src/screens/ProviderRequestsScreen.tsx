@@ -132,22 +132,30 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
   return (
     <div className="flex flex-col h-screen bg-slate-950 font-display text-slate-100 antialiased overflow-hidden">
       
-      <div className="shrink-0 z-50">
-        <ProviderHeader title="Central de Serviços" onBack={() => onNavigate('dashboard')} onNavigate={onNavigate} />
+      <div className="shrink-0 z-50 bg-slate-900 border-b border-white/5 py-4 px-6">
+        <div className="flex flex-col">
+          <p className="text-[10px] font-black text-primary uppercase tracking-[2px] leading-none mb-1">Central de Serviços</p>
+          <div className="flex items-center gap-2">
+            <div className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+            <h1 className="text-sm font-black text-white uppercase tracking-[1px] italic leading-none">Painel do Prestador</h1>
+          </div>
+        </div>
       </div>
 
       <div className="flex flex-1 overflow-hidden relative">
         
         {/* MASTER LIST (WhatsApp Style) */}
         <div className={`flex flex-col border-r border-white/5 bg-slate-900/50 ${selectedRequestId ? 'hidden lg:flex' : 'flex'} w-full lg:w-[400px] shrink-0 overflow-hidden`}>
-          <div className="p-3 border-b border-white/5 bg-slate-900/80 backdrop-blur-md">
-            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+          <div className="p-2 border-b border-white/5 bg-slate-900/80 backdrop-blur-md">
+            <div className="flex gap-1.5 overflow-x-auto no-scrollbar scroll-smooth">
               {tabs.map(tab => (
                 <button
                   key={tab}
                   onClick={() => { setActiveTab(tab); setSelectedRequestId(null); }}
-                  className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
-                    activeTab === tab ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white/5 text-slate-500 hover:text-slate-300'
+                  className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all border whitespace-nowrap ${
+                    activeTab === tab 
+                      ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20 scale-95' 
+                      : 'bg-white/5 border-transparent text-slate-500 hover:text-slate-300'
                   }`}
                 >
                   {tab}
