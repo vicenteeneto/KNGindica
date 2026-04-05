@@ -45,42 +45,17 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
   };
 
   useEffect(() => {
+    if (params?.orderId) {
+      setSelectedOrderId(params.orderId);
+    }
+    if (params?.tab) {
+      setActiveTab(params.tab);
+    }
+  }, [params?.orderId, params?.tab]);
+
+  useEffect(() => {
     if (!user) return;
     fetchOrders();
-    
-    // Deep Linking: Auto-open order details from notification
-    if (params?.orderId) {
-      const loadInitialOrder = async () => {
-        try {
-          const { data, error } = await supabase
-            .from('freelance_orders')
-            .select(`
-              *,
-              profiles:client_id(full_name, avatar_url, phone),
-              service_categories(name, icon)
-            `)
-            .eq('id', params.orderId)
-            .single();
-          
-          if (data && !error) {
-            // Determine active tab based on status
-            let tab: any = 'available';
-            if (data.status === 'open') tab = 'available';
-            else if (data.status === 'proposed') tab = 'bidded';
-            else if (data.status === 'accepted') tab = 'approved';
-            else if (['paid', 'assigned'].includes(data.status)) tab = 'scheduled';
-            else if (data.status === 'in_service') tab = 'in_progress';
-            else if (['completed', 'review'].includes(data.status)) tab = 'completed';
-            
-            setActiveTab(tab);
-            setDetailsModal({ isOpen: true, order: data });
-          }
-        } catch (e) {
-          console.warn("Could not load initial deep-linked order", e);
-        }
-      };
-      loadInitialOrder();
-    }
     
     // Subscribe to new orders
     const channel = supabase
@@ -96,7 +71,7 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, activeTab, params?.orderId]);
+  }, [user, activeTab]);
 
   const fetchOrders = async () => {
     if (!user) return;

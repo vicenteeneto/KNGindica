@@ -6,12 +6,12 @@ import { useNotifications } from '../NotificationContext';
 import { formatCurrency } from '../lib/formatters';
 import { FreelanceOrderDetail } from '../components/FreelanceOrderDetail';
 
-export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
+export default function MyFreelancesScreen({ onNavigate, params }: NavigationProps) {
   const { user } = useAuth();
   const { showToast } = useNotifications();
   const [freelanceOrders, setFreelanceOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'open' | 'in_progress' | 'completed' | 'cancelled'>('open');
+  const [activeTab, setActiveTab] = useState<'open' | 'in_progress' | 'completed' | 'cancelled'>(params?.tab || 'open');
   const [confirmModal, setConfirmModal] = useState<{ 
     isOpen: boolean; 
     orderId: string | null; 
@@ -21,7 +21,7 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
     orderId: null,
     title: ''
   });
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(params?.orderId || null);
   const [searchQuery, setSearchQuery] = useState('');
 
   const fetchFreelances = async () => {
@@ -74,6 +74,15 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
   useEffect(() => {
     fetchFreelances();
   }, [user]);
+
+  useEffect(() => {
+    if (params?.orderId) {
+      setSelectedOrderId(params.orderId);
+    }
+    if (params?.tab) {
+      setActiveTab(params.tab);
+    }
+  }, [params?.orderId, params?.tab]);
 
   return (
     <div className="flex flex-col h-screen bg-black font-display text-slate-100 antialiased overflow-hidden">
@@ -137,7 +146,9 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
                   key={tab.key}
                   onClick={() => {
                     setActiveTab(tab.key);
+                    setActiveTab(tab.key);
                     setSelectedOrderId(null);
+                    onNavigate('myFreelances', { tab: tab.key, orderId: null });
                   }}
                   className={`flex-1 flex items-center justify-center py-2.5 rounded-md text-[9px] font-black uppercase tracking-tighter transition-all border whitespace-nowrap ${
                     activeTab === tab.key 
@@ -190,7 +201,10 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
                   return (
                     <div 
                       key={order.id}
-                      onClick={() => setSelectedOrderId(order.id)}
+                      onClick={() => {
+                        setSelectedOrderId(order.id);
+                        onNavigate('myFreelances', { tab: activeTab, orderId: order.id });
+                      }}
                       className={`p-4 flex gap-4 cursor-pointer transition-all relative group ${
                         isActive ? 'bg-primary/10 border-l-4 border-l-primary' : 'hover:bg-white/5 border-l-4 border-l-transparent'
                       }`}

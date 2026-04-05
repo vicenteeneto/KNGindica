@@ -259,7 +259,7 @@ function AppContent() {
       case 'dashboard':
         return <ProviderDashboardScreen onNavigate={handleNavigate} />;
       case 'chatList':
-        return <ChatListScreen onNavigate={handleNavigate} />;
+        return <ChatListScreen onNavigate={handleNavigate} params={navigationParams} />;
       case 'notifications':
         return <NotificationsScreen onNavigate={handleNavigate} />;
       case 'registration':

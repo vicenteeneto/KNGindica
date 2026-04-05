@@ -6,7 +6,7 @@ import { useNotifications } from '../NotificationContext';
 import { ProviderHeader } from '../components/ProviderHeader';
 import ChatScreen from './ChatScreen';
 
-export default function ChatListScreen({ onNavigate }: NavigationProps) {
+export default function ChatListScreen({ onNavigate, params }: NavigationProps) {
   const { user, role } = useAuth();
   const { showToast } = useNotifications();
 
@@ -14,8 +14,8 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'Todas' | 'Serviços' | 'Suporte' | 'Arquivadas'>('Todas');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
-  const [selectedChatParams, setSelectedChatParams] = useState<any>(null);
+  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(params?.roomId || null);
+  const [selectedChatParams, setSelectedChatParams] = useState<any>(params?.roomId ? params : null);
 
   const fetchRooms = async () => {
     if (!user) return;
@@ -80,14 +80,24 @@ export default function ChatListScreen({ onNavigate }: NavigationProps) {
     fetchRooms();
   }, [user, role]);
 
+  useEffect(() => {
+    if (params?.roomId) {
+      setSelectedRoomId(params.roomId);
+      setSelectedChatParams(params);
+    }
+  }, [params?.roomId]);
+
   const handleOpenChat = (roomId: string, requestTitle: string, opponentName: string, opponentAvatar: string, requestId?: string) => {
-    const params = { roomId, requestTitle, opponentName, opponentAvatar, requestId };
+    const chatParams = { roomId, requestTitle, opponentName, opponentAvatar, requestId };
     setSelectedRoomId(roomId);
-    setSelectedChatParams(params);
+    setSelectedChatParams(chatParams);
     
     // Em mobile, mantemos a navegação padrão para a tela de chat full
     if (window.innerWidth < 1024) {
-      onNavigate('chat', params);
+      onNavigate('chat', chatParams);
+    } else {
+      // No desktop, atualiza os params sem mudar de tela
+      onNavigate('chatList', chatParams);
     }
   };
 
