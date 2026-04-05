@@ -204,7 +204,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
 
   const renderHeader = () => (
     <ProviderHeader 
-      title="Dashboard" 
+      title="Painel" 
       onBack={() => onNavigate('home')} 
       onNavigate={onNavigate} 
       rightActions={
@@ -320,7 +320,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         <div className="flex items-center justify-between mb-8">
           <div>
             <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter italic">
-              KNGindica Insights
+              Análises KNGindica
             </h3>
             <div className="flex items-center gap-1.5">
               <span className="relative flex h-2 w-2">
@@ -331,7 +331,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
             </div>
           </div>
           <div className="size-12 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-2xl">insights</span>
+            <span className="material-symbols-outlined text-2xl">analytics</span>
           </div>
         </div>
 
@@ -522,7 +522,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         </div>
       </section>
 
-      {/* Oportunidades KNGindica - Freelance Feed */}
+      {/* Oportunidades KNGindica - Feed de Projetos */}
       <section className="pt-3 pb-3">
         <div 
           onClick={() => onNavigate('openOrders')}
@@ -540,7 +540,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
               Oportunidades KNGindica
             </h3>
             <p className="text-emerald-50/80 text-[11px] font-medium leading-tight max-w-sm">
-              Novos pedidos freelance abertos na sua região disponíveis.
+              Novos projetos abertos na sua região disponíveis.
             </p>
             <div className="mt-3 flex items-center gap-2">
               <span className="text-[10px] font-black text-white uppercase tracking-widest bg-emerald-400/20 px-3 py-1.5 rounded-xl border border-white/20">Ver Ordens Disponíveis</span>

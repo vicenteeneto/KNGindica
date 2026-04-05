@@ -220,7 +220,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
-          <h2 className="text-xl font-black tracking-tighter italic uppercase">Solicitar Freelance</h2>
+          <h2 className="text-xl font-black tracking-tighter italic uppercase">Solicitar Projeto</h2>
           <div className="size-10"></div>
         </div>
       </header>
@@ -347,7 +347,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
                 <input 
                   type="text" 
                   required
-                  placeholder="0,00"
+                  placeholder="Ex: 100,00"
                   className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-black text-base"
                   value={formData.budget}
                   onChange={e => {
@@ -359,7 +359,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
             </div>
 
             <div>
-              <label className="block text-xs font-bold mb-1.5 uppercase tracking-widest text-slate-400">Duração do Freelance</label>
+              <label className="block text-xs font-bold mb-1.5 uppercase tracking-widest text-slate-400">Prazo da Publicação</label>
               <select 
                 required
                 className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm appearance-none"
@@ -429,7 +429,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
               ) : (
                 <>
                   <span className="material-symbols-outlined">rocket_launch</span>
-                  Publicar Ordem
+                  Publicar Projeto
                 </>
               )}
             </button>

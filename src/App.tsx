@@ -53,11 +53,11 @@ const STORAGE_PARAMS_KEY = 'KNGindica_navParams';
 const NON_PERSISTENT_SCREENS = ['auth', 'forgotPassword', 'updatePassword', 'termsConsent', 'bidRoom', 'profile'];
 
 const ADMIN_TABS = [
-  { id: 'dashboard', icon: 'grid_view', label: 'Dashboard' },
+  { id: 'dashboard', icon: 'grid_view', label: 'Painel' },
   { id: 'providers', icon: 'engineering', label: 'Prestadores' },
   { id: 'clients', icon: 'group', label: 'Clientes' },
   { id: 'orders', icon: 'receipt', label: 'Serviços' },
-  { id: 'reviews', icon: 'reviews', label: 'Reviews' },
+  { id: 'reviews', icon: 'reviews', label: 'Avaliações' },
   { id: 'categories', icon: 'category', label: 'Categorias' },
   { id: 'referrals', icon: 'share', label: 'Auditoria de Indicações' },
   { id: 'chat_audit', icon: 'forum', label: 'Auditoria' },

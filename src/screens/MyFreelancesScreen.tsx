@@ -100,7 +100,7 @@ export default function MyFreelancesScreen({ onNavigate, params }: NavigationPro
              <p className="text-[12px] font-black text-primary uppercase tracking-[2px] leading-none mb-1.5">Meus Projetos</p>
              <div className="flex items-center gap-2">
                <div className="size-2.5 rounded-full bg-blue-500 animate-pulse" />
-               <h1 className="text-lg font-black text-white uppercase tracking-[1px] italic leading-none">Meus Freelances</h1>
+               <h1 className="text-lg font-black text-white uppercase tracking-[1px] italic leading-none">Meus Projetos</h1>
              </div>
            </div>
         </div>
@@ -110,7 +110,7 @@ export default function MyFreelancesScreen({ onNavigate, params }: NavigationPro
           className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:brightness-110 transition-all shadow-lg shadow-primary/20"
         >
           <span className="material-symbols-outlined text-[18px]">add</span>
-          Pedir Freelance
+          Solicitar Projeto
         </button>
       </div>
 
@@ -125,7 +125,7 @@ export default function MyFreelancesScreen({ onNavigate, params }: NavigationPro
                <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-[20px] group-focus-within/search:text-primary transition-colors">search</span>
                <input 
                  type="text"
-                 placeholder="Pesquisar nos meus freelances..."
+                 placeholder="Pesquisar nos meus projetos..."
                  value={searchQuery}
                  onChange={(e) => setSearchQuery(e.target.value)}
                  className="w-full bg-slate-800/40 border-none rounded-xl py-2.5 pl-11 pr-4 text-sm font-medium placeholder:text-slate-500 focus:ring-1 focus:ring-primary/40 transition-all outline-none text-white shadow-inner"
@@ -275,7 +275,7 @@ export default function MyFreelancesScreen({ onNavigate, params }: NavigationPro
                 <div className="size-32 rounded-full border-2 border-dashed border-white/20 flex items-center justify-center mb-6">
                    <span className="material-symbols-outlined text-6xl italic">ads_click</span>
                 </div>
-                <h3 className="text-2xl font-black uppercase tracking-tighter italic mb-2">Gerencie seus Freelances</h3>
+                <h3 className="text-2xl font-black uppercase tracking-tighter italic mb-2">Gerencie seus Projetos</h3>
                 <p className="text-sm font-medium max-w-xs">Selecione um projeto à esquerda para ver os lances recebidos e gerenciar o andamento.</p>
              </div>
            )}

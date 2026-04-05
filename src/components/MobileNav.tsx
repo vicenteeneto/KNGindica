@@ -13,14 +13,14 @@ export default function MobileNav({ onNavigate, currentScreen, role, params }: M
   const navItems = role === 'provider' 
     ? [
         { id: 'dashboard', icon: 'pie_chart', label: 'Painel', screen: 'dashboard' as Screen },
-        { id: 'openOrders', icon: 'gavel', label: 'Freelance', screen: 'openOrders' as Screen },
+        { id: 'openOrders', icon: 'gavel', label: 'Projetos', screen: 'openOrders' as Screen },
         { id: 'providerRequests', icon: 'assignment', label: 'Serviços', screen: 'providerRequests' as Screen, badge: unreadNotifications },
         { id: 'myRequests', icon: 'receipt_long', label: 'Pedidos', screen: 'myRequests' as Screen },
         { id: 'chatList', icon: 'chat', label: 'Chat', screen: 'chatList' as Screen, badge: unreadMessages }
       ]
     : [
         { id: 'home', icon: 'home', label: 'Início', screen: 'home' as Screen },
-        { id: 'myFreelances', icon: 'work', label: 'Freelance', screen: 'myFreelances' as Screen },
+        { id: 'myFreelances', icon: 'work', label: 'Projetos', screen: 'myFreelances' as Screen },
         { id: 'myRequests', icon: 'receipt_long', label: 'Pedidos', screen: 'myRequests' as Screen },
         { id: 'chatList', icon: 'chat', label: 'Chat', screen: 'chatList' as Screen, badge: unreadMessages },
         { id: 'userProfile', icon: 'person', label: 'Perfil', screen: 'userProfile' as Screen }

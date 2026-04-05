@@ -204,7 +204,7 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                     <h2 className="text-xl lg:text-2xl font-black text-white uppercase tracking-tighter italic leading-tight mb-2">
                        {displayData.status === 'open' ? 'Solicitação em Análise' : 
                         displayData.status === 'proposed' ? (isClient ? 'Proposta Recebida' : 'Proposta Enviada') :
-                        displayData.status === 'awaiting_payment' ? (isClient ? 'Pague a Taxa' : 'Aguardando Cliente') :
+                        displayData.status === 'awaiting_payment' ? (isClient ? 'Pague a Taxa de Indicação' : 'Aguardando Cliente') :
                         displayData.status === 'paid' ? (isClient ? 'Pago e Confirmado' : 'Pagamento Garantido!') :
                         displayData.status === 'scheduled' ? (isClient ? 'Tudo Agendado' : 'Horário Definido') : 
                         displayData.status === 'in_service' ? 'Trabalho em Curso' : 'Serviço Concluído'}
@@ -289,7 +289,7 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                         <span className="material-symbols-outlined text-4xl italic">payments</span>
                      </div>
-                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-[2px] mb-2 leading-none">Detalhamento Financeiro</p>
+                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-[2px] mb-2 leading-none">Detalhamento Orçamentário</p>
                      {displayData.status === 'open' ? (
                         <p className="text-xl font-black text-primary animate-pulse italic">A DEFINIR</p>
                      ) : (
@@ -373,7 +373,7 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
 
                   <div className="flex-1 flex flex-col justify-start space-y-4 py-4 overflow-y-auto no-scrollbar">
                      {[
-                       { id: 'budget', label: 'Proposta de Orçamento', icon: 'sell', status: ['proposed', 'awaiting_payment', 'paid', 'scheduled', 'in_service', 'completed'], details: isProvider ? 'Orçamento enviado e registrado no sistema' : 'Proposta recebida via plataforma KNG', color: 'text-primary' },
+                       { id: 'budget', label: 'Envio de Orçamento', icon: 'sell', status: ['proposed', 'awaiting_payment', 'paid', 'scheduled', 'in_service', 'completed'], details: isProvider ? 'Orçamento enviado e registrado no sistema' : 'Proposta recebida via plataforma KNG', color: 'text-primary' },
                        { id: 'payment', label: 'Pagamento Confirmado', icon: 'payments', status: ['awaiting_payment', 'paid', 'scheduled', 'in_service', 'completed'], details: 'Valor retido com segurança pela KNG Indica', color: 'text-emerald-500' },
                        { id: 'schedule', label: 'Agendamento Definido', icon: 'calendar_today', status: ['paid', 'scheduled', 'in_service', 'completed'], details: displayData.desired_date ? `Agendado para ${new Date(displayData.desired_date).toLocaleDateString('pt-BR')} às ${new Date(displayData.desired_date).toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}` : 'Aguardando definição de data', color: 'text-orange-500' },
                        { id: 'execution', label: 'Execução do Trabalho', icon: 'construction', status: ['in_service', 'completed'], details: 'Prestador em atividade no local do serviço', color: 'text-blue-500' },

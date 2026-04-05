@@ -88,7 +88,7 @@ export function FreelanceOrderDetail({ orderId, onNavigate, isEmbedded = false }
             <h2 className="text-sm font-black text-white uppercase tracking-tighter italic leading-none mb-1">{order.profiles?.full_name || 'Cliente'}</h2>
             <div className="flex items-center gap-1.5 font-bold uppercase tracking-widest text-[8px] text-primary">
               <div className="size-1.5 rounded-full bg-primary animate-pulse" />
-              Oportunidade Freelance • {order.display_id || 'ID'}
+              Oportunidade de Projeto • {order.display_id || 'ID'}
             </div>
           </div>
         </div>
@@ -105,7 +105,7 @@ export function FreelanceOrderDetail({ orderId, onNavigate, isEmbedded = false }
         <section>
           <div className="flex items-center gap-2 mb-4">
             <span className="size-2 bg-primary rounded-full"></span>
-            <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Briefing do Job</h4>
+            <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Descrição do Projeto</h4>
           </div>
           <div className="bg-slate-900/50 p-6 rounded-[32px] border border-white/5 shadow-2xl relative overflow-hidden group">
              <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity">
@@ -143,7 +143,7 @@ export function FreelanceOrderDetail({ orderId, onNavigate, isEmbedded = false }
         <section>
           <div className="flex items-center gap-2 mb-4">
             <span className="size-2 bg-emerald-500 rounded-full"></span>
-            <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Local de Atendimento</h4>
+            <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Local do Projeto</h4>
           </div>
           <div className="bg-emerald-500/5 border border-emerald-500/10 p-6 rounded-[32px] flex items-center justify-between">
              <div className="min-w-0">
@@ -171,7 +171,7 @@ export function FreelanceOrderDetail({ orderId, onNavigate, isEmbedded = false }
            <section>
             <div className="flex items-center gap-2 mb-4">
               <span className="size-2 bg-emerald-500 rounded-full"></span>
-              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Budget Sugerido</h4>
+              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Orçamento Sugerido</h4>
             </div>
             <div className="bg-slate-900 border border-white/5 p-6 rounded-[28px] shadow-xl relative overflow-hidden group">
                <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
@@ -180,7 +180,7 @@ export function FreelanceOrderDetail({ orderId, onNavigate, isEmbedded = false }
                <p className="text-2xl font-black text-emerald-500 italic">
                  {formatCurrency(order.budget || 0)}
                </p>
-               <p className="text-[9px] font-bold text-emerald-500/60 uppercase tracking-widest mt-1">Valor base para lance</p>
+               <p className="text-[9px] font-bold text-emerald-500/60 uppercase tracking-widest mt-1">Valor sugerido para o projeto</p>
             </div>
           </section>
 
@@ -216,7 +216,7 @@ export function FreelanceOrderDetail({ orderId, onNavigate, isEmbedded = false }
              <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">
                {['assigned', 'awaiting_payment', 'paid', 'in_service', 'completed'].includes(order.status) ? 'visibility' : 'send_money'}
              </span>
-             {['assigned', 'awaiting_payment', 'paid', 'in_service', 'completed'].includes(order.status) ? 'Verificar Status do Freelance' : 'Entrar na Sala de Lance'}
+             {['assigned', 'awaiting_payment', 'paid', 'in_service', 'completed'].includes(order.status) ? 'Verificar Status do Projeto' : 'Entrar na Sala de Lance'}
            </button>
         </div>
 
