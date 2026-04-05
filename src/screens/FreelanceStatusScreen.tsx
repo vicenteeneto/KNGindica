@@ -99,21 +99,21 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                        {displayData.status === 'open' ? 'Em Leilão' : 
                         displayData.status === 'awaiting_payment' ? 'Pendente de Pagamento' :
                         displayData.status === 'paid' ? 'Contrato Garantido' : 
-                        displayData.status === 'assigned' ? 'Agendado' :
+                        displayData.status === 'scheduled' ? 'Agendado' :
                         displayData.status === 'in_service' ? 'Desenvolvimento' : 'Finalizado'}
                     </div>
                     <h2 className="text-2xl lg:text-4xl font-black text-white uppercase tracking-tighter italic leading-tight mb-3">
                       {displayData.status === 'open' ? 'Aguardando Lances' : 
                        displayData.status === 'awaiting_payment' ? (isClient ? 'Profissional Escolhido' : 'Você Venceu o Leilão!') :
                        displayData.status === 'paid' ? (isClient ? 'Tudo Pronto para Iniciar' : 'Mãos à Obra!') :
-                       displayData.status === 'assigned' ? 'Cronograma Definido' : 
+                       displayData.status === 'scheduled' ? 'Cronograma Definido' : 
                        displayData.status === 'in_service' ? 'Execução Técnica' : 'Freelance Entregue'}
                     </h2>
                     <p className="text-sm text-slate-400 max-w-sm mb-8 font-medium leading-relaxed">
                        {displayData.status === 'open' ? (isClient ? 'Especialistas estão enviando propostas para o seu projeto agora.' : 'Analise os requisitos e lance sua melhor oferta para o cliente.') : 
                         displayData.status === 'awaiting_payment' ? (isClient ? 'Realize o pagamento para que o profissional possa garantir sua vaga e agendar.' : 'O cliente aceitou seu lance! Ele está agora processando o pagamento da garantia.') :
                         displayData.status === 'paid' ? (isClient ? 'O pagamento foi confirmado. O profissional irá agendar o início do trabalho em breve.' : 'O valor já está seguro com a KNG. Agende agora o início da execução.') :
-                        displayData.status === 'assigned' ? (isClient ? 'O cronograma foi definido. Você receberá atualizações constantes por aqui.' : 'Tudo certo. No horário combinado, basta clicar em Iniciar Trabalho.') : ''}
+                        displayData.status === 'scheduled' ? (isClient ? 'O cronograma foi definido. Você receberá atualizações constantes por aqui.' : 'Tudo certo. No horário combinado, basta clicar em Iniciar Trabalho.') : ''}
                     </p>
 
                     <div className="w-full max-w-sm space-y-4">
@@ -139,7 +139,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                                 <span className="material-symbols-outlined">calendar_month</span> Agendar Serviço
                                </button>
                             )}
-                            {displayData.status === 'assigned' && (
+                            {displayData.status === 'scheduled' && (
                                <button onClick={async () => {
                                  await supabase.from('freelance_orders').update({ status: 'in_service' }).eq('id', displayData.id);
                                  showToast("Sucesso", "Trabalho iniciado!", "success");
@@ -230,9 +230,9 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
 
                   <div className="flex-1 flex flex-col justify-center space-y-2 max-w-sm mx-auto w-full">
                      {[
-                       { label: 'Leilão', icon: 'gavel', status: ['open', 'awaiting_payment', 'paid', 'assigned', 'in_service', 'completed'] },
-                       { label: 'Garantia', icon: 'payments', status: ['awaiting_payment', 'paid', 'assigned', 'in_service', 'completed'] },
-                       { label: 'Agenda', icon: 'calendar_today', status: ['paid', 'assigned', 'in_service', 'completed'] },
+                       { label: 'Leilão', icon: 'gavel', status: ['open', 'awaiting_payment', 'paid', 'scheduled', 'in_service', 'completed'] },
+                       { label: 'Garantia', icon: 'payments', status: ['awaiting_payment', 'paid', 'scheduled', 'in_service', 'completed'] },
+                       { label: 'Agenda', icon: 'calendar_today', status: ['scheduled', 'in_service', 'completed'] },
                        { label: 'Execução', icon: 'construction', status: ['in_service', 'completed'] },
                        { label: 'Entrega', icon: 'verified', status: ['completed'] }
                      ].map((step, idx, arr) => {
@@ -273,7 +273,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                        const deadlineFormatted = deadlineObj.toLocaleString('pt-BR');
 
                        const { error } = await supabase.from('freelance_orders').update({ 
-                         status: 'assigned'
+                         status: 'scheduled'
                        }).eq('id', order.id);
 
                        if (error) throw error;
@@ -301,7 +301,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                        setScheduleModal({ isOpen: false, date: '', time: '' });
                        
                        // Ajuste de sincronismo: atualizar estado local imediatamente
-                       setOrder((prev: any) => ({ ...prev, status: 'assigned' }));
+                       setOrder((prev: any) => ({ ...prev, status: 'scheduled' }));
                        
                        fetchOrder();
                     } catch (err: any) {

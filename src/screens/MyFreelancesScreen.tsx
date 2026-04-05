@@ -180,7 +180,7 @@ export default function MyFreelancesScreen({ onNavigate, params }: NavigationPro
                 const filteredOrders = freelanceOrders
                   .filter(o => {
                     if (activeTab === 'open') return o.status === 'open';
-                    if (activeTab === 'in_progress') return ['assigned', 'awaiting_payment', 'paid', 'in_service'].includes(o.status);
+                    if (activeTab === 'in_progress') return ['scheduled', 'awaiting_payment', 'paid', 'in_service'].includes(o.status);
                     if (activeTab === 'completed') return ['completed', 'closed'].includes(o.status);
                     if (activeTab === 'cancelled') return o.status === 'cancelled';
                     return false;

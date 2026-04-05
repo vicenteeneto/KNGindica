@@ -211,7 +211,7 @@ export function FreelanceOrderDetail({ orderId, onNavigate, isEmbedded = false }
         <div className="pt-6">
            <button 
              onClick={() => {
-               if (['assigned', 'awaiting_payment', 'paid', 'in_service', 'completed', 'cancelled'].includes(order.status)) {
+               if (['scheduled', 'awaiting_payment', 'paid', 'in_service', 'completed', 'cancelled'].includes(order.status)) {
                  onNavigate('freelanceStatus', { orderId: order.id });
                } else {
                  onNavigate('bidRoom', { orderId: order.id });
@@ -220,9 +220,9 @@ export function FreelanceOrderDetail({ orderId, onNavigate, isEmbedded = false }
              className="w-full py-4 bg-primary text-white rounded-[24px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-3 group"
            >
              <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">
-               {['assigned', 'awaiting_payment', 'paid', 'in_service', 'completed'].includes(order.status) ? 'visibility' : 'send_money'}
+               {['scheduled', 'awaiting_payment', 'paid', 'in_service', 'completed'].includes(order.status) ? 'visibility' : 'send_money'}
              </span>
-             {['assigned', 'awaiting_payment', 'paid', 'in_service', 'completed'].includes(order.status) ? 'Verificar Status do Freelance' : 'Entrar na Sala de Lance'}
+             {['scheduled', 'awaiting_payment', 'paid', 'in_service', 'completed'].includes(order.status) ? 'Verificar Status do Freelance' : 'Entrar na Sala de Lance'}
            </button>
         </div>
 

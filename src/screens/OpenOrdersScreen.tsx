@@ -129,7 +129,7 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
           service_categories(name, icon)
         `)
         .eq('assigned_provider_id', user.id)
-        .in('status', ['assigned', 'awaiting_payment'])
+        .in('status', ['awaiting_payment', 'paid'])
         .order('created_at', { ascending: false });
       if (!error) fetched = data || [];
     } else if (activeTab === 'scheduled') {
@@ -141,7 +141,7 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
           service_categories(name, icon)
         `)
         .eq('assigned_provider_id', user.id)
-        .in('status', ['paid', 'assigned'])
+        .eq('status', 'scheduled')
         .order('created_at', { ascending: false });
       if (!error) fetched = data || [];
     } else if (activeTab === 'in_progress') {
