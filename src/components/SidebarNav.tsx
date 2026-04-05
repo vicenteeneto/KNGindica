@@ -48,7 +48,7 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
       ];
 
   return (
-    <nav className="hidden lg:flex fixed left-0 top-0 bottom-0 w-12 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-r border-slate-200 dark:border-white/10 flex-col items-center py-2 z-[100] shadow-lg overflow-hidden">
+    <nav className="hidden lg:flex fixed left-0 top-0 bottom-0 w-16 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-r border-slate-200 dark:border-white/10 flex-col items-center py-4 z-[100] shadow-lg overflow-hidden">
       <div className="flex-1 flex flex-col gap-0.5 overflow-hidden py-1 w-full px-0.5">
         {navItems.map((item) => {
           const isActive = currentScreen === item.screen;
@@ -64,7 +64,7 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
               title={item.label}
             >
               <span 
-                className={`material-symbols-outlined text-[15px] transition-transform group-hover:scale-110 ${isActive ? 'filled' : ''}`}
+                className={`material-symbols-outlined text-[24px] transition-transform group-hover:scale-110 ${isActive ? 'filled' : ''}`}
                 style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}
               >
                 {item.icon}
@@ -76,7 +76,7 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
                 </span>
               )}
 
-              <span className="text-[9px] font-bold uppercase tracking-tight opacity-0 group-hover:opacity-100 transition-opacity absolute -right-1 translate-x-full bg-slate-900 text-white px-2 py-1 rounded text-nowrap pointer-events-none z-50">
+              <span className="text-[10px] font-black uppercase tracking-[2px] opacity-0 group-hover:opacity-100 transition-all absolute left-20 bg-slate-900 text-white px-3 py-1.5 rounded-lg text-nowrap pointer-events-none z-50 border border-white/10 shadow-2xl">
                 {item.label}
               </span>
             </button>
@@ -101,7 +101,7 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
                   title={tab.label}
                 >
                   <span 
-                    className={`material-symbols-outlined text-[15px] transition-transform group-hover:scale-110 ${isActive ? 'filled' : ''}`}
+                    className={`material-symbols-outlined text-[24px] transition-transform group-hover:scale-110 ${isActive ? 'filled' : ''}`}
                     style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}
                   >
                     {tab.icon}
@@ -118,12 +118,12 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
       </div>
 
       {/* Settings at bottom */}
-      <div className="mt-auto pt-1 border-t border-slate-100 dark:border-slate-800 w-full flex justify-center">
+      <div className="mt-auto pt-4 border-t border-slate-100 dark:border-white/5 w-full flex justify-center">
         <button
           onClick={() => onNavigate('userProfile')}
-          className="size-7 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border border-transparent hover:border-primary/20"
+          className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border border-transparent hover:border-primary/20"
         >
-          <span className="material-symbols-outlined text-[15px]">settings</span>
+          <span className="material-symbols-outlined text-[24px]">settings</span>
         </button>
       </div>
     </nav>

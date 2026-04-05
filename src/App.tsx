@@ -345,7 +345,7 @@ function AppContent() {
             adminTabs={role === 'admin' ? ADMIN_TABS : undefined}
           />
         )}
-        <div className={`flex-1 w-full ${!NON_PERSISTENT_SCREENS.includes(currentScreen) ? 'lg:pl-12' : ''} transition-all duration-300`}>
+        <div className={`flex-1 w-full ${!NON_PERSISTENT_SCREENS.includes(currentScreen) ? 'lg:pl-16' : ''} transition-all duration-300`}>
           <PullToRefresh>
             {renderScreen()}
             {!NON_PERSISTENT_SCREENS.includes(currentScreen) && currentScreen !== 'adminDashboard' && role !== 'admin' && (
