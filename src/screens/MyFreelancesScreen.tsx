@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
 import { formatCurrency } from '../lib/formatters';
+import { FreelanceOrderDetail } from '../components/FreelanceOrderDetail';
 
 export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
   const { user } = useAuth();
@@ -20,6 +21,8 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
     orderId: null,
     title: ''
   });
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const fetchFreelances = async () => {
     if (!user) return;
@@ -42,7 +45,7 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
       setFreelanceOrders(data || []);
     } catch (err: any) {
       console.error("Erro ao buscar freelances:", err);
-      showToast("Erro", "Erro ao buscar seus freelances.", "error");
+      showToast("Erro ao buscar seus freelances.", "error");
     } finally {
       setLoading(false);
     }
@@ -58,12 +61,13 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
       
       if (error) throw error;
       
-      showToast("Sucesso", "Freelance excluído com sucesso.", "success");
+      showToast("Freelance excluído com sucesso.", "success");
       setFreelanceOrders(prev => prev.filter(o => o.id !== confirmModal.orderId));
+      if (selectedOrderId === confirmModal.orderId) setSelectedOrderId(null);
       setConfirmModal({ isOpen: false, orderId: null, title: '' });
     } catch (err: any) {
       console.error("Erro ao excluir freelance:", err);
-      showToast("Erro", "Falha ao excluir o freelance.", "error");
+      showToast("Falha ao excluir o freelance.", "error");
     }
   };
 
@@ -72,208 +76,222 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
   }, [user]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
+    <div className="flex flex-col h-screen bg-black font-display text-slate-100 antialiased overflow-hidden">
       
-      {/* Header */}
-      <header className="flex flex-col bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 relative z-20">
-        <div className="flex items-center justify-between p-4 max-w-4xl lg:mx-0 lg:ml-12 w-full transition-all duration-300">
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => onNavigate('home')}
-              className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-all shrink-0"
-            >
-              <span className="material-symbols-outlined">arrow_back</span>
-            </button>
-            <div>
-              <h1 className="text-xl font-bold tracking-tight">Meus Freelances</h1>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mt-1">Seu Histórico de Solicitações</p>
-            </div>
-          </div>
-
-          <button 
-            onClick={() => onNavigate('freelanceRequest')}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl font-bold text-[11px] uppercase tracking-widest hover:opacity-90 transition-all shadow-lg shadow-primary/20 shrink-0"
-          >
-            <span className="material-symbols-outlined text-[18px]">add</span>
-            <span className="hidden sm:inline">Pedir Freelance</span>
-            <span className="sm:hidden">Pedir</span>
-          </button>
-
+      {/* Header Centralizado */}
+      <div className="shrink-0 z-50 bg-slate-900 border-b border-white/5 h-[60px] flex items-center px-6 justify-between">
+        <div className="flex items-center gap-4">
+           <button 
+             onClick={() => onNavigate('home')}
+             className="size-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-all"
+           >
+             <span className="material-symbols-outlined">arrow_back</span>
+           </button>
+           <div className="flex flex-col">
+             <p className="text-[12px] font-black text-primary uppercase tracking-[2px] leading-none mb-1.5">Meus Projetos</p>
+             <div className="flex items-center gap-2">
+               <div className="size-2.5 rounded-full bg-blue-500 animate-pulse" />
+               <h1 className="text-lg font-black text-white uppercase tracking-[1px] italic leading-none">Meus Freelances</h1>
+             </div>
+           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="border-t border-slate-200 dark:border-slate-800">
-          <div className="flex max-w-4xl lg:mx-0 lg:ml-12">
-            <button 
-              onClick={() => setActiveTab('open')}
-              className={`flex-1 py-3 text-[11px] font-bold tracking-widest uppercase transition-colors ${activeTab === 'open' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
-            >
-              Abertos
-            </button>
-            <button 
-              onClick={() => setActiveTab('in_progress')}
-              className={`flex-1 py-3 text-[11px] font-bold tracking-widest uppercase transition-colors ${activeTab === 'in_progress' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
-            >
-              Em Andamento
-            </button>
-            <button 
-              onClick={() => setActiveTab('completed')}
-              className={`flex-1 py-3 text-[11px] font-bold tracking-widest uppercase transition-colors ${activeTab === 'completed' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
-            >
-              Finalizados
-            </button>
-            <button 
-              onClick={() => setActiveTab('cancelled')}
-              className={`flex-1 py-3 text-[11px] font-bold tracking-widest uppercase transition-colors ${activeTab === 'cancelled' ? 'text-primary border-b-2 border-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
-            >
-              Cancelados
-            </button>
-          </div>
-        </div>
-      </header>
+        <button 
+          onClick={() => onNavigate('freelanceRequest')}
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:brightness-110 transition-all shadow-lg shadow-primary/20"
+        >
+          <span className="material-symbols-outlined text-[18px]">add</span>
+          Pedir Freelance
+        </button>
+      </div>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto w-full">
-        <div className="max-w-4xl lg:mx-0 lg:ml-12 w-full p-4 space-y-4 transition-all duration-300">
+      <div className="flex flex-1 overflow-hidden relative">
+        
+        {/* MASTER LIST (WhatsApp Style) */}
+        <div className={`flex flex-col border-r border-white/5 bg-slate-900/50 ${selectedOrderId ? 'hidden lg:flex' : 'flex'} w-full lg:w-[570px] shrink-0 overflow-hidden`}>
           
-          {loading ? (
-            <div className="flex justify-center p-8">
-              <span className="material-symbols-outlined animate-spin text-4xl text-slate-300">progress_activity</span>
+          {/* SEARCH BAR */}
+          <div className="px-4 py-3 bg-slate-900/80 backdrop-blur-md border-b border-white/5">
+            <div className="relative group/search">
+               <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-[20px] group-focus-within/search:text-primary transition-colors">search</span>
+               <input 
+                 type="text"
+                 placeholder="Pesquisar nos meus freelances..."
+                 value={searchQuery}
+                 onChange={(e) => setSearchQuery(e.target.value)}
+                 className="w-full bg-slate-800/40 border-none rounded-xl py-2.5 pl-11 pr-4 text-sm font-medium placeholder:text-slate-500 focus:ring-1 focus:ring-primary/40 transition-all outline-none text-white shadow-inner"
+               />
             </div>
-          ) : (() => {
-            const filteredOrders = freelanceOrders.filter(order => {
-              if (activeTab === 'open') return order.status === 'open';
-              if (activeTab === 'in_progress') return ['assigned', 'awaiting_payment', 'paid', 'in_service'].includes(order.status);
-              if (activeTab === 'completed') return ['completed', 'closed'].includes(order.status);
-              if (activeTab === 'cancelled') return order.status === 'cancelled';
-              return false;
-            });
+          </div>
 
-            if (filteredOrders.length === 0) {
-              return (
-                <div className="flex flex-col items-center lg:items-start justify-center py-20 text-center lg:text-left text-slate-500">
-                  <div className="size-20 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-6">
-                    <span className="material-symbols-outlined text-4xl opacity-30">work</span>
-                  </div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Nenhum freelance listado</h3>
-                  <p className="text-sm max-w-xs mb-8">Não há freelances para a guia selecionada.</p>
-                  {activeTab === 'open' && (
-                    <button 
-                      onClick={() => onNavigate('freelanceRequest')}
-                      className="px-8 py-3 bg-primary text-white rounded-2xl font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/25"
-                    >
-                      Postar um novo Freelance
-                    </button>
-                  )}
-                </div>
-              );
-            }
+          {/* TABS COMPACTAS */}
+          <div className="p-1 px-2 border-b border-white/5 bg-slate-900/80 backdrop-blur-md">
+            <div className="flex w-full gap-1">
+              {([
+                { key: 'open', label: 'Abertos' },
+                { key: 'in_progress', label: 'Em Curso' },
+                { key: 'completed', label: 'Finais' },
+                { key: 'cancelled', label: 'Cancelados' },
+              ] as const).map(tab => (
+                <button
+                  key={tab.key}
+                  onClick={() => {
+                    setActiveTab(tab.key);
+                    setSelectedOrderId(null);
+                  }}
+                  className={`flex-1 flex items-center justify-center py-2.5 rounded-md text-[9px] font-black uppercase tracking-tighter transition-all border whitespace-nowrap ${
+                    activeTab === tab.key 
+                      ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20' 
+                      : 'bg-white/5 border-transparent text-slate-500 hover:text-slate-300'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-            return (
-              <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {filteredOrders.map((order) => (
-                    <div
+          {/* LISTA DE TRABALHOS */}
+          <div className="flex-1 overflow-y-auto no-scrollbar divide-y divide-white/5 relative">
+            {loading && freelanceOrders.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full gap-4 opacity-50">
+                <div className="size-10 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
+                <p className="text-[10px] font-black uppercase tracking-widest text-primary">Carregando Seus Projetos...</p>
+              </div>
+            ) : (
+              (() => {
+                const filteredOrders = freelanceOrders
+                  .filter(o => {
+                    if (activeTab === 'open') return o.status === 'open';
+                    if (activeTab === 'in_progress') return ['assigned', 'awaiting_payment', 'paid', 'in_service'].includes(o.status);
+                    if (activeTab === 'completed') return ['completed', 'closed'].includes(o.status);
+                    if (activeTab === 'cancelled') return o.status === 'cancelled';
+                    return false;
+                  })
+                  .filter(o => {
+                    if (!searchQuery.trim()) return true;
+                    const q = searchQuery.toLowerCase();
+                    return o.title?.toLowerCase().includes(q) || o.display_id?.toLowerCase().includes(q);
+                  });
+
+                if (filteredOrders.length === 0) {
+                  return (
+                    <div className="flex flex-col items-center justify-center h-full p-10 text-center opacity-30">
+                      <span className="material-symbols-outlined text-6xl mb-4 italic">work_off</span>
+                      <p className="text-xs font-black uppercase tracking-widest">Nenhum projeto encontrado</p>
+                    </div>
+                  );
+                }
+
+                return filteredOrders.map(order => {
+                  const isActive = selectedOrderId === order.id;
+                  const bidsCount = order.freelance_bids?.length || 0;
+                  
+                  return (
+                    <div 
                       key={order.id}
-                      className="group bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm hover:shadow-xl hover:border-primary/50 transition-all cursor-pointer relative overflow-hidden"
-                      onClick={() => {
-                        if (['assigned', 'awaiting_payment', 'paid', 'in_service', 'completed', 'cancelled'].includes(order.status)) {
-                          onNavigate('freelanceStatus', { orderId: order.id });
-                        } else {
-                          onNavigate('bidRoom', { orderId: order.id });
-                        }
-                      }}
+                      onClick={() => setSelectedOrderId(order.id)}
+                      className={`p-4 flex gap-4 cursor-pointer transition-all relative group ${
+                        isActive ? 'bg-primary/10 border-l-4 border-l-primary' : 'hover:bg-white/5 border-l-4 border-l-transparent'
+                      }`}
                     >
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
-                          <span className="material-symbols-outlined">{order.service_categories?.icon || 'work'}</span>
+                      <div className="size-12 rounded-2xl bg-slate-800 shrink-0 overflow-hidden border border-white/5 flex items-center justify-center">
+                        <span className="material-symbols-outlined text-primary">{order.service_categories?.icon || 'work'}</span>
+                      </div>
+                      <div className="flex-1 min-w-0 py-0.5">
+                        <div className="flex justify-between items-center gap-2 mb-1">
+                          <h4 className={`text-sm font-black uppercase tracking-tighter truncate leading-none ${isActive ? 'text-primary' : 'text-white'}`}>
+                            {order.title}
+                          </h4>
+                          <span className="text-[9px] font-bold text-slate-500 shrink-0">
+                            {new Date(order.created_at).toLocaleDateString('pt-BR')}
+                          </span>
                         </div>
-                        <div>
-                          <h3 className="font-black text-base tracking-tight uppercase line-clamp-1">{order.title}</h3>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className={`size-2 rounded-full ${order.status === 'open' ? 'bg-emerald-500 animate-pulse' : (['completed', 'cancelled'].includes(order.status) ? 'bg-slate-400' : 'bg-primary')}`}></span>
-                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">
-                              {order.status === 'open' ? 'Aguardando Lances' : 
-                               order.status === 'awaiting_payment' ? 'Aguardando Pagamento' :
-                               order.status === 'paid' ? 'Em Organização' :
-                               order.status === 'in_service' ? 'Em Progresso' :
-                               order.status === 'completed' ? 'Finalizado' :
-                               order.status === 'cancelled' ? 'Cancelado' : 'Mapeando'}
-                            </p>
-                          </div>
+                        <p className="text-[11px] font-bold text-slate-400 truncate leading-none mb-2">
+                          {order.service_categories?.name} • {formatCurrency(order.budget || 0)}
+                        </p>
+                        <div className="flex items-center justify-between">
+                           <div className="flex items-center gap-1.5">
+                              <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest ${
+                                bidsCount > 0 ? 'bg-emerald-500/20 text-emerald-500' : 'bg-slate-800 text-slate-500'
+                              }`}>
+                                {bidsCount} {bidsCount === 1 ? 'Lance' : 'Lances'}
+                              </span>
+                              {order.status === 'open' && (
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setConfirmModal({ isOpen: true, orderId: order.id, title: order.title });
+                                  }}
+                                  className="size-6 flex items-center justify-center rounded-full hover:bg-red-500/10 text-red-500 transition-colors"
+                                >
+                                  <span className="material-symbols-outlined text-[16px]">delete</span>
+                                </button>
+                              )}
+                           </div>
+                           <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{order.status === 'open' ? 'Ativo' : 'Em curso'}</span>
                         </div>
                       </div>
-
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setConfirmModal({ isOpen: true, orderId: order.id, title: order.title });
-                        }}
-                        className="size-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center justify-center transition-all"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">delete</span>
-                      </button>
                     </div>
-
-                    <div className="bg-slate-50 dark:bg-white/5 rounded-xl p-3 mb-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Seu Valor</span>
-                        <p className="text-lg font-black text-primary leading-none">{formatCurrency(order.budget || 0)}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="flex -space-x-2">
-                           {order.freelance_bids?.slice(0, 3).map((bid: any, idx: number) => (
-                             <img 
-                               key={idx} 
-                               src={bid.profiles?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} 
-                               className="size-6 rounded-full border-2 border-white dark:border-slate-800 object-cover"
-                             />
-                           ))}
-                        </div>
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                          {order.freelance_bids?.length === 0 ? 'Sem lances ainda' : `${order.freelance_bids?.length} lances recebidos`}
-                        </span>
-                      </div>
-                      <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">arrow_forward</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );})()}
+                  );
+                });
+              })()
+            )}
+          </div>
         </div>
-      </main>
 
-      {/* Confirm Delete Modal */}
+        {/* DETAIL PANEL */}
+        <div className={`flex-1 flex flex-col bg-slate-950 ${selectedOrderId ? 'flex' : 'hidden lg:flex'} relative overflow-hidden`}>
+           {selectedOrderId ? (
+             <div className="h-full flex flex-col">
+                <button 
+                  onClick={() => setSelectedOrderId(null)}
+                  className="lg:hidden absolute top-4 left-4 z-[60] size-10 rounded-full bg-slate-900 border border-white/10 flex items-center justify-center text-white"
+                >
+                  <span className="material-symbols-outlined">arrow_back</span>
+                </button>
+                <FreelanceOrderDetail 
+                  orderId={selectedOrderId} 
+                  onNavigate={onNavigate} 
+                  isEmbedded={true} 
+                />
+             </div>
+           ) : (
+             <div className="flex-1 flex flex-col items-center justify-center text-center p-20 opacity-20">
+                <div className="size-32 rounded-full border-2 border-dashed border-white/20 flex items-center justify-center mb-6">
+                   <span className="material-symbols-outlined text-6xl italic">ads_click</span>
+                </div>
+                <h3 className="text-2xl font-black uppercase tracking-tighter italic mb-2">Gerencie seus Freelances</h3>
+                <p className="text-sm font-medium max-w-xs">Selecione um projeto à esquerda para ver os lances recebidos e gerenciar o andamento.</p>
+             </div>
+           )}
+        </div>
+      </div>
+
+      {/* CONFIRM DELETE MODAL */}
       {confirmModal.isOpen && (
-        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-xs bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200 text-center">
-            <div className="p-6">
-              <div className="size-16 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center mx-auto mb-4">
-                <span className="material-symbols-outlined text-red-600 text-3xl">delete_forever</span>
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-xs bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-white/10 animate-in zoom-in-95 duration-200">
+            <div className="p-6 text-center">
+              <div className="size-16 rounded-full bg-red-900/20 flex items-center justify-center mx-auto mb-4">
+                <span className="material-symbols-outlined text-red-500 text-3xl">delete_forever</span>
               </div>
-              <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tighter">Excluir Freelance?</h3>
-              <p className="text-sm text-slate-500 font-medium mb-1 truncate px-4">"{confirmModal.title}"</p>
-              <p className="text-xs text-slate-400 mb-6 leading-relaxed">
-                Esta ação é irreversível e removerá todos os lances recebidos até agora.
-              </p>
+              <h3 className="text-lg font-black text-white mb-2 uppercase tracking-tighter italic">Cancelar Projeto?</h3>
+              <p className="text-xs text-slate-400 font-medium mb-1 truncate px-4">"{confirmModal.title}"</p>
+              <p className="text-[10px] text-slate-500 mb-6 leading-relaxed">Esta ação removerá o projeto e todos os lances recebidos.</p>
               
               <div className="flex flex-col gap-2">
                 <button 
                   onClick={handleDeleteFreelance}
-                  className="w-full py-3.5 bg-red-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-red-700 transition-colors shadow-lg shadow-red-600/10"
+                  className="w-full py-3 bg-red-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-red-700 transition-colors"
                 >
                   Confirmar Exclusão
                 </button>
                 <button 
                   onClick={() => setConfirmModal({ isOpen: false, orderId: null, title: '' })}
-                  className="w-full py-3.5 text-slate-500 font-bold text-xs"
+                  className="w-full py-3 text-slate-500 font-bold text-[10px] uppercase tracking-widest"
                 >
-                  Cancelar
+                  Manter Projeto
                 </button>
               </div>
             </div>
@@ -281,5 +299,6 @@ export default function MyFreelancesScreen({ onNavigate }: NavigationProps) {
         </div>
       )}
     </div>
+
   );
 }

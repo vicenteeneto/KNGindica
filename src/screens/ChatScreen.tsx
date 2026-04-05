@@ -9,9 +9,10 @@ import { calculateServiceFees } from '../lib/billing';
 interface ChatScreenProps extends NavigationProps {
   params?: any;
   onClose?: () => void;
+  isEmbedded?: boolean;
 }
 
-export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenProps) {
+export default function ChatScreen({ onNavigate, params, onClose, isEmbedded = false }: ChatScreenProps) {
   const { user, role, profile } = useAuth();
   const { refreshCounts, showModal, showToast } = useNotifications();
   const [messages, setMessages] = useState<any[]>([]);
@@ -520,7 +521,11 @@ export default function ChatScreen({ onNavigate, params, onClose }: ChatScreenPr
       </div>
     )}
 
-    <div className="flex flex-col w-full h-full md:h-[550px] md:w-[350px] bg-white dark:bg-slate-900 md:rounded-t-2xl sm:shadow-2xl md:border-t md:border-x border-slate-200 dark:border-slate-800 overflow-hidden font-display text-slate-900 dark:text-slate-100 z-50">
+    <div className={`flex flex-col w-full h-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 overflow-hidden font-display text-slate-900 dark:text-slate-100 z-50 ${
+      isEmbedded 
+        ? 'border-none shadow-none rounded-none' 
+        : 'md:h-[550px] md:w-[350px] md:rounded-t-2xl sm:shadow-2xl md:border-t md:border-x'
+    }`}>
         {/* TopAppBar */}
         <nav className="sticky top-0 z-10 bg-white dark:bg-slate-900 border-b border-primary/10 px-4 py-3 flex items-center justify-between shadow-sm shrink-0">
         <div className="flex items-center gap-3">
