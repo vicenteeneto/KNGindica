@@ -16,6 +16,7 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(params?.requestId || null);
+  const [searchQuery, setSearchQuery] = useState('');
   
   const tabs: Tab[] = ['Novos', 'Orçados', 'Aprovados', 'Agendados', 'Finalizados', 'Recusados'];
 
@@ -146,6 +147,21 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
         
         {/* MASTER LIST (WhatsApp Style) */}
         <div className={`flex flex-col border-r border-white/5 bg-slate-900/50 ${selectedRequestId ? 'hidden lg:flex' : 'flex'} w-full lg:w-[570px] shrink-0 overflow-hidden`}>
+          
+          {/* SEARCH BAR (WhatsApp Style) */}
+          <div className="px-4 py-3 bg-slate-900/80 backdrop-blur-md border-b border-white/5">
+            <div className="relative group/search">
+               <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-[20px] group-focus-within/search:text-primary transition-colors">search</span>
+               <input 
+                 type="text"
+                 placeholder="Pesquisar ou começar uma nova conversa"
+                 value={searchQuery}
+                 onChange={(e) => setSearchQuery(e.target.value)}
+                 className="w-full bg-slate-800/40 border-none rounded-xl py-2.5 pl-11 pr-4 text-sm font-medium placeholder:text-slate-500 focus:ring-1 focus:ring-primary/40 transition-all outline-none text-white shadow-inner"
+               />
+            </div>
+          </div>
+
           <div className="p-1 px-2 border-b border-white/5 bg-slate-900/80 backdrop-blur-md">
             <div className="flex w-full gap-1">
               {tabs.map(tab => (
@@ -186,7 +202,17 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                     <div className="h-full bg-primary animate-progress-indefinite w-40" />
                   </div>
                 )}
-                {requests.map(req => {
+                {requests
+                  .filter(req => {
+                    if (!searchQuery.trim()) return true;
+                    const q = searchQuery.toLowerCase();
+                    return (
+                      req.title?.toLowerCase().includes(q) ||
+                      req.profiles?.full_name?.toLowerCase().includes(q) ||
+                      req.display_id?.toLowerCase().includes(q)
+                    );
+                  })
+                  .map(req => {
                 const isActive = selectedRequestId === req.id;
                 return (
                   <div 
