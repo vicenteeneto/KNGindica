@@ -134,10 +134,10 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
       
       <div className="shrink-0 z-50 bg-slate-900 border-b border-white/5 h-[60px] flex items-center px-6">
         <div className="flex flex-col">
-          <p className="text-[10px] font-black text-primary uppercase tracking-[2px] leading-none mb-1">Central de Serviços</p>
+          <p className="text-[12px] font-black text-primary uppercase tracking-[2px] leading-none mb-1.5">Central de Serviços</p>
           <div className="flex items-center gap-2">
-            <div className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-            <h1 className="text-sm font-black text-white uppercase tracking-[1px] italic leading-none">Painel do Prestador</h1>
+            <div className="size-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            <h1 className="text-lg font-black text-white uppercase tracking-[1px] italic leading-none">Painel do Prestador</h1>
           </div>
         </div>
       </div>
@@ -145,7 +145,7 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
       <div className="flex flex-1 overflow-hidden relative">
         
         {/* MASTER LIST (WhatsApp Style) */}
-        <div className={`flex flex-col border-r border-white/5 bg-slate-900/50 ${selectedRequestId ? 'hidden lg:flex' : 'flex'} w-full lg:w-[600px] shrink-0 overflow-hidden`}>
+        <div className={`flex flex-col border-r border-white/5 bg-slate-900/50 ${selectedRequestId ? 'hidden lg:flex' : 'flex'} w-full lg:w-[480px] shrink-0 overflow-hidden`}>
           <div className="p-1 px-2 border-b border-white/5 bg-slate-900/80 backdrop-blur-md">
             <div className="flex w-full gap-1">
               {tabs.map(tab => (
@@ -156,7 +156,7 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                     setSelectedRequestId(null);
                     onNavigate('providerRequests', { tab, requestId: null });
                   }}
-                  className={`flex-1 flex items-center justify-center py-1.5 rounded-md text-[8px] font-black uppercase tracking-tighter transition-all border whitespace-nowrap ${
+                  className={`flex-1 flex items-center justify-center py-1.5 rounded-md text-[10px] font-black uppercase tracking-tighter transition-all border whitespace-nowrap ${
                     activeTab === tab 
                       ? 'bg-primary border-primary text-white shadow-md' 
                       : 'bg-white/5 border-transparent text-slate-500 hover:text-slate-300'
