@@ -289,7 +289,7 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                         <span className="material-symbols-outlined text-4xl italic">payments</span>
                      </div>
-                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-[2px] mb-2 leading-none">Detalhamento Orçamentário</p>
+                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-[2px] mb-2 leading-none">Orçamento do Serviço</p>
                      {displayData.status === 'open' ? (
                         <p className="text-xl font-black text-primary animate-pulse italic">A DEFINIR</p>
                      ) : (
@@ -377,7 +377,7 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
                <div className="relative z-10 flex flex-col h-full">
                   <div className="mb-6">
-                     <p className="text-[9px] font-black text-primary uppercase tracking-[3px] mb-1 leading-none">Workflow</p>
+                     <p className="text-[10px] font-black text-primary uppercase tracking-[3px] mb-1 leading-none">Fluxo de Trabalho</p>
                      <h2 className="text-xl font-black text-white uppercase tracking-tighter italic">Roteiro do Pedido</h2>
                   </div>
 

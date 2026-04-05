@@ -177,7 +177,7 @@ export function FreelanceOrderDetail({ orderId, onNavigate, isEmbedded = false }
            <section>
             <div className="flex items-center gap-2 mb-4">
               <span className="size-2 bg-emerald-500 rounded-full"></span>
-              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Orçamento Sugerido</h4>
+              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Orçamento</h4>
             </div>
             <div className="bg-slate-900 border border-white/5 p-6 rounded-[28px] shadow-xl relative overflow-hidden group">
                <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
@@ -186,23 +186,23 @@ export function FreelanceOrderDetail({ orderId, onNavigate, isEmbedded = false }
                <p className="text-2xl font-black text-emerald-500 italic">
                  {formatCurrency(order.budget || 0)}
                </p>
-               <p className="text-[9px] font-bold text-emerald-500/60 uppercase tracking-widest mt-1">Valor sugerido para o freelance</p>
+               <p className="text-[9px] font-bold text-emerald-500/60 uppercase tracking-widest mt-1">Valor do freelance</p>
             </div>
           </section>
 
-          <section>
+           <section>
             <div className="flex items-center gap-2 mb-4">
               <span className="size-2 bg-orange-500 rounded-full"></span>
-              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Prazo de Entrega</h4>
+              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Estimativa de Entrega</h4>
             </div>
             <div className="bg-slate-900 border border-white/5 p-6 rounded-[28px] shadow-xl relative overflow-hidden group">
                <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
                   <span className="material-symbols-outlined text-4xl italic">timer</span>
                </div>
                <p className="text-xl font-black text-orange-500 italic">
-                 {order.delivery_deadline ? new Date(order.delivery_deadline).toLocaleDateString('pt-BR') : 'A combinar'}
+                 A combinar
                </p>
-               <p className="text-[9px] font-bold text-orange-500/60 uppercase tracking-widest mt-1">Data estimada de conclusão</p>
+               <p className="text-[9px] font-bold text-orange-500/60 uppercase tracking-widest mt-1">Definido após o pagamento</p>
             </div>
           </section>
         </div>

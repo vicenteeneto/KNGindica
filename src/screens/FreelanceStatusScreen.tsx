@@ -184,7 +184,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                      </div>
                   </div>
                   <div className="bg-slate-900/50 p-4 rounded-[24px] border border-white/5 flex flex-col justify-center">
-                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Custo do Freelance</p>
+                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Orçamento do Freelance</p>
                      <p className="text-xl font-black text-white uppercase tracking-tighter italic">{formatCurrency(displayData.budget || 0)}</p>
                   </div>
                </div>
@@ -232,8 +232,8 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                      {[
                        { label: 'Leilão', icon: 'gavel', status: ['open', 'awaiting_payment', 'paid', 'assigned', 'in_service', 'completed'] },
                        { label: 'Garantia', icon: 'payments', status: ['awaiting_payment', 'paid', 'assigned', 'in_service', 'completed'] },
-                       { label: 'Sprint', icon: 'calendar_today', status: ['paid', 'assigned', 'in_service', 'completed'] },
-                       { label: 'Produção', icon: 'construction', status: ['in_service', 'completed'] },
+                       { label: 'Agenda', icon: 'calendar_today', status: ['paid', 'assigned', 'in_service', 'completed'] },
+                       { label: 'Execução', icon: 'construction', status: ['in_service', 'completed'] },
                        { label: 'Entrega', icon: 'verified', status: ['completed'] }
                      ].map((step, idx, arr) => {
                        const isDone = step.status.includes(displayData.status);
@@ -269,30 +269,41 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                  <button onClick={async () => {
                     setIsActing(true);
                     try {
-                      const deadline = new Date(`${scheduleModal.date}T${scheduleModal.time}`).toISOString();
-                      const { error } = await supabase.from('freelance_orders').update({ 
-                        status: 'assigned', 
-                        delivery_deadline: deadline 
-                      }).eq('id', order.id);
+                       const deadlineObj = new Date(`${scheduleModal.date}T${scheduleModal.time}`);
+                       const deadlineFormatted = deadlineObj.toLocaleString('pt-BR');
 
-                      if (error) throw error;
+                       const { error } = await supabase.from('freelance_orders').update({ 
+                         status: 'assigned'
+                       }).eq('id', order.id);
 
-                      // Notificar o cliente sobre o agendamento
-                      await supabase.from('notifications').insert({
-                        user_id: order.client_id,
-                        title: 'Serviço Agendado! 📅',
-                        message: `O profissional agendou o início de "${order.title}" para ${new Date(deadline).toLocaleString('pt-BR')}.`,
-                        type: 'freelance_scheduled',
-                        related_entity_id: order.id
-                      });
+                       if (error) throw error;
 
-                      showToast("Sucesso", "Cronograma definido!", "success");
-                      setScheduleModal({ isOpen: false, date: '', time: '' });
-                      
-                      // Ajuste de sincronismo: atualizar estado local imediatamente
-                      setOrder((prev: any) => ({ ...prev, status: 'assigned', delivery_deadline: deadline }));
-                      
-                      fetchOrder();
+                       // Buscar a sala de chat para registrar o agendamento
+                       const { data: rooms } = await supabase.from('chat_rooms').select('id').eq('freelance_order_id', order.id).maybeSingle();
+                       if (rooms?.id) {
+                         await supabase.from('chat_messages').insert({
+                           room_id: rooms.id,
+                           sender_id: user?.id,
+                           content: `📅 **Agendamento Confirmado!**\nO início do freelance foi agendado para: **${deadlineFormatted}**.`
+                         });
+                       }
+
+                       // Notificar o cliente sobre o agendamento
+                       await supabase.from('notifications').insert({
+                         user_id: order.client_id,
+                         title: 'Serviço Agendado! 📅',
+                         message: `O profissional agendou o início de "${order.title}" para ${deadlineFormatted}.`,
+                         type: 'freelance_scheduled',
+                         related_entity_id: order.id
+                       });
+
+                       showToast("Sucesso", "Cronograma definido!", "success");
+                       setScheduleModal({ isOpen: false, date: '', time: '' });
+                       
+                       // Ajuste de sincronismo: atualizar estado local imediatamente
+                       setOrder((prev: any) => ({ ...prev, status: 'assigned' }));
+                       
+                       fetchOrder();
                     } catch (err: any) {
                       showToast("Erro", "Falha ao agendar: " + err.message, "error");
                     } finally { setIsActing(false); }
