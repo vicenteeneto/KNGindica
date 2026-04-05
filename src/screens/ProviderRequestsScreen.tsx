@@ -156,7 +156,7 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                     setSelectedRequestId(null);
                     onNavigate('providerRequests', { tab, requestId: null });
                   }}
-                  className={`flex-1 flex items-center justify-center py-1.5 rounded-md text-[10px] font-black uppercase tracking-tighter transition-all border whitespace-nowrap ${
+                  className={`flex-1 flex items-center justify-center py-1.5 rounded-md text-[12px] font-black uppercase tracking-tighter transition-all border whitespace-nowrap ${
                     activeTab === tab 
                       ? 'bg-primary border-primary text-white shadow-md' 
                       : 'bg-white/5 border-transparent text-slate-500 hover:text-slate-300'
