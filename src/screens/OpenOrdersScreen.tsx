@@ -81,6 +81,8 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
     const { data: userBids } = await supabase.from('freelance_bids').select('order_id, amount').eq('provider_id', user.id);
     const bidOrderIds = userBids?.map(b => b.order_id) || [];
     
+    let fetched: any[] = [];
+
     if (activeTab === 'available') {
       const toExclude = [...bidOrderIds, ...dismissedIds];
       let query = supabase
@@ -98,12 +100,9 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
       }
 
       const { data, error } = await query;
-      if (!error) setOrders(data || []);
+      if (!error) fetched = data || [];
     } else if (activeTab === 'bidded') {
-      // Meus Lances: dei lance mas ainda não fui selecionado (order ainda open)
-      if (bidOrderIds.length === 0) {
-        setOrders([]);
-      } else {
+      if (bidOrderIds.length > 0) {
         const { data, error } = await supabase
           .from('freelance_orders')
           .select(`
@@ -114,16 +113,14 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
           .in('id', bidOrderIds)
           .eq('status', 'open')
           .order('created_at', { ascending: false });
-        if (!error) {
-           const enhanced = data.map((o: any) => ({
+        if (!error && data) {
+           fetched = data.map((o: any) => ({
              ...o,
              myBidAmount: userBids?.find(b => b.order_id === o.id)?.amount
            }));
-           setOrders(enhanced || []);
          }
       }
     } else if (activeTab === 'approved') {
-      // Aprovados: fui selecionado, aguardando pagamento
       const { data, error } = await supabase
         .from('freelance_orders')
         .select(`
@@ -134,9 +131,8 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
         .eq('assigned_provider_id', user.id)
         .in('status', ['assigned', 'awaiting_payment'])
         .order('created_at', { ascending: false });
-      if (!error) setOrders(data || []);
+      if (!error) fetched = data || [];
     } else if (activeTab === 'scheduled') {
-      // Agendados: cliente pagou E prestador definiu data/hora
       const { data, error } = await supabase
         .from('freelance_orders')
         .select(`
@@ -147,9 +143,8 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
         .eq('assigned_provider_id', user.id)
         .in('status', ['paid', 'assigned'])
         .order('created_at', { ascending: false });
-      if (!error) setOrders(data || []);
+      if (!error) fetched = data || [];
     } else if (activeTab === 'in_progress') {
-      // Em Andamento
       const { data, error } = await supabase
         .from('freelance_orders')
         .select(`
@@ -160,9 +155,8 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
         .eq('assigned_provider_id', user.id)
         .eq('status', 'in_service')
         .order('created_at', { ascending: false });
-      if (!error) setOrders(data || []);
+      if (!error) fetched = data || [];
     } else if (activeTab === 'completed') {
-      // Finalizados
       const { data, error } = await supabase
         .from('freelance_orders')
         .select(`
@@ -173,12 +167,9 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
         .eq('assigned_provider_id', user.id)
         .eq('status', 'completed')
         .order('created_at', { ascending: false });
-      if (!error) setOrders(data || []);
-    } else {
-      // Recusados
-      if (dismissedIds.length === 0) {
-        setOrders([]);
-      } else {
+      if (!error) fetched = data || [];
+    } else if (activeTab === 'dismissed') {
+      if (dismissedIds.length > 0) {
         const { data, error } = await supabase
           .from('freelance_orders')
           .select(`
@@ -188,9 +179,17 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
           `)
           .in('id', dismissedIds)
           .order('created_at', { ascending: false });
-        if (!error) setOrders(data || []);
+        if (!error) fetched = data || [];
       }
     }
+
+    setOrders(fetched);
+    
+    // Auto-select first item if none selected and on desktop (large screens)
+    if (!selectedOrderId && fetched.length > 0 && window.innerWidth >= 1024) {
+      setSelectedOrderId(fetched[0].id);
+    }
+    
     setLoading(false);
   };
 

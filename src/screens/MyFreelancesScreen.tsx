@@ -42,7 +42,13 @@ export default function MyFreelancesScreen({ onNavigate, params }: NavigationPro
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      setFreelanceOrders(data || []);
+      const fetched = data || [];
+      setFreelanceOrders(fetched);
+
+      // Auto-select first item if none selected and on desktop (large screens)
+      if (!selectedOrderId && fetched.length > 0 && window.innerWidth >= 1024) {
+        setSelectedOrderId(fetched[0].id);
+      }
     } catch (err: any) {
       console.error("Erro ao buscar freelances:", err);
       showToast("Erro ao buscar seus freelances.", "error");
