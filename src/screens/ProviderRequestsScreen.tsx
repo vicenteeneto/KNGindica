@@ -145,7 +145,7 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
       <div className="flex flex-1 overflow-hidden relative">
         
         {/* MASTER LIST (WhatsApp Style) */}
-        <div className={`flex flex-col border-r border-white/5 bg-slate-900/50 ${selectedRequestId ? 'hidden lg:flex' : 'flex'} w-full lg:w-[400px] shrink-0 overflow-hidden`}>
+        <div className={`flex flex-col border-r border-white/5 bg-slate-900/50 ${selectedRequestId ? 'hidden lg:flex' : 'flex'} w-full lg:w-[350px] shrink-0 overflow-hidden`}>
           <div className="p-1 px-2 border-b border-white/5 bg-slate-900/80 backdrop-blur-md">
             <div className="flex w-full gap-1">
               {tabs.map(tab => (
@@ -168,11 +168,11 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto no-scrollbar divide-y divide-white/5">
-            {loading ? (
+          <div className="flex-1 overflow-y-auto no-scrollbar divide-y divide-white/5 relative">
+            {loading && requests.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-4 opacity-50">
-                <span className="material-symbols-outlined animate-spin text-3xl text-primary">progress_activity</span>
-                <p className="text-[10px] font-black uppercase tracking-widest">Sincronizando...</p>
+                <div className="size-10 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
+                <p className="text-[10px] font-black uppercase tracking-widest text-primary">Carregando...</p>
               </div>
             ) : requests.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full p-10 text-center opacity-30">
@@ -180,7 +180,13 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                 <p className="text-xs font-black uppercase tracking-widest">Nenhum serviço aqui</p>
               </div>
             ) : (
-              requests.map(req => {
+              <>
+                {loading && (
+                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary/20 overflow-hidden z-10">
+                    <div className="h-full bg-primary animate-progress-indefinite w-40" />
+                  </div>
+                )}
+                {requests.map(req => {
                 const isActive = selectedRequestId === req.id;
                 return (
                   <div 
@@ -223,10 +229,11 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                     </div>
                   </div>
                 )
-              })
-            )}
-          </div>
+              })}
+            </>
+          )}
         </div>
+      </div>
 
         {/* DETAIL PANEL */}
         <div className={`flex-1 flex flex-col bg-slate-950 ${selectedRequestId ? 'flex' : 'hidden lg:flex'} relative overflow-hidden`}>

@@ -187,7 +187,7 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
 
       <main className="flex-1 overflow-y-auto lg:overflow-hidden p-3 lg:p-6">
         <div className="max-w-[1600px] mx-auto h-full">
-          <div className="flex flex-col lg:grid lg:grid-cols-[1.1fr_0.9fr] gap-6 h-full">
+          <div className="flex flex-col lg:grid lg:grid-cols-[1fr_1.3fr] gap-8 h-full">
             
             {/* COLUNA ESQUERDA: CENTRO DE COMANDO */}
             <div className="flex flex-col gap-4 h-full overflow-y-auto no-scrollbar">
@@ -283,52 +283,81 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                   </div>
                </div>
 
-               {/* 2. Info Grid Miniaturizada */}
-               <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-slate-900/50 p-3 rounded-[20px] border border-white/5 flex items-center gap-3">
-                     <div className="size-10 rounded-full bg-slate-800 overflow-hidden shrink-0">
-                        <img src={isClient ? (displayData.provider?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png") : (displayData.profiles?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png")} className="w-full h-full object-cover" />
+               {/* 2. Info Grid: Financeiro e Prazos */}
+               <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-slate-900 border border-white/5 p-5 rounded-[28px] shadow-xl relative overflow-hidden group hover:border-primary/30 transition-all">
+                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <span className="material-symbols-outlined text-4xl italic">payments</span>
                      </div>
-                     <div className="min-w-0">
-                        <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{isClient ? 'Prestador' : 'Cliente'}</p>
-                        <h3 className="text-xs font-black text-white uppercase tracking-tighter truncate">{isClient ? displayData.provider?.full_name : displayData.profiles?.full_name}</h3>
-                     </div>
+                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-[2px] mb-2 leading-none">Detalhamento Financeiro</p>
+                     {displayData.status === 'open' ? (
+                        <p className="text-xl font-black text-primary animate-pulse italic">A DEFINIR</p>
+                     ) : (
+                        <div>
+                           <p className="text-2xl font-black text-white italic leading-none mb-1">{formatCurrency(displayData.budget_amount || 0)}</p>
+                           <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Pagamento via KNG Indica</p>
+                        </div>
+                     )}
                   </div>
-
-                  <div className="bg-slate-900/50 p-3 rounded-[20px] border border-white/5 flex items-center justify-between">
-                     <div>
-                        <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Valor</p>
-                        {displayData.status === 'open' ? (
-                          <p className="text-[10px] font-black text-primary animate-pulse italic">A DEFINIR</p>
-                        ) : (
-                          <p className="text-xs font-black text-white italic">{formatCurrency(displayData.budget_amount || 0)}</p>
-                        )}
+ 
+                  <div className="bg-slate-900 border border-white/5 p-5 rounded-[28px] shadow-xl relative overflow-hidden group hover:border-orange-500/30 transition-all">
+                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <span className="material-symbols-outlined text-4xl italic">event_available</span>
                      </div>
-                     <div className="text-right">
-                        <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Data</p>
-                        <p className="text-[10px] font-black text-white">{displayData.desired_date ? new Date(displayData.desired_date).toLocaleDateString('pt-BR') : 'A definir'}</p>
-                     </div>
+                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-[2px] mb-2 leading-none">Prazo Previsto</p>
+                     <p className="text-xl font-black text-white italic leading-none mb-1">
+                        {displayData.desired_date ? new Date(displayData.desired_date).toLocaleDateString('pt-BR') : 'A DEFINIR'}
+                     </p>
+                     <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                        {displayData.desired_date ? new Date(displayData.desired_date).toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}) : 'Horário pendente'}
+                     </p>
                   </div>
                </div>
 
-               {/* 3. Instruções e Localização Compactas */}
-               <div className="bg-slate-900/50 rounded-[24px] border border-white/5 overflow-hidden">
-                  <div className="p-4 border-b border-white/5 flex items-center justify-between">
+               {/* 3. Instruções e Galeria */}
+               <div className="bg-slate-900 border border-white/5 rounded-[32px] overflow-hidden shadow-2xl">
+                  <div className="p-6 border-b border-white/5 flex items-center justify-between bg-slate-950/20">
                      <div className="flex items-center gap-3 min-w-0">
-                        <span className="material-symbols-outlined text-primary text-base shrink-0">{displayData.category?.icon}</span>
-                        <h4 className="text-xs font-black text-white uppercase tracking-tighter truncate">{displayData.title || displayData.category?.name}</h4>
+                        <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                           <span className="material-symbols-outlined text-xl italic">{displayData.category?.icon || 'construction'}</span>
+                        </div>
+                        <div>
+                           <p className="text-[9px] font-black text-primary uppercase tracking-[2px] leading-none mb-1">Categoria do Serviço</p>
+                           <h4 className="text-sm font-black text-white uppercase tracking-tighter truncate leading-none">{displayData.title || displayData.category?.name}</h4>
+                        </div>
                      </div>
-                     <button onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${displayData.latitude},${displayData.longitude}`)} className="size-8 rounded-lg bg-white/5 flex items-center justify-center text-emerald-500 shrink-0">
-                        <span className="material-symbols-outlined text-sm">map</span>
+                     <button onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${displayData.latitude},${displayData.longitude}`)} className="h-10 px-4 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 flex items-center gap-2 text-emerald-500 transition-colors border border-emerald-500/20">
+                        <span className="material-symbols-outlined text-sm">near_me</span>
+                        <span className="text-[9px] font-black uppercase tracking-widest">Localizar</span>
                      </button>
                   </div>
-                  <div className="p-4">
-                     <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Instruções</p>
-                     <p className="text-[11px] text-slate-400 line-clamp-3 italic leading-relaxed">"{displayData.description || 'Sem descrição.'}"</p>
+                  <div className="p-6">
+                     <div className="mb-6">
+                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-2 leading-none">Instruções do Cliente</p>
+                        <div className="bg-slate-950/40 p-4 rounded-2xl border border-white/5">
+                           <p className="text-[13px] text-slate-300 italic leading-relaxed">"{displayData.description || 'Sem descrição detalhada fornecida pelo cliente.'}"</p>
+                        </div>
+                     </div>
+
+                     {displayData.attachments?.length > 0 && (
+                        <div>
+                           <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-3 leading-none">Galeria de Mídia ({displayData.attachments.length})</p>
+                           <div className="grid grid-cols-4 gap-2">
+                              {displayData.attachments.slice(0, 4).map((url: string, idx: number) => (
+                                <div key={idx} onClick={() => setImageModal({ isOpen: true, url })} className="aspect-square rounded-xl bg-slate-800 border border-white/5 overflow-hidden cursor-pointer hover:border-primary/50 transition-all">
+                                   <img src={url} className="w-full h-full object-cover" />
+                                </div>
+                              ))}
+                           </div>
+                        </div>
+                     )}
                   </div>
-                  <div className="bg-slate-800/30 px-4 py-2 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-slate-500 text-xs">location_on</span>
-                    <p className="text-[10px] font-medium text-slate-500 truncate">{displayData.street}, {displayData.number}</p>
+                  <div className="bg-slate-950/40 px-6 py-3 flex items-center justify-between border-t border-white/5">
+                    <div className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-slate-500 text-sm">location_on</span>
+                      <p className="text-[10px] font-bold text-slate-400 truncate">{displayData.street}, {displayData.number} - {displayData.neighborhood}</p>
+                    </div>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{displayData.city} / {displayData.state}</p>
                   </div>
                </div>
             </div>
@@ -342,31 +371,31 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                      <h2 className="text-xl font-black text-white uppercase tracking-tighter italic">Roteiro do Pedido</h2>
                   </div>
 
-                  <div className="flex-1 flex flex-col justify-center space-y-1 overflow-y-auto no-scrollbar">
+                  <div className="flex-1 flex flex-col justify-start space-y-4 py-4 overflow-y-auto no-scrollbar">
                      {[
-                       { id: 'budget', label: 'Proposta', icon: 'sell', status: ['proposed', 'awaiting_payment', 'paid', 'scheduled', 'in_service', 'completed'], details: isProvider ? 'Enviada com sucesso' : 'Proposta recebida' },
-                       { id: 'payment', label: 'Pagamento', icon: 'payments', status: ['awaiting_payment', 'paid', 'scheduled', 'in_service', 'completed'], details: 'Confirmado via KNG' },
-                       { id: 'schedule', label: 'Agendamento', icon: 'calendar_today', status: ['paid', 'scheduled', 'in_service', 'completed'], details: displayData.desired_date ? `${new Date(displayData.desired_date).toLocaleDateString('pt-BR')} ${new Date(displayData.desired_date).toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}` : 'Aguardando' },
-                       { id: 'execution', label: 'Execução', icon: 'construction', status: ['in_service', 'completed'], details: 'Trabalho realizado' },
-                       { id: 'final', label: 'Conclusão', icon: 'verified', status: ['completed'], details: 'Serviço finalizado' }
+                       { id: 'budget', label: 'Proposta de Orçamento', icon: 'sell', status: ['proposed', 'awaiting_payment', 'paid', 'scheduled', 'in_service', 'completed'], details: isProvider ? 'Orçamento enviado e registrado no sistema' : 'Proposta recebida via plataforma KNG', color: 'text-primary' },
+                       { id: 'payment', label: 'Pagamento Confirmado', icon: 'payments', status: ['awaiting_payment', 'paid', 'scheduled', 'in_service', 'completed'], details: 'Valor retido com segurança pela KNG Indica', color: 'text-emerald-500' },
+                       { id: 'schedule', label: 'Agendamento Definido', icon: 'calendar_today', status: ['paid', 'scheduled', 'in_service', 'completed'], details: displayData.desired_date ? `Agendado para ${new Date(displayData.desired_date).toLocaleDateString('pt-BR')} às ${new Date(displayData.desired_date).toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}` : 'Aguardando definição de data', color: 'text-orange-500' },
+                       { id: 'execution', label: 'Execução do Trabalho', icon: 'construction', status: ['in_service', 'completed'], details: 'Prestador em atividade no local do serviço', color: 'text-blue-500' },
+                       { id: 'final', label: 'Conclusão e Avaliação', icon: 'verified', status: ['completed'], details: 'Serviço finalizado e pagamento liberado', color: 'text-white' }
                      ].map((step, idx, arr) => {
                        const isDone = step.status.includes(displayData.status);
                        const isLast = idx === arr.length - 1;
                        return (
-                         <div key={idx} className="flex items-start gap-4 relative p-2 min-h-0">
+                         <div key={idx} className="flex items-start gap-6 relative p-4 rounded-3xl transition-all border border-transparent hover:bg-white/5">
                             {!isLast && (
-                              <div className="absolute left-[20px] top-[28px] bottom-[-4px] w-[1.5px] bg-slate-800 z-0">
-                                 <div className={`w-full transition-all duration-1000 ${isDone ? 'h-full bg-primary' : 'h-0'}`} />
+                              <div className="absolute left-[34px] top-[50px] bottom-[-20px] w-[2px] bg-slate-800 z-0">
+                                 <div className={`w-full transition-all duration-1000 ${isDone ? 'h-full bg-primary shadow-[0_0_15px_rgba(255,102,0,0.5)]' : 'h-0'}`} />
                               </div>
                             )}
-                            <div className={`size-6 rounded-lg flex items-center justify-center shrink-0 border transition-all duration-500 z-10 ${
-                              isDone ? 'bg-primary border-primary text-white shadow-lg' : 'bg-slate-800 border-slate-700 text-slate-600'
+                            <div className={`size-10 rounded-2xl flex items-center justify-center shrink-0 border-2 transition-all duration-500 z-10 ${
+                              isDone ? `bg-slate-950 border-primary ${step.color} shadow-xl shadow-primary/20` : 'bg-slate-800 border-slate-700 text-slate-600'
                             }`}>
-                               <span className="material-symbols-outlined text-[10px]">{isDone ? 'check' : step.icon}</span>
+                               <span className="material-symbols-outlined text-sm">{isDone ? 'check' : step.icon}</span>
                             </div>
-                            <div className="flex flex-col">
-                               <h4 className={`text-[11px] font-black uppercase tracking-tighter italic leading-none ${isDone ? 'text-white' : 'text-slate-700'}`}>{step.label}</h4>
-                               {isDone && <p className="text-[9px] text-slate-500 mt-1">{step.details}</p>}
+                            <div className="flex flex-col min-w-0">
+                               <h4 className={`text-sm font-black uppercase tracking-tighter italic leading-none mb-1.5 ${isDone ? 'text-white' : 'text-slate-700'}`}>{step.label}</h4>
+                               <p className={`text-[10px] font-bold leading-relaxed ${isDone ? 'text-slate-400' : 'text-slate-800'}`}>{step.details}</p>
                             </div>
                          </div>
                        )
