@@ -329,7 +329,7 @@ export function NotificationProvider({ children, onNavigate }: { children: React
              if (cat && myCats.includes(cat.name) && !payload.new.assigned_provider_id) {
                showToast(
                  "Novo Pedido Freelance!", 
-                 payload.new.title || "Um novo projeto freelance está disponível para lance.",
+                 payload.new.title || "Um novo freelance está disponível para lance.",
                  'notification',
                  undefined,
                  'openOrders'

@@ -184,7 +184,14 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
       } else {
         showToast("Sucesso", "Lance enviado e visível para o cliente!", "success");
         
-        // Notificação manual removida - Gatilho do banco de dados gerencia isso
+        // Notificação manual restaurada para garantir entrega imediata
+        await supabase.from('notifications').insert({
+          user_id: order.client_id,
+          title: 'Novo Lance Recebido! 🔨',
+          message: `Um prestador enviou uma proposta de ${formatCurrency(amountNum)} para "${order.title}".`,
+          type: 'new_bid',
+          related_entity_id: order.id
+        });
 
         setBidAmount('');
         setBidMessage('');

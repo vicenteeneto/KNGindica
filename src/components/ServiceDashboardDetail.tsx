@@ -326,7 +326,17 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                            <h4 className="text-sm font-black text-white uppercase tracking-tighter truncate leading-none">{displayData.title || displayData.category?.name}</h4>
                         </div>
                      </div>
-                     <button onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${displayData.latitude},${displayData.longitude}`)} className="h-10 px-4 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 flex items-center gap-2 text-emerald-500 transition-colors border border-emerald-500/20">
+                     <button onClick={() => {
+                        const handleLocate = () => {
+                          if (displayData.latitude && displayData.longitude) {
+                            window.open(`https://www.google.com/maps/search/?api=1&query=${displayData.latitude},${displayData.longitude}`, '_blank');
+                          } else {
+                            const address = `${displayData.street}, ${displayData.number}, ${displayData.neighborhood}, ${displayData.city} - ${displayData.state}`;
+                            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`, '_blank');
+                          }
+                        };
+                        handleLocate();
+                     }} className="h-10 px-4 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 flex items-center gap-2 text-emerald-500 transition-colors border border-emerald-500/20">
                         <span className="material-symbols-outlined text-sm">near_me</span>
                         <span className="text-[9px] font-black uppercase tracking-widest">Localizar</span>
                      </button>

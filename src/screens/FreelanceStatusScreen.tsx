@@ -77,7 +77,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
           </button>
           <div>
             <p className="text-[10px] font-black text-primary uppercase tracking-[2px] mb-1 leading-none">Freelance Workspace</p>
-            <h1 className="text-sm lg:text-xl font-black text-white uppercase tracking-tighter italic leading-none">{displayData.title || 'Projeto'}</h1>
+            <h1 className="text-sm lg:text-xl font-black text-white uppercase tracking-tighter italic leading-none">{displayData.title || 'Freelance'}</h1>
           </div>
         </div>
       </header>
@@ -107,7 +107,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                        displayData.status === 'awaiting_payment' ? (isClient ? 'Profissional Escolhido' : 'Você Venceu o Leilão!') :
                        displayData.status === 'paid' ? (isClient ? 'Tudo Pronto para Iniciar' : 'Mãos à Obra!') :
                        displayData.status === 'assigned' ? 'Cronograma Definido' : 
-                       displayData.status === 'in_service' ? 'Execução Técnica' : 'Projeto Entregue'}
+                       displayData.status === 'in_service' ? 'Execução Técnica' : 'Freelance Entregue'}
                     </h2>
                     <p className="text-sm text-slate-400 max-w-sm mb-8 font-medium leading-relaxed">
                        {displayData.status === 'open' ? (isClient ? 'Especialistas estão enviando propostas para o seu projeto agora.' : 'Analise os requisitos e lance sua melhor oferta para o cliente.') : 
@@ -135,8 +135,8 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                        {isProvider && (
                          <>
                             {displayData.status === 'paid' && (
-                               <button onClick={() => setScheduleModal({ isOpen: true, date: '', time: '09:00' })} className="w-full h-14 bg-orange-500 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-orange-500/20 flex items-center justify-center gap-2 animate-bounce">
-                                <span className="material-symbols-outlined">calendar_month</span> Agendar Cronograma
+                               <button onClick={() => setScheduleModal({ isOpen: true, date: new Date().toISOString().split('T')[0], time: '09:00' })} className="w-full h-14 bg-orange-500 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-orange-500/20 flex items-center justify-center gap-2 animate-bounce">
+                                <span className="material-symbols-outlined">calendar_month</span> Agendar Serviço
                                </button>
                             )}
                             {displayData.status === 'assigned' && (
@@ -165,7 +165,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                              const { data: room } = await supabase.from('chat_rooms').select('id').eq('freelance_order_id', displayData.id).single();
                              onNavigate('chat', { roomId: room?.id, freelanceOrderId: displayData.id, opponentId: isClient ? displayData.assigned_provider_id : displayData.client_id, opponentName: isClient ? displayData.provider?.full_name : displayData.client?.full_name });
                          }} className="w-full h-12 bg-white/5 text-slate-300 font-bold rounded-2xl flex items-center justify-center gap-2">
-                            <span className="material-symbols-outlined">chat</span> Abrir Chat do Projeto
+                            <span className="material-symbols-outlined">chat</span> Abrir Chat do Freelance
                          </button>
                        )}
                     </div>
@@ -184,15 +184,27 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                      </div>
                   </div>
                   <div className="bg-slate-900/50 p-4 rounded-[24px] border border-white/5 flex flex-col justify-center">
-                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Custo do Projeto</p>
+                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Custo do Freelance</p>
                      <p className="text-xl font-black text-white uppercase tracking-tighter italic">{formatCurrency(displayData.budget || 0)}</p>
                   </div>
                </div>
 
                <div className="bg-slate-900/50 rounded-[28px] border border-white/5 overflow-hidden p-6 space-y-4">
-                  <div className="flex items-center gap-3">
-                     <span className="material-symbols-outlined text-primary">{displayData.category?.icon}</span>
-                     <h4 className="font-black text-white uppercase tracking-tighter italic">{displayData.title || displayData.category?.name}</h4>
+                  <div className="flex items-center justify-between gap-3">
+                     <div className="flex items-center gap-3">
+                        <span className="material-symbols-outlined text-primary">{displayData.category?.icon}</span>
+                        <h4 className="font-black text-white uppercase tracking-tighter italic">{displayData.title || displayData.category?.name}</h4>
+                     </div>
+                     <button onClick={() => {
+                        const address = `${displayData.street}, ${displayData.number}, ${displayData.neighborhood}, ${displayData.city} - ${displayData.state}`;
+                        const url = displayData.latitude && displayData.longitude 
+                          ? `https://www.google.com/maps/search/?api=1&query=${displayData.latitude},${displayData.longitude}`
+                          : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+                        window.open(url, '_blank');
+                     }} className="h-10 px-4 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 flex items-center gap-2 text-emerald-500 transition-colors border border-emerald-500/20">
+                        <span className="material-symbols-outlined text-sm">near_me</span>
+                        <span className="text-[9px] font-black uppercase tracking-widest">Localizar</span>
+                     </button>
                   </div>
                   <p className="text-sm text-slate-400 leading-relaxed italic">"{displayData.description || 'Nenhuma descrição detalhada.'}"</p>
                   {displayData.attachments?.length > 0 && (
@@ -250,17 +262,39 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
       {scheduleModal.isOpen && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
            <div className="bg-slate-900 w-full max-w-sm rounded-[32px] p-8 border border-white/5">
-              <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic mb-6 text-center">Agendar Entrega</h3>
+              <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic mb-6 text-center">Agendar Serviço</h3>
               <div className="space-y-4">
                  <input type="date" value={scheduleModal.date} onChange={e => setScheduleModal(p => ({...p, date: e.target.value}))} className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-4 text-white" />
                  <input type="time" value={scheduleModal.time} onChange={e => setScheduleModal(p => ({...p, time: e.target.value}))} className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-4 text-white" />
                  <button onClick={async () => {
                     setIsActing(true);
                     try {
-                      await supabase.from('freelance_orders').update({ status: 'assigned', delivery_deadline: new Date(`${scheduleModal.date}T${scheduleModal.time}`).toISOString() }).eq('id', order.id);
+                      const deadline = new Date(`${scheduleModal.date}T${scheduleModal.time}`).toISOString();
+                      const { error } = await supabase.from('freelance_orders').update({ 
+                        status: 'assigned', 
+                        delivery_deadline: deadline 
+                      }).eq('id', order.id);
+
+                      if (error) throw error;
+
+                      // Notificar o cliente sobre o agendamento
+                      await supabase.from('notifications').insert({
+                        user_id: order.client_id,
+                        title: 'Serviço Agendado! 📅',
+                        message: `O profissional agendou o início de "${order.title}" para ${new Date(deadline).toLocaleString('pt-BR')}.`,
+                        type: 'freelance_scheduled',
+                        related_entity_id: order.id
+                      });
+
                       showToast("Sucesso", "Cronograma definido!", "success");
                       setScheduleModal({ isOpen: false, date: '', time: '' });
+                      
+                      // Ajuste de sincronismo: atualizar estado local imediatamente
+                      setOrder((prev: any) => ({ ...prev, status: 'assigned', delivery_deadline: deadline }));
+                      
                       fetchOrder();
+                    } catch (err: any) {
+                      showToast("Erro", "Falha ao agendar: " + err.message, "error");
                     } finally { setIsActing(false); }
                  }} className="w-full h-14 bg-primary text-white font-black uppercase tracking-widest rounded-2xl shadow-xl">{isActing ? 'Processando...' : 'Confirmar Agenda'}</button>
                  <button onClick={() => setScheduleModal({ isOpen: false, date: '', time: '' })} className="w-full py-2 text-slate-500 font-bold">Voltar</button>

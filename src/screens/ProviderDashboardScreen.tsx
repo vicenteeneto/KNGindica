@@ -522,7 +522,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         </div>
       </section>
 
-      {/* Oportunidades KNGindica - Feed de Projetos */}
+      {/* Oportunidades KNGindica - Feed de Freelances */}
       <section className="pt-3 pb-3">
         <div 
           onClick={() => onNavigate('openOrders')}
@@ -540,7 +540,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
               Oportunidades KNGindica
             </h3>
             <p className="text-emerald-50/80 text-[11px] font-medium leading-tight max-w-sm">
-              Novos projetos abertos na sua região disponíveis.
+              Novos freelances abertos na sua região disponíveis.
             </p>
             <div className="mt-3 flex items-center gap-2">
               <span className="text-[10px] font-black text-white uppercase tracking-widest bg-emerald-400/20 px-3 py-1.5 rounded-xl border border-white/20">Ver Ordens Disponíveis</span>

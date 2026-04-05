@@ -241,7 +241,7 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
       {/* Header Centralizado */}
       <div className="shrink-0 z-50 bg-slate-900 border-b border-white/5 h-[60px] flex items-center px-6">
         <div className="flex flex-col">
-          <p className="text-[12px] font-black text-primary uppercase tracking-[2px] leading-none mb-1.5">Projetos & Oportunidades</p>
+          <p className="text-[12px] font-black text-primary uppercase tracking-[2px] leading-none mb-1.5">Freelances & Oportunidades</p>
           <div className="flex items-center gap-2">
             <div className="size-2.5 rounded-full bg-emerald-500 animate-pulse" />
             <h1 className="text-lg font-black text-white uppercase tracking-[1px] italic leading-none">Painel de Oportunidades</h1>
@@ -408,7 +408,7 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
                    <span className="material-symbols-outlined text-6xl italic">ads_click</span>
                 </div>
                 <h3 className="text-2xl font-black uppercase tracking-tighter italic mb-2">Selecione uma Oportunidade</h3>
-                <p className="text-sm font-medium max-w-xs">Escolha um projeto da lista à esquerda para ver detalhes e enviar lances.</p>
+                <p className="text-sm font-medium max-w-xs">Escolha um freelance da lista à esquerda para ver detalhes e enviar lances.</p>
              </div>
            )}
         </div>

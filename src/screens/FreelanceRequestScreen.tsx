@@ -220,7 +220,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
-          <h2 className="text-xl font-black tracking-tighter italic uppercase">Solicitar Projeto</h2>
+          <h2 className="text-xl font-black tracking-tighter italic uppercase">Postar Freelance</h2>
           <div className="size-10"></div>
         </div>
       </header>
@@ -429,7 +429,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
               ) : (
                 <>
                   <span className="material-symbols-outlined">rocket_launch</span>
-                  Publicar Projeto
+                  Publicar Freelance
                 </>
               )}
             </button>
