@@ -145,7 +145,7 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
       <div className="flex flex-1 overflow-hidden relative">
         
         {/* MASTER LIST (WhatsApp Style) */}
-        <div className={`flex flex-col border-r border-white/5 bg-slate-900/50 ${selectedRequestId ? 'hidden lg:flex' : 'flex'} w-full lg:w-[575px] shrink-0 overflow-hidden`}>
+        <div className={`flex flex-col border-r border-white/5 bg-slate-900/50 ${selectedRequestId ? 'hidden lg:flex' : 'flex'} w-full lg:w-[570px] shrink-0 overflow-hidden`}>
           <div className="p-1 px-2 border-b border-white/5 bg-slate-900/80 backdrop-blur-md">
             <div className="flex w-full gap-1">
               {tabs.map(tab => (
