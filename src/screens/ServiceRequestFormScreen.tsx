@@ -125,8 +125,20 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
       showToast("Atenção", 'Por favor, selecione uma categoria.', "warning");
       return;
     }
-    if (!description || !city || !street || !number || !neighborhood || !desiredDate) {
-      showToast("Atenção", 'Por favor, preencha a descrição, cidade, endereço completo (com número e bairro) e a data desejada.', "warning");
+    if (!description || description.trim().length < 10) {
+      showToast("Descrição curta", 'Por favor, descreva melhor seu serviço (mínimo 10 caracteres).', "warning");
+      return;
+    }
+    if (!city || !street || !number || !neighborhood || !desiredDate) {
+      showToast("Campos obrigatórios", 'Preencha o endereço completo e a data.', "warning");
+      return;
+    }
+
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const selectedDate = new Date(desiredDate + 'T00:00:00');
+    if (selectedDate < today) {
+      showToast("Data no passado", "Não é possível agendar para uma data retroativa.", "error");
       return;
     }
 
