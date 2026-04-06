@@ -48,6 +48,16 @@ export default function WriteReviewScreen({ onNavigate, params }: WriteReviewScr
         });
 
       if (error) throw error;
+
+      // Notificar o prestador sobre a avaliação e liberação de pagamento
+      await supabase.from('notifications').insert({
+        user_id: providerId,
+        title: 'Avaliação Recebida! ⭐',
+        message: `O cliente avaliou o serviço "${serviceTitle}" e liberou seu pagamento.`,
+        type: 'review',
+        related_entity_id: requestId
+      });
+
       showToast("Avaliação enviada", "Obrigado por seu feedback!", "success");
       onNavigate(isFreelance ? 'myFreelances' : 'myRequests');
     } catch (err) {

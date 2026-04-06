@@ -157,6 +157,15 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                                       
                                       if (error) throw error;
 
+                                      // Notificar o cliente sobre o início do trabalho
+                                      await supabase.from('notifications').insert({
+                                        user_id: displayData.client_id,
+                                        title: 'Trabalho Iniciado! 🚀',
+                                        message: `O profissional começou a execução de "${displayData.title}".`,
+                                        type: 'freelance_status',
+                                        related_entity_id: displayData.id
+                                      });
+
                                       showToast("Sucesso", "Trabalho iniciado!", "success");
                                       fetchOrder();
                                     } catch (err: any) {
@@ -183,6 +192,15 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                                       });
 
                                       if (error) throw error;
+
+                                      // Notificar o cliente sobre a finalização do trabalho
+                                      await supabase.from('notifications').insert({
+                                        user_id: displayData.client_id,
+                                        title: 'Trabalho Finalizado! ✅',
+                                        message: `O profissional concluiu "${displayData.title}". Avalie o serviço para liberar o pagamento.`,
+                                        type: 'freelance_status',
+                                        related_entity_id: displayData.id
+                                      });
 
                                       showToast("Sucesso", "Trabalho finalizado!", "success");
                                       fetchOrder();

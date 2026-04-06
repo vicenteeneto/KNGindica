@@ -163,7 +163,7 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
     } else if (notification.type === 'freelance_bid') {
       target = 'bidRoom';
       navParams = { orderId: notification.related_entity_id };
-    } else if (notification.type === 'freelance_approved') {
+    } else if (notification.type === 'freelance_approved' || notification.type === 'freelance_scheduled') {
       target = 'freelanceStatus';
       navParams = { orderId: notification.related_entity_id };
     } else if (notification.type === 'freelance_status' || notification.type === 'freelance_paid') {
