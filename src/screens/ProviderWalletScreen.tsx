@@ -12,52 +12,74 @@ export default function ProviderWalletScreen({ onNavigate }: NavigationProps) {
   const [balance, setBalance] = useState({ available: 0, pending: 0, monthTotal: 0 });
   const [transactions, setTransactions] = useState<any[]>([]);
 
+  const [payoutModal, setPayoutModal] = useState({ isOpen: false, amount: '' });
+  const [isActing, setIsActing] = useState(false);
+
+  const fetchWalletData = async () => {
+    setLoading(true);
+    try {
+      // 1. Fetch available balance from summary view
+      const { data: summary } = await supabase
+        .from('provider_wallet_summary')
+        .select('total_earnings')
+        .eq('provider_id', user.id)
+        .single();
+
+      // 2. Fetch pending balance (where status is 'paid' or 'in_service')
+      const { data: pendingReqs } = await supabase
+        .from('service_requests')
+        .select('budget_amount, platform_fee')
+        .eq('provider_id', user.id)
+        .in('status', ['paid', 'in_service']);
+
+      const pendingBalance = pendingReqs?.reduce((acc, req) => acc + (Number(req.budget_amount) - Number(req.platform_fee)), 0) || 0;
+
+      // 3. Fetch recent transactions
+      const { data: txs } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      setBalance({
+        available: Number(summary?.total_earnings) || 0,
+        pending: pendingBalance,
+        monthTotal: (Number(summary?.total_earnings) || 0) + pendingBalance // Simplificado para o MVP
+      });
+      setTransactions(txs || []);
+
+    } catch (err) {
+      console.error("Wallet error", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!user) return;
-
-    const fetchWalletData = async () => {
-      setLoading(true);
-      try {
-        // 1. Fetch available balance from summary view
-        const { data: summary } = await supabase
-          .from('provider_wallet_summary')
-          .select('total_earnings')
-          .eq('provider_id', user.id)
-          .single();
-
-        // 2. Fetch pending balance (where status is 'paid' or 'in_service')
-        const { data: pendingReqs } = await supabase
-          .from('service_requests')
-          .select('budget_amount, platform_fee')
-          .eq('provider_id', user.id)
-          .in('status', ['paid', 'in_service']);
-
-        const pendingBalance = pendingReqs?.reduce((acc, req) => acc + (Number(req.budget_amount) - Number(req.platform_fee)), 0) || 0;
-
-        // 3. Fetch recent transactions
-        const { data: txs } = await supabase
-          .from('transactions')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(10);
-
-        setBalance({
-          available: Number(summary?.total_earnings) || 0,
-          pending: pendingBalance,
-          monthTotal: (Number(summary?.total_earnings) || 0) + pendingBalance // Simplificado para o MVP
-        });
-        setTransactions(txs || []);
-
-      } catch (err) {
-        console.error("Wallet error", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchWalletData();
   }, [user]);
+
+  const handlePayout = async () => {
+    if (!payoutModal.amount) return;
+    setIsActing(true);
+    try {
+      const amount = parseFloat(payoutModal.amount.replace(/[^\d]/g, '')) / 100;
+      if (amount <= 0) throw new Error("Valor inválido");
+      
+      const { error } = await supabase.rpc('request_payout', { amount });
+      if (error) throw error;
+      
+      showToast("Sucesso", "Solicitação de saque enviada!", "success");
+      setPayoutModal({ isOpen: false, amount: '' });
+      fetchWalletData();
+    } catch (err: any) {
+      showToast("Erro", err.message || "Erro ao processar saque", "error");
+    } finally {
+      setIsActing(false);
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
@@ -93,7 +115,7 @@ export default function ProviderWalletScreen({ onNavigate }: NavigationProps) {
             
             <div className="flex gap-4 mt-6 w-full max-w-sm">
               <button 
-                onClick={() => showToast("Em Breve", 'Abrir fluxo de saque (Transferência/Pix)', "info")}
+                onClick={() => setPayoutModal({ isOpen: true, amount: '' })}
                 className="flex-1 bg-white text-primary font-bold py-3.5 px-4 rounded-2xl shadow-lg flex items-center justify-center gap-2 hover:bg-slate-50 active:scale-95 transition-all"
               >
                 <span className="material-symbols-outlined">account_balance</span>
@@ -199,6 +221,52 @@ export default function ProviderWalletScreen({ onNavigate }: NavigationProps) {
         </div>
       </main>
       
+      {/* Payout Modal */}
+      {payoutModal.isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in">
+           <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-[32px] p-8 shadow-2xl border border-slate-200 dark:border-slate-700">
+              <div className="size-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-6 mx-auto">
+                <span className="material-symbols-outlined text-3xl">account_balance</span>
+              </div>
+              <h3 className="text-xl font-bold text-center mb-2">Solicitar Saque</h3>
+              <p className="text-xs text-slate-500 text-center mb-8">O valor será transferido para sua conta vinculada em até 2 dias úteis.</p>
+              
+              <div className="space-y-6">
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block">Quanto deseja sacar?</label>
+                  <input 
+                    type="text"
+                    value={payoutModal.amount}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, "");
+                      const formatted = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(parseFloat(val) / 100);
+                      setPayoutModal({ ...payoutModal, amount: val ? formatted : "" });
+                    }}
+                    placeholder="R$ 0,00"
+                    className="w-full h-16 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl px-6 text-2xl font-black text-slate-900 dark:text-white outline-none focus:border-primary transition-colors"
+                  />
+                  <p className="mt-2 text-[10px] font-medium text-slate-400">Saldo disponível: {formatCurrency(balance.available)}</p>
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  <button 
+                    onClick={handlePayout}
+                    disabled={isActing || !payoutModal.amount}
+                    className="w-full h-14 bg-primary text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-primary/20 flex items-center justify-center disabled:opacity-50"
+                  >
+                    {isActing ? 'Processando...' : 'Confirmar Saque'}
+                  </button>
+                  <button 
+                    onClick={() => setPayoutModal({ ...payoutModal, isOpen: false })}
+                    className="w-full py-2 text-slate-400 font-bold text-sm uppercase tracking-widest"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+           </div>
+        </div>
+      )}
     </div>
   );
 }

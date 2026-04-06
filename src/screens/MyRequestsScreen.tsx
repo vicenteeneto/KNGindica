@@ -188,9 +188,30 @@ export default function MyRequestsScreen({ onNavigate, params }: NavigationProps
                     )}
                   </div>
                   
-                  <div className="flex items-center justify-between mt-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none pt-3 border-t border-slate-50 dark:border-white/5">
-                    <span>{new Date(req.created_at).toLocaleDateString('pt-BR')}</span>
-                    <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-50 dark:border-white/5">
+                    <div className="flex items-center gap-2">
+                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date(req.created_at).toLocaleDateString('pt-BR')}</span>
+                    </div>
+
+                    {req.status === 'completed' ? (
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onNavigate('writeReview', { 
+                            requestId: req.id, 
+                            providerId: req.provider_id, 
+                            providerName: req.profiles?.full_name,
+                            serviceTitle: req.title || req.service_categories?.name
+                          });
+                        }}
+                        className="h-8 px-4 bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-amber-500/20 transition-all flex items-center gap-1"
+                      >
+                        <span className="material-symbols-outlined text-xs">star</span>
+                        Avaliar
+                      </button>
+                    ) : (
+                      <span className="material-symbols-outlined text-sm text-slate-400">arrow_forward</span>
+                    )}
                   </div>
                 </div>
               ))}

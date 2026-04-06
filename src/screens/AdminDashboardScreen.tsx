@@ -728,7 +728,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
       const { data: categories } = await supabase.from('service_categories').select('*').order('name');
 
       // 5. Fetch Conversion Metrics from the view
-      const { data: metrics } = await supabase.from('admin_conversion_metrics').select('*');
+      const { data: metrics } = await supabase.rpc('get_conversion_metrics');
       setConversionMetrics(metrics || []);
 
       const today = new Date();

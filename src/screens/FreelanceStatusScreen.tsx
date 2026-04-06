@@ -141,7 +141,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                             )}
                             {displayData.status === 'scheduled' && (
                                <button onClick={async () => {
-                                 await supabase.from('freelance_orders').update({ status: 'in_service' }).eq('id', displayData.id);
+                                 await supabase.rpc('advance_freelance_status', { order_id: displayData.id, new_status: 'in_service' });
                                  showToast("Sucesso", "Trabalho iniciado!", "success");
                                  fetchOrder();
                                }} className="w-full h-14 bg-blue-600 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2">
@@ -150,7 +150,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                             )}
                             {displayData.status === 'in_service' && (
                                <button onClick={async () => {
-                                 await supabase.from('freelance_orders').update({ status: 'completed' }).eq('id', displayData.id);
+                                 await supabase.rpc('advance_freelance_status', { order_id: displayData.id, new_status: 'completed' });
                                  showToast("Sucesso", "Trabalho finalizado!", "success");
                                  fetchOrder();
                                }} className="w-full h-14 bg-emerald-600 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2">
@@ -272,9 +272,10 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                        const deadlineObj = new Date(`${scheduleModal.date}T${scheduleModal.time}`);
                        const deadlineFormatted = deadlineObj.toLocaleString('pt-BR');
 
-                       const { error } = await supabase.from('freelance_orders').update({ 
-                         status: 'scheduled'
-                       }).eq('id', order.id);
+                       const { error } = await supabase.rpc('advance_freelance_status', { 
+                          order_id: order.id,
+                          new_status: 'scheduled'
+                       });
 
                        if (error) throw error;
 
