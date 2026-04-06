@@ -690,7 +690,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                   <div className="absolute inset-0 bg-gradient-to-r from-background-light/40 dark:from-black/80 via-transparent to-transparent"></div>
 
                   {/* Content */}
-                  <div className="absolute bottom-16 md:bottom-24 left-0 lg:left-12 w-full px-4 md:px-12 max-w-7xl lg:mx-0 transition-all duration-300">
+                  <div className="absolute bottom-16 md:bottom-24 left-0 lg:left-16 w-full px-4 md:px-12 max-w-none pr-6 transition-all duration-300">
                     <div className="max-w-2xl animate-fade-in-up flex flex-col items-start text-left ml-4 md:ml-0">
                       <div className="flex items-center gap-2 mb-3">
                         {p.isVerified ? (

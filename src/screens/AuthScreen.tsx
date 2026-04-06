@@ -97,7 +97,7 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
       <div className="absolute top-[-10vh] left-[-10vw] w-[40vw] h-[40vw] rounded-full bg-primary/5 dark:bg-primary/2 blur-3xl z-0"></div>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col justify-center px-4 py-8 md:py-12 z-10 w-full max-w-7xl mx-auto">
+      <main className="flex-1 flex flex-col justify-center px-4 py-8 md:py-12 z-10 w-full max-w-none">
         <div className="w-full max-w-md mx-auto sm:bg-white/80 sm:dark:bg-black/60 sm:backdrop-blur-xl sm:border border-slate-200 dark:border-white/5 sm:shadow-2xl rounded-3xl sm:p-8 flex flex-col">
           {/* Logo/Header */}
           <div className="flex flex-col items-center mb-8">

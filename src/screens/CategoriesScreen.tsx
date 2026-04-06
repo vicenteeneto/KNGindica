@@ -12,7 +12,7 @@ export default function CategoriesScreen({ onNavigate }: NavigationProps) {
 
   return (
     <div className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
-      <div className="relative flex min-h-screen w-full flex-col max-w-7xl lg:mx-0 lg:ml-12 bg-white dark:bg-slate-900 shadow-xl overflow-x-hidden transition-all duration-300">
+      <div className="relative flex min-h-screen w-full flex-col max-w-none lg:mx-0 lg:ml-16 bg-white dark:bg-slate-900 shadow-xl overflow-x-hidden transition-all duration-300">
         
         <header className="flex items-center bg-white dark:bg-slate-900 p-4 pb-2 justify-between sticky top-0 z-10 border-b border-slate-100 dark:border-slate-800 transition-colors">
           <button onClick={() => onNavigate('home')} className="text-slate-900 dark:text-slate-100 flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
@@ -27,7 +27,7 @@ export default function CategoriesScreen({ onNavigate }: NavigationProps) {
         </header>
 
         <main className="flex-1 pb-24">
-          <div className="px-4 py-8 max-w-3xl lg:mx-0 lg:ml-4 transition-all duration-300">
+          <div className="px-4 py-8 max-w-none lg:mx-0 lg:ml-4 transition-all duration-300">
             <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2 text-center lg:text-left">Encontre o profissional ideal</h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm md:text-base mb-6 text-center lg:text-left">Selecione uma categoria para ver os especialistas disponíveis na sua região.</p>
             
@@ -45,7 +45,7 @@ export default function CategoriesScreen({ onNavigate }: NavigationProps) {
             </label>
           </div>
 
-          <div className="px-4 py-8 max-w-5xl lg:mx-0 lg:ml-4 transition-all duration-300">
+          <div className="px-4 py-8 max-w-none lg:mx-0 lg:ml-4 transition-all duration-300">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100">Principais Serviços</h2>
               <button onClick={() => onNavigate('listing')} className="text-primary text-sm font-semibold cursor-pointer hover:underline">Ver todos</button>
@@ -88,7 +88,7 @@ export default function CategoriesScreen({ onNavigate }: NavigationProps) {
             </div>
           </div>
 
-          <div className="px-4 py-8 mt-4 max-w-5xl lg:mx-0 lg:ml-4 transition-all duration-300">
+          <div className="px-4 py-8 mt-4 max-w-none lg:mx-0 lg:ml-4 transition-all duration-300">
             <div className="rounded-2xl overflow-hidden bg-gradient-to-r from-primary to-blue-600 p-6 md:p-10 text-white relative shadow-xl shadow-primary/20">
               <div className="relative z-10 md:max-w-md">
                 <h3 className="text-xl md:text-2xl font-bold mb-2">Precisa de algo mais específico?</h3>

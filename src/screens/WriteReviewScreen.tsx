@@ -62,7 +62,7 @@ export default function WriteReviewScreen({ onNavigate, params }: WriteReviewScr
     <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
 
       {/* Header */}
-      <header className="flex items-center p-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10 max-w-4xl mx-auto w-full">
+      <header className="flex items-center p-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10 max-w-none w-full lg:ml-16 pr-6 transition-all duration-300">
         <button
           onClick={() => onNavigate(params?.returnTo || (isFreelance ? 'myFreelances' : 'myRequests'))}
           className="flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
@@ -73,7 +73,7 @@ export default function WriteReviewScreen({ onNavigate, params }: WriteReviewScr
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto w-full p-4 md:p-12 flex flex-col justify-center items-center max-w-7xl mx-auto">
+      <main className="flex-1 overflow-y-auto w-full p-4 md:p-12 flex flex-col justify-center items-center max-w-none w-full lg:ml-16 pr-6 transition-all duration-300">
         <div className="w-full max-w-xl mx-auto flex flex-col items-center sm:bg-white/80 sm:dark:bg-slate-900/80 sm:backdrop-blur-xl sm:border border-slate-200 dark:border-slate-800 sm:shadow-2xl rounded-3xl sm:p-10">
 
           {/* Provider Card Context */}

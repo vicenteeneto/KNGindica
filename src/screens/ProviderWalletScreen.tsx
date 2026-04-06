@@ -104,7 +104,7 @@ export default function ProviderWalletScreen({ onNavigate }: NavigationProps) {
         
         {/* Balance Card Section */}
         <div className="bg-primary pt-2 pb-12 px-4 rounded-b-[40px] shadow-sm relative">
-          <div className="max-w-7xl mx-auto flex flex-col items-center">
+          <div className="max-w-none w-full lg:ml-16 pr-6 transition-all duration-300">
             <p className="text-white/80 text-sm font-medium mb-1 uppercase tracking-wider">Saldo Disponível</p>
             <div className="flex items-start gap-1">
 

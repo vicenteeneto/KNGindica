@@ -58,7 +58,7 @@ export default function ProfessionalReviewsScreen({ onNavigate, params }: Profes
 
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
-        <div className="flex items-center p-4 gap-4 max-w-7xl mx-auto w-full">
+        <div className="flex items-center p-4 gap-4 max-w-none w-full lg:ml-16 pr-6 transition-all duration-300">
           <button
             onClick={() => onNavigate('back')}
             className="flex items-center justify-center size-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors"
@@ -70,7 +70,7 @@ export default function ProfessionalReviewsScreen({ onNavigate, params }: Profes
       </header>
 
       <main className="flex-1 overflow-y-auto pb-24 md:pb-8">
-        <div className="max-w-7xl mx-auto w-full">
+        <div className="max-w-none w-full lg:ml-16 pr-6 transition-all duration-300">
 
           {/* General Stats Section */}
           <section className="p-6 border-b border-slate-100 dark:border-slate-800">

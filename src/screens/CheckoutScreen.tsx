@@ -113,16 +113,16 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
                content: "💳 Taxa paga! O chat está liberado para iniciarem os trabalhos."
              });
           }
-
-          // Notificação manual restaurada para o prestador
-          await supabase.from('notifications').insert({
-            user_id: request.assigned_provider_id,
-            title: 'Pagamento Recebido! 💸',
-            message: `O cliente pagou a garantia para o freelance "${request.title}". Já pode começar!`,
-            type: 'freelance_paid',
-            related_entity_id: params.freelanceOrderId
-          });
         }
+
+        // Notificação manual restaurada para o prestador (sempre enviar no pagamento)
+        await supabase.from('notifications').insert({
+          user_id: request.assigned_provider_id,
+          title: 'Pagamento Recebido! 💸',
+          message: `O cliente pagou a garantia para o freelance "${request.title}". Já pode começar!`,
+          type: 'freelance_paid',
+          related_entity_id: params.freelanceOrderId
+        });
       } else {
         const { data: room } = await supabase.from('chat_rooms').select('id').eq('request_id', params.requestId).single();
         if (room) {

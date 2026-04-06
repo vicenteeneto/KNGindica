@@ -39,7 +39,7 @@ export default function ForgotPasswordScreen({ onNavigate }: NavigationProps) {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col justify-center items-center px-4 py-6 z-10 w-full max-w-7xl mx-auto relative md:-top-12">
+      <main className="flex-1 flex flex-col justify-center items-center px-4 py-6 z-10 w-full max-w-none">
         <div className="w-full max-w-md mx-auto sm:bg-white/80 sm:dark:bg-slate-900/80 sm:backdrop-blur-xl sm:border border-slate-200 dark:border-slate-800 sm:shadow-2xl rounded-3xl sm:p-8 flex flex-col">
         {/* Header Content */}
         {!submitted ? (

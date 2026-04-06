@@ -158,18 +158,18 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
       target = 'serviceStatus';
       navParams = { requestId: notification.related_entity_id };
     } else if (notification.type === 'new_bid') {
-      target = 'serviceStatus';
-      navParams = { requestId: notification.related_entity_id };
+      target = 'bidRoom';
+      navParams = { orderId: notification.related_entity_id };
     } else if (notification.type === 'freelance_bid') {
       target = 'bidRoom';
       navParams = { orderId: notification.related_entity_id };
     } else if (notification.type === 'freelance_approved') {
       target = 'freelanceStatus';
       navParams = { orderId: notification.related_entity_id };
-    } else if (notification.type === 'freelance_status') {
+    } else if (notification.type === 'freelance_status' || notification.type === 'freelance_paid') {
       target = 'freelanceStatus';
       navParams = { orderId: notification.related_entity_id };
-    } else if (notification.type === 'status') {
+    } else if (notification.type === 'status' || notification.type === 'service_paid') {
       target = 'serviceStatus';
       navParams = { requestId: notification.related_entity_id };
     } else if (notification.type === 'message' || notification.type === 'chat') {

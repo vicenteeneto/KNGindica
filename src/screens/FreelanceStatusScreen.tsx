@@ -113,7 +113,12 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                        {displayData.status === 'open' ? (isClient ? 'Especialistas estão enviando propostas para o seu projeto agora.' : 'Analise os requisitos e lance sua melhor oferta para o cliente.') : 
                         displayData.status === 'awaiting_payment' ? (isClient ? 'Realize o pagamento para que o profissional possa garantir sua vaga e agendar.' : 'O cliente aceitou seu lance! Ele está agora processando o pagamento da garantia.') :
                         displayData.status === 'paid' ? (isClient ? 'O pagamento foi confirmado. O profissional irá agendar o início do trabalho em breve.' : 'O valor já está seguro com a KNG. Agende agora o início da execução.') :
-                        displayData.status === 'scheduled' ? (isClient ? 'O cronograma foi definido. Você receberá atualizações constantes por aqui.' : 'Tudo certo. No horário combinado, basta clicar em Iniciar Trabalho.') : ''}
+                        displayData.status === 'scheduled' ? (isClient ? `O início de "${displayData.title}" foi agendado para: ` : `Você agendou o início para o dia: `) : ''}
+                       {displayData.status === 'scheduled' && displayData.scheduled_at && (
+                          <span className="text-white font-black block mt-2 text-lg">
+                            {new Date(displayData.scheduled_at).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
+                          </span>
+                       )}
                     </p>
 
                     <div className="w-full max-w-sm space-y-4">
@@ -274,7 +279,8 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
 
                        const { error } = await supabase.rpc('advance_freelance_status', { 
                           order_id: order.id,
-                          new_status: 'scheduled'
+                          new_status: 'scheduled',
+                          scheduled_at_param: deadlineObj.toISOString()
                        });
 
                        if (error) throw error;

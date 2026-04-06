@@ -148,7 +148,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
     <div className="w-full bg-[#0f171e] min-h-screen shadow-xl flex flex-col font-display text-slate-900 dark:text-slate-100 antialiased">
       {/* Header / Navigation */}
       <header className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-        <div className="flex items-center p-4 justify-between max-w-7xl lg:mx-0 lg:ml-12 w-full transition-all duration-300">
+        <div className="flex items-center p-4 justify-between max-w-none lg:mx-0 lg:ml-16 pr-6 w-full transition-all duration-300">
           <div className="flex items-center gap-3">
             <button onClick={() => onNavigate('home')} className="text-primary cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 p-1 rounded-full transition-colors">
               <span className="material-symbols-outlined text-2xl">arrow_back</span>
@@ -238,7 +238,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
 
       {/* Filter Section */}
       <section className="border-b border-slate-100 dark:border-slate-800">
-        <div className="px-4 py-3 overflow-x-auto max-w-7xl lg:mx-0 lg:ml-12 w-full custom-scrollbar transition-all duration-300">
+        <div className="px-4 py-3 overflow-x-auto max-w-none lg:mx-0 lg:ml-16 pr-6 w-full custom-scrollbar transition-all duration-300">
           <div className="flex gap-2 whitespace-nowrap items-center">
             {/* Sort Buttons */}
             <div className="flex gap-2 pr-4 border-r border-slate-200 dark:border-slate-700 mr-2">
@@ -285,11 +285,11 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
       {/* Main Content: Service Listing */}
       <main className="flex-1 p-4 pb-24 md:pb-8">
         {loading ? (
-          <div className="max-w-7xl lg:mx-0 lg:ml-12 w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 transition-all duration-300">
+          <div className="max-w-none lg:mx-0 lg:ml-16 pr-6 w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 transition-all duration-300">
             {[1, 2, 3, 4, 5, 6].map(i => <SkeletonCard key={i} />)}
           </div>
         ) : (
-          <div className="max-w-7xl lg:mx-0 lg:ml-12 w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 transition-all duration-300">
+          <div className="max-w-none lg:mx-0 lg:ml-16 pr-6 w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 transition-all duration-300">
             {filteredProfessionals.map((professional) => (
             <div 
               key={professional.id}
