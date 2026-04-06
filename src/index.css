@@ -10,13 +10,6 @@
   --bg-dark-surface: #121212;
   --bg-dark-card: #1a1a1a;
   --font-display: "Inter", sans-serif;
-
-  /* Legacy Fallback (Azul Clássico)
-  --color-primary: #137fec;
-  --bg-dark-main: #0f171e;
-  --bg-dark-surface: #101922;
-  --bg-dark-card: #1e293b;
-  */
 }
 
 @theme {
@@ -28,30 +21,30 @@
   --font-display: var(--font-display);
 }
 
+/* 🛡️ FIX GERAL DE ÍCONES (PROTEÇÃO CONTRA UPPERCASE) */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined' !important;
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none !important; /* Essencial para as ligaduras funcionarem! */
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
 @layer base {
   html, body {
     @apply bg-background-light text-slate-900 dark:bg-background-dark dark:text-white;
     margin: 0;
     padding: 0;
     min-height: 100%;
-    /* Prevent white flash/overscroll on mobile */
     overscroll-behavior-y: none;
   }
-}
-
-@keyframes slideInDown {
-  from { opacity: 0; transform: translateX(-50%) translateY(-24px); }
-  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
-}
-
-@keyframes shrinkWidth {
-  from { width: 100%; }
-  to   { width: 0%; }
-}
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
 }
 
 @layer utilities {
@@ -62,40 +55,37 @@
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
-
-  /* Incandescent glow for Admin and Pro users */
   .animate-glow-incandescent {
     animation: glow-pulse 2s ease-in-out infinite alternate;
   }
+}
 
-  /* Custom Scrollbar */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #475569;
-    border-radius: 10px;
-  }
-  .dark ::-webkit-scrollbar-thumb {
-    background: #334155;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: var(--color-primary);
-  }
-
-  /* Dark mode pickers correction */
-  .dark input[type="date"]::-webkit-calendar-picker-indicator,
-  .dark input[type="time"]::-webkit-calendar-picker-indicator {
-    filter: invert(1);
-    cursor: pointer;
-  }
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 10px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
 }
 
 @keyframes glow-pulse {
   0% { box-shadow: 0 0 5px #FF7A00, 0 0 10px #FF4D00; border-color: #FF7A00; }
   100% { box-shadow: 0 0 15px #FF4D00, 0 0 25px #FF0000; border-color: #FF0000; }
+}
+
+.dark input[type="date"]::-webkit-calendar-picker-indicator,
+.dark input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
 }

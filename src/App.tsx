@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import 'leaflet/dist/leaflet.css';
 import HomeScreen from './screens/HomeScreen';
 import ServiceListingScreen from './screens/ServiceListingScreen';
 import ProfessionalProfileScreen from './screens/ProfessionalProfileScreen';
