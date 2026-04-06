@@ -54,7 +54,7 @@ export default function WriteReviewScreen({ onNavigate, params }: WriteReviewScr
         user_id: providerId,
         title: 'Avaliação Recebida! ⭐',
         message: `O cliente avaliou o serviço "${serviceTitle}" e liberou seu pagamento.`,
-        type: 'review',
+        type: isFreelance ? 'freelance_review' : 'review',
         related_entity_id: requestId
       });
 

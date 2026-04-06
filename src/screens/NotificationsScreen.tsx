@@ -169,6 +169,12 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
     } else if (notification.type === 'freelance_status' || notification.type === 'freelance_paid') {
       target = 'freelanceStatus';
       navParams = { orderId: notification.related_entity_id };
+    } else if (notification.type === 'freelance_review') {
+      target = 'freelanceStatus';
+      navParams = { orderId: notification.related_entity_id };
+    } else if (notification.type === 'review') {
+      target = 'serviceStatus';
+      navParams = { requestId: notification.related_entity_id };
     } else if (notification.type === 'status' || notification.type === 'service_paid') {
       target = 'serviceStatus';
       navParams = { requestId: notification.related_entity_id };
