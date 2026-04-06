@@ -145,23 +145,59 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                                </button>
                             )}
                             {displayData.status === 'scheduled' && (
-                               <button onClick={async () => {
-                                 await supabase.rpc('advance_freelance_status', { order_id: displayData.id, new_status: 'in_service' });
-                                 showToast("Sucesso", "Trabalho iniciado!", "success");
-                                 fetchOrder();
-                               }} className="w-full h-14 bg-blue-600 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2">
-                                <span className="material-symbols-outlined">play_arrow</span> Começar Trabalho Agora
-                               </button>
-                            )}
-                            {displayData.status === 'in_service' && (
-                               <button onClick={async () => {
-                                 await supabase.rpc('advance_freelance_status', { order_id: displayData.id, new_status: 'completed' });
-                                 showToast("Sucesso", "Trabalho finalizado!", "success");
-                                 fetchOrder();
-                               }} className="w-full h-14 bg-emerald-600 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2">
-                                <span className="material-symbols-outlined">task_alt</span> Finalizar e Entregar
-                               </button>
-                            )}
+                                <button 
+                                  disabled={isActing}
+                                  onClick={async () => {
+                                    setIsActing(true);
+                                    try {
+                                      const { error } = await supabase.rpc('advance_freelance_status', { 
+                                        order_id: displayData.id, 
+                                        new_status: 'in_service' 
+                                      });
+                                      
+                                      if (error) throw error;
+
+                                      showToast("Sucesso", "Trabalho iniciado!", "success");
+                                      fetchOrder();
+                                    } catch (err: any) {
+                                      showToast("Erro", "Falha ao iniciar: " + err.message, "error");
+                                    } finally {
+                                      setIsActing(false);
+                                    }
+                                  }} 
+                                  className={`w-full h-14 bg-blue-600 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2 transition-opacity ${isActing ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}
+                                >
+                                 <span className="material-symbols-outlined">{isActing ? 'progress_activity' : 'play_arrow'}</span> 
+                                 {isActing ? 'Processando...' : 'Começar Trabalho Agora'}
+                                </button>
+                             )}
+                             {displayData.status === 'in_service' && (
+                                <button 
+                                  disabled={isActing}
+                                  onClick={async () => {
+                                    setIsActing(true);
+                                    try {
+                                      const { error } = await supabase.rpc('advance_freelance_status', { 
+                                        order_id: displayData.id, 
+                                        new_status: 'completed' 
+                                      });
+
+                                      if (error) throw error;
+
+                                      showToast("Sucesso", "Trabalho finalizado!", "success");
+                                      fetchOrder();
+                                    } catch (err: any) {
+                                      showToast("Erro", "Falha ao finalizar: " + err.message, "error");
+                                    } finally {
+                                      setIsActing(false);
+                                    }
+                                  }} 
+                                  className={`w-full h-14 bg-emerald-600 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 transition-opacity ${isActing ? 'opacity-50 cursor-not-allowed' : 'hover:bg-emerald-700'}`}
+                                >
+                                 <span className="material-symbols-outlined">{isActing ? 'progress_activity' : 'task_alt'}</span>
+                                 {isActing ? 'Processando...' : 'Finalizar e Entregar'}
+                                </button>
+                             )}
                          </>
                        )}
 
