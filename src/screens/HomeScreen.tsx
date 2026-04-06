@@ -533,7 +533,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         ? 'bg-black/95 backdrop-blur-md shadow-2xl border-b border-white/5'
         : 'bg-gradient-to-b from-black/90 via-black/30 to-transparent'
         }`}>
-        <div className="flex items-center justify-between lg:ml-12 lg:mr-auto max-w-7xl transition-all duration-300">
+        <div className="flex items-center justify-between lg:ml-12 lg:pr-4 transition-all duration-300">
           <div className="flex items-center gap-3">
             <div 
               className="relative flex items-center gap-1.5 cursor-pointer group"
@@ -652,7 +652,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         </div>
 
         {/* Category Chips - Prime Style */}
-        <div className="lg:ml-12 lg:mr-auto max-w-7xl mt-4 overflow-x-auto hide-scrollbar flex items-center gap-2 pb-2 transition-all duration-300">
+        <div className="lg:ml-12 lg:pr-4 mt-4 overflow-x-auto hide-scrollbar flex items-center gap-2 pb-2 transition-all duration-300">
           {dynamicCategories.map((cat) => (
             <button
               key={cat.name}
