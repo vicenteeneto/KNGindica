@@ -9,7 +9,7 @@ export default function ServiceHistoryScreen({ onNavigate }: NavigationProps) {
 
   return (
     <div className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
-      <div className="max-w-7xl mx-auto bg-white dark:bg-slate-900 min-h-screen flex flex-col shadow-xl">
+      <div className="w-full bg-white dark:bg-slate-900 min-h-screen flex flex-col shadow-xl lg:pl-16">
         
         {/* Header */}
         <div className="relative z-10 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 transition-colors">

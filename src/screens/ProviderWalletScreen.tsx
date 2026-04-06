@@ -129,7 +129,7 @@ export default function ProviderWalletScreen({ onNavigate }: NavigationProps) {
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto w-full px-4 -mt-6 relative z-10 space-y-6">
+        <div className="w-full px-4 sm:px-6 lg:px-12 py-8 -mt-6 relative z-10 space-y-6">
           
           {/* Quick Metrics */}
           <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex divide-x divide-slate-100 dark:divide-slate-700">

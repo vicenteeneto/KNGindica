@@ -529,7 +529,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
     <div className="w-full bg-[#000000] min-h-screen flex flex-col font-display text-white md:pb-0 overflow-x-hidden transition-colors duration-500">
       
       {/* Floating Header */}
-<header className={`relative lg:fixed top-0 left-0 lg:left-12 right-0 z-50 transition-all duration-500 px-4 pt-3 pb-1.5 ${isScrolled
+      <header className={`relative lg:fixed top-0 left-0 lg:left-16 right-0 z-50 transition-all duration-500 px-4 pt-3 pb-1.5 ${isScrolled
         ? 'bg-black/95 backdrop-blur-md shadow-2xl border-b border-white/5'
         : 'bg-gradient-to-b from-black/90 via-black/30 to-transparent'
         }`}>
@@ -766,7 +766,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
         {/* Active Service Tracker (Live Activity Style) */}
         {activeRequest && (
-          <div className="lg:ml-12 lg:mr-auto max-w-7xl px-4 -mt-12 md:-mt-16 mb-8 relative z-30 transition-all duration-300">
+          <div className="lg:ml-16 lg:mr-auto px-4 -mt-12 md:-mt-16 mb-8 relative z-30 transition-all duration-300">
             <div 
               onClick={() => onNavigate('myRequests')}
               className="bg-primary/95 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl flex items-center justify-between cursor-pointer hover:scale-[1.02] transition-transform animate-pulse-subtle"
@@ -797,7 +797,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         )}
 
 
-        <section className="lg:ml-12 lg:mr-auto max-w-7xl px-4 mb-10 relative z-30 transition-all duration-300">
+        <section className="lg:ml-16 lg:mr-auto px-4 mb-10 relative z-30 transition-all duration-300">
           <div className="bg-gradient-to-r from-emerald-600/90 to-emerald-800/95 rounded-xl p-4 md:p-6 shadow-xl relative overflow-hidden group border border-emerald-400/20">
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -825,10 +825,10 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         </section>
 
         {/* Collection Rows */}
-        <div className={`w-full max-w-7xl mx-auto relative z-20 pb-20 ${!activeRequest ? '-mt-8' : ''}`}>
+        <div className={`w-full mx-auto relative z-20 pb-20 ${!activeRequest ? '-mt-8' : ''}`}>
           
           {/* Action Row - Search & View Toggle */}
-          <div className="px-4 md:px-8 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
+          <div className="px-4 md:px-8 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between lg:ml-12">
             <div className="relative group max-w-lg w-full">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                     <span className="material-symbols-outlined text-gray-400 group-focus-within:text-primary transition-colors">sparkles</span>
@@ -856,59 +856,57 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
           {viewMode === 'map' ? (
              /* Map View Container */
-             <div className="px-4 md:px-8">
-               <div className="w-full h-[600px] rounded-2xl overflow-hidden shadow-2xl border border-slate-800 relative ring-1 ring-white/10">
-                  <MapContainer 
-                    center={mapCenter} 
-                    zoom={userCoords ? 13 : 12} 
-                    style={{ height: '100%', width: '100%' }}
-                    className="z-0"
-                  >
-                    <TileLayer
-                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    />
-                    <MapUpdater center={mapCenter} />
-                    {userCoords && (
-                      <CircleMarker 
-                        center={[userCoords.lat, userCoords.lng]}
-                        radius={8}
-                        pathOptions={{ 
-                          fillColor: '#3b82f6', 
-                          color: '#ffffff', 
-                          weight: 3, 
-                          fillOpacity: 1 
-                        }}
+             <div className="w-full px-4 sm:px-6 lg:px-12 py-4 sm:py-8 lg:ml-16 h-[600px] rounded-2xl overflow-hidden shadow-2xl border border-slate-800 relative ring-1 ring-white/10">
+                <MapContainer 
+                  center={mapCenter} 
+                  zoom={userCoords ? 13 : 12} 
+                  style={{ height: '100%', width: '100%' }}
+                  className="z-0"
+                >
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  />
+                  <MapUpdater center={mapCenter} />
+                  {userCoords && (
+                    <CircleMarker 
+                      center={[userCoords.lat, userCoords.lng]}
+                      radius={8}
+                      pathOptions={{ 
+                        fillColor: '#3b82f6', 
+                        color: '#ffffff', 
+                        weight: 3, 
+                        fillOpacity: 1 
+                      }}
+                    >
+                      <Popup>📍 Você está aqui</Popup>
+                    </CircleMarker>
+                  )}
+                  {providers.map(p => {
+                    if (!p.latitude || !p.longitude) return null;
+                    return (
+                      <Marker 
+                        key={p.id} 
+                        position={[p.latitude, p.longitude]} 
+                        icon={createProviderIcon(p.image)}
                       >
-                        <Popup>📍 Você está aqui</Popup>
-                      </CircleMarker>
-                    )}
-                    {providers.map(p => {
-                      if (!p.latitude || !p.longitude) return null;
-                      return (
-                        <Marker 
-                          key={p.id} 
-                          position={[p.latitude, p.longitude]} 
-                          icon={createProviderIcon(p.image)}
-                        >
-                          <Popup className="provider-popup">
-                            <div className="p-2 w-48 font-display bg-[#0f171e] text-white rounded-lg">
-                              <img src={p.image} className="w-full h-24 object-cover rounded-md mb-2" alt={p.name} />
-                              <h4 className="font-bold text-white">{p.name}</h4>
-                              <p className="text-xs text-primary font-bold mb-1">{p.service}</p>
-                              <button 
-                                onClick={() => onNavigate('profile', { professionalId: p.id })}
-                                className="w-full bg-primary text-white text-[10px] py-2 rounded font-black uppercase mt-2"
-                              >
-                                Ver Perfil
-                              </button>
-                            </div>
-                          </Popup>
-                        </Marker>
-                      );
-                    })}
-                  </MapContainer>
-               </div>
+                        <Popup className="provider-popup">
+                          <div className="p-2 w-48 font-display bg-[#0f171e] text-white rounded-lg">
+                            <img src={p.image} className="w-full h-24 object-cover rounded-md mb-2" alt={p.name} />
+                            <h4 className="font-bold text-white">{p.name}</h4>
+                            <p className="text-xs text-primary font-bold mb-1">{p.service}</p>
+                            <button 
+                              onClick={() => onNavigate('profile', { professionalId: p.id })}
+                              className="w-full bg-primary text-white text-[10px] py-2 rounded font-black uppercase mt-2"
+                            >
+                              Ver Perfil
+                            </button>
+                          </div>
+                        </Popup>
+                      </Marker>
+                    );
+                  })}
+                </MapContainer>
              </div>
           ) : (
             <>

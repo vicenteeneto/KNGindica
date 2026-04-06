@@ -215,7 +215,7 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
             }
           />
           {/* Tab Navigation */}
-          <div className="flex px-4 max-w-7xl mx-auto w-full">
+          <div className="flex px-4 w-full lg:pl-20">
             <button onClick={() => setActiveTab('all')} className={`flex-1 py-4 text-xs md:text-sm font-black uppercase tracking-widest border-b-2 transition-colors ${activeTab === 'all' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'}`}>
               Todas
             </button>
@@ -231,7 +231,7 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
         </div>
       ) : (
         <header className="sticky top-0 z-10 bg-white dark:bg-background-dark border-b border-slate-200 dark:border-slate-800">
-          <div className="flex items-center px-4 lg:ml-12 h-16 max-w-7xl w-full gap-4">
+          <div className="flex px-4 lg:pl-20 h-16 w-full gap-4 justify-between">
             <button 
               onClick={() => {
                 if (params?.returnTo) {
@@ -248,7 +248,7 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
             <button onClick={handleClearAll} className="text-primary font-medium text-sm px-2">Limpar tudo</button>
           </div>
           {/* Tab Navigation */}
-          <div className="flex px-4 lg:ml-12 max-w-7xl w-full">
+          <div className="flex px-4 lg:pl-20 w-full">
             <button onClick={() => setActiveTab('all')} className={`flex-1 py-4 text-xs md:text-sm font-black uppercase tracking-widest border-b-2 ${activeTab === 'all' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'}`}>
               Todas
             </button>
@@ -265,7 +265,7 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
       )}
 
       {/* Main Content */}
-      <main className="flex-1 max-w-7xl lg:ml-12 w-full pb-24">
+      <main className="flex-1 w-full lg:pl-16 pb-24">
         {/* Push Notifications Opt-in */}
         {(showPushBanner && push.permission !== 'granted') && (
           <section className="px-4 py-4 relative">

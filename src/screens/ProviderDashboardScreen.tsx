@@ -619,7 +619,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
       <div className="relative flex min-h-screen w-full flex-col mx-auto bg-slate-50 dark:bg-slate-950 overflow-x-hidden">
         {renderHeader()}
         <main className="flex-1 overflow-y-auto">
-          <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+          <div className="w-full px-4 sm:px-6 lg:px-12 py-4 sm:py-8 lg:ml-16">
             {loading ? (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 animate-pulse">
                 <div className="lg:col-span-8 space-y-6">
