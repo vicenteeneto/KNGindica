@@ -116,6 +116,15 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
       }).eq('id', request.id);
 
       if (error) throw error;
+
+      // Notificar o CLIENTE que o serviço foi agendado
+      await supabase.from('notifications').insert({
+        user_id: displayData.client_id,
+        title: 'Serviço Agendado! 📅',
+        message: `O profissional definiu uma data para "${displayData.title || displayData.category?.name}". Confira no painel.`,
+        type: 'status',
+        related_entity_id: displayData.id
+      });
       showToast("Sucesso", "Agendamento realizado!", "success");
       setScheduleModal({ ...scheduleModal, isOpen: false });
       refreshData();
@@ -263,6 +272,16 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                              {displayData.status === 'scheduled' && (
                                 <button onClick={async () => {
                                   await supabase.from('service_requests').update({ status: 'in_service' }).eq('id', request.id);
+                                  
+                                  // Notificar o CLIENTE que o trabalho iniciou
+                                  await supabase.from('notifications').insert({
+                                    user_id: displayData.client_id,
+                                    title: 'Trabalho Iniciado! 🚀',
+                                    message: `O profissional iniciou a execução de "${displayData.title || displayData.category?.name}".`,
+                                    type: 'status',
+                                    related_entity_id: displayData.id
+                                  });
+
                                   showToast("Sucesso", "Trabalho iniciado!", "success");
                                   refreshData();
                                 }} className="w-full h-11 bg-blue-600 text-white text-xs font-black uppercase tracking-widest rounded-xl shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2">
@@ -272,6 +291,16 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                              {displayData.status === 'in_service' && (
                                 <button onClick={async () => {
                                   await supabase.from('service_requests').update({ status: 'completed' }).eq('id', request.id);
+                                  
+                                  // Notificar o CLIENTE que o trabalho foi finalizado
+                                  await supabase.from('notifications').insert({
+                                    user_id: displayData.client_id,
+                                    title: 'Trabalho Finalizado! ✅',
+                                    message: `O profissional concluiu "${displayData.title || displayData.category?.name}". Avalie para liberar o pagamento.`,
+                                    type: 'status',
+                                    related_entity_id: displayData.id
+                                  });
+
                                   showToast("Sucesso", "Serviço finalizado!", "success");
                                   refreshData();
                                 }} className="w-full h-11 bg-emerald-600 text-white text-xs font-black uppercase tracking-widest rounded-xl shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2">
