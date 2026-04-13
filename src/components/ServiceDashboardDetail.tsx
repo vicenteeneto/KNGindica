@@ -110,11 +110,10 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
     setIsActing(true);
     try {
       const scheduledAt = `${scheduleModal.date}T${scheduleModal.time}:00`;
-      const { error } = await supabase.rpc('advance_service_status', { 
-        id_param: request.id, 
-        new_status: 'scheduled',
-        desired_date_param: scheduledAt
-      });
+      const { error } = await supabase.from('service_requests').update({ 
+        status: 'scheduled',
+        desired_date: scheduledAt
+      }).eq('id', request.id);
 
       if (error) throw error;
       showToast("Sucesso", "Agendamento realizado!", "success");
@@ -263,7 +262,7 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                              )}
                              {displayData.status === 'scheduled' && (
                                 <button onClick={async () => {
-                                  await supabase.rpc('advance_service_status', { id_param: request.id, new_status: 'in_service' });
+                                  await supabase.from('service_requests').update({ status: 'in_service' }).eq('id', request.id);
                                   showToast("Sucesso", "Trabalho iniciado!", "success");
                                   refreshData();
                                 }} className="w-full h-11 bg-blue-600 text-white text-xs font-black uppercase tracking-widest rounded-xl shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2">
@@ -272,7 +271,7 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                              )}
                              {displayData.status === 'in_service' && (
                                 <button onClick={async () => {
-                                  await supabase.rpc('advance_service_status', { id_param: request.id, new_status: 'completed' });
+                                  await supabase.from('service_requests').update({ status: 'completed' }).eq('id', request.id);
                                   showToast("Sucesso", "Serviço finalizado!", "success");
                                   refreshData();
                                 }} className="w-full h-11 bg-emerald-600 text-white text-xs font-black uppercase tracking-widest rounded-xl shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2">
