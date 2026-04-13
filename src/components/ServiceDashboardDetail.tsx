@@ -220,6 +220,16 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                             {displayData.status === 'proposed' && (
                               <button onClick={async () => {
                                 await supabase.from('service_requests').update({ status: 'awaiting_payment' }).eq('id', request.id);
+                                
+                                // Notificar o prestador sobre o aceite do orçamento
+                                await supabase.from('notifications').insert({
+                                  user_id: displayData.provider_id,
+                                  title: 'Orçamento Aceito! 🎯',
+                                  message: `O cliente aceitou seu orçamento para "${displayData.title || displayData.category?.name}". Realize o pagamento para confirmar.`,
+                                  type: 'status',
+                                  related_entity_id: displayData.id
+                                });
+
                                 showToast("Sucesso", "Orçamento aceito!", "success");
                                 refreshData();
                               }} className="w-full h-11 bg-primary text-white text-xs font-black uppercase tracking-widest rounded-xl shadow-xl shadow-primary/20 flex items-center justify-center gap-2">

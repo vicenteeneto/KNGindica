@@ -132,15 +132,6 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
             content: "💳 Taxa de intermediação paga com sucesso! O serviço foi oficialmente confirmado."
           });
         }
-        
-        // Notificação manual restaurada para o prestador
-        await supabase.from('notifications').insert({
-          user_id: request.provider_id,
-          title: 'Pagamento Confirmado! ✅',
-          message: `A taxa de intermediação de "${request.title}" foi paga. Serviço confirmado!`,
-          type: 'service_paid',
-          related_entity_id: request.id
-        });
       }
 
       if (request?.is_freelance) {
