@@ -193,8 +193,11 @@ export function NotificationProvider({ children, onNavigate }: { children: React
     }
 
     fetchCounts();
+    
+    // Lista para rastrear todos os canais e garantir limpeza total
+    const activeChannels: any[] = [];
 
-    // 1. Canal de Notificações
+    // 1. Canal de Notificações - ÚNICO responsável por exibir Popups Visuais (Toasts)
     const notificationsChannel = supabase.channel('realtime_notifications')
       .on('postgres_changes', {
         event: 'INSERT',
@@ -208,29 +211,19 @@ export function NotificationProvider({ children, onNavigate }: { children: React
         let target = 'notifications' as Screen;
         let navParams: any = {};
         
-        if (payload.new.type === 'order') {
+        if (payload.new.type === 'order' || payload.new.type === 'status') {
           target = 'serviceStatus';
-          navParams = { 
-            requestId: payload.new.related_entity_id
-          };
+          navParams = { requestId: payload.new.related_entity_id };
         } else if (payload.new.type === 'new_bid') {
           target = 'serviceStatus';
           navParams = { requestId: payload.new.related_entity_id };
-        } else if (payload.new.type === 'status') {
-          target = 'serviceStatus';
-          navParams = { 
-            requestId: payload.new.related_entity_id
-          };
         } else if (payload.new.type === 'message') {
           target = 'chat';
           navParams = { roomId: payload.new.related_entity_id };
         } else if (payload.new.type === 'freelance_bid') {
           target = 'bidRoom';
           navParams = { orderId: payload.new.related_entity_id };
-        } else if (payload.new.type === 'freelance_approved') {
-          target = 'freelanceStatus';
-          navParams = { orderId: payload.new.related_entity_id };
-        } else if (payload.new.type === 'freelance_status') {
+        } else if (payload.new.type === 'freelance_approved' || payload.new.type === 'freelance_status' || payload.new.type === 'freelance_paid' || payload.new.type === 'freelance_review' || payload.new.type === 'freelance_scheduled') {
           target = 'freelanceStatus';
           navParams = { orderId: payload.new.related_entity_id };
         }
@@ -246,108 +239,66 @@ export function NotificationProvider({ children, onNavigate }: { children: React
         fetchCounts();
       })
       .subscribe();
+    
+    activeChannels.push(notificationsChannel);
 
-    // 2. Canal de Mensagens de Chat (Simplificado para ser dinâmico)
-    const setupChatSubscription = async () => {
-      // Subscribing to ALL chat_messages inserts. 
-      // RLS ensures we only receive messages for rooms we belong to.
-      supabase.channel('realtime_messages')
-        .on('postgres_changes', {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'chat_messages',
-        }, async (payload) => {
-          if (payload.new.sender_id !== user.id) {
-            setUnreadMessages(prev => prev + 1);
-            
-            // Buscar dados do remetente e da sala
-            const [{ data: sender }, { data: room }] = await Promise.all([
-              supabase.from('profiles').select('full_name, avatar_url').eq('id', payload.new.sender_id).single(),
-              supabase.from('chat_rooms').select('id').eq('id', payload.new.room_id).single()
-            ]);
-            
-            if (room) {
-              // Notificação já enviada pela tabela de notificações, não duplicar Toast aqui
-            }
-          }
-        })
-        .on('postgres_changes', {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'chat_messages',
-        }, () => {
-          fetchCounts();
-        })
-        .subscribe();
-    };
+    // 2. Canal de Mensagens de Chat (Apenas contadores)
+    const messagesChannel = supabase.channel('realtime_messages')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'chat_messages',
+      }, (payload) => {
+        if (payload.new.sender_id !== user.id) {
+          setUnreadMessages(prev => prev + 1);
+          // O Toast de mensagem virá via tabela 'notifications'
+        }
+      })
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'chat_messages',
+      }, () => {
+        fetchCounts();
+      })
+      .subscribe();
+    
+    activeChannels.push(messagesChannel);
 
-    // 3. Canal de Pedidos de Serviço (Real-time para profissionais)
-    let requestsChannel: any = null;
+    // 3. Canais de Pedidos e Freelance (Apenas para profissionais - atualização de contadores)
     if (role === 'provider') {
-      requestsChannel = supabase.channel('realtime_requests')
+      const requestsChannel = supabase.channel('realtime_requests')
         .on('postgres_changes', {
           event: '*',
           schema: 'public',
           table: 'service_requests'
-        }, async (payload) => {
-          // Quando algo muda em service_requests, atualizamos os contadores
+        }, () => {
           fetchCounts();
-          
-          if (payload.eventType === 'INSERT' && payload.new.status === 'open') {
-             // Checar se é para este profissional
-             const { data: prof } = await supabase.from('profiles').select('categories').eq('id', user.id).single();
-             const myCats = prof?.categories || [];
-             const { data: cat } = await supabase.from('service_categories').select('name').eq('id', payload.new.category_id).single();
-             
-             if (cat && myCats.includes(cat.name) && !payload.new.provider_id) {
-               showToast(
-                 "Novo Pedido Disponível!", 
-                 payload.new.title || "Um novo cliente solicitou um serviço na sua categoria.",
-                 'notification',
-                 undefined,
-                 'providerRequests'
-               );
-             }
-          }
+          // Não disparar Toast aqui para evitar duplicidade com a tabela 'notifications'
         })
         .subscribe();
+      
+      activeChannels.push(requestsChannel);
 
-      // 4. Canal de Ordens Freelance
       const freelanceChannel = supabase.channel('realtime_freelance')
         .on('postgres_changes', {
           event: '*',
           schema: 'public',
           table: 'freelance_orders'
-        }, async (payload) => {
+        }, () => {
           fetchCounts();
-          
-          if (payload.eventType === 'INSERT' && payload.new.status === 'open') {
-             const { data: prof } = await supabase.from('profiles').select('categories').eq('id', user.id).single();
-             const myCats = prof?.categories || [];
-             const { data: cat } = await supabase.from('service_categories').select('name').eq('id', payload.new.category_id).single();
-             
-             if (cat && myCats.includes(cat.name) && !payload.new.assigned_provider_id) {
-               showToast(
-                 "Novo Pedido Freelance!", 
-                 payload.new.title || "Um novo freelance está disponível para lance.",
-                 'notification',
-                 undefined,
-                 'openOrders'
-               );
-             }
-          }
+          // Não disparar Toast aqui para evitar duplicidade com a tabela 'notifications'
         })
         .subscribe();
         
-      requestsChannel = { sr: requestsChannel, fr: freelanceChannel };
+      activeChannels.push(freelanceChannel);
     }
 
-    setupChatSubscription();
-
     return () => {
-      if (notificationsChannel) supabase.removeChannel(notificationsChannel);
-      // setupChatSubscription, requestsChannel, freelanceChannel would need to be stored in refs
-      // to be properly closed here easily, but for now we ensure notificationsChannel is closed.
+      // Limpeza rigorosa de todos os canais abertos
+      activeChannels.forEach(channel => {
+        if (channel) supabase.removeChannel(channel);
+      });
     };
   }, [user, role]);
 
