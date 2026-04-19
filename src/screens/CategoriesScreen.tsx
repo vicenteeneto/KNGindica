@@ -12,7 +12,7 @@ export default function CategoriesScreen({ onNavigate }: NavigationProps) {
 
   return (
     <div className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
-      <div className="relative flex min-h-screen w-full flex-col max-w-none lg:mx-0 lg:ml-16 bg-white dark:bg-slate-900 shadow-xl overflow-x-hidden transition-all duration-300">
+      <div className="relative flex min-h-screen w-full flex-col max-w-5xl mx-auto bg-white dark:bg-slate-900 shadow-xl overflow-x-hidden transition-all duration-300">
         
         <header className="flex items-center bg-white dark:bg-slate-900 p-4 pb-2 justify-between sticky top-0 z-10 border-b border-slate-100 dark:border-slate-800 transition-colors">
           <button onClick={() => onNavigate('home')} className="text-slate-900 dark:text-slate-100 flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">

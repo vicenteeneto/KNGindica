@@ -319,7 +319,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
       <section className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden relative group">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter italic">
+            <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tighter italic">
               Análises KNGindica
             </h3>
             <div className="flex items-center gap-1.5">
@@ -589,12 +589,12 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
         <div onClick={() => onNavigate('providerWallet')} className="group flex items-center justify-between p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-primary transition-all cursor-pointer overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/0 to-primary/[0.02] pointer-events-none" />
           <div className="flex flex-col gap-0.5 relative z-10">
-            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5 group-hover:text-primary transition-colors">Saldo Atualizado</p>
+            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5 group-hover:text-primary transition-colors">Saldo Atualizado</p>
             <div className="flex items-end gap-1.5">
-              <span className="text-2xl font-black leading-none group-hover:text-primary transition-colors">
+              <span className="text-xl font-black leading-none group-hover:text-primary transition-colors">
                 {formatCurrency(stats.earnings)}
               </span>
-              <span className="text-[8px] text-emerald-500 font-bold mb-0.5 border border-emerald-500/20 px-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/10 tracking-widest uppercase">Líquido</span>
+              <span className="text-[7px] text-emerald-500 font-bold mb-0.5 border border-emerald-500/20 px-1 rounded-full bg-emerald-50 dark:bg-emerald-900/10 tracking-widest uppercase">Líquido</span>
             </div>
             {stats.pending > 0 && (
               <div className="flex items-center gap-1 mt-1 opacity-80 underline-offset-2 underline decoration-slate-300">
@@ -619,7 +619,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
       <div className="relative flex min-h-screen w-full flex-col mx-auto bg-slate-50 dark:bg-slate-950 overflow-x-hidden">
         {renderHeader()}
         <main className="flex-1 overflow-y-auto">
-          <div className="w-full px-4 sm:px-6 lg:px-12 py-4 sm:py-8 lg:ml-16">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
             {loading ? (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 animate-pulse">
                 <div className="lg:col-span-8 space-y-6">
@@ -636,12 +636,12 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
                 {/* Left Column: Greeting & Main Cards */}
-                <div className="lg:col-span-8 space-y-6 sm:space-y-8">
+                <div className="lg:col-span-8 space-y-4 sm:space-y-6">
                   {renderDashboardTab()}
                 </div>
 
                 {/* Right Column: Feed & Portfolio (Visible on Desktop) */}
-                <div className="lg:col-span-4 space-y-6 sm:space-y-8 lg:sticky lg:top-[90px] self-start z-10">
+                <div className="lg:col-span-4 space-y-4 sm:space-y-6 lg:sticky lg:top-[90px] self-start z-10">
                   <div className="">
                     <h3 className="font-black text-slate-900 dark:text-slate-100 mb-4 ml-1 flex items-center gap-2 text-[10px] uppercase tracking-widest">
                       <span className="material-symbols-outlined text-primary text-[18px]">verified</span>

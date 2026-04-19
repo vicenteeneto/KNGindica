@@ -529,7 +529,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
     <div className="w-full bg-[#000000] min-h-screen flex flex-col font-display text-white md:pb-0 overflow-x-hidden transition-colors duration-500">
       
       {/* Floating Header */}
-      <header className={`relative lg:fixed top-0 left-0 lg:left-16 right-0 z-50 transition-all duration-500 px-4 lg:px-12 pt-3 pb-1.5 ${isScrolled
+      <header className={`relative lg:fixed top-0 left-0 lg:left-0 right-0 z-50 transition-all duration-500 px-4 lg:px-12 pt-3 pb-1.5 ${isScrolled
         ? 'bg-black/95 backdrop-blur-md shadow-2xl border-b border-white/5'
         : 'bg-gradient-to-b from-black/90 via-black/30 to-transparent'
         }`}>
@@ -690,7 +690,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                   <div className="absolute inset-0 bg-gradient-to-r from-background-light/40 dark:from-black/80 via-transparent to-transparent"></div>
 
                   {/* Content */}
-                  <div className="absolute bottom-16 md:bottom-24 left-0 lg:left-16 w-full px-4 lg:px-12 max-w-none transition-all duration-300">
+                  <div className="absolute bottom-16 md:bottom-24 left-0 lg:left-0 right-0 w-full px-4 lg:px-12 max-w-none transition-all duration-300">
                     <div className="max-w-2xl animate-fade-in-up flex flex-col items-start text-left md:ml-0">
                       <div className="flex items-center gap-2 mb-3">
                         {p.isVerified ? (
@@ -766,7 +766,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
         {/* Active Service Tracker (Live Activity Style) */}
         {activeRequest && (
-          <div className="lg:ml-16 px-4 lg:px-12 -mt-12 md:-mt-16 mb-8 relative z-30 transition-all duration-300">
+          <div className="w-full max-w-7xl mx-auto px-4 lg:px-12 -mt-12 md:-mt-16 mb-8 relative z-30 transition-all duration-300">
             <div 
               onClick={() => onNavigate('myRequests')}
               className="bg-primary/95 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl flex items-center justify-between cursor-pointer hover:scale-[1.02] transition-transform animate-pulse-subtle"
@@ -797,7 +797,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         )}
 
 
-        <section className="lg:ml-16 px-4 lg:px-12 mb-10 relative z-30 transition-all duration-300">
+        <section className="w-full max-w-7xl mx-auto px-4 lg:px-12 mb-10 relative z-30 transition-all duration-300">
           <div className="bg-gradient-to-r from-emerald-600/90 to-emerald-800/95 rounded-xl p-4 md:p-6 shadow-xl relative overflow-hidden group border border-emerald-400/20">
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -825,7 +825,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         </section>
 
         {/* Collection Rows */}
-        <div className={`w-full lg:ml-16 lg:w-[calc(100%-64px)] mx-auto relative z-20 pb-20 ${!activeRequest ? '-mt-8' : ''}`}>
+        <div className={`w-full max-w-7xl mx-auto relative z-20 pb-20 ${!activeRequest ? '-mt-8' : ''}`}>
           
           {/* Action Row - Search & View Toggle */}
           <div className="px-4 lg:px-12 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
@@ -856,7 +856,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
           {viewMode === 'map' ? (
              /* Map View Container */
-             <div className="w-full px-4 sm:px-6 lg:px-12 py-4 sm:py-8 lg:ml-16 h-[600px] rounded-2xl overflow-hidden shadow-2xl border border-slate-800 relative ring-1 ring-white/10">
+             <div className="w-full h-[600px] rounded-2xl overflow-hidden shadow-2xl border border-slate-800 relative ring-1 ring-white/10">
                 <MapContainer 
                   center={mapCenter} 
                   zoom={userCoords ? 13 : 12} 
@@ -1052,7 +1052,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
   return (
     <section className="px-4 lg:px-12 mb-12">
       <div className="flex flex-col mb-5">
-        <h3 className={`text-xl md:text-2xl font-black tracking-tighter uppercase italic flex items-center gap-2 ${highlight ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>
+        <h3 className={`text-lg md:text-xl font-black tracking-tighter uppercase italic flex items-center gap-2 ${highlight ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>
           {title}
           <span className="material-symbols-outlined text-sm font-normal not-italic opacity-20">chevron_right</span>
         </h3>

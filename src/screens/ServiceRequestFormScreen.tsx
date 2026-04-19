@@ -306,7 +306,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
       </div>
 
       <div className="flex-1 overflow-y-auto w-full">
-        <div className="p-4 md:p-8 space-y-8 max-w-none lg:ml-16 pr-6 w-full transition-all duration-300">
+        <div className="p-4 md:p-8 space-y-8 w-full max-w-7xl mx-auto transition-all duration-300">
           
           {params?.providerName && (
             <div className="bg-primary/10 border border-primary/20 p-4 rounded-xl flex items-center gap-3">
@@ -583,7 +583,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
         <button
           onClick={handleSendRequest}
           disabled={isSubmitting}
-          className="w-full max-w-none lg:ml-16 pr-6 bg-primary hover:bg-primary/90 text-white font-bold py-2.5 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 transition-transform active:scale-[0.98] disabled:opacity-70 disabled:hover:bg-primary"
+          className="w-full max-w-7xl mx-auto bg-primary hover:bg-primary/90 text-white font-bold py-2.5 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 transition-transform active:scale-[0.98] disabled:opacity-70 disabled:hover:bg-primary"
         >
           {isSubmitting ? (
             <span className="material-symbols-outlined animate-spin text-xl text-white">progress_activity</span>

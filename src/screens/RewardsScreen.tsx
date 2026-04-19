@@ -144,7 +144,7 @@ export default function RewardsScreen({ onNavigate }: NavigationProps) {
           onNavigate={onNavigate} 
         />
       ) : (
-        <header className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 lg:pl-16 pr-6 h-16 flex items-center justify-between transition-all duration-300">
+        <header className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 pr-6 h-16 flex items-center justify-between transition-all duration-300">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => onNavigate('back')}
@@ -158,7 +158,7 @@ export default function RewardsScreen({ onNavigate }: NavigationProps) {
       )}
 
       <main className="flex-1 overflow-y-auto w-full p-4 pb-24">
-        <div className="max-w-none lg:mx-0 lg:ml-16 pr-6 space-y-6 transition-all duration-300">
+        <div className="w-full max-w-5xl mx-auto space-y-6 transition-all duration-300">
           
           {/* Points Card */}
           <div className="bg-gradient-to-br from-primary to-orange-600 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden group">

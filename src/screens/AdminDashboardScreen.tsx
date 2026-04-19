@@ -1013,107 +1013,107 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           {/* Card: Providers - Clickable */}
           <div 
             onClick={() => setActiveTab('providers')}
-            className="group cursor-pointer bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-primary/50 hover:shadow-lg transition-all active:scale-95"
+            className="group cursor-pointer bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-primary/50 hover:shadow-lg transition-all active:scale-95"
           >
             <div className="flex justify-between items-start mb-4">
               <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 group-hover:bg-primary group-hover:text-white rounded-lg flex items-center justify-center transition-colors">
-                <span className="material-symbols-outlined">engineering</span>
+                <span className="material-symbols-outlined text-[20px]">engineering</span>
               </div>
               <div className="flex flex-col items-end">
                 <span className="text-[10px] font-bold text-green-500 flex items-center gap-0.5">
                   <span className="material-symbols-outlined text-[10px]">trending_up</span>
                   +{stats.newToday} hoje
                 </span>
-                <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">arrow_forward_ios</span>
+                <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors text-[16px]">arrow_forward_ios</span>
               </div>
             </div>
-            <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Total de Prestadores</p>
-            <p className="text-2xl font-bold">{stats.providers}</p>
+            <p className="text-slate-500 dark:text-slate-400 text-xs font-medium">Total de Prestadores</p>
+            <p className="text-xl font-bold">{stats.providers}</p>
           </div>
 
           {/* Card: Clients - Clickable */}
           <div 
             onClick={() => setActiveTab('clients')}
-            className="group cursor-pointer bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-purple-500/50 hover:shadow-lg transition-all active:scale-95"
+            className="group cursor-pointer bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-purple-500/50 hover:shadow-lg transition-all active:scale-95"
           >
             <div className="flex justify-between items-start mb-4">
               <div className="p-2 bg-purple-50 dark:bg-purple-900/20 text-purple-600 group-hover:bg-purple-600 group-hover:text-white rounded-lg flex items-center justify-center transition-colors">
-                <span className="material-symbols-outlined">group</span>
+                <span className="material-symbols-outlined text-[20px]">group</span>
               </div>
               <div className="flex flex-col items-end">
                  <span className="text-[10px] font-bold text-slate-400">{stats.clients} total</span>
-                 <span className="material-symbols-outlined text-slate-300 group-hover:text-purple-500 transition-colors">arrow_forward_ios</span>
+                 <span className="material-symbols-outlined text-slate-300 group-hover:text-purple-500 transition-colors text-[16px]">arrow_forward_ios</span>
               </div>
             </div>
-            <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Total de Clientes</p>
-            <p className="text-2xl font-bold">{stats.clients}</p>
+            <p className="text-slate-500 dark:text-slate-400 text-xs font-medium">Total de Clientes</p>
+            <p className="text-xl font-bold">{stats.clients}</p>
           </div>
 
           {/* Card: Referrals Audit - Clickable */}
           <div 
             onClick={() => setActiveTab('referrals')}
-            className="group cursor-pointer bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-primary/50 hover:shadow-lg transition-all active:scale-95"
+            className="group cursor-pointer bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-primary/50 hover:shadow-lg transition-all active:scale-95"
           >
             <div className="flex justify-between items-start mb-4">
               <div className="p-2 bg-orange-50 dark:bg-orange-900/20 text-orange-600 group-hover:bg-primary group-hover:text-white rounded-lg flex items-center justify-center transition-colors">
-                <span className="material-symbols-outlined">share</span>
+                <span className="material-symbols-outlined text-[20px]">share</span>
               </div>
               <div className="flex flex-col items-end">
                  <span className="text-[10px] font-bold text-slate-400">{referralsHistory.length} registros</span>
-                 <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">arrow_forward_ios</span>
+                 <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors text-[16px]">arrow_forward_ios</span>
               </div>
             </div>
-            <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Auditoria de Indicações</p>
-            <p className="text-2xl font-bold">{referralsHistory.length}</p>
+            <p className="text-slate-500 dark:text-slate-400 text-xs font-medium">Auditoria de Indicações</p>
+            <p className="text-xl font-bold">{referralsHistory.length}</p>
           </div>
 
           <div 
             onClick={() => setActiveTab('verifications')}
-            className="group cursor-pointer bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-amber-500/50 hover:shadow-lg transition-all active:scale-95"
+            className="group cursor-pointer bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-amber-500/50 hover:shadow-lg transition-all active:scale-95"
           >
             <div className="flex justify-between items-start mb-4">
               <div className="p-2 bg-amber-50 dark:bg-amber-900/20 text-amber-600 group-hover:bg-amber-600 group-hover:text-white rounded-lg flex items-center justify-center transition-colors">
-                <span className="material-symbols-outlined">verified_user</span>
+                <span className="material-symbols-outlined text-[20px]">verified_user</span>
               </div>
               <div className="flex flex-col items-end">
                 <span className={`text-[10px] font-bold ${pendingVerifications.length > 0 ? 'text-amber-500' : 'text-slate-400'}`}>
                   {pendingVerifications.length} pendentes
                 </span>
-                <span className="material-symbols-outlined text-slate-300 group-hover:text-amber-500 transition-colors">arrow_forward_ios</span>
+                <span className="material-symbols-outlined text-slate-300 group-hover:text-amber-500 transition-colors text-[16px]">arrow_forward_ios</span>
               </div>
             </div>
-            <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Verificações de ID</p>
-            <p className="text-2xl font-bold">{pendingVerifications.length}</p>
+            <p className="text-slate-500 dark:text-slate-400 text-xs font-medium">Verificações de ID</p>
+            <p className="text-xl font-bold">{pendingVerifications.length}</p>
           </div>
 
           {/* Card: Services - Clickable */}
           <div 
             onClick={() => setActiveTab('orders')}
-            className="group cursor-pointer bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-green-500/50 hover:shadow-lg transition-all active:scale-95"
+            className="group cursor-pointer bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-green-500/50 hover:shadow-lg transition-all active:scale-95"
           >
             <div className="flex justify-between items-start mb-4">
               <div className="p-2 bg-green-50 dark:bg-green-900/20 text-green-600 group-hover:bg-green-600 group-hover:text-white rounded-lg flex items-center justify-center transition-colors">
-                <span className="material-symbols-outlined">task_alt</span>
+                <span className="material-symbols-outlined text-[20px]">task_alt</span>
               </div>
-              <span className="material-symbols-outlined text-slate-300 group-hover:text-green-500 transition-colors">arrow_forward_ios</span>
+              <span className="material-symbols-outlined text-slate-300 group-hover:text-green-500 transition-colors text-[16px]">arrow_forward_ios</span>
             </div>
-            <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Serviços Concluídos</p>
-            <p className="text-2xl font-bold">{stats.servicesCompleted}</p>
+            <p className="text-slate-500 dark:text-slate-400 text-xs font-medium">Serviços Concluídos</p>
+            <p className="text-xl font-bold">{stats.servicesCompleted}</p>
           </div>
 
           {/* Card: Revenue - Clickable */}
           <div 
             onClick={() => setActiveTab('orders')}
-            className="group cursor-pointer bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-orange-500/50 hover:shadow-lg transition-all active:scale-95"
+            className="group cursor-pointer bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-orange-500/50 hover:shadow-lg transition-all active:scale-95"
           >
             <div className="flex justify-between items-start mb-4">
               <div className="p-2 bg-orange-50 dark:bg-orange-900/20 text-orange-600 group-hover:bg-orange-600 group-hover:text-white rounded-lg flex items-center justify-center transition-colors">
-                <span className="material-symbols-outlined">payments</span>
+                <span className="material-symbols-outlined text-[20px]">payments</span>
               </div>
-              <span className="material-symbols-outlined text-slate-300 group-hover:text-orange-500 transition-colors">arrow_forward_ios</span>
+              <span className="material-symbols-outlined text-slate-300 group-hover:text-orange-500 transition-colors text-[16px]">arrow_forward_ios</span>
             </div>
-            <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Receita Estimada</p>
-            <p className="text-2xl font-bold">{formatCurrency(stats.revenue)}</p>
+            <p className="text-slate-500 dark:text-slate-400 text-xs font-medium">Receita Estimada</p>
+            <p className="text-xl font-bold">{formatCurrency(stats.revenue)}</p>
           </div>
         </div>
       </section>
@@ -3218,8 +3218,8 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
     <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-[#020617] font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
       <div className="flex-1 flex flex-col min-h-screen w-full">
         {/* Header Section */}
-        <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 p-4 sticky top-0 md:fixed md:left-12 md:right-0 z-30 transition-all">
-          <div className="max-w-[1550px] mx-auto flex items-center justify-between">
+        <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 p-4 sticky top-0 z-30 transition-all">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="bg-primary p-2 rounded-lg text-white flex items-center justify-center">
                 <span className="material-symbols-outlined">dashboard</span>
@@ -3258,7 +3258,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           </div>
         </header>
 
-        <main className="flex-1 max-w-[1550px] mx-auto w-full p-4 md:p-6 space-y-8 md:mt-[100px] mb-20">
+        <main className="flex-1 max-w-7xl mx-auto w-full p-4 md:p-6 space-y-8 md:mt-4 mb-20">
           {activeTab === 'dashboard' && renderDashboardTab()}
           {activeTab === 'providers' && renderProvidersTab()}
           {activeTab === 'clients' && renderClientsTab()}
