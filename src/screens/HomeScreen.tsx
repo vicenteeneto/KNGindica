@@ -708,12 +708,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                            <span className="text-[10px] font-black text-primary italic uppercase tracking-[0.2em]">Destaque KNGindica</span>
                         </div>
 
-                        <div className="relative mb-2 md:mb-4 px-8 py-2">
-                          {/* Corner Brackets (Mobile Only) */}
-                          <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-white/60 md:hidden" />
-                          <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-white/60 md:hidden" />
-                          
-                          <h1 className="text-3xl md:text-7xl font-black text-white leading-none drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] italic tracking-tighter">
+                        <div className="relative mb-2 md:mb-4 px-0 md:px-8 py-0 md:py-2 max-w-[90vw] md:max-w-none">
+                          <h1 className="text-2xl md:text-7xl font-black text-white leading-none drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] italic tracking-tighter truncate">
                             {p.name.toUpperCase()}
                           </h1>
                         </div>
@@ -1079,7 +1075,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
 
   return (
     <section className="mb-12">
-      <div className="flex flex-col mb-5 px-4 lg:px-12">
+      <div className="flex flex-col mb-4 md:mb-5 px-4 md:px-12">
         <h3 className={`text-lg md:text-xl font-black tracking-tighter italic flex items-center gap-2 ${highlight ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>
           {title}
           <span className="material-symbols-outlined text-sm font-normal not-italic opacity-20">chevron_right</span>
@@ -1104,14 +1100,14 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
 
         <div 
           ref={scrollRef}
-          className="flex gap-2.5 md:gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory px-4 lg:px-12"
+          className="flex gap-2.5 md:gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory px-4 md:px-12"
           style={{ touchAction: 'pan-x', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
         >
           {providers.map((p) => (
             <div
               key={p.id}
               onClick={() => onNavigate('profile', { professionalId: p.id })}
-              className="snap-start shrink-0 w-[110px] lg:w-[300px] group cursor-pointer"
+              className="snap-start shrink-0 w-[110px] lg:w-[300px] group cursor-pointer first:ml-0"
             >
               <div className={`relative aspect-[2/3] lg:aspect-video rounded-md lg:rounded-xl overflow-hidden shadow-2xl bg-white dark:bg-[#0a0a0a] transition-all duration-300 lg:group-hover:scale-110 lg:group-hover:z-50 lg:group-hover:ring-4 ${highlight ? 'lg:group-hover:ring-primary/40' : 'lg:group-hover:ring-white/10'}`}>
                 <img
