@@ -511,7 +511,14 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   };
 
   const handleTouchMoveHero = (e: React.TouchEvent) => {
-    setTouchEndHero(e.targetTouches[0].clientX);
+    // Only prevent default and handle swipe for horizontal moves
+    const currentX = e.targetTouches[0].clientX;
+    const diff = Math.abs(currentX - touchStartHero);
+    
+    // If the horizontal move is significant, we record it for the swipe
+    if (diff > 5) {
+      setTouchEndHero(currentX);
+    }
   };
 
   const handleTouchEndHero = () => {
@@ -700,14 +707,14 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                     <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-transparent hidden md:block"></div>
                     <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent md:hidden"></div>
 
-                    {/* Content Section */}
-                    <div className="absolute bottom-10 md:bottom-24 left-0 right-0 w-full px-8 md:px-16 lg:px-20 transition-all duration-500">
+                    {/* Content Section - Anchored Bottom */}
+                    <div className="absolute bottom-4 md:bottom-24 left-0 right-0 w-full px-6 md:px-16 lg:px-20 transition-all duration-500">
                       <div className="max-w-full lg:max-w-7xl mx-auto flex flex-col items-center md:items-start text-center md:text-left">
-                        <h1 className="text-2xl md:text-7xl font-black text-white leading-none drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] italic tracking-tighter mb-2 md:mb-6 whitespace-nowrap overflow-visible">
+                        <h1 className="text-2xl md:text-7xl font-black text-white leading-none drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] italic tracking-tighter mb-1.5 md:mb-6 whitespace-nowrap overflow-visible">
                           {p.name.toUpperCase()}
                         </h1>
 
-                        <div className="flex items-center justify-center md:justify-start gap-2 mb-10 transition-all duration-300">
+                        <div className="flex items-center justify-center md:justify-start gap-2 mb-6 md:mb-10 transition-all duration-300">
                           <div className="flex items-center text-yellow-500 gap-1 bg-black/40 md:bg-black/60 backdrop-blur-md px-2 py-1 rounded border border-white/10 shrink-0">
                             <span className="material-symbols-outlined text-[10px] md:text-sm filled">star</span>
                             <span className="text-[10px] md:text-sm font-black">{(p.rating || 5.0).toString().replace('.', ',')}</span>
@@ -1046,7 +1053,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
 
   return (
     <section className="mb-12">
-      <div className="flex flex-col mb-4 md:mb-5 px-4 md:px-12">
+      <div className="flex flex-col mb-4 md:mb-5 px-6 md:px-16">
         <h3 className={`text-lg md:text-xl font-black tracking-tighter italic flex items-center gap-2 ${highlight ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>
           {title}
           <span className="material-symbols-outlined text-sm font-normal not-italic opacity-20">chevron_right</span>
@@ -1071,16 +1078,18 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
 
         <div 
           ref={scrollRef}
-          className="flex gap-2.5 md:gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory px-4 md:px-12"
+          className="flex gap-2.5 md:gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory px-0"
           style={{ touchAction: 'pan-x', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
         >
+          {/* Spacer to align first card with the title above */}
+          <div className="shrink-0 w-6 md:w-16 h-1"></div>
           {providers.map((p) => (
             <div
               key={p.id}
               onClick={() => onNavigate('profile', { professionalId: p.id })}
               className="snap-start shrink-0 w-[110px] lg:w-[300px] group cursor-pointer first:ml-0"
             >
-              <div className={`relative aspect-[2/3] lg:aspect-video rounded-md lg:rounded-xl overflow-hidden shadow-2xl bg-white dark:bg-[#0a0a0a] transition-all duration-300 lg:group-hover:scale-110 lg:group-hover:z-50 lg:group-hover:ring-4 ${highlight ? 'lg:group-hover:ring-primary/40' : 'lg:group-hover:ring-white/10'}`}>
+              <div className={`relative aspect-[2/3] lg:aspect-video rounded-md lg:rounded-xl overflow-hidden shadow-2xl bg-white dark:bg-[#0a0a0a] transition-all duration-300 lg:group-hover:-translate-y-2 lg:group-hover:scale-[1.02] lg:group-hover:z-50 lg:group-hover:ring-4 ${highlight ? 'lg:group-hover:ring-primary/40' : 'lg:group-hover:ring-white/10'}`}>
                 <img
                   className="w-full h-full object-cover transition-transform duration-700"
                   src={p.image}
