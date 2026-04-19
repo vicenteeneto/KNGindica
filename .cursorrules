@@ -1,0 +1,153 @@
+# KNGindica — Projeto Regras de Codificação
+
+## Identidade do Projeto
+
+KNGindica é uma plataforma de indicação de serviços profissionais, construída com **React + TypeScript + TailwindCSS v4 + Supabase**.
+
+Stack: Vite · React 19 · TypeScript · TailwindCSS 4 · Supabase · Material Symbols Outlined · Leaflet
+
+---
+
+## 🚨 REGRA PRINCIPAL: PROIBIDO `uppercase` em className
+
+**NUNCA use a classe CSS `uppercase` em nenhum componente, tela ou estilo.**
+
+Esta regra é crítica para a identidade visual do projeto.
+
+```tsx
+// ❌ ERRADO — nunca faça isso
+<span className="text-xs font-black uppercase tracking-widest">MEUS PEDIDOS</span>
+
+// ✅ CORRETO — use capitalização natural do português
+<span className="text-xs font-black">Meus pedidos</span>
+```
+
+**Motivo:** O uso de `uppercase` transforma toda a UI em um estado de "alerta constante", tornando a experiência cansativa e pouco profissional. O design segue o padrão do WhatsApp/iOS — Natural Case (Sentence Case).
+
+---
+
+## 📝 Regras de Tipografia e Texto
+
+### Capitalização
+- **Headers de tela (h1/h2):** Primeira letra maiúscula, restante minúsculo. Ex: `Meus pedidos`, `Minhas mensagens`
+- **Nomes próprios:** Sempre capitalizados. Ex: `João Silva`, `KNGindica`
+- **Labels de formulário:** Sentence Case. Ex: `Nome completo`, `Telefone celular`
+- **Botões de ação primária:** Sentence Case. Ex: `Enviar avaliação`, `Mudar para prestador`
+- **Status e badges:** Primeira letra maiúscula. Ex: `Aberto`, `Em andamento`, `Finalizado`
+- **Seções/Categorias:** Primeira letra maiúscula. Ex: `Sobre você`, `Serviços & preços`
+
+### Classes CSS Proibidas em className de texto
+```
+uppercase         ← NUNCA usar
+text-transform: uppercase ← NUNCA usar em style inline
+```
+
+### Classes de espaçamento que SÃO permitidas (sem uppercase)
+```
+tracking-tight    ← OK para títulos compactos
+tracking-tighter  ← OK para títulos muito compactos
+tracking-widest   ← OK para badges de branding (ex: "KNGindica", "Powered by")
+```
+
+---
+
+## 🎨 Sistema de Design
+
+### Cores Primárias
+```
+--color-primary: #FF7A00  (laranja KNG)
+--bg-dark-main: #000000
+--bg-dark-surface: #121212
+--bg-dark-card: #1a1a1a
+```
+
+### Fontes
+- Família: `Inter` (via Google Fonts)
+- Ícones: `Material Symbols Outlined` — sempre usar com `fontVariationSettings` para ícones preenchidos
+
+### Ícones com preenchimento (estrelas, botões ativos)
+```tsx
+// ✅ CORRETO — ícone preenchido
+<span
+  className="material-symbols-outlined"
+  style={{ fontVariationSettings: "'FILL' 1" }}
+>
+  star
+</span>
+
+// ✅ CORRETO — ícone vazio (padrão)
+<span className="material-symbols-outlined">star</span>
+```
+
+---
+
+## 🧱 Padrões de Componente
+
+### StarRating — SEMPRE usar o componente centralizado
+```tsx
+import StarRating from '../components/StarRating';
+
+// ✅ CORRETO
+<StarRating rating={4.5} size="sm" />
+
+// ❌ ERRADO — nunca renderize estrelas manualmente
+{[1,2,3,4,5].map(star => <span>star</span>)}
+```
+
+### Status Badges
+```tsx
+// ✅ CORRETO — sem uppercase, com sentence case
+const statusLabels: Record<string, string> = {
+  open: 'Aberto',
+  proposed: 'Proposta recebida',
+  awaiting_payment: 'Aguardando pagamento',
+  paid: 'Confirmado / Pago',
+  accepted: 'Aceito',
+  in_progress: 'Iniciado',
+  completed: 'Finalizado',
+  cancelled: 'Cancelado',
+};
+```
+
+### Cards de lista (MyRequests, Freelances)
+- Usar `flex-wrap` nos cabeçalhos para evitar colisão em mobile
+- Usar `min-w-0` + `truncate` em textos que podem ser longos
+- Status badges devem ter `shrink-0`
+
+---
+
+## 📱 Mobile First
+
+- Todos os componentes devem funcionar em telas `375px+`
+- Usar `flex-wrap` em vez de `flex` fixo quando há risco de overflow
+- Não usar `whitespace-nowrap` em elementos que podem ter texto longo
+
+---
+
+## 🔄 Sistema de Avaliações
+
+- Sempre verificar se o pedido **já foi avaliado** antes de mostrar o botão "Avaliar"
+- Usar `reviews(id)` no select do Supabase para verificação eficiente
+- A tela `WriteReviewScreen` já faz a verificação de duplicata no mount
+- Após avaliação: mostrar badge "Avaliado" com ícone `check_circle`
+
+---
+
+## 🗄️ Supabase — Boas Práticas
+
+- Sempre usar `.maybeSingle()` quando o resultado pode ser null (evita erros)
+- Sempre usar `.single()` apenas quando tem certeza que o registro existe
+- Notificações: sempre disparar após mudanças de status importantes
+- Real-time: usar `supabase.channel()` para atualizações automáticas de listas
+
+---
+
+## ✅ Checklist antes de criar um novo componente/tela
+
+- [ ] Nenhum `uppercase` em className
+- [ ] Textos em Sentence Case (português correto)
+- [ ] Ratings usam o componente `StarRating`
+- [ ] Layout funciona em mobile (375px)
+- [ ] Ícones preenchidos usam `fontVariationSettings: "'FILL' 1"`
+- [ ] Headers com `flex-wrap` quando necessário
+- [ ] Status badges com labels corretos em português

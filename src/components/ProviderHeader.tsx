@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useAuth } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
 
@@ -49,7 +49,7 @@ export const ProviderHeader: React.FC<ProviderHeaderProps> = ({
             </h2>
             <div className="flex items-center gap-1">
               <span className="size-1 bg-emerald-500 rounded-full animate-pulse"></span>
-              <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest italic leading-none">
+              <span className="text-[9px] font-black text-emerald-500 italic leading-none">
                 Prestador
               </span>
             </div>

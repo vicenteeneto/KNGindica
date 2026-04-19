@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
@@ -193,7 +193,7 @@ export default function MyRequestsScreen({ onNavigate, params }: NavigationProps
                   
                   <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-50 dark:border-white/5">
                     <div className="flex items-center gap-2">
-                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date(req.created_at).toLocaleDateString('pt-BR')}</span>
+                       <span className="text-[10px] font-bold text-slate-400">{new Date(req.created_at).toLocaleDateString('pt-BR')}</span>
                     </div>
 
                     {req.status === 'completed' && !req.reviews?.length ? (

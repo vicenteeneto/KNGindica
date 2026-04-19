@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
@@ -324,7 +324,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
             <div className="space-y-4">
               {/* Section: Category */}
               <section className="bg-slate-50 dark:bg-white/5 p-4 rounded-2xl border border-slate-100 dark:border-white/5">
-                <h3 className="text-slate-900 dark:text-slate-100 text-base font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+                <h3 className="text-slate-900 dark:text-slate-100 text-base font-black mb-4 flex items-center gap-2">
                   <span className="size-2 bg-primary rounded-full"></span>
                   Categoria
                 </h3>
@@ -349,7 +349,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
 
               {/* Section: Description */}
               <section className="bg-slate-50 dark:bg-white/5 p-4 rounded-2xl border border-slate-100 dark:border-white/5">
-                <h3 className="text-slate-900 dark:text-slate-100 text-base font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+                <h3 className="text-slate-900 dark:text-slate-100 text-base font-black mb-4 flex items-center gap-2">
                    <span className="size-2 bg-primary rounded-full"></span>
                    Descrição do Pedido
                 </h3>
@@ -370,13 +370,13 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
             <div className="space-y-4">
               {/* Section: Schedule (Date Picker) */}
               <section className="bg-slate-50 dark:bg-white/5 p-4 rounded-2xl border border-slate-100 dark:border-white/5">
-                 <h3 className="text-slate-900 dark:text-slate-100 text-base font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+                 <h3 className="text-slate-900 dark:text-slate-100 text-base font-black mb-4 flex items-center gap-2">
                    <span className="size-2 bg-orange-500 rounded-full"></span>
                    Agendamento
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Data Desejada</label>
+                    <label className="text-[10px] font-black text-slate-400 ml-1">Data Desejada</label>
                     <input
                       type="date"
                       value={desiredDate}
@@ -385,7 +385,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Horário</label>
+                    <label className="text-[10px] font-black text-slate-400 ml-1">Horário</label>
                     <input
                       type="time"
                       value={desiredTime}
@@ -399,13 +399,13 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
               {/* Section: Address */}
               <section className="bg-slate-50 dark:bg-white/5 p-4 rounded-2xl border border-slate-100 dark:border-white/5 space-y-4">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-slate-900 dark:text-slate-100 text-base font-black uppercase tracking-widest flex items-center gap-2">
+                  <h3 className="text-slate-900 dark:text-slate-100 text-base font-black flex items-center gap-2">
                     <span className="size-2 bg-emerald-500 rounded-full"></span>
                     Localização
                   </h3>
                   <button 
                     onClick={handleFetchAddressFromProfile}
-                    className="text-[10px] font-bold text-primary uppercase border border-primary/20 bg-primary/5 px-2 py-1 rounded-lg hover:bg-primary hover:text-white transition-all transition-colors"
+                    className="text-[10px] font-bold text-primary border border-primary/20 bg-primary/5 px-2 py-1 rounded-lg hover:bg-primary hover:text-white transition-all transition-colors"
                   >
                     Puxar meus dados
                   </button>
@@ -413,7 +413,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">CEP</label>
+                    <label className="text-[10px] font-black text-slate-400 ml-1">CEP</label>
                     <div className="relative">
                       <input
                         type="text"
@@ -427,7 +427,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
                     </div>
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Cidade/UF</label>
+                    <label className="text-[10px] font-black text-slate-400 ml-1">Cidade/UF</label>
                     <CityAutocomplete
                       value={city}
                       onChange={(val) => setCity(val)}
@@ -439,7 +439,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Rua / Logradouro</label>
+                  <label className="text-[10px] font-black text-slate-400 ml-1">Rua / Logradouro</label>
                   <div className="relative">
                     <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">location_on</span>
                     <input
@@ -454,7 +454,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
 
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
                   <div className="sm:col-span-3 space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Número</label>
+                    <label className="text-[10px] font-black text-slate-400 ml-1">Número</label>
                     <input
                       type="text"
                       value={number}
@@ -464,7 +464,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
                     />
                   </div>
                   <div className="sm:col-span-7 space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Bairro</label>
+                    <label className="text-[10px] font-black text-slate-400 ml-1">Bairro</label>
                     <input
                       type="text"
                       value={neighborhood}
@@ -474,13 +474,13 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
                     />
                   </div>
                   <div className="sm:col-span-2 space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Est. (UF)</label>
+                    <label className="text-[10px] font-black text-slate-400 ml-1">Est. (UF)</label>
                     <input
                       type="text"
                       value={state}
                       maxLength={2}
                       placeholder="UF"
-                      className="form-input w-full p-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary uppercase"
+                      className="form-input w-full p-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary"
                       onChange={(e) => setState(e.target.value.toUpperCase())}
                     />
                   </div>
@@ -488,7 +488,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
 
                 <div>
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Complemento</label>
+                    <label className="text-[10px] font-black text-slate-400 ml-1">Complemento</label>
                     <input
                       type="text"
                       value={addressComplement}
@@ -502,10 +502,10 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
                 {/* Seletor de Localização Precisa (Pin) */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Localização Precisa (Pin no Mapa)</label>
+                    <label className="text-[10px] font-black text-slate-400 ml-1">Localização Precisa (Pin no Mapa)</label>
                     <button 
                       onClick={() => setShowMapPicker(!showMapPicker)}
-                      className="text-[10px] font-bold text-primary uppercase flex items-center gap-1"
+                      className="text-[10px] font-bold text-primary flex items-center gap-1"
                     >
                       <span className="material-symbols-outlined text-sm">{showMapPicker ? 'expand_less' : 'map'}</span>
                       {showMapPicker ? 'Ocultar Mapa' : 'Marcar no Mapa'}
@@ -544,7 +544,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
 
               {/* Section: Photos */}
               <section className="bg-slate-50 dark:bg-white/5 p-4 rounded-2xl border border-slate-100 dark:border-white/5">
-                <h3 className="text-slate-900 dark:text-slate-100 text-base font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+                <h3 className="text-slate-900 dark:text-slate-100 text-base font-black mb-4 flex items-center gap-2">
                    <span className="size-2 bg-amber-400 rounded-full"></span>
                    Fotos (Opcional)
                 </h3>

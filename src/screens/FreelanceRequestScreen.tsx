@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
@@ -220,7 +220,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
-          <h2 className="text-xl font-black tracking-tighter italic uppercase">Postar Freelance</h2>
+          <h2 className="text-xl font-black tracking-tighter italic">Postar Freelance</h2>
           <div className="size-10"></div>
         </div>
       </header>
@@ -234,7 +234,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold mb-1.5 uppercase tracking-widest text-slate-400">Título do Serviço</label>
+              <label className="block text-xs font-bold mb-1.5 text-slate-400">Título do Serviço</label>
               <input 
                 type="text" 
                 required
@@ -246,7 +246,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
             </div>
 
             <div>
-              <label className="block text-xs font-bold mb-1.5 uppercase tracking-widest text-slate-400">Categoria</label>
+              <label className="block text-xs font-bold mb-1.5 text-slate-400">Categoria</label>
               <select 
                 required
                 className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm appearance-none"
@@ -263,11 +263,11 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-xs font-bold uppercase tracking-widest text-slate-400">CEP</label>
+                  <label className="block text-xs font-bold text-slate-400">CEP</label>
                   <button 
                     type="button"
                     onClick={handleFetchAddressFromProfile}
-                    className="text-[10px] font-bold text-primary uppercase border border-primary/20 bg-primary/5 px-2 py-1 rounded-lg hover:bg-primary hover:text-white transition-all"
+                    className="text-[10px] font-bold text-primary border border-primary/20 bg-primary/5 px-2 py-1 rounded-lg hover:bg-primary hover:text-white transition-all"
                   >
                     Puxar meus dados
                   </button>
@@ -285,7 +285,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
                 </div>
               </div>
               <div className="space-y-1.5">
-                <label className="block text-xs font-bold mb-1.5 uppercase tracking-widest text-slate-400">Cidade</label>
+                <label className="block text-xs font-bold mb-1.5 text-slate-400">Cidade</label>
                 <CityAutocomplete
                   value={formData.city}
                   onChange={val => setFormData({...formData, city: val})}
@@ -297,7 +297,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
             </div>
 
             <div>
-              <label className="block text-xs font-bold mb-1.5 uppercase tracking-widest text-slate-400">Rua / Logradouro</label>
+              <label className="block text-xs font-bold mb-1.5 text-slate-400">Rua / Logradouro</label>
               <input 
                 type="text" 
                 placeholder="Nome da rua..."
@@ -309,7 +309,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
 
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
               <div className="sm:col-span-1 space-y-1.5">
-                <label className="block text-xs font-bold mb-1.5 uppercase tracking-widest text-slate-400">Número</label>
+                <label className="block text-xs font-bold mb-1.5 text-slate-400">Número</label>
                 <input 
                   type="text" 
                   placeholder="123"
@@ -319,7 +319,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
                 />
               </div>
               <div className="sm:col-span-2 space-y-1.5">
-                <label className="block text-xs font-bold mb-1.5 uppercase tracking-widest text-slate-400">Bairro</label>
+                <label className="block text-xs font-bold mb-1.5 text-slate-400">Bairro</label>
                 <input 
                   type="text" 
                   placeholder="Bairro..."
@@ -329,12 +329,12 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
                 />
               </div>
               <div className="sm:col-span-1 space-y-1.5">
-                <label className="block text-xs font-bold mb-1.5 uppercase tracking-widest text-slate-400">Estado (UF)</label>
+                <label className="block text-xs font-bold mb-1.5 text-slate-400">Estado (UF)</label>
                 <input 
                   type="text" 
                   maxLength={2}
                   placeholder="MT"
-                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm uppercase"
+                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm"
                   value={formData.state}
                   onChange={e => setFormData({...formData, state: e.target.value.toUpperCase()})}
                 />
@@ -342,7 +342,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
             </div>
 
             <div>
-              <label className="block text-xs font-bold mb-1.5 uppercase tracking-widest text-slate-400">Quanto deseja pagar? (R$)</label>
+              <label className="block text-xs font-bold mb-1.5 text-slate-400">Quanto deseja pagar? (R$)</label>
               <div className="relative">
                 <input 
                   type="text" 
@@ -359,7 +359,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
             </div>
 
             <div>
-              <label className="block text-xs font-bold mb-1.5 uppercase tracking-widest text-slate-400">Prazo da Publicação</label>
+              <label className="block text-xs font-bold mb-1.5 text-slate-400">Prazo da Publicação</label>
               <select 
                 required
                 className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm appearance-none"
@@ -375,7 +375,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
             </div>
 
             <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-800">
-              <label className="block text-sm font-bold mb-4 uppercase tracking-widest text-slate-400">Fotos do Serviço (Opcional)</label>
+              <label className="block text-sm font-bold mb-4 text-slate-400">Fotos do Serviço (Opcional)</label>
               <div className="flex flex-wrap gap-3">
                 {formData.attachments.length < 5 && (
                   <label className={`size-20 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed transition-colors bg-white dark:bg-slate-900 ${isUploading ? 'border-primary animate-pulse' : 'border-slate-200 dark:border-slate-800 hover:border-primary cursor-pointer'}`}>
@@ -401,11 +401,11 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
                   </div>
                 ))}
               </div>
-              <p className="text-[10px] text-slate-500 mt-2 italic font-medium uppercase tracking-widest">Máximo de 5 fotos (JPG ou PNG)</p>
+              <p className="text-[10px] text-slate-500 mt-2 italic font-medium">Máximo de 5 fotos (JPG ou PNG)</p>
             </div>
 
             <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-800">
-              <label className="block text-xs font-bold mb-1.5 uppercase tracking-widest text-slate-400">Detalhes extras</label>
+              <label className="block text-xs font-bold mb-1.5 text-slate-400">Detalhes extras</label>
               <textarea 
                 required
                 rows={4}
@@ -419,7 +419,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
             <button 
               type="submit"
               disabled={sending}
-              className="w-full bg-primary hover:bg-primary/90 disabled:opacity-50 text-white font-black py-3 rounded-2xl shadow-xl shadow-primary/30 transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-sm"
+              className="w-full bg-primary hover:bg-primary/90 disabled:opacity-50 text-white font-black py-3 rounded-2xl shadow-xl shadow-primary/30 transition-all flex items-center justify-center gap-2 text-sm"
             >
               {sending ? (
                 <>

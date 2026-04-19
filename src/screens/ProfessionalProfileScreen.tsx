@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { NavigationProps } from '../types';
 import VerifiedBadge from '../components/VerifiedBadge';
 import StarRating from '../components/StarRating';
@@ -350,11 +350,11 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
           <div className="bg-amber-500/10 border-t border-slate-100 dark:border-slate-800 py-2 px-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="material-symbols-outlined text-amber-500 text-sm">visibility</span>
-              <p className="text-[10px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-widest leading-none">Modo de pré-visualização pública</p>
+              <p className="text-[10px] font-black text-amber-600 dark:text-amber-500 leading-none">Modo de pré-visualização pública</p>
             </div>
             <button 
               onClick={() => onNavigate('userProfile')}
-              className="text-[9px] font-black text-amber-600 underline uppercase tracking-tighter"
+              className="text-[9px] font-black text-amber-600 underline"
             >
               Editar Perfil
             </button>
@@ -437,7 +437,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                         <VerifiedBadge className="scale-110" />
                       )}
                     </div>
-                    <p className="text-slate-500 dark:text-slate-400 text-xs font-bold leading-normal flex items-center gap-1.5 uppercase tracking-wider">
+                    <p className="text-slate-500 dark:text-slate-400 text-xs font-bold leading-normal flex items-center gap-1.5">
                       {professional.category} • {professional.city ? `${professional.city}` : 'Localização a combinar'}
                     </p>
                   </div>
@@ -456,7 +456,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                     </div>
                     <div className="flex-1 flex justify-center h-7 md:h-10 items-center">
                       {professional.show_price ? (
-                        <p className="text-slate-900 dark:text-slate-100 text-sm md:text-base font-black italic tracking-tight whitespace-nowrap overflow-hidden text-ellipsis leading-none uppercase pb-0.5">
+                        <p className="text-slate-900 dark:text-slate-100 text-sm md:text-base font-black italic tracking-tight whitespace-nowrap overflow-hidden text-ellipsis leading-none pb-0.5">
                           {professional.pricing_model === 'negotiable' ? (
                             'A COMBINAR'
                           ) : (
@@ -467,16 +467,16 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                           )}
                         </p>
                       ) : (
-                        <p className="text-slate-900 dark:text-slate-100 text-sm md:text-base font-black italic tracking-tight uppercase whitespace-nowrap leading-none pb-0.5">Sob Consulta</p>
+                        <p className="text-slate-900 dark:text-slate-100 text-sm md:text-base font-black italic tracking-tight whitespace-nowrap leading-none pb-0.5">Sob Consulta</p>
                       )}
                     </div>
                   </div>
 
                   {/* Bottom Row: Labels (Total Horizontal Alignment) */}
                   <div className="flex justify-between mt-2">
-                    <p className="flex-1 text-slate-500 text-[9px] font-black uppercase tracking-[0.2em] text-center leading-none">Serviços</p>
-                    <p className="flex-1 text-slate-500 text-[9px] font-black uppercase tracking-[0.2em] text-center leading-none">Avaliação</p>
-                    <p className="flex-1 text-slate-500 text-[9px] font-black uppercase tracking-[0.2em] text-center leading-none">
+                    <p className="flex-1 text-slate-500 text-[9px] font-black text-center leading-none">Serviços</p>
+                    <p className="flex-1 text-slate-500 text-[9px] font-black text-center leading-none">Avaliação</p>
+                    <p className="flex-1 text-slate-500 text-[9px] font-black text-center leading-none">
                       {professional.show_price ? (
                          professional.pricing_model === 'hourly' ? 'POR HORA' : 
                          professional.pricing_model === 'fixed' ? 'FIXO' : 
@@ -489,7 +489,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                 {/* Premium Badge */}
                 {professional.plan_type === 'plus' && (
                   <div className="px-6 pt-3">
-                    <span className="inline-flex items-center gap-1.5 text-amber-500 bg-amber-500/10 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-amber-500/20">
+                    <span className="inline-flex items-center gap-1.5 text-amber-500 bg-amber-500/10 px-3 py-1 rounded-full text-[10px] font-black border border-amber-500/20">
                       <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>stars</span>
                       MEMBRO PREMIUM KNG
                     </span>
@@ -498,7 +498,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
 
                 {/* Bio Section */}
                 <div className="px-8 pt-6 pb-2 border-t border-slate-100 dark:border-white/5">
-                  <h3 className="text-slate-900 dark:text-slate-100 text-[9px] font-black uppercase tracking-widest mb-1.5 flex items-center gap-2">
+                  <h3 className="text-slate-900 dark:text-slate-100 text-[9px] font-black mb-1.5 flex items-center gap-2">
                     <span className="size-1 w-1 rounded-full bg-primary" />
                     Sobre o Profissional
                   </h3>
@@ -513,7 +513,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
               {/* Portfolio Gallery */}
               {portfolioImages.length > 0 && (
                 <div className="bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 p-4 mt-3">
-                  <h3 className="text-slate-900 dark:text-slate-100 text-[9px] font-black uppercase tracking-widest mb-3 flex items-center gap-2">
+                  <h3 className="text-slate-900 dark:text-slate-100 text-[9px] font-black mb-3 flex items-center gap-2">
                     <span className="material-symbols-outlined text-primary text-base">photo_library</span>
                     Portfólio de Trabalhos
                   </h3>
@@ -538,14 +538,14 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
               {/* Reviews Section */}
               <div className="bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 p-4 mt-3">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-slate-900 dark:text-slate-100 text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
+                  <h3 className="text-slate-900 dark:text-slate-100 text-[9px] font-black flex items-center gap-2">
                     <span className="material-symbols-outlined text-amber-500 text-base">reviews</span>
                     Avaliações dos Clientes
                   </h3>
                   <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
                     <span className="text-sm font-bold">{displayRating}</span>
                     <StarRating rating={Number(displayRating?.replace(',', '.') || 0)} size={16} maxStars={1} />
-                    <span className="text-[10px] text-slate-400 uppercase font-black">({displayReviewsCount})</span>
+                    <span className="text-[10px] text-slate-400 font-black">({displayReviewsCount})</span>
                   </div>
                 </div>
                 <div className="flex flex-col gap-4">
@@ -565,7 +565,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                               <p className="text-sm font-bold text-slate-900 dark:text-slate-100">
                                 {review.reviewer_name || review.profiles?.full_name || 'Usuário'}
                               </p>
-                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{new Date(review.created_at).toLocaleDateString('pt-BR')}</p>
+                              <p className="text-[10px] text-slate-400 font-bold">{new Date(review.created_at).toLocaleDateString('pt-BR')}</p>
                             </div>
                           </div>
                           <div className="flex text-amber-400 gap-0.5">
@@ -584,7 +584,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                   ) : (
                     <div className="bg-slate-50 dark:bg-white/5 p-10 rounded-2xl border border-slate-100 dark:border-white/5 text-center flex flex-col items-center">
                        <span className="material-symbols-outlined text-5xl text-slate-400 mb-3">star_half</span>
-                       <p className="text-slate-600 dark:text-slate-400 font-bold uppercase tracking-widest text-xs">Sem avaliações ainda</p>
+                       <p className="text-slate-600 dark:text-slate-400 font-bold text-xs">Sem avaliações ainda</p>
                        <p className="text-slate-500 text-xs mt-1">Seja o primeiro a avaliar este profissional!</p>
                     </div>
                   )}
@@ -597,7 +597,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
               
               {/* Action Buttons: Desktop Sidebar Integration */}
               <div className="hidden lg:flex flex-col gap-3 bg-white dark:bg-slate-950 p-6 rounded-3xl shadow-2xl border border-primary/10">
-                <h3 className="text-sm font-black uppercase tracking-widest mb-2 text-primary italic">Contrate agora</h3>
+                <h3 className="text-sm font-black mb-2 text-primary italic">Contrate agora</h3>
                 
                 {professional.plan_type === 'plus' && professional.whatsapp && (
                   <a
@@ -636,7 +636,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                     trackLead(professional.id, 'chat_start');
                     onNavigate('serviceRequestForm', { providerId: professional.id, providerName: professional.name });
                   }}
-                  className="w-full bg-primary hover:bg-primary/95 text-white py-5 px-6 rounded-2xl font-black uppercase italic tracking-tighter flex items-center justify-center gap-3 shadow-xl transition-all active:scale-95 shadow-primary/30"
+                  className="w-full bg-primary hover:bg-primary/95 text-white py-5 px-6 rounded-2xl font-black italic tracking-tighter flex items-center justify-center gap-3 shadow-xl transition-all active:scale-95 shadow-primary/30"
                 >
                   <span className="material-symbols-outlined text-[24px]">bolt</span>
                   Solicitar Orçamento
@@ -645,7 +645,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
 
               {/* Business Info Card */}
               <div className="bg-white dark:bg-slate-900 shadow-xl border border-slate-100 dark:border-white/5 rounded-3xl p-6 space-y-6">
-                <h3 className="text-slate-900 dark:text-slate-100 text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                <h3 className="text-slate-900 dark:text-slate-100 text-xs font-black flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary text-base">info</span>
                   Informações Comerciais
                 </h3>
@@ -681,7 +681,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                         <span className="material-symbols-outlined text-xl">loyalty</span>
                       </div>
                       <div>
-                        <h4 className="text-xs font-black text-primary uppercase italic tracking-tighter">Programa Fidelidade</h4>
+                        <h4 className="text-xs font-black text-primary italic tracking-tighter">Programa Fidelidade</h4>
                         <p className="text-[10px] font-bold text-slate-700 dark:text-slate-300 mt-1">
                           {professional.loyalty_benefit_description}
                         </p>
@@ -724,7 +724,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                   <div className={`size-10 rounded-full flex items-center justify-center transition-all ${isFavorite ? 'bg-red-50 text-red-500' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 group-hover:text-slate-600'}`}>
                     <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: isFavorite ? "'FILL' 1" : "'FILL' 0" }}>favorite</span>
                   </div>
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">{isFavorite ? 'Favoritado' : 'Favoritar'}</span>
+                  <span className="text-[9px] font-bold text-slate-400">{isFavorite ? 'Favoritado' : 'Favoritar'}</span>
                 </button>
                 <button 
                   onClick={handleShare}
@@ -733,7 +733,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                   <div className="size-10 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-400 group-hover:text-slate-600 flex items-center justify-center transition-all">
                     <span className="material-symbols-outlined text-xl">share</span>
                   </div>
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Compartilhar</span>
+                  <span className="text-[9px] font-bold text-slate-400">Compartilhar</span>
                 </button>
               </div>
             </div>
@@ -779,7 +779,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
               trackLead(professional.id, 'chat_start');
               onNavigate('serviceRequestForm', { providerId: professional.id, providerName: professional.name });
             }}
-            className="flex-1 bg-primary text-white h-11 px-2 md:px-4 rounded-xl font-black text-xs uppercase tracking-tighter flex items-center justify-center gap-1.5 shadow-lg shadow-primary/20 transition-transform active:scale-95 min-w-0"
+            className="flex-1 bg-primary text-white h-11 px-2 md:px-4 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-primary/20 transition-transform active:scale-95 min-w-0"
           >
             <span className="material-symbols-outlined text-[18px]">bolt</span>
             <span className="truncate">Orçamento</span>
@@ -843,7 +843,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
               <p className="text-white font-bold tracking-widest text-xs bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20">
                 {selectedImageIndex + 1} / {portfolioImages.length}
               </p>
-              <p className="text-white/40 text-[10px] font-black uppercase tracking-widest hidden md:block">
+              <p className="text-white/40 text-[10px] font-black hidden md:block">
                 ← Seta Esquerda • Seta Direita → • ESC para sair
               </p>
             </div>

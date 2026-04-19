@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { NavigationProps } from '../types';
 import { useAuth, UserRole } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
@@ -226,7 +226,7 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
           {/* Divider */}
           <div className="my-8 flex items-center gap-4">
             <div className="h-px bg-slate-200 dark:bg-slate-800 flex-1"></div>
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Ou continue com</span>
+            <span className="text-xs font-semibold text-slate-500">Ou continue com</span>
             <div className="h-px bg-slate-200 dark:bg-slate-800 flex-1"></div>
           </div>
 

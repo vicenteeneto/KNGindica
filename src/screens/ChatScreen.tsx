@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
@@ -583,7 +583,7 @@ export default function ChatScreen({ onNavigate, params, onClose, isEmbedded = f
                         </div>
                         <p className="text-sm font-medium">{msg.content.replace('[PROPOSTA]', '')}</p>
                         <div className="mt-1 pt-2 border-t border-white/20">
-                          <span className="text-[10px] uppercase font-bold text-orange-200">Aguardando aceite do cliente</span>
+                          <span className="text-[10px] font-bold text-orange-200">Aguardando aceite do cliente</span>
                         </div>
                       </div>
                     ) : (
@@ -628,7 +628,7 @@ export default function ChatScreen({ onNavigate, params, onClose, isEmbedded = f
                             </button>
                           )}
                           {serviceRequest?.status !== 'proposed' && serviceRequest?.status !== 'open' && (
-                            <span className="text-[10px] uppercase font-bold text-emerald-500 flex items-center gap-1 mt-2">
+                            <span className="text-[10px] font-bold text-emerald-500 flex items-center gap-1 mt-2">
                               <span className="material-symbols-outlined text-[14px]">check_circle</span>
                               Status: {statusMap[serviceRequest?.status] || serviceRequest?.status}
                             </span>

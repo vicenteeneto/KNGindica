@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { NavigationProps, Screen } from '../types';
 import { useNotifications } from '../NotificationContext';
 import { useAuth } from '../AuthContext';
@@ -76,7 +76,7 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
                 </span>
               )}
 
-              <span className="text-[10px] font-black uppercase tracking-[2px] opacity-0 group-hover:opacity-100 transition-all absolute left-20 bg-slate-900 text-white px-3 py-1.5 rounded-lg text-nowrap pointer-events-none z-50 border border-white/10 shadow-2xl">
+              <span className="text-[10px] font-black opacity-0 group-hover:opacity-100 transition-all absolute left-20 bg-slate-900 text-white px-3 py-1.5 rounded-lg text-nowrap pointer-events-none z-50 border border-white/10 shadow-2xl">
                 {item.label}
               </span>
             </button>
@@ -107,7 +107,7 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
                     {tab.icon}
                   </span>
                   
-                  <span className="text-[9px] font-bold uppercase tracking-tight opacity-0 group-hover:opacity-100 transition-opacity absolute -right-1 translate-x-full bg-slate-900 text-white px-2 py-1 rounded text-nowrap pointer-events-none z-50">
+                  <span className="text-[9px] font-bold tracking-tight opacity-0 group-hover:opacity-100 transition-opacity absolute -right-1 translate-x-full bg-slate-900 text-white px-2 py-1 rounded text-nowrap pointer-events-none z-50">
                     {tab.label}
                   </span>
                 </button>

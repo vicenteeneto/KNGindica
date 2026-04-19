@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { NavigationProps } from '../types';
 import { CityAutocomplete } from '../components/CityAutocomplete';
 import { supabase } from '../lib/supabase';
@@ -95,7 +95,7 @@ export default function FilterServicesScreen({ onNavigate, params }: NavigationP
 
           {activeCities.length > 0 && !tempCity && (
             <div className="animate-in fade-in slide-in-from-bottom-2">
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 ml-1">Cidades Ativas:</p>
+              <p className="text-[10px] font-black text-slate-500 mb-2 ml-1">Cidades Ativas:</p>
               <div className="flex flex-col gap-1.5">
                 {activeCities.map(city => (
                   <button

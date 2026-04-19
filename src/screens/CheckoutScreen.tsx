@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
@@ -188,7 +188,7 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
           
           {/* Order Summary */}
           <section className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-slate-700">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4">Resumo do Pedido</h2>
+            <h2 className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-4">Resumo do Pedido</h2>
             
             <div className="flex items-center gap-4 mb-4 pb-4 border-b border-slate-100 dark:border-slate-700">
               <div className="size-14 rounded-xl bg-slate-100 dark:bg-slate-700 overflow-hidden shrink-0 border border-slate-200 dark:border-slate-700">
@@ -219,7 +219,7 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
 
           {/* Payment Method Selection */}
           <section className="space-y-3">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 pl-1">Forma de Pagamento</h2>
+            <h2 className="text-sm font-bold text-slate-500 dark:text-slate-400 pl-1">Forma de Pagamento</h2>
             
             <div className="grid grid-cols-2 gap-3">
               <label className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === 'credit' ? 'border-primary bg-primary/5 text-primary' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300'}`}>
@@ -249,7 +249,7 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
               
               <div className="space-y-1.5">
                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Nome no Cartão</label>
-                <input type="text" required placeholder="NOME COMO ESTÁ NO CARTÃO" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-2.5 px-3.5 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all uppercase" />
+                <input type="text" required placeholder="NOME COMO ESTÁ NO CARTÃO" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-2.5 px-3.5 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all" />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -291,7 +291,7 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 flex justify-center z-20">
         <div className="max-w-4xl mx-auto w-full flex items-center gap-4">
           <div className="flex-col hidden sm:flex">
-            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Total</span>
+            <span className="text-xs text-slate-500 font-bold">Total</span>
             <span className="text-xl font-black text-slate-900 dark:text-white leading-none">{formatCurrency((displayData.budget_amount || 0) + PLATFORM_FEE)}</span>
           </div>
           <button 

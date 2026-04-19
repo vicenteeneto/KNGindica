@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
@@ -132,15 +132,15 @@ export default function HelpCenterScreen({ onNavigate, params }: NavigationProps
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'open':
-        return <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase">Aberto</span>;
+        return <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-bold">Aberto</span>;
       case 'in_review':
-        return <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase">Em Análise</span>;
+        return <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[10px] font-bold">Em Análise</span>;
       case 'answered':
-        return <span className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase">Respondido</span>;
+        return <span className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-[10px] font-bold">Respondido</span>;
       case 'resolved':
-        return <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase">Resolvido</span>;
+        return <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">Resolvido</span>;
       case 'closed':
-        return <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase">Fechado</span>;
+        return <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold">Fechado</span>;
     }
   };
 
@@ -421,7 +421,7 @@ export default function HelpCenterScreen({ onNavigate, params }: NavigationProps
           <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col animate-in slide-in-from-bottom-10 duration-300">
             <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white dark:bg-slate-900 z-10">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{selectedTicket.id.substring(0, 8)}</span>
+                <span className="text-xs font-black text-slate-400">{selectedTicket.id.substring(0, 8)}</span>
                 <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
                 {getStatusBadge(selectedTicket.status)}
               </div>
@@ -432,7 +432,7 @@ export default function HelpCenterScreen({ onNavigate, params }: NavigationProps
 
             <div className="p-6 overflow-y-auto space-y-6">
               <div>
-                <p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">{getCategoryLabel(selectedTicket.category)}</p>
+                <p className="text-xs font-bold text-primary mb-1">{getCategoryLabel(selectedTicket.category)}</p>
                 <h3 className="text-2xl font-black tracking-tight leading-tight">{selectedTicket.subject}</h3>
                 <p className="text-xs text-slate-400 mt-2 font-medium italic">Aberto em {new Date(selectedTicket.created_at).toLocaleString('pt-BR')}</p>
               </div>
@@ -443,7 +443,7 @@ export default function HelpCenterScreen({ onNavigate, params }: NavigationProps
 
               {selectedTicket.attachments && selectedTicket.attachments.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-bold mb-3 uppercase tracking-widest text-slate-500">Anexos</h4>
+                  <h4 className="text-sm font-bold mb-3 text-slate-500">Anexos</h4>
                   <div className="flex flex-wrap gap-2">
                     {selectedTicket.attachments.map((url: string, idx: number) => (
                       <a href={url} target="_blank" rel="noreferrer" key={idx} className="size-24 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 block hover:opacity-80 transition-opacity">
@@ -462,7 +462,7 @@ export default function HelpCenterScreen({ onNavigate, params }: NavigationProps
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-primary leading-none">Resposta da Equipe</h4>
-                      <p className="text-[10px] text-primary/60 font-medium uppercase tracking-widest mt-1">Oficial KNGindica</p>
+                      <p className="text-[10px] text-primary/60 font-medium mt-1">Oficial KNGindica</p>
                     </div>
                   </div>
                   <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">{selectedTicket.admin_response}</p>

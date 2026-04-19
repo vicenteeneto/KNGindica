@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+﻿import React, { useState, useCallback } from 'react';
 import Cropper from 'react-easy-crop';
 import { getCroppedImg } from '../utils/cropImage';
 import { useNotifications } from '../NotificationContext';
@@ -90,7 +90,7 @@ export default function ImageCropper({
                             >
                                 zoom_out
                             </button>
-                            <span className="text-xs font-bold text-slate-500 tracking-widest uppercase">Zoom</span>
+                            <span className="text-xs font-bold text-slate-500 tracking-widest">Zoom</span>
                             <button
                                 onClick={() => setZoom(z => Math.min(3, z + 0.2))}
                                 className="material-symbols-outlined text-slate-500 hover:text-primary dark:hover:text-primary transition-colors p-1"

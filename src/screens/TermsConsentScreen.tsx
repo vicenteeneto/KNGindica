@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+﻿import React, { useState, useRef, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
@@ -54,7 +54,7 @@ export default function TermsConsentScreen({ onNavigate }: NavigationProps) {
           <div className="inline-flex size-14 bg-primary/10 rounded-2xl items-center justify-center mb-4">
             <span className="material-symbols-outlined text-primary text-3xl">gavel</span>
           </div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
             TERMO DE USO E POLÍTICA DE PRIVACIDADE
           </h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">
@@ -192,11 +192,11 @@ export default function TermsConsentScreen({ onNavigate }: NavigationProps) {
             </h2>
             <div className="space-y-4">
                <div>
-                 <p className="text-xs font-bold uppercase tracking-wider text-blue-600 mb-2">Dados coletados:</p>
+                 <p className="text-xs font-bold text-blue-600 mb-2">Dados coletados:</p>
                  <p className="text-sm">Nome, Telefone (WhatsApp), Localização, Informações de perfil, Histórico de interações e Conversas externas.</p>
                </div>
                <div>
-                 <p className="text-xs font-bold uppercase tracking-wider text-blue-600 mb-2">Finalidade:</p>
+                 <p className="text-xs font-bold text-blue-600 mb-2">Finalidade:</p>
                  <p className="text-sm">Conectar usuários, melhorar a experiência, garantir segurança e gerar métricas de rastreabilidade.</p>
                </div>
             </div>
@@ -258,7 +258,7 @@ export default function TermsConsentScreen({ onNavigate }: NavigationProps) {
           <button
             onClick={handleAccept}
             disabled={!isScrolledToEnd || loading}
-            className={`w-full py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-2 ${
+            className={`w-full py-4 rounded-2xl font-black text-sm transition-all shadow-xl flex items-center justify-center gap-2 ${
               isScrolledToEnd 
                 ? 'bg-primary text-white hover:bg-primary-dark active:scale-95 shadow-primary/30' 
                 : 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'

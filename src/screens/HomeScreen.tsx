@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+﻿import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { NavigationProps, Screen } from '../types';
 // import { professionals as mockProfessionals } from '../data/mockData';
 import MobileNav from '../components/MobileNav';
@@ -544,7 +544,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             >
               <span className="material-symbols-outlined text-primary text-xl group-hover:scale-110 transition-transform mt-0.5">location_on</span>
               <div className="flex flex-col items-start text-left">
-                <span className="text-[9px] uppercase tracking-[0.2em] font-black text-slate-400">Localização</span>
+                <span className="text-[9px] font-black text-slate-400">Localização</span>
                 <span className="text-sm font-bold flex items-center gap-1 group-hover:text-primary transition-colors">
                   {locationName}
                   <span className={`material-symbols-outlined text-[16px] transition-transform duration-300 ${showLocationDropdown ? 'rotate-180 text-primary' : 'opacity-60'}`}>expand_more</span>
@@ -558,7 +558,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                   onClick={(e) => e.stopPropagation()} // Impede fechar ao clicar dentro
                 >
                   <div className="mb-4">
-                    <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-3">Sua Cidade</p>
+                    <p className="text-[10px] font-black text-primary mb-3">Sua Cidade</p>
                     <div className="relative">
                       <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm z-10">search</span>
                       <CityAutocomplete
@@ -572,7 +572,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                     </div>
                     {availableCities.length > 0 && !manualCityInput && (
                     <div className="animate-in fade-in slide-in-from-bottom-2">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 ml-1">Cidades Ativas:</p>
+                      <p className="text-[10px] font-black text-slate-500 mb-2 ml-1">Cidades Ativas:</p>
                       <div className="flex flex-col gap-1.5">
                         {availableCities.map(city => (
                           <button
@@ -597,7 +597,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                   <div className="mt-4 pt-4 border-t border-white/5">
                     <button 
                        onClick={() => setShowLocationDropdown(false)}
-                       className="w-full py-2 bg-primary/10 hover:bg-primary/20 text-primary text-[10px] font-black uppercase tracking-widest rounded-lg transition-colors"
+                       className="w-full py-2 bg-primary/10 hover:bg-primary/20 text-primary text-[10px] font-black rounded-lg transition-colors"
                     >
                       Fechar
                     </button>
@@ -630,7 +630,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
               {user && (
                 <div className="flex items-center gap-2">
                   <div className="hidden sm:flex flex-col items-end mr-1">
-                    <span className="text-[10px] font-black text-white uppercase tracking-widest italic leading-none">
+                    <span className="text-[10px] font-black text-white italic leading-none">
                       {role === 'admin' ? 'Administrador' : role === 'provider' ? 'Prestador' : 'Cliente'}
                     </span>
                   </div>
@@ -660,7 +660,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             <button
               key={cat.name}
               onClick={() => cat.name === 'Todos' ? onNavigate('listing', { searchQuery: '' }) : onNavigate('listing', { category: cat.name })}
-              className="flex-shrink-0 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-primary hover:text-white hover:border-primary text-slate-500 dark:text-gray-300"
+              className="flex-shrink-0 px-3 py-1.5 rounded-full text-[10px] font-black transition-all border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-primary hover:text-white hover:border-primary text-slate-500 dark:text-gray-300"
             >
               {cat.name}
             </button>
@@ -699,7 +699,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                       <div className="flex items-center gap-2 mb-3">
                         {p.isVerified ? (
                           <div className="flex items-center gap-1.5 bg-emerald-500/20 backdrop-blur-md px-2 py-0.5 rounded border border-emerald-500/30">
-                            <span className="text-[9px] font-black tracking-tighter uppercase text-emerald-400">Conta Verificada</span>
+                            <span className="text-[9px] font-black tracking-tighter text-emerald-400">Conta Verificada</span>
                             <VerifiedBadge size="sm" />
                           </div>
                         ) : p.plan_type === 'plus' ? (
@@ -724,14 +724,14 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                       <div className="flex items-center gap-2 md:gap-3">
                         <button
                           onClick={() => onNavigate('profile', { professionalId: p.id })}
-                          className="flex items-center gap-1.5 bg-primary text-white px-3 md:px-8 py-2 md:py-3.5 rounded-lg font-black text-[10px] md:text-sm uppercase tracking-widest hover:bg-orange-600 transition-all active:scale-95 shadow-xl shadow-primary/20"
+                          className="flex items-center gap-1.5 bg-primary text-white px-3 md:px-8 py-2 md:py-3.5 rounded-lg font-black text-[10px] md:text-sm hover:bg-orange-600 transition-all active:scale-95 shadow-xl shadow-primary/20"
                         >
                           <span className="material-symbols-outlined text-[16px] md:text-[24px] filled">play_arrow</span>
                           Ver Perfil
                         </button>
                         <button
                           onClick={() => onNavigate('listing', { category: p.service })}
-                          className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md text-white px-3 md:px-8 py-2 md:py-3.5 rounded-lg font-bold text-[10px] md:text-sm uppercase tracking-widest hover:bg-white/20 transition-all border border-white/10"
+                          className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md text-white px-3 md:px-8 py-2 md:py-3.5 rounded-lg font-bold text-[10px] md:text-sm hover:bg-white/20 transition-all border border-white/10"
                         >
                           <span className="material-symbols-outlined text-[16px] md:text-[24px]">info</span>
                           Detalhes
@@ -785,7 +785,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="size-2 bg-white rounded-full animate-ping"></span>
-                    <span className="text-[10px] font-black text-white/80 uppercase tracking-widest italic">Serviço Ativo</span>
+                    <span className="text-[10px] font-black text-white/80 italic">Serviço Ativo</span>
                   </div>
                   <h4 className="text-sm font-black text-white leading-tight">
                     {activeRequest.status === 'paid' ? 'Aguardando Início' : 'Trabalho em Andamento'}
@@ -806,11 +806,11 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
               <div className="flex-1 text-center md:text-left">
-                <div className="inline-flex items-center gap-1.5 bg-black/10 backdrop-blur-sm px-2 py-0.5 rounded-full text-[9px] font-black tracking-wider uppercase mb-3 text-emerald-200/80">
+                <div className="inline-flex items-center gap-1.5 bg-black/10 backdrop-blur-sm px-2 py-0.5 rounded-full text-[9px] font-black tracking-wider mb-3 text-emerald-200/80">
                   <span className="material-symbols-outlined text-[10px]">rocket_launch</span>
                   Destaque
                 </div>
-                <h2 className="text-xl md:text-2xl font-black text-white leading-tight mb-2 tracking-tighter italic uppercase">
+                <h2 className="text-xl md:text-2xl font-black text-white leading-tight mb-2 tracking-tighter italic">
                   Você define o <span className="text-emerald-300">preço!</span>
                 </h2>
                 <p className="text-emerald-100/60 text-[10px] md:text-sm font-medium max-w-lg leading-snug">
@@ -819,7 +819,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
               </div>
               <button 
                 onClick={() => onNavigate('freelanceRequest')}
-                className="bg-white text-emerald-900 px-5 py-2.5 rounded-lg font-black text-[10px] uppercase tracking-widest shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shrink-0"
+                className="bg-white text-emerald-900 px-5 py-2.5 rounded-lg font-black text-[10px] shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shrink-0"
               >
                 Solicitar Freelance
                 <span className="material-symbols-outlined text-sm">arrow_forward</span>
@@ -850,7 +850,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             <div className="flex items-center gap-4">
                <button 
                 onClick={() => setViewMode(prev => prev === 'list' ? 'map' : 'list')}
-                className="flex items-center gap-2 bg-slate-100 dark:bg-[#1a242f] text-slate-900 dark:text-white px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-tighter border border-slate-200 dark:border-slate-700 hover:border-primary transition-colors shadow-lg"
+                className="flex items-center gap-2 bg-slate-100 dark:bg-[#1a242f] text-slate-900 dark:text-white px-5 py-2.5 rounded-xl text-xs font-black border border-slate-200 dark:border-slate-700 hover:border-primary transition-colors shadow-lg"
               >
                 <span className="material-symbols-outlined text-[18px]">{viewMode === 'list' ? 'map' : 'format_list_bulleted'}</span>
                 {viewMode === 'list' ? 'Ver Mapa' : 'Ver Lista'}
@@ -901,7 +901,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                             <p className="text-xs text-primary font-bold mb-1">{p.service}</p>
                             <button 
                               onClick={() => onNavigate('profile', { professionalId: p.id })}
-                              className="w-full bg-primary text-white text-[10px] py-2 rounded font-black uppercase mt-2"
+                              className="w-full bg-primary text-white text-[10px] py-2 rounded font-black mt-2"
                             >
                               Ver Perfil
                             </button>
@@ -1056,7 +1056,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
   return (
     <section className="mb-12">
       <div className="flex flex-col mb-5 px-4 lg:px-12">
-        <h3 className={`text-lg md:text-xl font-black tracking-tighter uppercase italic flex items-center gap-2 ${highlight ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>
+        <h3 className={`text-lg md:text-xl font-black tracking-tighter italic flex items-center gap-2 ${highlight ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>
           {title}
           <span className="material-symbols-outlined text-sm font-normal not-italic opacity-20">chevron_right</span>
         </h3>
@@ -1115,7 +1115,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
                 {/* Info Overlay - Cleaner version with even smaller text */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"></div>
                 <div className="absolute bottom-1.5 left-1.5 right-1.5 flex items-center justify-between">
-                  <span className="text-[7px] font-black text-white px-1 py-0 bg-primary/20 backdrop-blur-md rounded border border-primary/30 uppercase tracking-tighter italic">
+                  <span className="text-[7px] font-black text-white px-1 py-0 bg-primary/20 backdrop-blur-md rounded border border-primary/30 italic">
                     {p.service}
                   </span>
                   <span className="text-[7px] font-black text-white/40">{p.distance} km</span>
@@ -1124,7 +1124,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
               
               {/* Name Below Card for cleaner look */}
               <div className="mt-2 text-center">
-                <h4 className="font-bold text-[11px] md:text-xs truncate text-slate-500 dark:text-gray-400 group-hover:text-primary transition-colors uppercase tracking-tight">
+                <h4 className="font-bold text-[11px] md:text-xs truncate text-slate-500 dark:text-gray-400 group-hover:text-primary transition-colors tracking-tight">
                   {p.name}
                 </h4>
               </div>
@@ -1140,7 +1140,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
               <span className="size-10 rounded-full bg-slate-200 dark:bg-white/5 flex items-center justify-center group-hover:bg-black/10">
                 <span className="material-symbols-outlined">add</span>
               </span>
-              <span className="text-xs font-black uppercase tracking-widest">Ver Mais</span>
+              <span className="text-xs font-black">Ver Mais</span>
              </button>
              {/* Alignment placeholder */}
              <div className="mt-2 text-center h-[20px] md:h-[24px]"></div>

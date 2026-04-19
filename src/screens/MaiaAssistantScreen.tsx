@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+﻿import React, { useState, useRef, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { useNotifications } from '../NotificationContext';
 import { supabase } from '../lib/supabase';
@@ -91,8 +91,8 @@ export default function MaiaAssistantScreen({ onNavigate }: NavigationProps) {
           <div className="absolute bottom-0 right-0 size-3 bg-green-500 border-2 border-primary rounded-full"></div>
         </div>
         <div className="flex flex-1 flex-col overflow-hidden">
-          <h2 className="text-white text-base font-black leading-tight truncate uppercase tracking-tighter italic">MAIA</h2>
-          <p className="text-white/80 text-[10px] font-bold uppercase tracking-widest flex items-center gap-1">
+          <h2 className="text-white text-base font-black leading-tight truncate italic">MAIA</h2>
+          <p className="text-white/80 text-[10px] font-bold flex items-center gap-1">
              <span className="size-1.5 bg-green-400 rounded-full animate-pulse" /> Dispon\u00edvel
           </p>
         </div>
@@ -112,7 +112,7 @@ export default function MaiaAssistantScreen({ onNavigate }: NavigationProps) {
         className="flex-1 overflow-y-auto p-4 space-y-4 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] dark:bg-none no-scrollbar pb-24"
       >
         <div className="flex justify-center my-4">
-          <span className="bg-white/40 dark:bg-slate-800/40 backdrop-blur-sm text-slate-700 dark:text-slate-300 text-[10px] px-3 py-1 rounded-full uppercase tracking-[0.2em] font-black border border-white/10 shadow-sm">Chat Seguro com IA</span>
+          <span className="bg-white/40 dark:bg-slate-800/40 backdrop-blur-sm text-slate-700 dark:text-slate-300 text-[10px] px-3 py-1 rounded-full font-black border border-white/10 shadow-sm">Chat Seguro com IA</span>
         </div>
 
         {messages.map((msg, idx) => (

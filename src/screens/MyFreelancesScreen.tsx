@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { NavigationProps, Screen } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
@@ -105,7 +105,7 @@ export default function MyFreelancesScreen({ onNavigate, params }: NavigationPro
            <div className="flex-1 min-w-0">
              <div className="flex items-center gap-1.5 md:gap-2">
                <div className="size-2 rounded-full bg-blue-500 animate-pulse shrink-0" />
-               <h1 className="text-sm md:text-lg font-black text-white uppercase tracking-[1px] italic leading-none truncate">Meus Freelances</h1>
+               <h1 className="text-sm md:text-lg font-black text-white italic leading-none truncate">Meus Freelances</h1>
              </div>
            </div>
         </div>
@@ -231,7 +231,7 @@ export default function MyFreelancesScreen({ onNavigate, params }: NavigationPro
                         </p>
                         <div className="flex items-center justify-between">
                            <div className="flex items-center gap-1.5">
-                              <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest ${
+                              <span className={`text-[8px] font-black px-2 py-0.5 rounded-full ${
                                 bidsCount > 0 ? 'bg-emerald-500/20 text-emerald-500' : 'bg-slate-800 text-slate-500'
                               }`}>
                                 {bidsCount} {bidsCount === 1 ? 'Lance' : 'Lances'}
@@ -280,7 +280,7 @@ export default function MyFreelancesScreen({ onNavigate, params }: NavigationPro
                 <div className="size-32 rounded-full border-2 border-dashed border-white/20 flex items-center justify-center mb-6">
                    <span className="material-symbols-outlined text-6xl italic">ads_click</span>
                 </div>
-                <h3 className="text-2xl font-black uppercase tracking-tighter italic mb-2">Gerencie seus Freelances</h3>
+                <h3 className="text-2xl font-black italic mb-2">Gerencie seus Freelances</h3>
                 <p className="text-sm font-medium max-w-xs">Selecione um freelance à esquerda para ver os lances recebidos e gerenciar o andamento.</p>
              </div>
            )}
@@ -295,20 +295,20 @@ export default function MyFreelancesScreen({ onNavigate, params }: NavigationPro
               <div className="size-16 rounded-full bg-red-900/20 flex items-center justify-center mx-auto mb-4">
                 <span className="material-symbols-outlined text-red-500 text-3xl">delete_forever</span>
               </div>
-              <h3 className="text-lg font-black text-white mb-2 uppercase tracking-tighter italic">Cancelar Freelance?</h3>
+              <h3 className="text-lg font-black text-white mb-2 italic">Cancelar Freelance?</h3>
               <p className="text-xs text-slate-400 font-medium mb-1 truncate px-4">"{confirmModal.title}"</p>
               <p className="text-[10px] text-slate-500 mb-6 leading-relaxed">Esta ação removerá o freelance e todos os lances recebidos.</p>
               
               <div className="flex flex-col gap-2">
                 <button 
                   onClick={handleDeleteFreelance}
-                  className="w-full py-3 bg-red-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-red-700 transition-colors"
+                  className="w-full py-3 bg-red-600 text-white rounded-xl font-black text-[10px] hover:bg-red-700 transition-colors"
                 >
                   Confirmar Exclusão
                 </button>
                 <button 
                   onClick={() => setConfirmModal({ isOpen: false, orderId: null, title: '' })}
-                  className="w-full py-3 text-slate-500 font-bold text-[10px] uppercase tracking-widest"
+                  className="w-full py-3 text-slate-500 font-bold text-[10px]"
                 >
                   Manter Freelance
                 </button>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+﻿import React, { useState, useEffect, useMemo } from 'react';
 import StarRating from '../components/StarRating';
 
 import { NavigationProps, Professional, Screen } from '../types';
@@ -205,7 +205,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
         {initialParams?.filters && (
           <div className="px-4 pb-2 flex items-center justify-between">
             <div className="flex gap-2 items-center overflow-x-auto hide-scrollbar">
-              <span className="text-[10px] font-bold uppercase text-slate-400 whitespace-nowrap">Filtros Ativos:</span>
+              <span className="text-[10px] font-bold text-slate-400 whitespace-nowrap">Filtros Ativos:</span>
               {initialParams.filters.category && (
                 <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] font-medium">{initialParams.filters.category}</span>
               )}
@@ -309,16 +309,16 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
               <div>
                 <div className="flex items-center justify-between mb-1">
                   {professional.plan_type === 'plus' ? (
-                    <span className="bg-amber-500/10 text-amber-600 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border border-amber-500/20 flex items-center gap-1">
+                    <span className="bg-amber-500/10 text-amber-600 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-500/20 flex items-center gap-1">
                       <span className="material-symbols-outlined text-[12px]" style={{ fontVariationSettings: "'FILL' 1" }}>stars</span>
                       Premium
                     </span>
                   ) : professional.isAffiliate ? (
-                    <span className="bg-primary/10 text-primary text-[10px] uppercase font-bold px-2 py-0.5 rounded-full">
+                    <span className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full">
                       Afiliado
                     </span>
                   ) : (
-                    <span className="bg-slate-100 dark:bg-slate-800 text-slate-500 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full">
+                    <span className="bg-slate-100 dark:bg-slate-800 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-full">
                       Profissional
                     </span>
                   )}

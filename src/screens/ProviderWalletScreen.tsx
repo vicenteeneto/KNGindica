@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
@@ -105,7 +105,7 @@ export default function ProviderWalletScreen({ onNavigate }: NavigationProps) {
         {/* Balance Card Section */}
         <div className="bg-primary pt-2 pb-12 px-4 rounded-b-[40px] shadow-sm relative">
           <div className="w-full max-w-5xl mx-auto transition-all duration-300">
-            <p className="text-white/80 text-sm font-medium mb-1 uppercase tracking-wider">Saldo Disponível</p>
+            <p className="text-white/80 text-sm font-medium mb-1">Saldo Disponível</p>
             <div className="flex items-start gap-1">
 
               <h2 className="text-5xl font-black text-white tracking-tighter">
@@ -134,19 +134,19 @@ export default function ProviderWalletScreen({ onNavigate }: NavigationProps) {
           {/* Quick Metrics */}
           <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex divide-x divide-slate-100 dark:divide-slate-700">
             <div className="flex-1 flex flex-col items-center justify-center py-2 px-1">
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1 text-center">A Receber</p>
+              <p className="text-[10px] text-slate-500 font-bold mb-1 text-center">A Receber</p>
               <p className="text-lg font-bold text-slate-900 dark:text-white">
                 {formatCurrency(balance.pending)}
               </p>
             </div>
             <div className="flex-1 flex flex-col items-center justify-center py-2 px-1">
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1 text-center">Total (Mês)</p>
+              <p className="text-[10px] text-slate-500 font-bold mb-1 text-center">Total (Mês)</p>
               <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
                 {formatCurrency(balance.monthTotal)}
               </p>
             </div>
             <div className="flex-1 flex flex-col items-center justify-center py-2 px-1">
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1 text-center">Comissão</p>
+              <p className="text-[10px] text-slate-500 font-bold mb-1 text-center">Comissão</p>
               <p className="text-lg font-bold text-rose-500 dark:text-rose-400">10%</p>
             </div>
           </div>
@@ -233,7 +233,7 @@ export default function ProviderWalletScreen({ onNavigate }: NavigationProps) {
               
               <div className="space-y-6">
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block">Quanto deseja sacar?</label>
+                  <label className="text-[10px] font-black text-slate-400 mb-2 block">Quanto deseja sacar?</label>
                   <input 
                     type="text"
                     value={payoutModal.amount}
@@ -252,13 +252,13 @@ export default function ProviderWalletScreen({ onNavigate }: NavigationProps) {
                   <button 
                     onClick={handlePayout}
                     disabled={isActing || !payoutModal.amount}
-                    className="w-full h-14 bg-primary text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-primary/20 flex items-center justify-center disabled:opacity-50"
+                    className="w-full h-14 bg-primary text-white font-black rounded-2xl shadow-xl shadow-primary/20 flex items-center justify-center disabled:opacity-50"
                   >
                     {isActing ? 'Processando...' : 'Confirmar Saque'}
                   </button>
                   <button 
                     onClick={() => setPayoutModal({ ...payoutModal, isOpen: false })}
-                    className="w-full py-2 text-slate-400 font-bold text-sm uppercase tracking-widest"
+                    className="w-full py-2 text-slate-400 font-bold text-sm"
                   >
                     Cancelar
                   </button>

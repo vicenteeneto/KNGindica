@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNotifications } from '../NotificationContext';
 import { formatCurrency } from '../lib/formatters';
@@ -162,8 +162,8 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
               <img src={displayData.profiles?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} className="w-full h-full object-cover" />
             </div>
             <div>
-              <h2 className="text-sm font-black text-white uppercase tracking-tighter italic leading-none mb-1">{displayData.profiles?.full_name || 'Cliente'}</h2>
-              <div className="flex items-center gap-1.5 font-bold uppercase tracking-widest text-[8px] text-emerald-500">
+              <h2 className="text-sm font-black text-white italic leading-none mb-1">{displayData.profiles?.full_name || 'Cliente'}</h2>
+              <div className="flex items-center gap-1.5 font-bold text-[8px] text-emerald-500">
                 <div className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 Pedido Ativo • {displayData.display_id || 'ID'}
               </div>
@@ -182,8 +182,8 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
               <span className="material-symbols-outlined text-slate-400">arrow_back</span>
             </button>
             <div>
-              <p className="text-[10px] font-black text-primary uppercase tracking-[2px] leading-none mb-1">Painel de Controle</p>
-              <h1 className="text-sm lg:text-xl font-black text-white uppercase tracking-tighter italic leading-none">{displayData.display_id || 'Pedido'}</h1>
+              <p className="text-[10px] font-black text-primary leading-none mb-1">Painel de Controle</p>
+              <h1 className="text-sm lg:text-xl font-black text-white italic leading-none">{displayData.display_id || 'Pedido'}</h1>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -240,17 +240,17 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
 
                                 showToast("Sucesso", "Orçamento aceito!", "success");
                                 refreshData();
-                              }} className="w-full h-11 bg-primary text-white text-xs font-black uppercase tracking-widest rounded-xl shadow-xl shadow-primary/20 flex items-center justify-center gap-2">
+                              }} className="w-full h-11 bg-primary text-white text-xs font-black rounded-xl shadow-xl shadow-primary/20 flex items-center justify-center gap-2">
                                 <span className="material-symbols-outlined text-sm">check_circle</span> Aceitar Orçamento
                               </button>
                             )}
                             {displayData.status === 'awaiting_payment' && (
-                              <button onClick={() => onNavigate('checkout', { requestId: request.id })} className="w-full h-11 bg-emerald-500 text-white text-xs font-black uppercase tracking-widest rounded-xl shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2">
+                              <button onClick={() => onNavigate('checkout', { requestId: request.id })} className="w-full h-11 bg-emerald-500 text-white text-xs font-black rounded-xl shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2">
                                 <span className="material-symbols-outlined text-sm">payments</span> Realizar Pagamento
                               </button>
                             )}
                             {displayData.status === 'completed' && (
-                              <button onClick={() => onNavigate('writeReview', { requestId: displayData.id, providerId: displayData.provider_id, providerName: displayData.provider?.full_name, serviceTitle: displayData.title || displayData.category?.name })} className="w-full h-11 bg-amber-500 text-white text-xs font-black uppercase tracking-widest rounded-xl shadow-xl shadow-amber-500/20 flex items-center justify-center gap-2">
+                              <button onClick={() => onNavigate('writeReview', { requestId: displayData.id, providerId: displayData.provider_id, providerName: displayData.provider?.full_name, serviceTitle: displayData.title || displayData.category?.name })} className="w-full h-11 bg-amber-500 text-white text-xs font-black rounded-xl shadow-xl shadow-amber-500/20 flex items-center justify-center gap-2">
                                 <span className="material-symbols-outlined text-sm">star</span> Avaliar e Liberar
                               </button>
                             )}
@@ -260,12 +260,12 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                        {isProvider && (
                          <>
                              {displayData.status === 'open' && (
-                               <button onClick={() => setBudgetModal({ isOpen: true, amount: '', description: '' })} className="w-full h-11 bg-primary text-white text-xs font-black uppercase tracking-widest rounded-xl shadow-xl shadow-primary/20 flex items-center justify-center gap-2 animate-pulse">
+                               <button onClick={() => setBudgetModal({ isOpen: true, amount: '', description: '' })} className="w-full h-11 bg-primary text-white text-xs font-black rounded-xl shadow-xl shadow-primary/20 flex items-center justify-center gap-2 animate-pulse">
                                 <span className="material-symbols-outlined text-sm">receipt_long</span> Enviar Orçamento
                                </button>
                              )}
                              {displayData.status === 'paid' && (
-                                <button onClick={() => setScheduleModal({ isOpen: true, date: '', time: '09:00' })} className="w-full h-11 bg-orange-500 text-white text-xs font-black uppercase tracking-widest rounded-xl shadow-xl shadow-orange-500/20 flex items-center justify-center gap-2">
+                                <button onClick={() => setScheduleModal({ isOpen: true, date: '', time: '09:00' })} className="w-full h-11 bg-orange-500 text-white text-xs font-black rounded-xl shadow-xl shadow-orange-500/20 flex items-center justify-center gap-2">
                                  <span className="material-symbols-outlined text-sm">calendar_month</span> Agendar Horário
                                 </button>
                              )}
@@ -284,7 +284,7 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
 
                                   showToast("Sucesso", "Trabalho iniciado!", "success");
                                   refreshData();
-                                }} className="w-full h-11 bg-blue-600 text-white text-xs font-black uppercase tracking-widest rounded-xl shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2">
+                                }} className="w-full h-11 bg-blue-600 text-white text-xs font-black rounded-xl shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2">
                                  <span className="material-symbols-outlined text-sm">play_arrow</span> Iniciar Trabalho
                                 </button>
                              )}
@@ -303,7 +303,7 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
 
                                   showToast("Sucesso", "Serviço finalizado!", "success");
                                   refreshData();
-                                }} className="w-full h-11 bg-emerald-600 text-white text-xs font-black uppercase tracking-widest rounded-xl shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2">
+                                }} className="w-full h-11 bg-emerald-600 text-white text-xs font-black rounded-xl shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2">
                                  <span className="material-symbols-outlined text-sm">task_alt</span> Concluir Serviço
                                 </button>
                              )}
@@ -390,7 +390,7 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
 
                      {displayData.attachments?.length > 0 && (
                         <div>
-                           <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-3 leading-none">Galeria de Mídia ({displayData.attachments.length})</p>
+                           <p className="text-[9px] font-black text-slate-500 mb-3 leading-none">Galeria de Mídia ({displayData.attachments.length})</p>
                            <div className="grid grid-cols-4 gap-2">
                               {displayData.attachments.slice(0, 4).map((url: string, idx: number) => (
                                 <div key={idx} onClick={() => setImageModal({ isOpen: true, url })} className="aspect-square rounded-xl bg-slate-800 border border-white/5 overflow-hidden cursor-pointer hover:border-primary/50 transition-all">
@@ -416,8 +416,8 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
                <div className="relative z-10 flex flex-col h-full">
                   <div className="mb-6">
-                     <p className="text-[10px] font-black text-primary uppercase tracking-[3px] mb-1 leading-none">Fluxo de Trabalho</p>
-                     <h2 className="text-xl font-black text-white uppercase tracking-tighter italic">Roteiro do Pedido</h2>
+                     <p className="text-[10px] font-black text-primary mb-1 leading-none">Fluxo de Trabalho</p>
+                     <h2 className="text-xl font-black text-white italic">Roteiro do Pedido</h2>
                   </div>
 
                   <div className="flex-1 flex flex-col justify-start space-y-4 py-4 overflow-y-auto no-scrollbar">
@@ -443,7 +443,7 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                                <span className="material-symbols-outlined text-sm">{isDone ? 'check' : step.icon}</span>
                             </div>
                             <div className="flex flex-col min-w-0">
-                               <h4 className={`text-sm font-black uppercase tracking-tighter italic leading-none mb-1.5 ${isDone ? 'text-white' : 'text-slate-700'}`}>{step.label}</h4>
+                               <h4 className={`text-sm font-black italic leading-none mb-1.5 ${isDone ? 'text-white' : 'text-slate-700'}`}>{step.label}</h4>
                                <p className={`text-[10px] font-bold leading-relaxed ${isDone ? 'text-slate-400' : 'text-slate-800'}`}>{step.details}</p>
                             </div>
                          </div>
@@ -461,7 +461,7 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
       {budgetModal.isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-xl animate-in fade-in">
            <div className="w-full max-w-sm bg-slate-900 border border-white/10 rounded-[28px] p-6 shadow-2xl">
-              <h3 className="text-lg font-black text-white uppercase tracking-tighter italic mb-4">Enviar Orçamento</h3>
+              <h3 className="text-lg font-black text-white italic mb-4">Enviar Orçamento</h3>
               <input 
                 type="text"
                 value={budgetModal.amount}
@@ -473,8 +473,8 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                 placeholder="R$ 0,00"
                 className="w-full h-12 bg-slate-800 border border-white/5 rounded-xl px-4 text-xl font-black text-white outline-none mb-4"
               />
-              <button onClick={handleBudgetSubmit} className="w-full h-12 bg-primary text-white font-black uppercase tracking-widest rounded-xl mb-3">Confirmar Valor</button>
-              <button onClick={() => setBudgetModal({ ...budgetModal, isOpen: false })} className="w-full text-[10px] font-black text-slate-500 uppercase">Cancelar</button>
+              <button onClick={handleBudgetSubmit} className="w-full h-12 bg-primary text-white font-black rounded-xl mb-3">Confirmar Valor</button>
+              <button onClick={() => setBudgetModal({ ...budgetModal, isOpen: false })} className="w-full text-[10px] font-black text-slate-500">Cancelar</button>
            </div>
         </div>
       )}
@@ -482,13 +482,13 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
       {scheduleModal.isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-xl animate-in fade-in">
            <div className="w-full max-w-sm bg-slate-900 border border-white/10 rounded-[28px] p-6 shadow-2xl">
-              <h3 className="text-lg font-black text-white uppercase tracking-tighter italic mb-4">Agendar Serviço</h3>
+              <h3 className="text-lg font-black text-white italic mb-4">Agendar Serviço</h3>
               <div className="space-y-3 mb-4">
                 <input type="date" value={scheduleModal.date} onChange={(e) => setScheduleModal({ ...scheduleModal, date: e.target.value })} className="w-full h-11 bg-slate-800 border border-white/5 rounded-xl px-4 text-white" />
                 <input type="time" value={scheduleModal.time} onChange={(e) => setScheduleModal({ ...scheduleModal, time: e.target.value })} className="w-full h-11 bg-slate-800 border border-white/5 rounded-xl px-4 text-white" />
               </div>
-              <button onClick={handleScheduleSubmit} className="w-full h-12 bg-orange-500 text-white font-black uppercase tracking-widest rounded-xl mb-3">Agendar Agora</button>
-              <button onClick={() => setScheduleModal({ ...scheduleModal, isOpen: false })} className="w-full text-[10px] font-black text-slate-500 uppercase">Voltar</button>
+              <button onClick={handleScheduleSubmit} className="w-full h-12 bg-orange-500 text-white font-black rounded-xl mb-3">Agendar Agora</button>
+              <button onClick={() => setScheduleModal({ ...scheduleModal, isOpen: false })} className="w-full text-[10px] font-black text-slate-500">Voltar</button>
            </div>
         </div>
       )}

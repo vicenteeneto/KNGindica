@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import StarRating from '../components/StarRating';
 
 import { NavigationProps } from '../types';
@@ -55,7 +55,7 @@ export default function ServiceHistoryScreen({ onNavigate }: NavigationProps) {
                 <div className="flex flex-1 flex-col">
                   <div className="flex justify-between items-start">
                     <h3 className="text-slate-900 dark:text-slate-100 text-base font-semibold">João Silva</h3>
-                    <span className="text-[10px] font-bold uppercase tracking-wider bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded">Concluído</span>
+                    <span className="text-[10px] font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded">Concluído</span>
                   </div>
                   <p className="text-primary text-xs font-medium mb-1">Encanador Hidráulico</p>
                   <div className="flex items-center gap-1 mb-1">
@@ -82,7 +82,7 @@ export default function ServiceHistoryScreen({ onNavigate }: NavigationProps) {
                 <div className="flex flex-1 flex-col">
                   <div className="flex justify-between items-start">
                     <h3 className="text-slate-900 dark:text-slate-100 text-base font-semibold">Maria Souza</h3>
-                    <span className="text-[10px] font-bold uppercase tracking-wider bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded">Concluído</span>
+                    <span className="text-[10px] font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded">Concluído</span>
                   </div>
                   <p className="text-primary text-xs font-medium mb-1">Faxina Residencial</p>
                   <div className="flex items-center gap-1 mb-1">
@@ -109,7 +109,7 @@ export default function ServiceHistoryScreen({ onNavigate }: NavigationProps) {
                 <div className="flex flex-1 flex-col">
                   <div className="flex justify-between items-start">
                     <h3 className="text-slate-900 dark:text-slate-100 text-base font-semibold">Ricardo Lima</h3>
-                    <span className="text-[10px] font-bold uppercase tracking-wider bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded">Concluído</span>
+                    <span className="text-[10px] font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded">Concluído</span>
                   </div>
                   <p className="text-primary text-xs font-medium mb-1">Eletricista</p>
                   <div className="flex items-center gap-1 mb-1">

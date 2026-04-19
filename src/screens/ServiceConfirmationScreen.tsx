@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { NavigationProps } from '../types';
 
 interface ServiceConfirmationScreenProps extends NavigationProps {
@@ -97,19 +97,19 @@ export default function ServiceConfirmationScreen({ onNavigate, params }: Servic
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-4xl bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-4 pb-4 pt-2 flex justify-between items-center z-20">
         <button onClick={() => onNavigate('home')} className="flex flex-1 flex-col items-center gap-1 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300">
           <span className="material-symbols-outlined text-2xl">home</span>
-          <p className="text-[10px] font-medium uppercase tracking-wider">Início</p>
+          <p className="text-[10px] font-medium">Início</p>
         </button>
         <button onClick={() => onNavigate('myRequests')} className="flex flex-1 flex-col items-center gap-1 text-primary">
           <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>description</span>
-          <p className="text-[10px] font-medium uppercase tracking-wider">Serviços</p>
+          <p className="text-[10px] font-medium">Serviços</p>
         </button>
         <button onClick={() => onNavigate('chatList')} className="flex flex-1 flex-col items-center gap-1 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300">
           <span className="material-symbols-outlined text-2xl">chat_bubble</span>
-          <p className="text-[10px] font-medium uppercase tracking-wider">Chat</p>
+          <p className="text-[10px] font-medium">Chat</p>
         </button>
         <button onClick={() => onNavigate('userProfile')} className="flex flex-1 flex-col items-center gap-1 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300">
           <span className="material-symbols-outlined text-2xl">person</span>
-          <p className="text-[10px] font-medium uppercase tracking-wider">Perfil</p>
+          <p className="text-[10px] font-medium">Perfil</p>
         </button>
       </div>
     </div>

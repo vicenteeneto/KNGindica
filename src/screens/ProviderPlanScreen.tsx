@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { NavigationProps } from '../types';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
@@ -144,12 +144,12 @@ export default function ProviderPlanScreen({ onNavigate }: NavigationProps) {
                 {/* Badge topo */}
                 {plan.recommended && (
                   <div className="bg-gradient-to-r from-primary to-blue-500 py-1.5 text-center">
-                    <span className="text-[10px] font-bold text-white tracking-widest uppercase">⭐ Recomendado</span>
+                    <span className="text-[10px] font-bold text-white tracking-widest">⭐ Recomendado</span>
                   </div>
                 )}
                 {isActive && (
                   <div className="bg-emerald-500 py-1 text-center">
-                    <span className="text-[10px] font-bold text-white tracking-widest uppercase">✓ Seu plano atual</span>
+                    <span className="text-[10px] font-bold text-white tracking-widest">✓ Seu plano atual</span>
                   </div>
                 )}
 
@@ -236,11 +236,11 @@ export default function ProviderPlanScreen({ onNavigate }: NavigationProps) {
               
               <div className="mt-4 pt-4 border-t border-primary/10 grid grid-cols-2 gap-4">
                 <div>
-                  <span className="block text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">Taxa Cliente</span>
+                  <span className="block text-[10px] text-slate-400 font-bold mb-1">Taxa Cliente</span>
                   <span className="font-bold text-slate-900 dark:text-white">R$ 9,90</span>
                 </div>
                 <div>
-                  <span className="block text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">Taxa Prestador</span>
+                  <span className="block text-[10px] text-slate-400 font-bold mb-1">Taxa Prestador</span>
                   <div className="flex flex-col">
                     <span className="font-bold text-slate-900 dark:text-white">5% (Free)</span>
                     <span className="text-emerald-500 font-bold">Grátis (Premium)</span>

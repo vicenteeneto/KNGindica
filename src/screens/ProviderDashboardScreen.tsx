@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { useAuth } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
@@ -254,7 +254,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
     <>
       <section className="pt-4 pb-1 text-center sm:text-left">
         <h1 className="text-slate-900 dark:text-slate-100 text-xl font-black leading-tight italic tracking-tighter">Olá, {getGreetingName()}! 👋</h1>
-        <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-0.5">Visão Geral do seu Negócio</p>
+        <p className="text-slate-400 text-[10px] font-bold mt-0.5">Visão Geral do seu Negócio</p>
       </section>
 
       {/* Completude do Perfil - PRIORIDADE TOTAL NO TOPO SE INCOMPLETO */}
@@ -281,10 +281,10 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
                   <span className="material-symbols-outlined text-3xl">error</span>
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-red-600 dark:text-red-500 uppercase tracking-tighter italic">
+                  <h3 className="text-base font-black text-red-600 dark:text-red-500 italic">
                     Perfil com Baixa Visibilidade!
                   </h3>
-                  <p className="text-[10px] text-red-500 dark:text-red-400 font-black uppercase tracking-widest">
+                  <p className="text-[10px] text-red-500 dark:text-red-400 font-black">
                     Complete agora para aparecer nas buscas
                   </p>
                 </div>
@@ -296,7 +296,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
 
               <div className="flex flex-wrap gap-2 mb-6">
                 {missing.map((item, idx) => (
-                  <span key={idx} className="bg-white dark:bg-slate-900 text-red-600 dark:text-red-500 text-[10px] font-black px-3 py-1.5 rounded-xl border border-red-500/30 shadow-sm uppercase tracking-tighter">
+                  <span key={idx} className="bg-white dark:bg-slate-900 text-red-600 dark:text-red-500 text-[10px] font-black px-3 py-1.5 rounded-xl border border-red-500/30 shadow-sm">
                     • {item}
                   </span>
                 ))}
@@ -304,7 +304,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
 
               <button 
                 onClick={() => onNavigate('userProfile')}
-                className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-black text-sm uppercase tracking-widest rounded-2xl shadow-xl shadow-red-600/20 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
+                className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-black text-sm rounded-2xl shadow-xl shadow-red-600/20 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
               >
                 FINALIZAR MEU PERFIL AGORA
                 <span className="material-symbols-outlined">arrow_forward</span>
@@ -319,7 +319,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
       <section className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden relative group">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tighter italic">
+            <h3 className="text-lg font-black text-slate-900 dark:text-white italic">
               Análises KNGindica
             </h3>
             <div className="flex items-center gap-1.5">
@@ -327,7 +327,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
               </span>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tempo Real</span>
+              <span className="text-[10px] font-bold text-slate-400">Tempo Real</span>
             </div>
           </div>
           <div className="size-12 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
@@ -337,20 +337,20 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
 
         <div className="grid grid-cols-2 gap-2 mb-3">
           <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
-            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Visitas</p>
+            <p className="text-[9px] font-black text-slate-400 mb-0.5">Visitas</p>
             <div className="flex items-baseline gap-1">
               <span className="text-2xl font-black text-slate-900 dark:text-slate-100 leading-none">{stats.visits}</span>
-              <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Views</span>
+              <span className="text-[8px] font-bold text-slate-400">Views</span>
             </div>
             <div className="absolute -right-1 -bottom-1 opacity-5">
               <span className="material-symbols-outlined text-4xl">visibility</span>
             </div>
           </div>
           <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
-            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Leads</p>
+            <p className="text-[9px] font-black text-slate-400 mb-0.5">Leads</p>
             <div className="flex items-baseline gap-1">
               <span className="text-2xl font-black text-emerald-500 leading-none">{stats.leads}</span>
-              <span className="text-[8px] font-bold text-emerald-500/60 font-black tracking-tighter uppercase">Contatos</span>
+              <span className="text-[8px] font-bold text-emerald-500/60 font-black tracking-tighter">Contatos</span>
             </div>
             <div className="absolute -right-1 -bottom-1 opacity-5 text-emerald-500">
               <span className="material-symbols-outlined text-4xl">chat</span>
@@ -366,7 +366,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
           
           <div className="flex justify-between items-start mb-4">
             <div>
-              <h4 className="text-white font-black text-[10px] uppercase tracking-widest flex items-center gap-2">
+              <h4 className="text-white font-black text-[10px] flex items-center gap-2">
                 Taxa de Conversão
                 <span className="bg-primary/20 text-primary border border-primary/30 px-1 py-0.5 rounded-[4px] text-[7px] leading-none">SMART METRIC</span>
               </h4>
@@ -424,7 +424,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
             className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-lg cursor-pointer hover:border-amber-500 transition-all group"
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+              <h3 className="text-[10px] font-black text-slate-400 flex items-center gap-2">
                 <span className="material-symbols-outlined text-amber-500 text-sm">stars</span>
                 Último Feedback Recebido
               </h3>
@@ -471,18 +471,18 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
             </div>
             
             <div className="relative z-10">
-              <div className="inline-flex items-center gap-2 bg-amber-500/20 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-3 text-amber-500 border border-amber-500/20">
+              <div className="inline-flex items-center gap-2 bg-amber-500/20 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-black tracking-widest mb-3 text-amber-500 border border-amber-500/20">
                 <span className="material-symbols-outlined text-xs">bolt</span>
                 Upgrade Premium
               </div>
-              <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic leading-none mb-2">
+              <h3 className="text-2xl font-black text-white italic leading-none mb-2">
                 Seja um Prestador <span className="text-amber-500">Premium</span>
               </h3>
               <p className="text-slate-400 text-[11px] font-medium leading-[1.4] max-w-[220px]">
                 Tenha isenção total de taxas, selo de destaque e prioridade máxima em novos serviços.
               </p>
               <div className="mt-4">
-                <span className="inline-flex items-center gap-2 bg-white text-slate-900 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-white transition-colors">
+                <span className="inline-flex items-center gap-2 bg-white text-slate-900 px-4 py-2 rounded-xl text-[10px] font-black hover:bg-amber-500 hover:text-white transition-colors">
                   Saiba Mais
                   <span className="material-symbols-outlined text-xs">arrow_forward</span>
                 </span>
@@ -502,18 +502,18 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
             <span className="material-symbols-outlined text-7xl text-white">workspace_premium</span>
           </div>
           <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-2 py-1 rounded-full text-[9px] font-black tracking-widest uppercase mb-2 text-white">
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-2 py-1 rounded-full text-[9px] font-black tracking-widest mb-2 text-white">
               <span className="material-symbols-outlined text-xs">share</span>
               Ganhe Prêmios Indicando
             </div>
-            <h3 className="text-xl font-black text-white uppercase tracking-tighter italic leading-none mb-1">
+            <h3 className="text-xl font-black text-white italic leading-none mb-1">
               Indique e Ganhe
             </h3>
             <p className="text-white/80 text-[11px] font-medium leading-[1.3] max-w-sm">
               Seu link de convite vale pontos que podem ser trocados por KNG Premium e mais.
             </p>
             <div className="mt-3 flex items-center gap-2">
-              <span className="text-[10px] font-black text-white uppercase tracking-widest bg-white/20 px-3 py-1.5 rounded-xl border border-white/20 flex items-center gap-2">
+              <span className="text-[10px] font-black text-white bg-white/20 px-3 py-1.5 rounded-xl border border-white/20 flex items-center gap-2">
                 Ver Meus Pontos ({profile?.reward_points || 0} pts)
                 <span className="material-symbols-outlined text-xs">chevron_right</span>
               </span>
@@ -532,18 +532,18 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
             <span className="material-symbols-outlined text-7xl text-white">rocket_launch</span>
           </div>
           <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 bg-black/20 backdrop-blur-md px-2 py-1 rounded-full text-[9px] font-black tracking-widest uppercase mb-2 text-emerald-200">
+            <div className="inline-flex items-center gap-2 bg-black/20 backdrop-blur-md px-2 py-1 rounded-full text-[9px] font-black tracking-widest mb-2 text-emerald-200">
               <span className="material-symbols-outlined text-xs">campaign</span>
               {todayOrdersCount > 0 ? `${todayOrdersCount} ${todayOrdersCount === 1 ? 'ordem' : 'ordens'} hoje` : 'Novas oportunidades'}
             </div>
-            <h3 className="text-xl font-black text-white uppercase tracking-tighter italic leading-none mb-1">
+            <h3 className="text-xl font-black text-white italic leading-none mb-1">
               Oportunidades KNGindica
             </h3>
             <p className="text-emerald-50/80 text-[11px] font-medium leading-tight max-w-sm">
               Novos freelances abertos na sua região disponíveis.
             </p>
             <div className="mt-3 flex items-center gap-2">
-              <span className="text-[10px] font-black text-white uppercase tracking-widest bg-emerald-400/20 px-3 py-1.5 rounded-xl border border-white/20">Ver Ordens Disponíveis</span>
+              <span className="text-[10px] font-black text-white bg-emerald-400/20 px-3 py-1.5 rounded-xl border border-white/20">Ver Ordens Disponíveis</span>
             </div>
           </div>
         </div>
@@ -558,7 +558,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
                   <span className="material-symbols-outlined text-sm">assignment</span>
                </div>
                <div>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pedidos</p>
+                  <p className="text-[10px] font-bold text-slate-400">Pedidos</p>
                   <div className="flex items-center gap-1.5">
                     <p className="text-lg font-black text-slate-900 dark:text-slate-100">{stats.requests}</p>
                     <span className="material-symbols-outlined text-slate-300 text-sm group-hover:translate-x-1 transition-transform">chevron_right</span>
@@ -570,7 +570,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
                   <span className="material-symbols-outlined text-sm">star</span>
                </div>
                <div>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Média</p>
+                  <p className="text-[10px] font-bold text-slate-400">Média</p>
                   <div className="flex items-center gap-1.5">
                     <p className="text-lg font-black text-slate-900 dark:text-slate-100">{stats.rating > 0 ? stats.rating.toFixed(1) : '0.0'}</p>
                     <span className="material-symbols-outlined text-slate-300 text-sm group-hover:translate-x-1 transition-transform">chevron_right</span>
@@ -582,26 +582,26 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
 
       {/* Carteira e Saldo */}
       <section className="pb-8">
-        <h3 className="font-black text-slate-900 dark:text-slate-100 mb-2 ml-1 flex items-center gap-2 text-[10px] uppercase tracking-widest">
+        <h3 className="font-black text-slate-900 dark:text-slate-100 mb-2 ml-1 flex items-center gap-2 text-[10px]">
           <span className="material-symbols-outlined text-slate-400 text-[18px]">payments</span>
           Carteira Financeira
         </h3>
         <div onClick={() => onNavigate('providerWallet')} className="group flex items-center justify-between p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-primary transition-all cursor-pointer overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/0 to-primary/[0.02] pointer-events-none" />
           <div className="flex flex-col gap-0.5 relative z-10">
-            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5 group-hover:text-primary transition-colors">Saldo Atualizado</p>
+            <p className="text-[8px] font-black text-slate-400 mb-0.5 group-hover:text-primary transition-colors">Saldo Atualizado</p>
             <div className="flex items-end gap-1.5">
               <span className="text-xl font-black leading-none group-hover:text-primary transition-colors">
                 {formatCurrency(stats.earnings)}
               </span>
-              <span className="text-[7px] text-emerald-500 font-bold mb-0.5 border border-emerald-500/20 px-1 rounded-full bg-emerald-50 dark:bg-emerald-900/10 tracking-widest uppercase">Líquido</span>
+              <span className="text-[7px] text-emerald-500 font-bold mb-0.5 border border-emerald-500/20 px-1 rounded-full bg-emerald-50 dark:bg-emerald-900/10 tracking-widest">Líquido</span>
             </div>
             {stats.pending > 0 && (
               <div className="flex items-center gap-1 mt-1 opacity-80 underline-offset-2 underline decoration-slate-300">
                 <span className="text-[10px] font-bold text-slate-500">
                   + {formatCurrency(stats.pending)}
                 </span>
-                <span className="text-[8px] text-slate-400 font-black uppercase tracking-widest ml-1">Em Trânsito</span>
+                <span className="text-[8px] text-slate-400 font-black ml-1">Em Trânsito</span>
               </div>
             )}
           </div>
@@ -643,7 +643,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
                 {/* Right Column: Feed & Portfolio (Visible on Desktop) */}
                 <div className="lg:col-span-4 space-y-4 sm:space-y-6 lg:sticky lg:top-[90px] self-start z-10">
                   <div className="">
-                    <h3 className="font-black text-slate-900 dark:text-slate-100 mb-4 ml-1 flex items-center gap-2 text-[10px] uppercase tracking-widest">
+                    <h3 className="font-black text-slate-900 dark:text-slate-100 mb-4 ml-1 flex items-center gap-2 text-[10px]">
                       <span className="material-symbols-outlined text-primary text-[18px]">verified</span>
                       Status da Conta
                     </h3>
@@ -665,17 +665,17 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
                                <span className="material-symbols-outlined text-3xl">{isComplete ? 'verified_user' : 'account_circle'}</span>
                             </div>
                             <div>
-                              <p className="text-xs font-black uppercase tracking-tighter text-slate-900 dark:text-white">
+                              <p className="text-xs font-black text-slate-900 dark:text-white">
                                 {isComplete ? 'Perfil Verificado' : 'Perfil em Construção'}
                               </p>
-                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">
+                              <p className="text-[10px] text-slate-400 font-bold mt-0.5">
                                 {isComplete ? 'Selo de Confiança Ativo' : 'Complete para ganhar selo'}
                               </p>
                             </div>
                           </div>
                           <button 
                             onClick={() => onNavigate('profile', { professionalId: user?.id, returnTo: 'dashboard' })}
-                            className={`w-full py-2.5 px-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all ${
+                            className={`w-full py-2.5 px-4 rounded-xl font-bold text-xs transition-all ${
                               isComplete 
                                 ? 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300' 
                                 : 'bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20'
@@ -687,7 +687,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
                       );
                     })()}
 
-                    <h3 className="font-black text-slate-900 dark:text-slate-100 mb-4 ml-1 flex items-center gap-2 text-[10px] uppercase tracking-widest">
+                    <h3 className="font-black text-slate-900 dark:text-slate-100 mb-4 ml-1 flex items-center gap-2 text-[10px]">
                       <span className="material-symbols-outlined text-slate-400 text-[18px]">support_agent</span>
                       Ajuda e Suporte
                     </h3>

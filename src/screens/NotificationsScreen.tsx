@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { NavigationProps, Screen } from '../types';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
@@ -215,17 +215,17 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
             }}
             onNavigate={onNavigate} 
             rightActions={
-              <button onClick={handleClearAll} className="text-primary font-bold text-xs md:text-sm px-4 hover:brightness-110 transition-all uppercase tracking-widest italic">
+              <button onClick={handleClearAll} className="text-primary font-bold text-xs md:text-sm px-4 hover:brightness-110 transition-all italic">
                 Limpar tudo
               </button>
             }
           />
           {/* Tab Navigation */}
           <div className="flex px-4 w-full">
-            <button onClick={() => setActiveTab('all')} className={`flex-1 py-4 text-xs md:text-sm font-black uppercase tracking-widest border-b-2 transition-colors ${activeTab === 'all' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'}`}>
+            <button onClick={() => setActiveTab('all')} className={`flex-1 py-4 text-xs md:text-sm font-black border-b-2 transition-colors ${activeTab === 'all' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'}`}>
               Todas
             </button>
-            <button onClick={() => setActiveTab('unread')} className={`flex-1 py-4 text-xs md:text-sm font-black uppercase tracking-widest border-b-2 transition-colors ${activeTab === 'unread' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'} flex items-center justify-center gap-2`}>
+            <button onClick={() => setActiveTab('unread')} className={`flex-1 py-4 text-xs md:text-sm font-black border-b-2 transition-colors ${activeTab === 'unread' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'} flex items-center justify-center gap-2`}>
               Não lidas
               {notifications.filter(n => !n.is_read).length > 0 && (
                 <span className="bg-primary text-white text-[10px] size-5 rounded-full flex items-center justify-center">
@@ -255,10 +255,10 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
           </div>
           {/* Tab Navigation */}
           <div className="flex px-4 w-full">
-            <button onClick={() => setActiveTab('all')} className={`flex-1 py-4 text-xs md:text-sm font-black uppercase tracking-widest border-b-2 ${activeTab === 'all' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'}`}>
+            <button onClick={() => setActiveTab('all')} className={`flex-1 py-4 text-xs md:text-sm font-black border-b-2 ${activeTab === 'all' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'}`}>
               Todas
             </button>
-            <button onClick={() => setActiveTab('unread')} className={`flex-1 py-4 text-xs md:text-sm font-black uppercase tracking-widest border-b-2 ${activeTab === 'unread' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'} flex items-center justify-center gap-2`}>
+            <button onClick={() => setActiveTab('unread')} className={`flex-1 py-4 text-xs md:text-sm font-black border-b-2 ${activeTab === 'unread' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'} flex items-center justify-center gap-2`}>
               Não lidas
               {notifications.filter(n => !n.is_read).length > 0 && (
                 <span className="bg-primary text-white text-[10px] size-5 rounded-full flex items-center justify-center">
@@ -366,7 +366,7 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
               <div className="size-16 rounded-full bg-amber-100 dark:bg-amber-900/20 text-amber-600 flex items-center justify-center mx-auto mb-4">
                 <span className="material-symbols-outlined text-3xl">delete_sweep</span>
               </div>
-              <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tighter italic">Limpar Tudo?</h3>
+              <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2 italic">Limpar Tudo?</h3>
               <p className="text-sm text-slate-500 font-medium mb-6 leading-relaxed">
                 Deseja apagar todas as suas notificações permanentemente?
               </p>
@@ -374,7 +374,7 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
               <div className="flex flex-col gap-2">
                 <button 
                   onClick={confirmModal.action}
-                  className="w-full py-3.5 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:brightness-110 transition-all shadow-lg"
+                  className="w-full py-3.5 bg-primary text-white rounded-2xl font-black text-xs hover:brightness-110 transition-all shadow-lg"
                 >
                   Confirmar
                 </button>

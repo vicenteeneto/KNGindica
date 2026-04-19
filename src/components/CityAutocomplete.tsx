@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 
 // Cache estático compartilhado para evitar múltiplas requisições
 let cachedCities: string[] = [];
@@ -160,7 +160,7 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
                 {s}
               </div>
               {activeCities.includes(s) && (
-                <span className="text-[9px] uppercase font-black text-primary group-hover:text-white flex items-center gap-1">
+                <span className="text-[9px] font-black text-primary group-hover:text-white flex items-center gap-1">
                   <span className="size-1.5 rounded-full bg-primary group-hover:bg-white animate-pulse"></span>
                   Ativa
                 </span>
@@ -171,7 +171,7 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
           {loading && (
             <div className="px-4 py-3 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center gap-2">
               <div className="size-3 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest animate-pulse">
+              <span className="text-[10px] font-black text-slate-400 tracking-widest animate-pulse">
                 Carregando base completa...
               </span>
             </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useNotifications } from '../NotificationContext';
@@ -76,8 +76,8 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
             <span className="material-symbols-outlined text-slate-400">arrow_back</span>
           </button>
           <div>
-            <p className="text-[10px] font-black text-primary uppercase tracking-[2px] mb-1 leading-none">Freelance Workspace</p>
-            <h1 className="text-sm lg:text-xl font-black text-white uppercase tracking-tighter italic leading-none">{displayData.title || 'Freelance'}</h1>
+            <p className="text-[10px] font-black text-primary mb-1 leading-none">Freelance Workspace</p>
+            <h1 className="text-sm lg:text-xl font-black text-white italic leading-none">{displayData.title || 'Freelance'}</h1>
           </div>
         </div>
       </header>
@@ -95,14 +95,14 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                     <span className="material-symbols-outlined text-[140px] italic">rocket_launch</span>
                   </div>
                   <div className="relative z-10 flex flex-col items-center text-center">
-                    <div className="px-4 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest mb-4">
+                    <div className="px-4 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black mb-4">
                        {displayData.status === 'open' ? 'Em Leilão' : 
                         displayData.status === 'awaiting_payment' ? 'Pendente de Pagamento' :
                         displayData.status === 'paid' ? 'Contrato Garantido' : 
                         displayData.status === 'scheduled' ? 'Agendado' :
                         displayData.status === 'in_service' ? 'Desenvolvimento' : 'Finalizado'}
                     </div>
-                    <h2 className="text-2xl lg:text-4xl font-black text-white uppercase tracking-tighter italic leading-tight mb-3">
+                    <h2 className="text-2xl lg:text-4xl font-black text-white italic leading-tight mb-3">
                       {displayData.status === 'open' ? 'Aguardando Lances' : 
                        displayData.status === 'awaiting_payment' ? (isClient ? 'Profissional Escolhido' : 'Você Venceu o Leilão!') :
                        displayData.status === 'paid' ? (isClient ? 'Tudo Pronto para Iniciar' : 'Mãos à Obra!') :
@@ -125,12 +125,12 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                        {isClient && (
                          <>
                             {displayData.status === 'awaiting_payment' && (
-                              <button onClick={() => onNavigate('checkout', { freelanceOrderId: displayData.id })} className="w-full h-14 bg-emerald-500 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2">
+                              <button onClick={() => onNavigate('checkout', { freelanceOrderId: displayData.id })} className="w-full h-14 bg-emerald-500 text-white font-black rounded-2xl shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2">
                                 <span className="material-symbols-outlined">payments</span> Ir para Pagamento
                               </button>
                             )}
                             {displayData.status === 'completed' && !hasReviewed && (
-                               <button onClick={() => onNavigate('writeReview', { requestId: displayData.id, providerId: displayData.assigned_provider_id, providerName: displayData.provider?.full_name, isFreelance: true })} className="w-full h-14 bg-amber-500 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-amber-500/20 flex items-center justify-center gap-2">
+                               <button onClick={() => onNavigate('writeReview', { requestId: displayData.id, providerId: displayData.assigned_provider_id, providerName: displayData.provider?.full_name, isFreelance: true })} className="w-full h-14 bg-amber-500 text-white font-black rounded-2xl shadow-xl shadow-amber-500/20 flex items-center justify-center gap-2">
                                 <span className="material-symbols-outlined">star</span> Avaliar e Liberar
                                </button>
                             )}
@@ -140,7 +140,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                        {isProvider && (
                          <>
                             {displayData.status === 'paid' && (
-                               <button onClick={() => setScheduleModal({ isOpen: true, date: new Date().toISOString().split('T')[0], time: '09:00' })} className="w-full h-14 bg-orange-500 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-orange-500/20 flex items-center justify-center gap-2 animate-bounce">
+                               <button onClick={() => setScheduleModal({ isOpen: true, date: new Date().toISOString().split('T')[0], time: '09:00' })} className="w-full h-14 bg-orange-500 text-white font-black rounded-2xl shadow-xl shadow-orange-500/20 flex items-center justify-center gap-2 animate-bounce">
                                 <span className="material-symbols-outlined">calendar_month</span> Agendar Serviço
                                </button>
                             )}
@@ -174,7 +174,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                                       setIsActing(false);
                                     }
                                   }} 
-                                  className={`w-full h-14 bg-blue-600 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2 transition-opacity ${isActing ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}
+                                  className={`w-full h-14 bg-blue-600 text-white font-black rounded-2xl shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2 transition-opacity ${isActing ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}
                                 >
                                  <span className="material-symbols-outlined">{isActing ? 'progress_activity' : 'play_arrow'}</span> 
                                  {isActing ? 'Processando...' : 'Começar Trabalho Agora'}
@@ -210,7 +210,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                                       setIsActing(false);
                                     }
                                   }} 
-                                  className={`w-full h-14 bg-emerald-600 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 transition-opacity ${isActing ? 'opacity-50 cursor-not-allowed' : 'hover:bg-emerald-700'}`}
+                                  className={`w-full h-14 bg-emerald-600 text-white font-black rounded-2xl shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 transition-opacity ${isActing ? 'opacity-50 cursor-not-allowed' : 'hover:bg-emerald-700'}`}
                                 >
                                  <span className="material-symbols-outlined">{isActing ? 'progress_activity' : 'task_alt'}</span>
                                  {isActing ? 'Processando...' : 'Finalizar e Entregar'}
@@ -238,13 +238,13 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                         <img src={isClient ? (displayData.provider?.avatar_url || "#") : (displayData.client?.avatar_url || "#")} className="w-full h-full object-cover" />
                      </div>
                      <div>
-                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{isClient ? 'Especialista' : 'Cliente'}</p>
-                        <h3 className="font-black text-white uppercase tracking-tighter italic">{isClient ? displayData.provider?.full_name : displayData.client?.full_name}</h3>
+                        <p className="text-[10px] font-black text-slate-500 mb-1">{isClient ? 'Especialista' : 'Cliente'}</p>
+                        <h3 className="font-black text-white italic">{isClient ? displayData.provider?.full_name : displayData.client?.full_name}</h3>
                      </div>
                   </div>
                   <div className="bg-slate-900/50 p-4 rounded-[24px] border border-white/5 flex flex-col justify-center">
-                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Orçamento do Freelance</p>
-                     <p className="text-xl font-black text-white uppercase tracking-tighter italic">{formatCurrency(displayData.budget || 0)}</p>
+                     <p className="text-[10px] font-black text-slate-500 mb-1">Orçamento do Freelance</p>
+                     <p className="text-xl font-black text-white italic">{formatCurrency(displayData.budget || 0)}</p>
                   </div>
                </div>
 
@@ -252,7 +252,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                   <div className="flex items-center justify-between gap-3">
                      <div className="flex items-center gap-3">
                         <span className="material-symbols-outlined text-primary">{displayData.category?.icon}</span>
-                        <h4 className="font-black text-white uppercase tracking-tighter italic">{displayData.title || displayData.category?.name}</h4>
+                        <h4 className="font-black text-white italic">{displayData.title || displayData.category?.name}</h4>
                      </div>
                      <button onClick={() => {
                         const address = `${displayData.street}, ${displayData.number}, ${displayData.neighborhood}, ${displayData.city} - ${displayData.state}`;
@@ -262,7 +262,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                         window.open(url, '_blank');
                      }} className="h-10 px-4 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 flex items-center gap-2 text-emerald-500 transition-colors border border-emerald-500/20">
                         <span className="material-symbols-outlined text-sm">near_me</span>
-                        <span className="text-[9px] font-black uppercase tracking-widest">Localizar</span>
+                        <span className="text-[9px] font-black">Localizar</span>
                      </button>
                   </div>
                   <p className="text-sm text-slate-400 leading-relaxed italic">"{displayData.description || 'Nenhuma descrição detalhada.'}"</p>
@@ -283,8 +283,8 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent pointer-events-none" />
                <div className="relative z-10 h-full flex flex-col">
                   <div className="mb-12">
-                     <p className="text-xs font-black text-primary uppercase tracking-[4px] mb-2 leading-none">Freelance workflow</p>
-                     <h2 className="text-4xl font-black text-white uppercase tracking-tighter italic">Roteiro Técnico</h2>
+                     <p className="text-xs font-black text-primary mb-2 leading-none">Freelance workflow</p>
+                     <h2 className="text-4xl font-black text-white italic">Roteiro Técnico</h2>
                   </div>
 
                   <div className="flex-1 flex flex-col justify-center space-y-2 max-w-sm mx-auto w-full">
@@ -303,8 +303,8 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                                <span className="material-symbols-outlined text-2xl">{isDone ? 'check' : step.icon}</span>
                             </div>
                             <div>
-                               <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isDone ? 'text-primary' : 'text-slate-600'}`}>Passo {idx+1}</p>
-                               <h4 className={`text-xl font-black uppercase tracking-tighter italic leading-none ${isDone ? 'text-white' : 'text-slate-700'}`}>{step.label}</h4>
+                               <p className={`text-[10px] font-black mb-1 ${isDone ? 'text-primary' : 'text-slate-600'}`}>Passo {idx+1}</p>
+                               <h4 className={`text-xl font-black italic leading-none ${isDone ? 'text-white' : 'text-slate-700'}`}>{step.label}</h4>
                             </div>
                          </div>
                        )
@@ -321,7 +321,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
       {scheduleModal.isOpen && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
            <div className="bg-slate-900 w-full max-w-sm rounded-[32px] p-8 border border-white/5">
-              <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic mb-6 text-center">Agendar Serviço</h3>
+              <h3 className="text-2xl font-black text-white italic mb-6 text-center">Agendar Serviço</h3>
               <div className="space-y-4">
                  <input type="date" value={scheduleModal.date} onChange={e => setScheduleModal(p => ({...p, date: e.target.value}))} className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-4 text-white" />
                  <input type="time" value={scheduleModal.time} onChange={e => setScheduleModal(p => ({...p, time: e.target.value}))} className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-4 text-white" />
@@ -368,7 +368,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
                     } catch (err: any) {
                       showToast("Erro", "Falha ao agendar: " + err.message, "error");
                     } finally { setIsActing(false); }
-                 }} className="w-full h-14 bg-primary text-white font-black uppercase tracking-widest rounded-2xl shadow-xl">{isActing ? 'Processando...' : 'Confirmar Agenda'}</button>
+                 }} className="w-full h-14 bg-primary text-white font-black rounded-2xl shadow-xl">{isActing ? 'Processando...' : 'Confirmar Agenda'}</button>
                  <button onClick={() => setScheduleModal({ isOpen: false, date: '', time: '' })} className="w-full py-2 text-slate-500 font-bold">Voltar</button>
               </div>
            </div>

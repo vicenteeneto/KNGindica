@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+﻿import React, { useState, useRef } from 'react';
 import { NavigationProps } from '../types';
 import { useTheme } from '../ThemeContext';
 import { useAuth } from '../AuthContext';
@@ -656,7 +656,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
               onChange={handleCoverChange}
             />
             <div className="flex flex-col items-end gap-2">
-              <span className="text-[10px] font-black text-white/60 uppercase tracking-tighter bg-black/20 px-2 py-0.5 rounded-full backdrop-blur-sm">
+              <span className="text-[10px] font-black text-white/60 bg-black/20 px-2 py-0.5 rounded-full backdrop-blur-sm">
                 Ideal: 1090 x 1980 px
               </span>
               <button
@@ -709,23 +709,23 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
 
           <div className="flex flex-col items-center lg:items-start gap-3 relative z-10">
             <h1 className="text-2xl font-bold tracking-tight text-center lg:text-left text-slate-900 dark:text-white" style={displayUser.cover ? { color: 'white' } : undefined}>{displayUser.name}</h1>
-            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest italic shadow-sm ${role === 'provider' ? 'bg-emerald-500 text-white' : 'bg-primary text-white'}`}>
+            <span className={`px-3 py-1 rounded-full text-[10px] font-black italic shadow-sm ${role === 'provider' ? 'bg-emerald-500 text-white' : 'bg-primary text-white'}`}>
               {role === 'provider' ? 'PRESTADOR DE SERVIÇO' : 'CLIENTE'}
             </span>
           </div>
           <p className="text-sm mt-3 mb-1 text-center lg:text-left relative z-10 text-slate-500 dark:text-slate-400" style={displayUser.cover ? { color: '#cbd5e1' } : undefined}>{displayUser.email}</p>
           <div className="flex flex-wrap items-center justify-center lg:justify-start gap-1 mt-2 relative z-10">
-            <span className="bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter text-slate-500 dark:text-gray-400 border border-slate-200 dark:border-white/5 shadow-sm">
+            <span className="bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded-full text-[9px] font-black text-slate-500 dark:text-gray-400 border border-slate-200 dark:border-white/5 shadow-sm">
               {displayUser.joinDate}
             </span>
-            <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter border shadow-sm ${
+            <span className={`px-2 py-0.5 rounded-full text-[9px] font-black border shadow-sm ${
               formData.plan_type === 'plus' 
                 ? 'bg-orange-500 text-black border-orange-400' 
                 : 'bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-gray-400 border-slate-200 dark:border-white/5'
             }`}>
               {formData.plan_type === 'plus' ? 'PREMIUM' : 'BÁSICO'}
             </span>
-            <span className="bg-amber-500 text-black px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter border border-amber-400 shadow-sm">
+            <span className="bg-amber-500 text-black px-2 py-0.5 rounded-full text-[9px] font-black border border-amber-400 shadow-sm">
               {displayUser.points} PTS
             </span>
           </div>
@@ -756,13 +756,13 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 <div className="flex items-center gap-3">
                   <span className="material-symbols-outlined text-2xl">warning</span>
                   <div>
-                    <p className="font-black uppercase tracking-tighter text-sm italic">Perfil Incompleto!</p>
-                    <p className="text-[10px] font-medium opacity-90 uppercase tracking-widest">Complete os itens abaixo para atrair clientes</p>
+                    <p className="font-black text-sm italic">Perfil Incompleto!</p>
+                    <p className="text-[10px] font-medium opacity-90">Complete os itens abaixo para atrair clientes</p>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {missing.map((item, idx) => (
-                    <span key={idx} className="bg-white/20 text-[9px] font-black px-2 py-0.5 rounded-full uppercase">
+                    <span key={idx} className="bg-white/20 text-[9px] font-black px-2 py-0.5 rounded-full">
                       {item}
                     </span>
                   ))}
@@ -998,7 +998,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 {/* Seção: Identificação */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-2 px-1">
-                    <span className="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em]">01. Identificação</span>
+                    <span className="text-[10px] font-black text-blue-500">01. Identificação</span>
                     <div className="flex-1 h-[1px] bg-slate-100 dark:bg-slate-800"></div>
                   </div>
                   
@@ -1045,7 +1045,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 {/* Seção: Endereço */}
                 <div className="space-y-4 pt-2">
                   <div className="flex items-center gap-2 mb-2 px-1">
-                    <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em]">02. Localização</span>
+                    <span className="text-[10px] font-black text-emerald-500">02. Localização</span>
                     <div className="flex-1 h-[1px] bg-slate-100 dark:bg-slate-800"></div>
                   </div>
 
@@ -1135,7 +1135,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                         value={formData.state}
                         onChange={(e) => setFormData({...formData, state: e.target.value.toUpperCase()})}
                         placeholder="Ex: SC"
-                        className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white uppercase"
+                        className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium text-slate-900 dark:text-white"
                       />
                     </div>
                   </div>
@@ -1192,7 +1192,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                            {uploadingDoc === 'front_id' ? (
                              <div className="flex flex-col items-center gap-2">
                                <span className="material-symbols-outlined animate-spin text-blue-500">progress_activity</span>
-                               <span className="text-[10px] font-black text-blue-500 uppercase">Enviando...</span>
+                               <span className="text-[10px] font-black text-blue-500">Enviando...</span>
                              </div>
                            ) : docUrls.front_id ? (
                              <>
@@ -1209,7 +1209,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                                <div className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-all">
                                  <span className="material-symbols-outlined text-2xl">badge</span>
                                </div>
-                               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Selecionar Foto</span>
+                               <span className="text-[10px] font-black text-slate-400">Selecionar Foto</span>
                              </>
                            )}
                          </button>
@@ -1238,7 +1238,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                            {uploadingDoc === 'selfie' ? (
                              <div className="flex flex-col items-center gap-2">
                                <span className="material-symbols-outlined animate-spin text-blue-500">progress_activity</span>
-                               <span className="text-[10px] font-black text-blue-500 uppercase">Enviando...</span>
+                               <span className="text-[10px] font-black text-blue-500">Enviando...</span>
                              </div>
                            ) : docUrls.selfie ? (
                              <>
@@ -1248,14 +1248,14 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                                  alt="Selfie" 
                                />
                                <span className="material-symbols-outlined text-emerald-500 text-3xl">check_circle</span>
-                               <span className="text-[10px] font-black text-emerald-600 uppercase italic">Selfie Enviada</span>
+                               <span className="text-[10px] font-black text-emerald-600 italic">Selfie Enviada</span>
                              </>
                            ) : (
                              <>
                                <div className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-all">
                                  <span className="material-symbols-outlined text-2xl">face</span>
                                </div>
-                               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tirar Selfie</span>
+                               <span className="text-[10px] font-black text-slate-400">Tirar Selfie</span>
                              </>
                            )}
                          </button>
@@ -1265,7 +1265,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                     {verificationStatus !== 'approved' && verificationStatus !== 'none' && (
                       <div className="flex items-center gap-2 mt-2 px-1">
                         <div className={`size-2 rounded-full ${verificationStatus === 'pending' ? 'bg-amber-500 animate-pulse' : 'bg-red-500'}`}></div>
-                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest italic">
+                        <span className="text-[9px] font-black text-slate-500 italic">
                           {verificationStatus === 'pending' ? 'DOCUMENTOS EM ANÁLISE PELA EQUIPE' : 'VERIFICAÇÃO RECUSADA - ENVIE NOVAS FOTOS'}
                         </span>
                       </div>
@@ -1281,7 +1281,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 type="button" 
                 disabled={isSaving} 
                 onClick={() => setShowProfileModal(false)}
-                className="flex-1 py-2.5 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-all uppercase tracking-widest text-[10px]"
+                className="flex-1 py-2.5 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-all text-[10px]"
               >
                 Cancelar
               </button>
@@ -1289,7 +1289,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 type="submit" 
                 disabled={isSaving} 
                 onClick={(e) => handleSavePersonalData(e as any)}
-                className="flex-2 py-2.5 bg-blue-600 text-white rounded-2xl font-black hover:bg-blue-700 transition-all disabled:opacity-50 flex justify-center items-center gap-2 uppercase tracking-widest text-xs shadow-lg shadow-blue-500/30"
+                className="flex-2 py-2.5 bg-blue-600 text-white rounded-2xl font-black hover:bg-blue-700 transition-all disabled:opacity-50 flex justify-center items-center gap-2 text-xs shadow-lg shadow-blue-500/30"
               >
                 {isSaving ? (
                   <span className="material-symbols-outlined animate-spin text-[20px]">refresh</span>
@@ -1330,7 +1330,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 {/* 01. Sobre Você */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-2 px-1">
-                    <span className="text-[10px] font-black text-orange-500 uppercase tracking-[0.2em]">01. Sobre Você (Bio)</span>
+                    <span className="text-[10px] font-black text-orange-500">01. Sobre Você (Bio)</span>
                     <div className="flex-1 h-[1px] bg-slate-100 dark:bg-slate-800"></div>
                   </div>
                   <textarea
@@ -1341,21 +1341,21 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                     rows={4}
                     className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none transition-all font-medium text-slate-900 dark:text-white resize-none"
                   />
-                  <p className="text-[10px] text-slate-400 font-medium px-1 uppercase tracking-widest text-right">Mínimo 30 caracteres recomendado</p>
+                  <p className="text-[10px] text-slate-400 font-medium px-1 text-right">Mínimo 30 caracteres recomendado</p>
                 </div>
 
                 {/* 02. Serviços e Preços */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-2 px-1">
-                    <span className="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em]">02. Serviços & Preços</span>
+                    <span className="text-[10px] font-black text-blue-500">02. Serviços & Preços</span>
                     <div className="flex-1 h-[1px] bg-slate-100 dark:bg-slate-800"></div>
                   </div>
                   
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Categorias que Atua</label>
+                    <label className="block text-[10px] font-black text-slate-400 mb-2 ml-1">Categorias que Atua</label>
                     <div className="flex flex-wrap gap-2 mb-3">
                       {formData.categories.map(cat => (
-                        <span key={cat} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary text-[10px] font-black uppercase rounded-full border border-primary/20">
+                        <span key={cat} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary text-[10px] font-black rounded-full border border-primary/20">
                           {cat}
                           <button type="button" onClick={() => setFormData({...formData, categories: formData.categories.filter(c => c !== cat)})} className="material-symbols-outlined text-[14px]">cancel</button>
                         </span>
@@ -1367,7 +1367,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                         value={categorySearch}
                         onChange={(e) => setCategorySearch(e.target.value)}
                         placeholder="+ Buscar ou sugerir serviço"
-                        className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-slate-900 dark:text-white uppercase text-xs"
+                        className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-slate-900 dark:text-white text-xs"
                       />
                       {categorySearch.trim().length > 0 && (
                         <div className="absolute z-50 left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 max-h-48 overflow-y-auto">
@@ -1381,7 +1381,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                                   setFormData({...formData, categories: [...formData.categories, cat.name]});
                                   setCategorySearch('');
                                 }}
-                                className="w-full px-3.5 py-2 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 text-[10px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-300 border-b border-slate-50 dark:border-slate-700 last:border-0"
+                                className="w-full px-3.5 py-2 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 text-[10px] font-black text-slate-700 dark:text-slate-300 border-b border-slate-50 dark:border-slate-700 last:border-0"
                               >
                                 {cat.name}
                               </button>
@@ -1394,7 +1394,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                                 handleSuggestCategory();
                                 setCategorySearch('');
                               }}
-                              className="w-full px-4 py-4 text-center hover:bg-primary/5 text-primary text-[10px] font-black uppercase tracking-widest"
+                              className="w-full px-4 py-4 text-center hover:bg-primary/5 text-primary text-[10px] font-black"
                             >
                               <span className="material-symbols-outlined block text-2xl mb-1">add_circle</span>
                               Sugerir "{categorySearch}"
@@ -1437,7 +1437,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                       <select
                         value={formData.pricing_model}
                         onChange={(e) => setFormData({...formData, pricing_model: e.target.value})}
-                        className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-slate-900 dark:text-white uppercase text-xs"
+                        className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-slate-900 dark:text-white text-xs"
                       >
                         <option value="visit">Por Visita</option>
                         <option value="hour">Por Hora</option>
@@ -1452,10 +1452,10 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between gap-2 mb-2 px-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-black text-purple-500 uppercase tracking-[0.2em]">03. Portfólio (Fotos)</span>
+                      <span className="text-[10px] font-black text-purple-500">03. Portfólio (Fotos)</span>
                       <div className="h-[1px] w-8 bg-slate-100 dark:bg-slate-800"></div>
                     </div>
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 dark:bg-slate-800/50 px-2 py-1 rounded-lg border border-slate-100 dark:border-slate-800">
+                    <span className="text-[9px] font-bold text-slate-400 bg-slate-50 dark:bg-slate-800/50 px-2 py-1 rounded-lg border border-slate-100 dark:border-slate-800">
                       Formatos aceitos: JPG, PNG
                     </span>
                   </div>
@@ -1485,7 +1485,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                         ) : (
                           <>
                             <span className="material-symbols-outlined text-[24px]">add_a_photo</span>
-                            <span className="text-[8px] font-black uppercase mt-1">Add</span>
+                            <span className="text-[8px] font-black mt-1">Add</span>
                           </>
                         )}
                       </button>
@@ -1502,7 +1502,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   type="button" 
                   disabled={isSaving} 
                   onClick={() => setShowProviderModal(false)}
-                  className="flex-1 py-4 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-all uppercase tracking-widest text-[10px]"
+                  className="flex-1 py-4 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-all text-[10px]"
                 >
                   Cancelar
                 </button>
@@ -1510,7 +1510,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   type="button" 
                   disabled={isSaving} 
                   onClick={(e) => handleSaveProfessionalData(e as any)}
-                  className="flex-2 py-4 bg-orange-600 text-white rounded-2xl font-black hover:bg-orange-700 transition-all disabled:opacity-50 flex justify-center items-center gap-2 uppercase tracking-widest text-xs shadow-lg shadow-orange-500/30"
+                  className="flex-2 py-4 bg-orange-600 text-white rounded-2xl font-black hover:bg-orange-700 transition-all disabled:opacity-50 flex justify-center items-center gap-2 text-xs shadow-lg shadow-orange-500/30"
                 >
                   {isSaving ? (
                     <span className="material-symbols-outlined animate-spin text-[20px]">refresh</span>
@@ -1599,7 +1599,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
               <div className="size-20 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="material-symbols-outlined text-4xl">handyman</span>
               </div>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-3 tracking-tighter uppercase italic">
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-3 tracking-tighter italic">
                 Seja um <span className="text-primary">Prestador!</span>
               </h3>
               <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-8">
@@ -1621,7 +1621,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                     }
                   }}
                   disabled={isSaving}
-                  className="w-full py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest hover:bg-primary/90 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="w-full py-4 bg-primary text-white rounded-2xl font-black hover:bg-primary/90 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {isSaving ? (
                     <span className="material-symbols-outlined animate-spin">refresh</span>

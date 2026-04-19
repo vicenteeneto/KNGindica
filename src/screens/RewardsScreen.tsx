@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
@@ -166,7 +166,7 @@ export default function RewardsScreen({ onNavigate }: NavigationProps) {
                 <span className="material-symbols-outlined text-[120px]">workspace_premium</span>
             </div>
             <div className="relative z-10 text-center lg:text-left">
-              <p className="text-white/80 font-bold uppercase tracking-[0.2em] text-xs mb-2">Seu Saldo atual</p>
+              <p className="text-white/80 font-bold text-xs mb-2">Seu Saldo atual</p>
               <h2 className="text-6xl font-black mb-4 flex items-center justify-center lg:justify-start gap-3">
                 {profile?.reward_points || 0}
                 <span className="text-2xl font-medium text-white/60">pts</span>
@@ -219,7 +219,7 @@ export default function RewardsScreen({ onNavigate }: NavigationProps) {
                    <button 
                     onClick={handleRedeemPlus}
                     disabled={redeeming}
-                    className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider hover:opacity-90 transition-opacity"
+                    className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2 rounded-lg text-xs font-black hover:opacity-90 transition-opacity"
                    >
                      Resgatar
                    </button>
@@ -238,7 +238,7 @@ export default function RewardsScreen({ onNavigate }: NavigationProps) {
                    <button 
                     onClick={handleRedeemContent}
                     disabled={redeeming}
-                    className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider hover:opacity-90 transition-opacity"
+                    className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2 rounded-lg text-xs font-black hover:opacity-90 transition-opacity"
                    >
                      Resgatar
                    </button>

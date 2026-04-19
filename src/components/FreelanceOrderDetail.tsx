@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNotifications } from '../NotificationContext';
 import { formatCurrency } from '../lib/formatters';
@@ -68,7 +68,7 @@ export function FreelanceOrderDetail({ orderId, onNavigate, isEmbedded = false }
     return (
       <div className="flex flex-col items-center justify-center h-full p-10 text-center opacity-30">
         <span className="material-symbols-outlined text-6xl mb-4 italic">error</span>
-        <p className="text-xs font-black uppercase tracking-widest">Freelance não encontrado</p>
+        <p className="text-xs font-black">Freelance não encontrado</p>
       </div>
     );
   }
@@ -85,15 +85,15 @@ export function FreelanceOrderDetail({ orderId, onNavigate, isEmbedded = false }
             <img src={order.profiles?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} className="w-full h-full object-cover" />
           </div>
           <div>
-            <h2 className="text-sm font-black text-white uppercase tracking-tighter italic leading-none mb-1">{order.profiles?.full_name || 'Cliente'}</h2>
-            <div className="flex items-center gap-1.5 font-bold uppercase tracking-widest text-[8px] text-primary">
+            <h2 className="text-sm font-black text-white italic leading-none mb-1">{order.profiles?.full_name || 'Cliente'}</h2>
+            <div className="flex items-center gap-1.5 font-bold text-[8px] text-primary">
               <div className="size-1.5 rounded-full bg-primary animate-pulse" />
               Oportunidade de Freelance • {order.display_id || 'ID'}
             </div>
           </div>
         </div>
         <div className="flex items-center gap-3">
-           <div className="px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest bg-primary/20 text-primary border border-primary/20">
+           <div className="px-2 py-0.5 rounded-md text-[8px] font-black bg-primary/20 text-primary border border-primary/20">
               {order.status}
            </div>
         </div>
@@ -105,13 +105,13 @@ export function FreelanceOrderDetail({ orderId, onNavigate, isEmbedded = false }
         <section>
           <div className="flex items-center gap-2 mb-4">
             <span className="size-2 bg-primary rounded-full"></span>
-            <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Descrição do Freelance</h4>
+            <h4 className="text-[10px] font-black text-slate-500">Descrição do Freelance</h4>
           </div>
           <div className="bg-slate-900/50 p-6 rounded-[32px] border border-white/5 shadow-2xl relative overflow-hidden group">
              <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity">
                <span className="material-symbols-outlined text-[100px] italic">{order.service_categories?.icon || 'work'}</span>
              </div>
-             <h3 className="text-xl font-black text-white uppercase tracking-tighter italic leading-tight mb-4 relative z-10">{order.title}</h3>
+             <h3 className="text-xl font-black text-white italic leading-tight mb-4 relative z-10">{order.title}</h3>
              <p className="text-sm text-slate-300 font-medium leading-relaxed whitespace-pre-line relative z-10 italic">
                "{order.description || 'Nenhuma descrição detalhada fornecida.'}"
              </p>
@@ -123,7 +123,7 @@ export function FreelanceOrderDetail({ orderId, onNavigate, isEmbedded = false }
           <section>
             <div className="flex items-center gap-2 mb-4">
               <span className="size-2 bg-amber-500 rounded-full"></span>
-              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Galeria de Mídia ({order.attachments.length})</h4>
+              <h4 className="text-[10px] font-black text-slate-500">Galeria de Mídia ({order.attachments.length})</h4>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {order.attachments.map((url: string, idx: number) => (
@@ -143,13 +143,13 @@ export function FreelanceOrderDetail({ orderId, onNavigate, isEmbedded = false }
         <section>
           <div className="flex items-center gap-2 mb-4">
             <span className="size-2 bg-emerald-500 rounded-full"></span>
-            <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Local do Freelance</h4>
+            <h4 className="text-[10px] font-black text-slate-500">Local do Freelance</h4>
           </div>
           <div className="bg-emerald-500/5 border border-emerald-500/10 p-6 rounded-[32px] flex items-center justify-between">
              <div className="min-w-0">
                 {order.street ? (
                   <>
-                     <p className="text-lg font-black text-white leading-tight uppercase tracking-tighter italic">
+                     <p className="text-lg font-black text-white leading-tight italic">
                        {order.street}, {order.number || 'S/N'}
                      </p>
                      <p className="text-sm font-bold text-slate-400">
@@ -177,7 +177,7 @@ export function FreelanceOrderDetail({ orderId, onNavigate, isEmbedded = false }
            <section>
             <div className="flex items-center gap-2 mb-4">
               <span className="size-2 bg-emerald-500 rounded-full"></span>
-              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Orçamento</h4>
+              <h4 className="text-[10px] font-black text-slate-500">Orçamento</h4>
             </div>
             <div className="bg-slate-900 border border-white/5 p-6 rounded-[28px] shadow-xl relative overflow-hidden group">
                <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
@@ -186,14 +186,14 @@ export function FreelanceOrderDetail({ orderId, onNavigate, isEmbedded = false }
                <p className="text-2xl font-black text-emerald-500 italic">
                  {formatCurrency(order.budget || 0)}
                </p>
-               <p className="text-[9px] font-bold text-emerald-500/60 uppercase tracking-widest mt-1">Valor do freelance</p>
+               <p className="text-[9px] font-bold text-emerald-500/60 mt-1">Valor do freelance</p>
             </div>
           </section>
 
            <section>
             <div className="flex items-center gap-2 mb-4">
               <span className="size-2 bg-orange-500 rounded-full"></span>
-              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Estimativa de Entrega</h4>
+              <h4 className="text-[10px] font-black text-slate-500">Estimativa de Entrega</h4>
             </div>
             <div className="bg-slate-900 border border-white/5 p-6 rounded-[28px] shadow-xl relative overflow-hidden group">
                <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
@@ -202,7 +202,7 @@ export function FreelanceOrderDetail({ orderId, onNavigate, isEmbedded = false }
                <p className="text-xl font-black text-orange-500 italic">
                  A combinar
                </p>
-               <p className="text-[9px] font-bold text-orange-500/60 uppercase tracking-widest mt-1">Definido após o pagamento</p>
+               <p className="text-[9px] font-bold text-orange-500/60 mt-1">Definido após o pagamento</p>
             </div>
           </section>
         </div>
@@ -217,7 +217,7 @@ export function FreelanceOrderDetail({ orderId, onNavigate, isEmbedded = false }
                  onNavigate('bidRoom', { orderId: order.id });
                }
              }}
-             className="w-full py-4 bg-primary text-white rounded-[24px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-3 group"
+             className="w-full py-4 bg-primary text-white rounded-[24px] font-black shadow-xl shadow-primary/20 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-3 group"
            >
              <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">
                {['scheduled', 'awaiting_payment', 'paid', 'in_service', 'completed'].includes(order.status) ? 'visibility' : 'send_money'}

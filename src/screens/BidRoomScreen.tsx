@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
@@ -259,10 +259,10 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
           <span className="material-symbols-outlined">arrow_back</span>
         </button>
         <div className="flex-1 min-w-0">
-          <h2 className="text-lg font-black uppercase tracking-tighter truncate text-slate-800 dark:text-slate-100">Sala de Freelance</h2>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">{order.title}</p>
+          <h2 className="text-lg font-black truncate text-slate-800 dark:text-slate-100">Sala de Freelance</h2>
+          <p className="text-[10px] font-bold text-slate-400 truncate">{order.title}</p>
         </div>
-        <div className={`px-3 py-1.5 rounded-full flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-black shrink-0 ${isExpired ? 'bg-red-50 text-red-500 dark:bg-red-500/10' : 'bg-primary/10 text-primary'}`}>
+        <div className={`px-3 py-1.5 rounded-full flex items-center gap-1.5 text-[10px] font-black shrink-0 ${isExpired ? 'bg-red-50 text-red-500 dark:bg-red-500/10' : 'bg-primary/10 text-primary'}`}>
           <span className="material-symbols-outlined shrink-0 text-sm">timer</span>
           {timeLeft}
         </div>
@@ -275,17 +275,17 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
         <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
           <div className="flex items-center gap-2 mb-2">
             <span className="material-symbols-outlined text-primary">{order.service_categories?.icon || 'work'}</span>
-            <span className="text-xs font-bold text-primary uppercase tracking-widest">{order.service_categories?.name}</span>
+            <span className="text-xs font-bold text-primary">{order.service_categories?.name}</span>
           </div>
           <h3 className="font-black text-xl leading-tight tracking-tight mb-2 text-slate-800 dark:text-slate-100">{order.title}</h3>
           <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">{order.description}</p>
           <div className="flex gap-4 border-t border-slate-100 dark:border-slate-700 pt-4">
             <div>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Budget</p>
+              <p className="text-[10px] text-slate-400 font-bold">Budget</p>
               <p className="text-lg font-black text-emerald-500">{formatCurrency(order.budget || 0)}</p>
             </div>
             <div>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Cidade</p>
+              <p className="text-[10px] text-slate-400 font-bold">Cidade</p>
               <p className="text-lg font-bold text-slate-700 dark:text-slate-200">{order.city}</p>
             </div>
           </div>
@@ -293,7 +293,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
 
         {/* Bids Timeline */}
         <div className="flex-1 pb-20">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+          <p className="text-xs font-bold text-slate-400 mb-4 flex items-center gap-2">
             <span className="material-symbols-outlined text-sm">history</span>
             Linha do Tempo de Propostas
           </p>
@@ -331,7 +331,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
                         {isMine && !isExpired && order.status === 'open' && (
                           <button 
                             onClick={() => handleCancelBid(bid.id)}
-                            className="text-[10px] text-red-500 font-bold uppercase hover:bg-red-50 px-2 py-1 rounded-lg transition-colors mt-1"
+                            className="text-[10px] text-red-500 font-bold hover:bg-red-50 px-2 py-1 rounded-lg transition-colors mt-1"
                           >
                             Mudar de ideia? Cancelar
                           </button>
@@ -346,7 +346,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
                     
                     {isClient && !isExpired && (
                       <div className="mt-3 flex justify-end">
-                        <button onClick={() => handleAcceptBid(bid)} className="bg-emerald-500 hover:bg-emerald-600 text-white font-black uppercase tracking-widest text-[10px] px-4 py-2 rounded-xl shadow-lg shadow-emerald-500/20 active:scale-95 transition-all">
+                        <button onClick={() => handleAcceptBid(bid)} className="bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[10px] px-4 py-2 rounded-xl shadow-lg shadow-emerald-500/20 active:scale-95 transition-all">
                           Aceitar Proposta
                         </button>
                       </div>
@@ -376,7 +376,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
             <button 
               type="submit" 
               disabled={submitting || !bidAmount}
-              className="bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:active:scale-100 text-white rounded-2xl h-11 px-4 font-black uppercase tracking-widest text-xs shadow-xl shadow-primary/30 active:scale-95 transition-all w-28 flex items-center justify-center shrink-0"
+              className="bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:active:scale-100 text-white rounded-2xl h-11 px-4 font-black text-xs shadow-xl shadow-primary/30 active:scale-95 transition-all w-28 flex items-center justify-center shrink-0"
             >
               {submitting ? <span className="material-symbols-outlined animate-spin text-sm">sync</span> : 'Enviar'}
             </button>
@@ -413,7 +413,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
             }} className="text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-500/10 px-4 py-2 rounded-xl text-xs font-bold transition-colors">
               Encerrar Freelance Antecipadamente
             </button>
-            <button onClick={handleCancelOrder} className="text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 px-4 py-2 rounded-xl text-sm font-black uppercase tracking-widest transition-colors">
+            <button onClick={handleCancelOrder} className="text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 px-4 py-2 rounded-xl text-sm font-black transition-colors">
               CANCELAR ESTE FREELANCE
             </button>
           </div>
@@ -436,7 +436,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
                    'help'}
                 </span>
               </div>
-              <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tighter">
+              <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2">
                 {confirmModal.title}
               </h3>
               <p className="text-sm text-slate-500 font-medium mb-6 leading-relaxed">
@@ -446,7 +446,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
               <div className="flex flex-col gap-2">
                 <button 
                   onClick={confirmModal.action}
-                  className={`w-full py-3.5 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg ${
+                  className={`w-full py-3.5 text-white rounded-2xl font-black text-xs transition-colors shadow-lg ${
                     confirmModal.variant === 'danger' ? 'bg-red-600 hover:bg-red-700 shadow-red-600/10' : 
                     confirmModal.variant === 'success' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/10' : 
                     'bg-primary hover:bg-primary/95 shadow-primary/10'

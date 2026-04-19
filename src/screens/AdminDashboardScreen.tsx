@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
@@ -1127,10 +1127,10 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
               <p className="text-xs text-slate-500">Distribuição da base de usuários</p>
             </div>
             <div className="flex gap-2">
-              <span className="flex items-center gap-1 text-[10px] font-bold uppercase text-slate-400">
+              <span className="flex items-center gap-1 text-[10px] font-bold text-slate-400">
                 <span className="w-2 h-2 rounded-full bg-primary"></span> Prestadores
               </span>
-              <span className="flex items-center gap-1 text-[10px] font-bold uppercase text-slate-400">
+              <span className="flex items-center gap-1 text-[10px] font-bold text-slate-400">
                 <span className="w-2 h-2 rounded-full bg-purple-500"></span> Clientes
               </span>
             </div>
@@ -1157,7 +1157,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                         title={`${cCount} Clientes`}
                      ></div>
                   </div>
-                  <span className="text-[9px] text-slate-400 text-center uppercase font-bold">
+                  <span className="text-[9px] text-slate-400 text-center font-bold">
                     {new Date(new Date().setDate(new Date().getDate() - (6 - i))).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })}
                   </span>
                 </div>
@@ -1190,7 +1190,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                 <img src={p.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} className="w-10 h-10 rounded-full object-cover bg-slate-100" />
                 <div className="flex-1 overflow-hidden">
                    <p className="text-sm font-bold truncate">{p.full_name || 'Novo Usuário'}</p>
-                   <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">
+                   <p className="text-[10px] text-slate-500 font-bold tracking-wider">
                       {p.role === 'provider' ? (
                          <span className="text-blue-500">PRESTADOR</span>
                       ) : (
@@ -1233,11 +1233,11 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             <table className="w-full text-left border-collapse whitespace-normal break-words">
               <thead>
                 <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-                  <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Prestador</th>
-                  <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Serviço</th>
-                  <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                  <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Avaliação</th>
-                  <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Ações</th>
+                  <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Prestador</th>
+                  <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Serviço</th>
+                  <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Status</th>
+                  <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Avaliação</th>
+                  <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -1261,7 +1261,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       </td>
                       <td className="px-3 py-3 text-sm">-</td>
                       <td className="px-3 py-3">
-                        <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[10px] font-bold uppercase rounded">Ativo</span>
+                        <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[10px] font-bold rounded">Ativo</span>
                       </td>
                       <td className="px-3 py-3">
                         <div className="flex items-center gap-1 text-orange-400">
@@ -1322,7 +1322,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                     </div>
                   </div>
                   <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 italic">"{review.comment || 'Sem comentário'}"</p>
-                  <p className="mt-2 text-[10px] font-bold text-primary uppercase">Para: {review.provider?.full_name || 'Prestador'}</p>
+                  <p className="mt-2 text-[10px] font-bold text-primary">Para: {review.provider?.full_name || 'Prestador'}</p>
                 </div>
               ))
             )}
@@ -1352,7 +1352,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className={`px-2 py-1 text-[10px] font-bold rounded uppercase ${order.status === 'completed' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : order.status === 'canceled' ? 'bg-slate-100 dark:bg-slate-800 text-slate-500' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'}`}>
+                      <span className={`px-2 py-1 text-[10px] font-bold rounded ${order.status === 'completed' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : order.status === 'canceled' ? 'bg-slate-100 dark:bg-slate-800 text-slate-500' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'}`}>
                         {order.status === 'accepted' ? 'Aceito' : order.status === 'completed' ? 'Concluído' : order.status === 'canceled' ? 'Cancelado' : order.status}
                       </span>
                       <button 
@@ -1435,13 +1435,13 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           <table className="w-full text-left border-collapse whitespace-normal break-words">
             <thead>
               <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Prestador</th>
-                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Especialidade</th>
-                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Contato</th>
-                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Localidade</th>
-                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Avaliação</th>
-                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider text-right">Ações</th>
+                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Prestador</th>
+                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Especialidade</th>
+                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Contato</th>
+                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Localidade</th>
+                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Status</th>
+                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Avaliação</th>
+                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 text-right">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -1487,7 +1487,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                     </td>
                     <td className="px-3 py-3">
                       <p className="text-[13px] font-medium text-slate-900 dark:text-white truncate max-w-[120px]">{provider.phone || 'S/T'}</p>
-                      <p className="text-[10px] text-slate-500 uppercase font-bold tracking-tight">WhatsApp</p>
+                      <p className="text-[10px] text-slate-500 font-bold tracking-tight">WhatsApp</p>
                     </td>
                     <td className="px-3 py-3">
                       <p className="text-[13px] font-medium text-slate-900 dark:text-white truncate max-w-[120px]">{provider.city ? `${provider.city}/${provider.state || '??'}` : 'n/i'}</p>
@@ -1577,7 +1577,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             className="group flex items-center gap-2 text-slate-500 hover:text-primary transition-colors mb-2"
           >
             <span className="material-symbols-outlined text-[18px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
-            <span className="text-xs font-bold uppercase tracking-widest">Voltar ao Dashboard</span>
+            <span className="text-xs font-bold">Voltar ao Dashboard</span>
           </button>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">Gestão de Clientes</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400">Gerencie todos os clientes cadastrados na plataforma</p>
@@ -1629,12 +1629,12 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           <table className="w-full text-left border-collapse whitespace-normal break-words">
             <thead>
               <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Cliente</th>
-                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Contato</th>
-                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Localidade</th>
-                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Cadastro</th>
-                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider text-right">Ações</th>
+                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Cliente</th>
+                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Contato</th>
+                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Localidade</th>
+                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Cadastro</th>
+                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Status</th>
+                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 text-right">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -1667,14 +1667,14 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                     </td>
                     <td className="px-3 py-3">
                       <p className="text-[13px] font-medium text-slate-900 dark:text-white truncate max-w-[140px]">{client.email || 'S/E'}</p>
-                      <p className="text-[10px] text-slate-500 uppercase font-bold tracking-tight">{client.phone || 'S/T'}</p>
+                      <p className="text-[10px] text-slate-500 font-bold tracking-tight">{client.phone || 'S/T'}</p>
                     </td>
                     <td className="px-3 py-3">
                       <p className="text-[13px] font-medium text-slate-900 dark:text-white truncate max-w-[120px]">{client.city ? `${client.city}/${client.state || '??'}` : 'n/i'}</p>
                       <p className="text-[11px] text-slate-500 truncate max-w-[120px]">{client.neighborhood || 'Bairro n/i'}</p>
                     </td>
                     <td className="px-3 py-3">
-                      <p className="text-[11px] text-slate-500 font-bold uppercase tracking-tight">{new Date(client.created_at).toLocaleDateString('pt-BR')}</p>
+                      <p className="text-[11px] text-slate-500 font-bold tracking-tight">{new Date(client.created_at).toLocaleDateString('pt-BR')}</p>
                     </td>
                     <td className="px-3 py-3">
                       {client.status === 'blocked' ? (
@@ -1878,12 +1878,12 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                     />
                   </div>
                 </th>
-                <th className="px-4 py-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider">ID / Data</th>
-                <th className="px-4 py-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Cliente</th>
-                <th className="px-4 py-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Prestador / Serviço</th>
-                <th className="px-4 py-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Valor</th>
-                <th className="px-4 py-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                <th className="px-4 py-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider text-right">Ações</th>
+                <th className="px-4 py-3 text-[11px] font-bold text-slate-500">ID / Data</th>
+                <th className="px-4 py-3 text-[11px] font-bold text-slate-500">Cliente</th>
+                <th className="px-4 py-3 text-[11px] font-bold text-slate-500">Prestador / Serviço</th>
+                <th className="px-4 py-3 text-[11px] font-bold text-slate-500">Valor</th>
+                <th className="px-4 py-3 text-[11px] font-bold text-slate-500">Status</th>
+                <th className="px-4 py-3 text-[11px] font-bold text-slate-500 text-right">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -1939,7 +1939,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       <p className="text-xs font-bold text-slate-900 dark:text-white">{order.price ? formatCurrency(order.price) : '---'}</p>
                     </td>
                     <td className="px-2 py-1.5">
-                      <span className={`px-2 py-0.5 text-[9px] font-extrabold rounded uppercase ${
+                      <span className={`px-2 py-0.5 text-[9px] font-extrabold rounded ${
                         ['completed', 'paid'].includes(order.status) ? 'bg-green-100 text-green-700' : 
                         ['cancelled', 'disputed'].includes(order.status) ? 'bg-red-100 text-red-700' : 
                         'bg-blue-100 text-blue-700'
@@ -2265,7 +2265,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {/* Pesquisa de Prestador */}
               <div className="relative">
-                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Buscar Prestador</label>
+                <label className="block text-[10px] font-bold text-slate-500 mb-1">Buscar Prestador</label>
                 <div className="relative">
                   <input
                     type="text"
@@ -2312,7 +2312,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
               {/* Pesquisa de Autor */}
               <div className="relative">
-                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Buscar Autor (Cliente)</label>
+                <label className="block text-[10px] font-bold text-slate-500 mb-1">Buscar Autor (Cliente)</label>
                 <div className="relative">
                   <input
                     type="text"
@@ -2372,7 +2372,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
             {/* Novo Campo: Foto do Autor (Opcional) */}
             <div className="animate-in slide-in-from-top-2 duration-300">
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">URL da Foto do Autor (Opcional - Google Imports)</label>
+              <label className="block text-[10px] font-bold text-slate-500 mb-1">URL da Foto do Autor (Opcional - Google Imports)</label>
               <input
                 type="text"
                 value={mockReviewForm.reviewer_avatar_url}
@@ -2384,7 +2384,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
             {/* Novo Campo: Data da Avaliação (Opcional) */}
             <div className="animate-in slide-in-from-top-2 duration-300">
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Data da Avaliação</label>
+              <label className="block text-[10px] font-bold text-slate-500 mb-1">Data da Avaliação</label>
               <input
                 type="date"
                 value={mockReviewForm.created_at}
@@ -2394,7 +2394,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nota (1-5)</label>
+              <label className="block text-[10px] font-bold text-slate-500 mb-1">Nota (1-5)</label>
               <div className="flex gap-2">
                 {[1, 2, 3, 4, 5].map(n => (
                   <button
@@ -2409,7 +2409,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Comentário</label>
+              <label className="block text-[10px] font-bold text-slate-500 mb-1">Comentário</label>
               <textarea
                 value={mockReviewForm.comment}
                 onChange={e => setMockReviewForm({...mockReviewForm, comment: e.target.value})}
@@ -2443,11 +2443,11 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
               <tr>
-                <th className="px-6 py-3 font-bold text-slate-500 uppercase">Prestador</th>
-                <th className="px-6 py-3 font-bold text-slate-500 uppercase">Autor</th>
-                <th className="px-6 py-3 font-bold text-slate-500 uppercase">Nota</th>
-                <th className="px-6 py-3 font-bold text-slate-500 uppercase">Comentário</th>
-                <th className="px-6 py-3 font-bold text-slate-500 uppercase text-right">Ação</th>
+                <th className="px-6 py-3 font-bold text-slate-500">Prestador</th>
+                <th className="px-6 py-3 font-bold text-slate-500">Autor</th>
+                <th className="px-6 py-3 font-bold text-slate-500">Nota</th>
+                <th className="px-6 py-3 font-bold text-slate-500">Comentário</th>
+                <th className="px-6 py-3 font-bold text-slate-500 text-right">Ação</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -2522,7 +2522,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       <div>
                         <h4 className="font-black text-lg text-slate-900 dark:text-white tracking-tight">{verif.provider?.full_name}</h4>
                         <p className="text-sm text-slate-500 mb-1">{verif.provider?.email}</p>
-                        <span className="text-[10px] font-black uppercase px-2 py-0.5 bg-primary/10 text-primary rounded border border-primary/20">
+                        <span className="text-[10px] font-black px-2 py-0.5 bg-primary/10 text-primary rounded border border-primary/20">
                           {verif.provider?.service_category || 'Prestador'}
                         </span>
                         <p className="text-xs text-slate-400 mt-2">Enviado em: {new Date(verif.updated_at).toLocaleDateString('pt-BR')} às {new Date(verif.updated_at).toLocaleTimeString('pt-BR')}</p>
@@ -2531,7 +2531,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
                     <div className="flex flex-wrap gap-4 items-center">
                       <div className="space-y-1">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Frente do Documento</p>
+                        <p className="text-[10px] font-black text-slate-400">Frente do Documento</p>
                         <div className="size-32 rounded-lg bg-slate-100 dark:bg-slate-800 overflow-hidden border border-slate-200 dark:border-slate-700 relative group cursor-pointer" onClick={() => window.open(supabase.storage.from('verifications').getPublicUrl(verif.document_front_path).data.publicUrl, '_blank')}>
                           {verif.document_front_path ? (
                             <img 
@@ -2548,7 +2548,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       </div>
 
                       <div className="space-y-1">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Selfie com Documento</p>
+                        <p className="text-[10px] font-black text-slate-400">Selfie com Documento</p>
                         <div className="size-32 rounded-lg bg-slate-100 dark:bg-slate-800 overflow-hidden border border-slate-200 dark:border-slate-700 relative group cursor-pointer" onClick={() => window.open(supabase.storage.from('verifications').getPublicUrl(verif.selfie_path).data.publicUrl, '_blank')}>
                           {verif.selfie_path ? (
                             <img 
@@ -2567,7 +2567,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       <div className="flex flex-col gap-2 min-w-[150px]">
                         <button
                           onClick={() => handleApproveVerification(verif)}
-                          className="w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black rounded-lg transition-all shadow-md shadow-emerald-500/20 flex items-center justify-center gap-2 uppercase tracking-widest"
+                          className="w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black rounded-lg transition-all shadow-md shadow-emerald-500/20 flex items-center justify-center gap-2"
                         >
                           <span className="material-symbols-outlined text-sm">check_circle</span>
                           Aprovar
@@ -2577,7 +2577,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                             const reason = prompt("Motivo da rejeição:");
                             if (reason) handleRejectVerification(verif, reason);
                           }}
-                          className="w-full py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all text-xs font-black rounded-lg border border-slate-200 dark:border-slate-700 flex items-center justify-center gap-2 uppercase tracking-widest"
+                          className="w-full py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all text-xs font-black rounded-lg border border-slate-200 dark:border-slate-700 flex items-center justify-center gap-2"
                         >
                           <span className="material-symbols-outlined text-sm">cancel</span>
                           Rejeitar
@@ -2615,17 +2615,17 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm text-center border-t-4 border-t-amber-500">
             <span className="material-symbols-outlined text-4xl text-amber-500 mb-2">support_agent</span>
             <h3 className="text-3xl font-black text-slate-900 dark:text-white">{openTickets.length}</h3>
-            <p className="text-sm text-slate-500 font-bold uppercase tracking-wider">Abertos</p>
+            <p className="text-sm text-slate-500 font-bold">Abertos</p>
           </div>
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm text-center border-t-4 border-t-blue-500">
             <span className="material-symbols-outlined text-4xl text-blue-500 mb-2">quickreply</span>
             <h3 className="text-3xl font-black text-slate-900 dark:text-white">{answeredTickets.length}</h3>
-            <p className="text-sm text-slate-500 font-bold uppercase tracking-wider">Respondidos</p>
+            <p className="text-sm text-slate-500 font-bold">Respondidos</p>
           </div>
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm text-center border-t-4 border-t-green-500">
             <span className="material-symbols-outlined text-4xl text-green-500 mb-2">check_circle</span>
             <h3 className="text-3xl font-black text-slate-900 dark:text-white">{resolvedTickets.length}</h3>
-            <p className="text-sm text-slate-500 font-bold uppercase tracking-wider">Resolvidos</p>
+            <p className="text-sm text-slate-500 font-bold">Resolvidos</p>
           </div>
         </div>
 
@@ -2657,7 +2657,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
                           ticket.status === 'open' ? 'bg-amber-100 text-amber-700' :
                           ticket.status === 'in_review' ? 'bg-indigo-100 text-indigo-700' : 
                           ticket.status === 'answered' ? 'bg-blue-100 text-blue-700' : 
@@ -2815,7 +2815,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                     <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
                       <td className="py-3 font-medium">{m.provider_name}</td>
                       <td className="py-3">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${m.plan_type === 'plus' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${m.plan_type === 'plus' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>
                           {m.plan_type === 'plus' ? 'PREMIUM' : 'BÁSICO'}
                         </span>
                       </td>
@@ -2863,11 +2863,11 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Ícone</th>
-                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Nome</th>
-                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Descrição</th>
-                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Preço Base</th>
-                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider text-right">Ações</th>
+                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Ícone</th>
+                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Nome</th>
+                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Descrição</th>
+                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Preço Base</th>
+                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 text-right">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -2966,7 +2966,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
               <span className="material-symbols-outlined text-primary">pending_actions</span>
               Novas Sugestões
             </h3>
-            <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-[10px] font-black uppercase">
+            <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-[10px] font-black">
               {categoryRequests.filter(r => r.status === 'pending').length} Pendentes
             </span>
           </div>
@@ -2974,7 +2974,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             {categoryRequests.filter(r => r.status === 'pending').slice(0, 3).map(req => (
               <div key={req.id} className="bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-100 dark:border-slate-800 flex items-center justify-between shadow-sm">
                 <div>
-                  <p className="text-sm font-bold text-primary italic uppercase tracking-tighter">{req.category_name}</p>
+                  <p className="text-sm font-bold text-primary italic">{req.category_name}</p>
                   <p className="text-[10px] text-slate-500 font-medium">Por: {req.provider?.full_name?.split(' ')[0]}</p>
                 </div>
                 <div className="flex gap-1">
@@ -3007,7 +3007,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             <p className="text-sm text-slate-500 font-medium">Controle de quem indicou quem e gerenciamento de pontos.</p>
           </div>
           <div className="flex items-center gap-2">
-             <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-xs font-bold tracking-widest uppercase">
+             <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-xs font-bold tracking-widest">
                {referralsHistory.length} INDICAÇÕES TOTAIS
              </span>
           </div>
@@ -3021,7 +3021,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                 <span className="material-symbols-outlined">share</span>
               </div>
               <div>
-                <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Total de Indicações</p>
+                <p className="text-xs text-slate-500 font-bold">Total de Indicações</p>
                 <h3 className="text-2xl font-black">{referralsHistory.length}</h3>
               </div>
             </div>
@@ -3032,7 +3032,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                 <span className="material-symbols-outlined">stars</span>
               </div>
               <div>
-                <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Pontos Distribuídos</p>
+                <p className="text-xs text-slate-500 font-bold">Pontos Distribuídos</p>
                 <h3 className="text-2xl font-black">{totalPoints} pts</h3>
               </div>
             </div>
@@ -3044,10 +3044,10 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           <table className="w-full text-left border-collapse whitespace-normal break-words">
             <thead>
               <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Novo Usuário (Indicado)</th>
-                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Indicador</th>
-                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider text-center">Pontos</th>
-                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider text-right">Ações</th>
+                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Novo Usuário (Indicado)</th>
+                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Indicador</th>
+                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 text-center">Pontos</th>
+                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 text-right">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -3139,9 +3139,9 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-              <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase">Sala de Chat / Pedido</th>
-              <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase">Participantes</th>
-              <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 uppercase text-right">Ação</th>
+              <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Sala de Chat / Pedido</th>
+              <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Participantes</th>
+              <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 text-right">Ação</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -3152,7 +3152,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                 <tr key={room.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                   <td className="px-3 py-3">
                     <p className="font-bold text-sm">{room.request?.title || 'Conversa Direta'}</p>
-                    <span className={`text-[10px] font-bold uppercase rounded px-1.5 py-0.5 ${room.request?.status === 'disputed' ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-500'}`}>
+                    <span className={`text-[10px] font-bold rounded px-1.5 py-0.5 ${room.request?.status === 'disputed' ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-500'}`}>
                       {room.request?.status === 'disputed' ? 'EM DISPUTA' : room.request?.status || 'ATIVO'}
                     </span>
                   </td>
@@ -3293,7 +3293,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                 >
                   {tab.icon}
                 </span>
-                <span className="text-[7px] font-black uppercase tracking-tighter mt-0.5 opacity-70">
+                <span className="text-[7px] font-black mt-0.5 opacity-70">
                   {tab.label.substring(0, 4)}
                 </span>
               </button>
@@ -3322,7 +3322,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                    <p className="text-xs text-slate-500 font-bold uppercase mb-1">Documento de Identidade (Frente)</p>
+                    <p className="text-xs text-slate-500 font-bold mb-1">Documento de Identidade (Frente)</p>
                     <div className="h-48 bg-slate-200 dark:bg-slate-700 rounded-lg flex items-center justify-center text-slate-400 overflow-hidden relative group">
                       {selectedProviderForKYC.document_front_url ? (
                         <img src={selectedProviderForKYC.document_front_url} alt="Documento Frente" className="w-full h-full object-cover transition-transform group-hover:scale-110" />
@@ -3332,7 +3332,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                     </div>
                   </div>
                   <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                    <p className="text-xs text-slate-500 font-bold uppercase mb-1">Selfie com Documento</p>
+                    <p className="text-xs text-slate-500 font-bold mb-1">Selfie com Documento</p>
                     <div className="h-48 bg-slate-200 dark:bg-slate-700 rounded-lg flex items-center justify-center text-slate-400 overflow-hidden relative group">
                       {selectedProviderForKYC.selfie_url ? (
                         <img src={selectedProviderForKYC.selfie_url} alt="Selfie" className="w-full h-full object-cover transition-transform group-hover:scale-110" />
@@ -3348,7 +3348,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                   <div className="text-sm text-slate-600 dark:text-slate-400 space-y-2 p-4 bg-slate-50 dark:bg-slate-800/30 rounded-xl border border-slate-100 dark:border-slate-800">
                     <div className="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
                        <span className="font-medium">Status Atual:</span>
-                       <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                       <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                          selectedProviderForKYC.status === 'active' ? 'bg-green-100 text-green-700' : 
                          selectedProviderForKYC.status === 'pending' ? 'bg-amber-100 text-amber-700' : 
                          'bg-red-100 text-red-700'
@@ -3468,7 +3468,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
               <div className="p-6 space-y-6">
                  <div className="flex flex-col md:flex-row gap-6">
                    <div className="flex-1 p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800/30">
-                     <p className="text-xs font-bold text-slate-500 uppercase mb-3">Cliente</p>
+                     <p className="text-xs font-bold text-slate-500 mb-3">Cliente</p>
                      <div className="flex items-center gap-3">
                         <img src={selectedDispute.client?.avatar_url || ""} alt="" className="w-10 h-10 rounded-full bg-slate-200" />
                         <div>
@@ -3478,7 +3478,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                      </div>
                    </div>
                    <div className="flex-1 p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800/30">
-                     <p className="text-xs font-bold text-slate-500 uppercase mb-3">Prestador</p>
+                     <p className="text-xs font-bold text-slate-500 mb-3">Prestador</p>
                      <div className="flex items-center gap-3">
                         <img src={selectedDispute.provider?.avatar_url || ""} alt="" className="w-10 h-10 rounded-full bg-slate-200" />
                         <div>
@@ -3538,7 +3538,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
                    {selectedTicket.attachments && selectedTicket.attachments.length > 0 && (
                       <div className="mt-6">
-                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3 ml-1">Anexos do Usuário</h4>
+                        <h4 className="text-[10px] font-black text-slate-400 mb-3 ml-1">Anexos do Usuário</h4>
                         <div className="flex flex-wrap gap-2">
                           {selectedTicket.attachments.map((url: string, idx: number) => (
                             <a href={url} target="_blank" rel="noreferrer" key={idx} className="size-24 rounded-2xl overflow-hidden border-2 border-slate-100 dark:border-slate-800 hover:border-primary/30 transition-all shadow-sm">
@@ -3582,7 +3582,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                 {selectedTicket.related_order_id && (
                   <div className="bg-blue-50 dark:bg-blue-900/10 p-5 rounded-xl border border-blue-100 dark:border-blue-900/30 flex items-center justify-between">
                      <div>
-                       <p className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">Link com Pedido</p>
+                       <p className="text-xs font-bold text-blue-600 dark:text-blue-400 mb-1">Link com Pedido</p>
                        <p className="font-semibold text-slate-800 dark:text-slate-200">ID: {selectedTicket.related_order_id.split('-')[0].toUpperCase()}</p>
                      </div>
                      <button 
@@ -3639,7 +3639,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                   </div>
                   <div>
                     <h3 className="text-xl font-black text-slate-900 dark:text-white leading-tight">Detalhes do Pedido</h3>
-                    <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">{selectedOrderDetail.display_id || `#${selectedOrderDetail.id.split('-')[0].toUpperCase()}`}</p>
+                    <p className="text-xs text-slate-500 font-bold">{selectedOrderDetail.display_id || `#${selectedOrderDetail.id.split('-')[0].toUpperCase()}`}</p>
                   </div>
                 </div>
                 <button onClick={() => setSelectedOrderDetail(null)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
@@ -3651,7 +3651,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                 {/* Status and Price Banner */}
                 <div className="flex flex-col sm:flex-row gap-4 items-center justify-between p-6 bg-slate-50 dark:bg-slate-800/30 rounded-3xl border border-slate-100 dark:border-slate-800">
                    <div className="flex items-center gap-3">
-                     <span className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest ${
+                     <span className={`px-4 py-1.5 rounded-full text-xs font-black ${
                        ['completed', 'paid'].includes(selectedOrderDetail.status) ? 'bg-green-100 text-green-700' : 
                        ['cancelled', 'disputed'].includes(selectedOrderDetail.status) ? 'bg-red-100 text-red-700' : 
                        'bg-primary/10 text-primary'
@@ -3662,7 +3662,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                      <p className="text-xs text-slate-500 font-bold">{new Date(selectedOrderDetail.created_at).toLocaleString('pt-BR')}</p>
                    </div>
                    <div className="text-right">
-                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Valor Total</p>
+                     <p className="text-[10px] font-black text-slate-400 mb-1">Valor Total</p>
                      <p className="text-2xl font-black text-slate-900 dark:text-white">
                        {selectedOrderDetail.price ? formatCurrency(selectedOrderDetail.price) : 'Em negociação'}
                      </p>
@@ -3671,7 +3671,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
                 {/* Service Category */}
                 <div>
-                   <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3 ml-1">Serviço Solicitado</h4>
+                   <h4 className="text-[10px] font-black text-slate-400 mb-3 ml-1">Serviço Solicitado</h4>
                    <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center gap-4">
                       <div className="size-10 rounded-xl bg-primary/5 text-primary flex items-center justify-center">
                          <span className="material-symbols-outlined">category</span>
@@ -3683,7 +3683,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                 {/* Description if any */}
                 {selectedOrderDetail.description && (
                   <div>
-                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3 ml-1">Descrição do Cliente</h4>
+                    <h4 className="text-[10px] font-black text-slate-400 mb-3 ml-1">Descrição do Cliente</h4>
                     <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 text-sm leading-relaxed text-slate-700 dark:text-slate-300 italic font-medium">
                       "{selectedOrderDetail.description}"
                     </div>
@@ -3694,7 +3694,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Client */}
                   <div className="space-y-3">
-                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Cliente</h4>
+                    <h4 className="text-[10px] font-black text-slate-400 ml-1">Cliente</h4>
                     <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center gap-3">
                        <img src={selectedOrderDetail.client?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} className="size-12 rounded-full object-cover bg-slate-100" />
                        <div className="overflow-hidden">
@@ -3706,7 +3706,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
                   {/* Provider */}
                   <div className="space-y-3">
-                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Prestador</h4>
+                    <h4 className="text-[10px] font-black text-slate-400 ml-1">Prestador</h4>
                     <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center gap-3">
                        <img src={selectedOrderDetail.provider?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} className="size-12 rounded-full object-cover bg-slate-100" />
                        <div className="overflow-hidden">
@@ -3719,7 +3719,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
                 {/* Extra Details / Audit */}
                 <div className="p-6 bg-blue-50/50 dark:bg-blue-900/10 rounded-3xl border border-blue-100 dark:border-blue-900/20 space-y-4">
-                  <h4 className="text-[10px] font-black uppercase tracking-[0.1em] text-blue-600 dark:text-blue-400 flex items-center gap-2">
+                  <h4 className="text-[10px] font-black text-blue-600 dark:text-blue-400 flex items-center gap-2">
                     <span className="material-symbols-outlined text-sm">analytics</span>
                     Contexto para Auditoria
                   </h4>
@@ -3794,7 +3794,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                 ) : (
                   chatMessages.map(msg => (
                     <div key={msg.id} className={`flex flex-col ${msg.sender_id === selectedChatRoom.client_id ? 'items-start' : 'items-end'}`}>
-                      <span className="text-[9px] font-bold text-slate-400 mb-0.5 uppercase">
+                      <span className="text-[9px] font-bold text-slate-400 mb-0.5">
                         {msg.sender_id === selectedChatRoom.client_id ? 'CLIENTE' : 'PRESTADOR'}
                       </span>
                       <div className={`max-w-[85%] p-3 rounded-xl text-sm ${msg.sender_id === selectedChatRoom.client_id ? 'bg-white dark:bg-slate-800' : 'bg-primary text-white'} shadow-sm border border-slate-100 dark:border-slate-700/50`}>
@@ -3823,7 +3823,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                     <span className="material-symbols-outlined text-[20px]">send</span>
                   </button>
                 </div>
-                <p className="text-[9px] text-slate-400 italic text-center mt-2 uppercase font-black tracking-widest">Aviso: Sua mensagem será visível para ambos os participantes</p>
+                <p className="text-[9px] text-slate-400 italic text-center mt-2 font-black tracking-widest">Aviso: Sua mensagem será visível para ambos os participantes</p>
               </div>
             </div>
           </div>
@@ -3853,7 +3853,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             <div className="p-6 overflow-y-auto custom-scrollbar space-y-8">
               {/* Seção Dados Básicos */}
               <div>
-                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 ml-1">Dados Básicos</h4>
+                <h4 className="text-[10px] font-black text-slate-400 mb-4 ml-1">Dados Básicos</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-[11px] font-bold text-slate-500 ml-1">Nome Completo</label>
@@ -3879,7 +3879,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
               {/* Seção Endereço */}
               <div>
-                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 ml-1">Endereço de Cadastro</h4>
+                <h4 className="text-[10px] font-black text-slate-400 mb-4 ml-1">Endereço de Cadastro</h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <label className="text-[11px] font-bold text-slate-500 ml-1">CEP</label>
@@ -3957,7 +3957,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       value={userForm.state}
                       onChange={(e) => setUserForm({...userForm, state: e.target.value})}
                       maxLength={2}
-                      className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm uppercase"
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm"
                     />
                   </div>
                 </div>
@@ -3966,7 +3966,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
               {/* Seção Profissional (se for prestador) */}
               {(editingUser?.user_type === 'provider' || editingUser?.service_category) && (
                 <div>
-                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 ml-1">Dados Profissionais</h4>
+                  <h4 className="text-[10px] font-black text-slate-400 mb-4 ml-1">Dados Profissionais</h4>
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <label className="text-[11px] font-bold text-slate-500 ml-1">Categoria de Serviço</label>

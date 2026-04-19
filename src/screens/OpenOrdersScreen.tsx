@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
@@ -240,10 +240,10 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
       {/* Header Centralizado */}
       <div className="shrink-0 z-50 bg-slate-900 border-b border-white/5 h-[60px] flex items-center px-6">
         <div className="flex flex-col">
-          <p className="text-[12px] font-black text-primary uppercase tracking-[2px] leading-none mb-1.5">Freelances & Oportunidades</p>
+          <p className="text-[12px] font-black text-primary leading-none mb-1.5">Freelances & Oportunidades</p>
           <div className="flex items-center gap-2">
             <div className="size-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <h1 className="text-lg font-black text-white uppercase tracking-[1px] italic leading-none">Painel de Oportunidades</h1>
+            <h1 className="text-lg font-black text-white italic leading-none">Painel de Oportunidades</h1>
           </div>
         </div>
       </div>
@@ -286,7 +286,7 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
                     setSelectedOrderId(null);
                     onNavigate('openOrders', { tab: tab.key, orderId: null });
                   }}
-                  className={`flex-1 flex items-center justify-center py-2 rounded-md text-[9px] font-black uppercase tracking-tighter transition-all border whitespace-nowrap ${
+                  className={`flex-1 flex items-center justify-center py-2 rounded-md text-[9px] font-black transition-all border whitespace-nowrap ${
                     activeTab === tab.key 
                       ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20' 
                       : 'bg-white/5 border-transparent text-slate-500 hover:text-slate-300'
@@ -303,12 +303,12 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
             {loading && orders.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-4 opacity-50">
                 <div className="size-10 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
-                <p className="text-[10px] font-black uppercase tracking-widest text-primary">Carregando Oportunidades...</p>
+                <p className="text-[10px] font-black text-primary">Carregando Oportunidades...</p>
               </div>
             ) : orders.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full p-10 text-center opacity-30">
                 <span className="material-symbols-outlined text-6xl mb-4 italic">inbox</span>
-                <p className="text-sm font-black uppercase tracking-widest">Nenhuma oportunidade encontrada</p>
+                <p className="text-sm font-black">Nenhuma oportunidade encontrada</p>
               </div>
             ) : (
               <>
@@ -345,7 +345,7 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
                       </div>
                       <div className="flex-1 min-w-0 py-0.5">
                         <div className="flex justify-between items-center gap-2 mb-1">
-                          <h4 className={`text-sm font-black uppercase tracking-tighter truncate leading-none ${isActive ? 'text-primary' : 'text-white'}`}>
+                          <h4 className={`text-sm font-black truncate leading-none ${isActive ? 'text-primary' : 'text-white'}`}>
                             {order.title}
                           </h4>
                           <span className="text-[9px] font-bold text-slate-500 shrink-0">
@@ -357,7 +357,7 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
                         </p>
                         <div className="flex items-center justify-between">
                            <div className="flex items-center gap-2">
-                              <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest bg-slate-800 text-slate-400`}>
+                              <span className={`text-[8px] font-black px-2 py-0.5 rounded-full bg-slate-800 text-slate-400`}>
                                 {activeTab}
                               </span>
                               {activeTab === 'available' && (
@@ -366,7 +366,7 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
                                     e.stopPropagation();
                                     handleDismissClick(e, order.id);
                                   }}
-                                  className="text-[9px] font-black text-red-500 uppercase tracking-widest hover:underline"
+                                  className="text-[9px] font-black text-red-500 hover:underline"
                                 >
                                   Ocultar
                                 </button>
@@ -406,7 +406,7 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
                 <div className="size-32 rounded-full border-2 border-dashed border-white/20 flex items-center justify-center mb-6">
                    <span className="material-symbols-outlined text-6xl italic">ads_click</span>
                 </div>
-                <h3 className="text-2xl font-black uppercase tracking-tighter italic mb-2">Selecione uma Oportunidade</h3>
+                <h3 className="text-2xl font-black italic mb-2">Selecione uma Oportunidade</h3>
                 <p className="text-sm font-medium max-w-xs">Escolha um freelance da lista à esquerda para ver detalhes e enviar lances.</p>
              </div>
            )}
@@ -421,20 +421,20 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
               <div className="size-16 rounded-full bg-red-900/20 flex items-center justify-center mx-auto mb-4">
                 <span className="material-symbols-outlined text-red-500 text-3xl">delete_sweep</span>
               </div>
-              <h3 className="text-lg font-black text-white mb-2 uppercase tracking-tighter italic">Ocultar Oportunidade?</h3>
+              <h3 className="text-lg font-black text-white mb-2 italic">Ocultar Oportunidade?</h3>
               <p className="text-xs text-slate-400 font-medium mb-6 leading-relaxed text-center">
                 Esta oportunidade será movida para o histórico de recusadas.
               </p>
               <div className="flex flex-col gap-2">
                 <button 
                   onClick={confirmDismiss}
-                  className="w-full py-3 bg-red-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-red-700 transition-colors"
+                  className="w-full py-3 bg-red-600 text-white rounded-xl font-black text-[10px] hover:bg-red-700 transition-colors"
                 >
                   Confirmar recusa
                 </button>
                 <button 
                   onClick={() => setConfirmModal({ isOpen: false, orderId: null })}
-                  className="w-full py-3 text-slate-500 font-bold text-[10px] uppercase tracking-widest"
+                  className="w-full py-3 text-slate-500 font-bold text-[10px]"
                 >
                   Cancelar
                 </button>

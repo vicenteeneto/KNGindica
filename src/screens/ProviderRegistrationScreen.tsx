@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+﻿import React, { useState, useRef } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
@@ -337,7 +337,7 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
             <div className="space-y-1.5">
               <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Estado (UF)</label>
               <input 
-                className="w-full px-3.5 py-2.5 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none uppercase" 
+                className="w-full px-3.5 py-2.5 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none" 
                 placeholder="MT" 
                 maxLength={2}
                 type="text"

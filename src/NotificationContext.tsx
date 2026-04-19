@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
+﻿import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from './lib/supabase';
 import { useAuth } from './AuthContext';
@@ -324,7 +324,7 @@ export function NotificationProvider({ children, onNavigate }: { children: React
                 </span>
               </div>
               
-              <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter italic mb-2">
+              <h3 className="text-xl font-black text-slate-900 dark:text-white italic mb-2">
                 {modal.title}
               </h3>
               <p className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
@@ -337,7 +337,7 @@ export function NotificationProvider({ children, onNavigate }: { children: React
                     if (modal.onConfirm) modal.onConfirm();
                     setModal(null);
                   }}
-                  className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg transition-all active:scale-95 ${
+                  className={`w-full py-4 rounded-2xl font-black text-xs shadow-lg transition-all active:scale-95 ${
                     modal.type === 'success' ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/20' :
                     modal.type === 'warning' ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20' :
                     modal.type === 'danger' ? 'bg-red-500 hover:bg-red-600 text-white shadow-red-500/20' :
@@ -353,7 +353,7 @@ export function NotificationProvider({ children, onNavigate }: { children: React
                       modal.onCancel?.();
                       setModal(null);
                     }}
-                    className="w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all active:scale-95"
+                    className="w-full py-4 rounded-2xl font-black text-xs text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all active:scale-95"
                   >
                     {modal.cancelLabel || 'Cancelar'}
                   </button>
@@ -410,7 +410,7 @@ export function NotificationProvider({ children, onNavigate }: { children: React
               </div>
               
               <div className="flex-1 min-w-0 pointer-events-none">
-                <h4 className="font-black text-sm text-slate-900 dark:text-white truncate flex items-center gap-2 italic uppercase tracking-tighter">
+                <h4 className="font-black text-sm text-slate-900 dark:text-white truncate flex items-center gap-2 italic">
                   {toast.title}
                   <span className="size-1.5 rounded-full bg-primary animate-pulse"></span>
                 </h4>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
@@ -135,10 +135,10 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
       
       <div className="shrink-0 z-50 bg-slate-900 border-b border-white/5 h-[60px] flex items-center px-6">
         <div className="flex flex-col">
-          <p className="text-[12px] font-black text-primary uppercase tracking-[2px] leading-none mb-1.5">Central de Serviços</p>
+          <p className="text-[12px] font-black text-primary leading-none mb-1.5">Central de Serviços</p>
           <div className="flex items-center gap-2">
             <div className="size-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <h1 className="text-lg font-black text-white uppercase tracking-[1px] italic leading-none">Painel do Prestador</h1>
+            <h1 className="text-lg font-black text-white italic leading-none">Painel do Prestador</h1>
           </div>
         </div>
       </div>
@@ -172,7 +172,7 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                     setSelectedRequestId(null);
                     onNavigate('providerRequests', { tab, requestId: null });
                   }}
-                  className={`flex-1 flex items-center justify-center py-1.5 rounded-md text-[12px] font-black uppercase tracking-tighter transition-all border whitespace-nowrap ${
+                  className={`flex-1 flex items-center justify-center py-1.5 rounded-md text-[12px] font-black transition-all border whitespace-nowrap ${
                     activeTab === tab 
                       ? 'bg-primary border-primary text-white shadow-md' 
                       : 'bg-white/5 border-transparent text-slate-500 hover:text-slate-300'
@@ -188,12 +188,12 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
             {loading && requests.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-4 opacity-50">
                 <div className="size-10 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
-                <p className="text-[10px] font-black uppercase tracking-widest text-primary">Carregando...</p>
+                <p className="text-[10px] font-black text-primary">Carregando...</p>
               </div>
             ) : requests.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full p-10 text-center opacity-30">
                 <span className="material-symbols-outlined text-6xl mb-4 italic">inbox</span>
-                <p className="text-xs font-black uppercase tracking-widest">Nenhum serviço aqui</p>
+                <p className="text-xs font-black">Nenhum serviço aqui</p>
               </div>
             ) : (
               <>
@@ -234,7 +234,7 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                     </div>
                     <div className="flex-1 min-w-0 py-0.5">
                       <div className="flex justify-between items-center gap-2 mb-1">
-                        <h4 className={`text-sm font-black uppercase tracking-tighter truncate leading-none ${isActive ? 'text-primary' : 'text-white'}`}>
+                        <h4 className={`text-sm font-black truncate leading-none ${isActive ? 'text-primary' : 'text-white'}`}>
                           {req.profiles?.full_name || 'Cliente'}
                         </h4>
                         <span className="text-[9px] font-bold text-slate-500 shrink-0">
@@ -245,7 +245,7 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                         {req.display_id || 'PEDIDO'} • {req.service_categories?.name}
                       </p>
                       <div className="flex items-center justify-between">
-                         <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest ${statusMap[req.status]?.color || 'bg-slate-700'}`}>
+                         <span className={`text-[8px] font-black px-2 py-0.5 rounded-full ${statusMap[req.status]?.color || 'bg-slate-700'}`}>
                            {statusMap[req.status]?.label || req.status}
                          </span>
                          {req.budget_amount > 0 && (
@@ -282,7 +282,7 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
                 <div className="size-32 rounded-full border-2 border-dashed border-white/20 flex items-center justify-center mb-6">
                    <span className="material-symbols-outlined text-6xl italic">ads_click</span>
                 </div>
-                <h3 className="text-2xl font-black uppercase tracking-tighter italic mb-2">Selecione um Serviço</h3>
+                <h3 className="text-2xl font-black italic mb-2">Selecione um Serviço</h3>
                 <p className="text-sm font-medium max-w-xs">Escolha um pedido da lista à esquerda para gerenciar.</p>
              </div>
            )}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
@@ -116,7 +116,7 @@ export default function ChatListScreen({ onNavigate, params }: NavigationProps) 
            <div className="flex-1 min-w-0">
              <div className="flex items-center gap-1.5 md:gap-2">
                <div className="size-2 rounded-full bg-green-500 animate-pulse shrink-0" />
-               <h1 className="text-sm md:text-lg font-black text-white uppercase tracking-[1px] italic leading-none truncate">Minhas Mensagens</h1>
+               <h1 className="text-sm md:text-lg font-black text-white italic leading-none truncate">Minhas Mensagens</h1>
              </div>
            </div>
         </div>
@@ -233,12 +233,12 @@ export default function ChatListScreen({ onNavigate, params }: NavigationProps) 
                       </div>
                       <div className="flex-1 min-w-0 py-1">
                         <div className="flex justify-between items-center gap-2 mb-1">
-                          <h4 className={`text-sm font-black uppercase tracking-tighter truncate leading-none ${isActive ? 'text-primary' : 'text-white'}`}>
+                          <h4 className={`text-sm font-black truncate leading-none ${isActive ? 'text-primary' : 'text-white'}`}>
                             {profile?.full_name || 'Usuário'}
                           </h4>
                           <span className="text-[10px] font-bold text-slate-500 shrink-0">{time}</span>
                         </div>
-                        <p className="text-[11px] font-bold text-primary truncate leading-none mb-1.5 uppercase tracking-tighter opacity-70">
+                        <p className="text-[11px] font-bold text-primary truncate leading-none mb-1.5 opacity-70">
                           {title}
                         </p>
                         <div className="flex items-center justify-between">
@@ -278,7 +278,7 @@ export default function ChatListScreen({ onNavigate, params }: NavigationProps) 
                 <div className="size-32 rounded-full border-2 border-dashed border-white/20 flex items-center justify-center mb-6">
                    <span className="material-symbols-outlined text-6xl italic">forum</span>
                 </div>
-                <h3 className="text-2xl font-black uppercase tracking-tighter italic mb-2">Mensagens KNG</h3>
+                <h3 className="text-2xl font-black italic mb-2">Mensagens KNG</h3>
                 <p className="text-sm font-medium max-w-xs">Selecione uma conversa ao lado para visualizar o chat e interagir com o cliente ou profissional.</p>
              </div>
            )}
