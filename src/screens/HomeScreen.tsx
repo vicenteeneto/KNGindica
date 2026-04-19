@@ -672,7 +672,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
       <main className="flex-1 w-full relative">
         {/* Netflix-Style Cinematic Hero */}
         <section 
-          className="relative w-full h-[75vh] md:h-[85vh] overflow-hidden bg-black touch-pan-y"
+          className="relative w-full h-[78vh] md:h-[85vh] overflow-hidden bg-black touch-pan-y"
           onTouchStart={handleTouchStartHero}
           onTouchMove={handleTouchMoveHero}
           onTouchEnd={handleTouchEndHero}
@@ -685,8 +685,9 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                 return (
                   <div 
                     key={p.id}
-                    className={`absolute inset-0 transition-all duration-1000 ease-in-out ${idx === currentHeroIndex ? 'opacity-100 z-10 scale-100' : 'opacity-0 z-0 scale-105'}`}
+                    className={`absolute inset-0 md:inset-0 transition-all duration-1000 ease-in-out ${idx === currentHeroIndex ? 'opacity-100 z-10 scale-100' : 'opacity-0 z-0 scale-105'} px-4 md:px-0 py-2 md:py-0`}
                   >
+                    <div className="relative w-full h-full rounded-[2.5rem] md:rounded-none border border-white/10 md:border-none overflow-hidden shadow-2xl">
                     {/* Background - Responsive (Mobile Poster vs Desktop Banner) */}
                     <img
                       src={p.image}
@@ -707,9 +708,15 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                            <span className="text-[10px] font-black text-primary italic uppercase tracking-[0.2em]">Destaque KNGindica</span>
                         </div>
 
-                        <h1 className="text-4xl md:text-7xl font-black text-white leading-none mb-1 md:mb-4 drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] italic tracking-tighter">
-                          {p.name.toUpperCase()}
-                        </h1>
+                        <div className="relative mb-2 md:mb-4 px-8 py-2">
+                          {/* Corner Brackets (Mobile Only) */}
+                          <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-white/60 md:hidden" />
+                          <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-white/60 md:hidden" />
+                          
+                          <h1 className="text-3xl md:text-7xl font-black text-white leading-none drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] italic tracking-tighter">
+                            {p.name.toUpperCase()}
+                          </h1>
+                        </div>
 
                         <div className="flex items-center justify-center md:justify-start gap-2 mb-8 transition-all duration-300">
                           <div className="flex items-center text-yellow-500 gap-1 bg-black/40 md:bg-black/60 backdrop-blur-md px-1.5 md:px-2 py-0.5 md:py-1 rounded border border-white/10 shrink-0">
@@ -755,8 +762,9 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                       </div>
                     </div>
                   </div>
-                );
-              })}
+                </div>
+              );
+            })}
               
               {/* Carousel Indicators - Refined */}
               <div className="absolute bottom-6 right-1/2 translate-x-1/2 md:translate-x-0 md:right-12 z-30 flex gap-2">
