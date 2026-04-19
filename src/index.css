@@ -52,12 +52,15 @@
 }
 
 @layer utilities {
-  .hide-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+  /* Oculta a barra de rolagem mas mantém o scroll por toque/arraste */
+  .hide-scrollbar,
+  .no-scrollbar {
+    -ms-overflow-style: none;   /* IE / Edge */
+    scrollbar-width: none;      /* Firefox */
   }
-  .hide-scrollbar::-webkit-scrollbar {
-    display: none;
+  .hide-scrollbar::-webkit-scrollbar,
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;              /* Chrome / Safari / iOS / Android */
   }
 }
 
