@@ -46,10 +46,14 @@ export function TabBar<T extends string = string>({
   return (
     <div className={`${containerBase} px-2 py-1 ${className}`}>
       {/*
-        Mobile  : scroll horizontal com scrollbar oculta (arraste com o dedo)
+        Mobile  : scroll horizontal por toque (sem barra visível)
         Desktop : overflow-x-hidden — os botões menores (lg:) cabem sem precisar rolar
+        style touch-action: pan-x → garante que o arraste horizontal funciona no iOS/Android
       */}
-      <div className="flex gap-1 overflow-x-auto lg:overflow-x-hidden no-scrollbar">
+      <div
+        className="flex gap-1 overflow-x-auto lg:overflow-x-hidden no-scrollbar"
+        style={{ touchAction: 'pan-x', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+      >
         {tabs.map((tab) => {
           const isActive = active === tab.key;
           return (
