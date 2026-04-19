@@ -64,77 +64,76 @@ export default function FavoritesScreen({ onNavigate, params }: FavoritesScreenP
   };
 
   return (
-    <div className="w-full bg-slate-50 dark:bg-slate-950 min-h-screen flex flex-col font-display text-slate-900 dark:text-slate-100 antialiased overflow-x-hidden">
-      {/* Header */}
-      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 sticky top-0 z-10">
-        <div className="flex items-center gap-3">
-          <button onClick={() => onNavigate('back')} className="text-slate-600 dark:text-slate-400">
+    <div className="w-full bg-black min-h-screen flex flex-col font-display text-white antialiased overflow-x-hidden">
+      {/* Header - Premium Dark */}
+      <header className="bg-black/90 backdrop-blur-md border-b border-white/5 p-4 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto flex items-center gap-3">
+          <button onClick={() => onNavigate('back')} className="text-primary hover:bg-white/10 p-1 rounded-full transition-colors">
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
-          <h1 className="text-xl font-bold">Meus Favoritos</h1>
+          <h1 className="text-xl font-black italic uppercase tracking-tighter">Minha Lista</h1>
         </div>
       </header>
 
       <main className="flex-1 p-4 pb-24">
         {loading ? (
-          <div className="flex justify-center py-12">
-            <span className="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span>
+          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-6 max-w-7xl mx-auto">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div key={i} className="aspect-[2/3] bg-white/5 rounded-xl animate-pulse" />
+            ))}
           </div>
         ) : favorites.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center opacity-60">
-            <span className="material-symbols-outlined text-6xl mb-4">favorite_border</span>
-            <p className="text-lg font-medium">Você ainda não salvou nenhum profissional.</p>
-            <p className="text-sm">Clique no coração no perfil de um profissional para salvá-lo aqui.</p>
+          <div className="flex flex-col items-center justify-center py-32 text-center">
+            <div className="size-20 rounded-full bg-white/5 flex items-center justify-center mb-6">
+               <span className="material-symbols-outlined text-4xl text-gray-700">favorite_border</span>
+            </div>
+            <h3 className="text-lg font-black uppercase tracking-widest italic mb-2">Sua lista está vazia</h3>
+            <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mb-10">Comece a salvar seus profissionais favoritos <br/>para encontrá-los aqui rapidamente.</p>
             <button 
               onClick={() => onNavigate('home')}
-              className="mt-6 bg-primary text-white px-6 py-2 rounded-xl font-bold"
+              className="bg-primary text-white px-10 py-4 rounded-xl font-black italic tracking-tighter shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all text-sm"
             >
-              Explorar Profissionais
+              EXPLORAR CATÁLOGO
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 max-w-4xl mx-auto">
+          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-6 max-w-7xl mx-auto">
             {favorites.map((fav) => {
               const provider = fav.profiles;
               return (
                 <div 
                   key={fav.id}
                   onClick={() => onNavigate('profile', { professionalId: provider.id })}
-                  className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-slate-800 flex gap-4 cursor-pointer group hover:border-primary transition-colors"
+                  className="group relative cursor-pointer"
                 >
-                  <div 
-                    className="size-20 rounded-xl bg-cover bg-center shrink-0 border border-slate-100 dark:border-slate-800 shadow-inner"
-                    style={{ backgroundImage: `url('${provider.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"}')` }}
-                  ></div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <h3 className="font-bold text-slate-900 dark:text-white truncate group-hover:text-primary transition-colors">
-                          {provider.full_name}
-                        </h3>
-                        {provider.is_verified && <VerifiedBadge />}
-                      </div>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeFavorite(fav.id);
-                        }}
-                        className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 p-1.5 rounded-full transition-colors"
-                        title="Remover"
-                      >
-                        <span className="material-symbols-outlined fill-current">favorite</span>
-                      </button>
+                  <div className="aspect-[2/3] md:aspect-video rounded-md md:rounded-2xl overflow-hidden bg-white/5 border border-white/5 transition-all duration-300 md:group-hover:scale-110 md:group-hover:z-50 md:group-hover:ring-4 ring-primary/40 shadow-2xl">
+                    <img 
+                      src={provider.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} 
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      alt={provider.full_name}
+                    />
+                    
+                    {/* Dark Gradient Overlay */}
+                    <div className="absolute inset-x-0 bottom-0 p-1.5 md:p-3 bg-gradient-to-t from-black via-black/40 to-transparent">
+                      <h4 className="text-[9px] md:text-sm font-black text-white leading-tight truncate">
+                         {provider.full_name?.toUpperCase()}
+                      </h4>
+                      <p className="text-[7px] md:text-[10px] font-bold text-primary italic uppercase tracking-tighter truncate">
+                         {provider.categories?.[0] || 'Profissional'}
+                      </p>
                     </div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">
-                      {provider.categories?.[0] || 'Serviços'}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-900/20 px-2 py-0.5 rounded text-amber-600 dark:text-amber-400">
-                        <StarRating rating={provider.rating || 5.0} size={14} maxStars={1} />
-                        <span className="text-xs font-bold">{(provider.rating || 5.0).toFixed(1).replace('.', ',')}</span>
-                      </div>
-                      <span className="text-xs font-bold text-primary group-hover:underline">Ver Perfil</span>
-                    </div>
+
+                    {/* Unfav Button */}
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeFavorite(fav.id);
+                      }}
+                      className="absolute top-1 right-1 md:top-2 md:right-2 size-6 md:size-8 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-red-500 border border-white/10 hover:bg-red-500 hover:text-white transition-all shadow-xl"
+                      title="Remover"
+                    >
+                      <span className="material-symbols-outlined !text-sm md:!text-lg filled">favorite</span>
+                    </button>
                   </div>
                 </div>
               );

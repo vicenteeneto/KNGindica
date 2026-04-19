@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import StarRating from '../components/StarRating';
 
 import { NavigationProps } from '../types';
@@ -127,90 +127,67 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
 
       <main className="relative z-10 max-w-lg mx-auto px-4 py-12 flex flex-col min-h-screen">
 
-        {/* Header */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 bg-emerald-500/10 text-emerald-400 px-4 py-2 rounded-full border border-emerald-500/20 mb-6">
-            <svg viewBox="0 0 24 24" className="w-4 h-4 fill-[#25D366]">
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-            </svg>
-            <span className="text-[10px] font-black">Consulta realizada via WhatsApp</span>
+        {/* Header - KNGflix Cinematic */}
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full border border-primary/20 mb-8 animate-fade-in">
+             <span className="text-[10px] font-black uppercase tracking-[0.2em] italic">Oportunidade Local</span>
           </div>
 
-          <h1 className="text-4xl md:text-5xl font-black mb-4 leading-tight">
-            Olá! Encontramos{' '}
+          <h1 className="text-5xl md:text-6xl font-black mb-6 leading-[0.9] italic tracking-tighter drop-shadow-2xl">
+            ENCONTRAMOS <br />
             <span className="text-primary">{providers.length}</span>{' '}
-            especialista{providers.length !== 1 ? 's' : ''} em{' '}
-            <span className="text-primary">{categoryName}</span>
+            EXPECIALISTA{providers.length !== 1 ? 'S' : ''} EM{' '}
+            <span className="text-primary">{categoryName.toUpperCase()}</span>
           </h1>
-          <p className="text-slate-400 text-sm font-medium">
-            Selecionamos os profissionais mais bem avaliados em Rondonópolis para o seu pedido.
+          <p className="text-slate-400 text-xs font-bold uppercase tracking-widest opacity-60">
+            Mais bem avaliados em Rondonópolis
           </p>
-        </div>
-
-        {/* Provider Cards */}
-        <div className="flex flex-col gap-4 mb-6">
+            {/* Provider Grid - Netflix Style Posters */}
+        <div className="grid grid-cols-2 gap-4 mb-8">
           {visibleProviders.length > 0 ? (
-            visibleProviders.map((p, idx) => {
-              const isBlurred = !isLogged; // todos ficam com nome/info ocultos quando não logado
+            visibleProviders.map((p) => {
+              const isBlurred = !isLogged;
               return (
                 <div
                   key={p.id}
-                  className={`relative overflow-hidden bg-white/5 border rounded-3xl p-4 transition-all ${
-                    isLogged ? 'border-white/10 hover:border-primary/50' : 'border-white/10'
+                  onClick={() => isLogged && onNavigate('profile', { professionalId: p.id })}
+                  className={`group relative aspect-[2/3] rounded-2xl overflow-hidden bg-white/5 border border-white/5 transition-all active:scale-95 cursor-pointer ${
+                    isLogged ? 'hover:border-primary/50 hover:shadow-2xl' : ''
                   }`}
                 >
-                  <div className="flex items-center gap-4">
-                    {/* Avatar — sempre com dados reais, blur via CSS */}
-                    <div className={`size-16 md:size-20 rounded-2xl overflow-hidden border-2 border-white/10 shadow-xl flex-shrink-0 ${isBlurred ? 'blur-sm' : ''}`}>
-                      <img
-                        src={p.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.full_name || 'P')}&background=random&color=fff`}
-                        className="w-full h-full object-cover"
-                        alt={p.full_name}
-                      />
-                    </div>
+                  {/* Photo with Blur Filter */}
+                  <img
+                    src={p.avatar_url || p.cover_image || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.full_name || 'P')}&background=random&color=fff`}
+                    className={`w-full h-full object-cover transition-all duration-700 ${isBlurred ? 'blur-md opacity-40' : 'group-hover:scale-110'}`}
+                    alt={p.full_name}
+                  />
+                  
+                  {/* Cinematic Overlays */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <span className="bg-primary/20 text-primary text-[8px] font-black px-1.5 py-0.5 rounded italic">Top Pro</span>
-                        <div className="flex items-center text-yellow-500 gap-0.5 ml-auto">
-                          <StarRating rating={p.stats?.rating || 5.0} size={10} maxStars={1} />
-                          <span className="text-xs font-black">{(p.stats?.rating || 5.0).toFixed(1).replace('.', ',')}</span>
-                        </div>
-                      </div>
-
-                      {/* Nome e bio — dados reais com blur */}
-                      <div className={`transition-all ${isBlurred ? 'blur-[5px] select-none' : ''}`}>
-                        <h3 className="font-bold text-lg leading-snug">{p.full_name}</h3>
-                        <p className="text-xs text-slate-400 font-medium">
-                          ✨ {p.bio ? p.bio.substring(0, 50) + '...' : 'Especialista verificado'}
-                        </p>
-                      </div>
-
-                      {/* Cidade — sempre visível */}
-                      {p.city && (
-                        <p className="text-xs text-emerald-400 font-bold mt-1 flex items-center gap-1">
-                          <span className="material-symbols-outlined text-xs">location_on</span>
-                          {p.city}
-                        </p>
-                      )}
-                    </div>
+                  {/* Top Badges */}
+                  <div className="absolute top-2 left-2 flex flex-col gap-1">
+                     <div className="bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded text-[8px] font-black flex items-center gap-1 border border-white/10 w-fit">
+                        <span className="material-symbols-outlined text-[10px] text-yellow-500 filled">star</span>
+                        <span className="text-white">{(p.stats?.rating || 5.0).toFixed(1).replace('.', ',')}</span>
+                     </div>
                   </div>
 
-                  {isLogged && (
-                    <button
-                      onClick={() => onNavigate('profile', { professionalId: p.id })}
-                      className="mt-4 w-full bg-white/10 hover:bg-white/20 py-2.5 rounded-xl text-xs font-black transition-all"
-                    >
-                      Ver Perfil Completo →
-                    </button>
-                  )}
+                  {/* Info Overlay */}
+                  <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
+                     <div className={`${isBlurred ? 'blur-[4px] select-none' : ''}`}>
+                        <h3 className="text-sm font-black text-white leading-tight truncate">{p.full_name?.toUpperCase()}</h3>
+                        <p className="text-[8px] font-bold text-primary italic uppercase tracking-tighter truncate">
+                           {p.service || categoryName}
+                        </p>
+                     </div>
+                  </div>
 
-                  {/* Lock overlay nos cards bloqueados */}
+                  {/* Lock UI for non-logged users */}
                   {isBlurred && (
-                    <div className="absolute inset-0 flex items-center justify-center rounded-3xl">
-                      <div className="bg-black/50 backdrop-blur-[2px] rounded-2xl px-3 py-1.5 flex items-center gap-1.5">
-                        <span className="material-symbols-outlined text-sm text-white/60">lock</span>
-                        <span className="text-[10px] font-black text-white/60">Faça login para ver</span>
+                    <div className="absolute inset-0 flex items-center justify-center p-4">
+                      <div className="bg-black/40 backdrop-blur-md size-10 rounded-full flex items-center justify-center border border-white/10 shadow-2xl">
+                        <span className="material-symbols-outlined text-white text-lg">lock</span>
                       </div>
                     </div>
                   )}
@@ -218,11 +195,13 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
               );
             })
           ) : (
-            <div className="text-center py-20 bg-white/5 rounded-3xl border border-dashed border-white/20">
+            <div className="col-span-2 text-center py-20 bg-white/5 rounded-3xl border border-dashed border-white/20">
               <span className="material-symbols-outlined text-4xl text-slate-600 mb-4 block">search_off</span>
-              <p className="text-slate-400 font-medium">Ainda não temos profissionais nesta categoria.</p>
+              <p className="text-slate-400 font-medium">Nenhum profissional encontrado.</p>
             </div>
           )}
+        </div>
+      </div>
 
           {/* Indicador de "mais resultados" para não logados */}
           {!isLogged && providers.length > TEASER_COUNT && (

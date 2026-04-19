@@ -11,32 +11,33 @@ export default function CategoriesScreen({ onNavigate }: NavigationProps) {
   };
 
   return (
-    <div className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
-      <div className="relative flex min-h-screen w-full flex-col max-w-5xl mx-auto bg-white dark:bg-slate-900 shadow-xl overflow-x-hidden transition-all duration-300">
+    <div className="bg-black font-display text-white min-h-screen">
+      <div className="relative flex min-h-screen w-full flex-col max-w-5xl mx-auto bg-black shadow-2xl overflow-x-hidden transition-all duration-300">
         
-        <header className="flex items-center bg-white dark:bg-slate-900 p-4 pb-2 justify-between sticky top-0 z-10 border-b border-slate-100 dark:border-slate-800 transition-colors">
-          <button onClick={() => onNavigate('home')} className="text-slate-900 dark:text-slate-100 flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+        <header className="flex items-center bg-black/90 backdrop-blur-md p-4 pb-2 justify-between sticky top-0 z-10 border-b border-white/5 transition-colors">
+          <button onClick={() => onNavigate('home')} className="text-white flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-white/10 rounded-full transition-colors">
             <span className="material-symbols-outlined text-[24px]">arrow_back</span>
           </button>
-          <h2 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight flex-1 text-center lg:text-left">Categorias</h2>
+          <h2 className="text-white text-lg font-black leading-tight tracking-tighter italic uppercase flex-1 text-center lg:text-left">Catálogo de Serviços</h2>
           <div className="flex size-10 items-center justify-end">
-            <button className="flex items-center justify-center rounded-full size-10 bg-transparent text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-              <span className="material-symbols-outlined text-[24px]">more_vert</span>
-            </button>
+             {/* Spacing */}
           </div>
         </header>
 
         <main className="flex-1 pb-24">
-          <div className="px-4 py-8 max-w-none lg:mx-0 lg:ml-4 transition-all duration-300">
-            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2 text-center lg:text-left">Encontre o profissional ideal</h1>
-            <p className="text-slate-500 dark:text-slate-400 text-sm md:text-base mb-6 text-center lg:text-left">Selecione uma categoria para ver os especialistas disponíveis na sua região.</p>
+          <div className="px-6 py-10 max-w-none lg:mx-0 transition-all duration-300">
+            <div className="mb-8">
+               <span className="text-[10px] font-black text-primary italic uppercase tracking-[0.2em] mb-2 block">Explorar KNGindica</span>
+               <h1 className="text-4xl md:text-5xl font-black text-white mb-3 italic tracking-tighter leading-none">O QUE VOCÊ PRECISA <br/>HOJE?</h1>
+               <p className="text-gray-500 text-xs font-bold uppercase tracking-widest">Encontre os melhores profissionais da região</p>
+            </div>
             
             <label className="flex flex-col w-full">
-              <div className="flex w-full items-center rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/20 transition-all px-4 h-14 shadow-inner">
-                <span className="material-symbols-outlined text-slate-400 mr-2 text-[24px]">search</span>
+              <div className="flex w-full items-center rounded-xl bg-white/5 border border-white/10 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all px-4 h-14 shadow-inner">
+                <span className="material-symbols-outlined text-gray-500 mr-2 text-[24px]">search</span>
                 <input 
-                  className="w-full border-none bg-transparent focus:ring-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-base md:text-lg outline-none" 
-                  placeholder="O que você precisa hoje?" 
+                  className="w-full border-none bg-transparent focus:ring-0 text-white placeholder:text-gray-600 text-base outline-none font-bold" 
+                  placeholder="Ex: Eletricista, Limpeza..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={handleSearch}
@@ -45,61 +46,47 @@ export default function CategoriesScreen({ onNavigate }: NavigationProps) {
             </label>
           </div>
 
-          <div className="px-4 py-8 max-w-none lg:mx-0 lg:ml-4 transition-all duration-300">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100">Principais Serviços</h2>
-              <button onClick={() => onNavigate('listing')} className="text-primary text-sm font-semibold cursor-pointer hover:underline">Ver todos</button>
+          <div className="px-6 py-4 max-w-none lg:mx-0 transition-all duration-300">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-lg font-black text-white italic uppercase tracking-tighter">Categorias Principais</h2>
+              <button onClick={() => onNavigate('listing')} className="text-primary text-[10px] font-black uppercase tracking-widest hover:underline">Ver tudo</button>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {[
-                { icon: 'cleaning_services', title: 'Limpeza', desc: 'Residencial e pós-obra' },
-                { icon: 'bolt', title: 'Elétrica', desc: 'Reparos e instalações' },
-                { icon: 'water_drop', title: 'Hidráulica', desc: 'Vazamentos e canos' },
-                { icon: 'format_paint', title: 'Pintura', desc: 'Paredes e acabamento' },
-                { icon: 'handyman', title: 'Montagem', desc: 'Móveis e reparos' },
-                { icon: 'computer', title: 'Tecnologia', desc: 'PC e Celulares' },
-                { icon: 'content_cut', title: 'Beleza', desc: 'Cabelo e Estética' },
-                { icon: 'local_shipping', title: 'Fretes', desc: 'Mudanças e carreto' },
+                { icon: 'cleaning_services', title: 'Limpeza', desc: 'Residencial' },
+                { icon: 'bolt', title: 'Elétrica', desc: 'Reparos' },
+                { icon: 'water_drop', title: 'Hidráulica', desc: 'Encanador' },
+                { icon: 'format_paint', title: 'Pintura', desc: 'Acabamentos' },
+                { icon: 'handyman', title: 'Montagem', desc: 'Móveis' },
+                { icon: 'computer', title: 'TI', desc: 'Equipamentos' },
+                { icon: 'content_cut', title: 'Beleza', desc: 'Estética' },
+                { icon: 'local_shipping', title: 'Transporte', desc: 'Fretes' },
               ].map((cat, idx) => (
-                <div onClick={() => onNavigate('listing')} key={idx} className="group flex flex-col gap-3 rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-800/50 p-5 hover:border-primary/50 hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer">
-                  <div className="flex size-14 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                <div onClick={() => onNavigate('listing')} key={idx} className="group flex flex-col items-center text-center gap-3 rounded-2xl border border-white/5 bg-white/2 p-6 hover:bg-primary/10 hover:border-primary/50 transition-all cursor-pointer select-none">
+                  <div className="flex size-14 items-center justify-center rounded-2xl bg-white/5 text-gray-400 group-hover:bg-primary group-hover:text-white transition-all group-hover:scale-110">
                     <span className="material-symbols-outlined text-3xl">{cat.icon}</span>
                   </div>
                   <div>
-                    <h3 className="text-slate-900 dark:text-slate-100 font-bold text-base">{cat.title}</h3>
-                    <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">{cat.desc}</p>
+                    <h3 className="text-white font-black text-xs uppercase tracking-widest">{cat.title}</h3>
+                    <p className="text-gray-500 text-[9px] mt-1 font-bold italic tracking-tighter">{cat.desc}</p>
                   </div>
                 </div>
               ))}
-
-              <div onClick={() => onNavigate('listing')} className="group flex flex-col md:flex-row md:items-center gap-3 md:gap-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-800/50 p-5 hover:border-primary/50 hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer col-span-2">
-                <div className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
-                  <span className="material-symbols-outlined text-3xl">construction</span>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-slate-900 dark:text-slate-100 font-bold text-base">Reformas</h3>
-                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Obras em geral e acabamento</p>
-                </div>
-                <div className="ml-auto text-slate-300 dark:text-slate-600 group-hover:text-primary transition-colors hidden sm:block">
-                  <span className="material-symbols-outlined text-[32px]">chevron_right</span>
-                </div>
-              </div>
             </div>
           </div>
 
-          <div className="px-4 py-8 mt-4 max-w-none lg:mx-0 lg:ml-4 transition-all duration-300">
-            <div className="rounded-2xl overflow-hidden bg-gradient-to-r from-primary to-blue-600 p-6 md:p-10 text-white relative shadow-xl shadow-primary/20">
-              <div className="relative z-10 md:max-w-md">
-                <h3 className="text-xl md:text-2xl font-bold mb-2">Precisa de algo mais específico?</h3>
-                <p className="text-white/80 text-sm md:text-base mb-6 leading-relaxed">Fale com nosso suporte para encontrar um profissional especializado para a sua necessidade.</p>
-                <button onClick={() => onNavigate('helpCenter')} className="bg-white text-primary font-bold px-8 py-3 rounded-xl text-sm hover:bg-slate-50 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto shadow-sm">
-                  Solicitar ajuda
+          <div className="px-6 py-8 mt-4 max-w-none lg:mx-0 transition-all duration-300">
+            <div className="rounded-3xl overflow-hidden bg-gradient-to-br from-primary via-orange-600 to-red-600 p-8 md:p-12 text-white relative shadow-2xl flex flex-col items-center text-center">
+              <div className="relative z-10">
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] mb-4 block">Fale com a MAIA</span>
+                <h3 className="text-2xl md:text-4xl font-black mb-4 italic tracking-tighter">ESTÁ EM DÚVIDA?</h3>
+                <p className="text-white/80 text-xs font-bold uppercase tracking-widest mb-8 max-w-xs mx-auto">Nós ajudamos você a encontrar o profissional mais qualificado para o seu caso.</p>
+                <button onClick={() => onNavigate('helpCenter')} className="bg-white text-black font-black px-10 py-4 rounded-xl text-xs hover:bg-gray-100 hover:scale-105 active:scale-95 transition-all shadow-2xl uppercase tracking-widest">
+                  Solicitar Ajuda
                 </button>
               </div>
-              <div className="absolute -right-4 -bottom-4 opacity-20 hidden md:block group-hover:scale-110 transition-transform duration-700">
-                <span className="material-symbols-outlined text-[200px] leading-none">support_agent</span>
-              </div>
+              <div className="absolute inset-0 bg-black/10 mix-blend-overlay"></div>
             </div>
           </div>
         </main>

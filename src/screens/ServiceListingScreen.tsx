@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import StarRating from '../components/StarRating';
 
 import { NavigationProps, Professional, Screen } from '../types';
@@ -147,137 +147,116 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
   };
 
   return (
-    <div className="w-full bg-[#0f171e] min-h-screen shadow-xl flex flex-col font-display text-slate-900 dark:text-slate-100 antialiased">
+    <div className="w-full bg-black min-h-screen shadow-xl flex flex-col font-display text-white antialiased">
       {/* Header / Navigation */}
-      <header className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-        <div className="flex items-center p-4 justify-between w-full transition-all duration-300">
-          <div className="flex items-center gap-3">
-            <button onClick={() => onNavigate('home')} className="text-primary cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 p-1 rounded-full transition-colors">
+      {/* Header / Navigation - Netflix Dark */}
+      <header className="sticky top-0 z-50 bg-black/90 backdrop-blur-md border-b border-white/5">
+        <div className="max-w-7xl mx-auto flex items-center p-4 justify-between w-full transition-all duration-300">
+          <div className="flex items-center gap-3 w-full">
+            <button onClick={() => onNavigate('home')} className="text-primary cursor-pointer hover:bg-white/10 p-1.5 rounded-full transition-colors shrink-0">
               <span className="material-symbols-outlined text-2xl">arrow_back</span>
             </button>
-            <div className="flex-1 min-w-[200px]">
-              <div className="relative">
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+            <div className="hidden md:flex flex-1 gap-3">
+              <div className="relative flex-1">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">search</span>
                 <input
                   type="text"
-                  placeholder="Busque por serviço ou cidade..."
+                  placeholder="Profissional ou serviço..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl pl-12 pr-4 py-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none font-bold text-sm"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3.5 focus:ring-2 focus:ring-primary focus:border-transparent outline-none font-bold text-sm text-white transition-all hover:bg-white/10"
                 />
               </div>
-            </div>
-            <div className="flex-1 min-w-[200px]">
-              <div className="relative">
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">location_on</span>
+              <div className="relative w-72">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">location_on</span>
                 <CityAutocomplete
                    value={selectedCity}
                    onChange={val => setSelectedCity(val)}
-                   placeholder="Filtrar por cidade..."
-                   className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl pl-12 pr-4 py-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none font-bold text-sm"
+                   placeholder="Cidade..."
+                   className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3.5 focus:ring-2 focus:ring-primary focus:border-transparent outline-none font-bold text-sm text-white transition-all hover:bg-white/10"
                 />
               </div>
             </div>
+            {/* Mobile Title / Tiny Search Trigger */}
+            <div className="md:hidden flex-1 flex flex-col overflow-hidden">
+               <span className="text-[10px] font-black text-primary italic uppercase tracking-widest">{selectedCategory || 'Catálogo'}</span>
+               <span className="text-sm font-bold truncate text-white">Explorar Resultados</span>
+            </div>
           </div>
-          <div className="flex items-center relative gap-2">
-            <button
-              onClick={() => {
-                const input = document.getElementById('searchInputMobile');
-                if (input) input.focus();
-              }}
-              className="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors md:hidden"
-            >
-              <span className="material-symbols-outlined">search</span>
-            </button>
+
+          <div className="flex items-center gap-2">
             <button 
               onClick={() => onNavigate('filters', { filters: initialParams?.filters })} 
-              className="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors relative"
+              className="p-2 text-white/70 hover:bg-white/10 rounded-full transition-colors relative"
             >
               <span className="material-symbols-outlined">tune</span>
               {initialParams?.filters && (
-                <span className="absolute top-2 right-2 size-2 bg-primary rounded-full border-2 border-white dark:border-slate-900"></span>
+                <span className="absolute top-2 right-2 size-2 bg-primary rounded-full border-2 border-black"></span>
               )}
             </button>
           </div>
         </div>
-
-        {/* Filters Summary / Clear Button */}
-        {initialParams?.filters && (
-          <div className="px-4 pb-2 flex items-center justify-between">
-            <div className="flex gap-2 items-center overflow-x-auto hide-scrollbar">
-              <span className="text-[10px] font-bold text-slate-400 whitespace-nowrap">Filtros Ativos:</span>
-              {initialParams.filters.category && (
-                <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] font-medium">{initialParams.filters.category}</span>
-              )}
-              {initialParams.filters.maxPrice < 500 && (
-                <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] font-medium">Até R${initialParams.filters.maxPrice}</span>
-              )}
-              {initialParams.filters.minRating > 0 && (
-                <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] font-medium">{initialParams.filters.minRating}+ ⭐</span>
-              )}
-            </div>
-            <button 
-              onClick={() => onNavigate('listing', { ...initialParams, filters: null })}
-              className="text-[10px] font-bold text-primary hover:underline ml-2"
-            >
-              Limpar
-            </button>
-          </div>
-        )}
         
-        {/* Mobile Search Input (Visible always on mobile below the header) */}
-        <div className="md:hidden px-4 pb-3">
-          <input
-            id="searchInputMobile"
-            type="text"
-            placeholder="Buscar profissionais ou serviços..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-          />
+        {/* Mobile Search Inputs */}
+        <div className="md:hidden px-4 pb-4 flex flex-col gap-2">
+          <div className="relative">
+             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">search</span>
+             <input
+               type="text"
+               placeholder="Busque serviço..."
+               value={searchQuery}
+               onChange={(e) => setSearchQuery(e.target.value)}
+               className="w-full bg-white/5 border border-white/10 rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-primary"
+             />
+          </div>
+          <div className="relative">
+             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">location_on</span>
+             <CityAutocomplete
+                value={selectedCity}
+                onChange={val => setSelectedCity(val)}
+                placeholder="Qual cidade?"
+                className="w-full bg-white/5 border border-white/10 rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-primary"
+             />
+          </div>
         </div>
       </header>
 
       {/* Filter Section */}
-      <section className="border-b border-slate-100 dark:border-slate-800">
-        <div className="w-full max-w-7xl mx-auto px-4 py-3 overflow-x-auto custom-scrollbar transition-all duration-300">
+      <section className="border-b border-white/5 bg-black/50">
+        <div className="w-full max-w-7xl mx-auto px-4 py-3 overflow-x-auto hide-scrollbar transition-all duration-300">
           <div className="flex gap-2 whitespace-nowrap items-center">
             {/* Sort Buttons */}
-            <div className="flex gap-2 pr-4 border-r border-slate-200 dark:border-slate-700 mr-2">
-              <button 
-                onClick={() => handleSort('price')}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${sortBy === 'price' ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
-              >
-                Preço
-                {sortBy === 'price' && <span className="material-symbols-outlined text-sm">{sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward'}</span>}
-              </button>
+            <div className="flex gap-2 pr-4 border-r border-white/10 mr-2 shrink-0">
               <button 
                 onClick={() => handleSort('rating')}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${sortBy === 'rating' ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${sortBy === 'rating' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10'}`}
               >
-                Avaliação
-                {sortBy === 'rating' && <span className="material-symbols-outlined text-sm">{sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward'}</span>}
+                Melhores
+                {sortBy === 'rating' && <span className="material-symbols-outlined text-[14px]">{sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward'}</span>}
+              </button>
+              <button 
+                onClick={() => handleSort('price')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${sortBy === 'price' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10'}`}
+              >
+                Preço
+                {sortBy === 'price' && <span className="material-symbols-outlined text-[14px]">{sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward'}</span>}
               </button>
             </div>
 
-            {/* Category Buttons */}
+            {/* Category Buttons - Netflix Chips */}
             <button 
-              onClick={() => { 
-                setSelectedCategory(''); 
-                setSearchQuery('');
-                // Reset initialParams via state if needed, but clearing these is enough for the effect
-              }}
-              className={`flex items-center gap-1 px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${!selectedCategory && !searchQuery ? 'bg-primary text-white' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+              onClick={() => { setSelectedCategory(''); setSearchQuery(''); }}
+              className={`px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest transition-all ${!selectedCategory && !searchQuery ? 'bg-white text-black' : 'bg-white/5 text-gray-400 border border-white/10'}`}
             >
-              Todos
+              TODOS
             </button>
             {dynamicCategories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(selectedCategory === cat ? '' : cat)}
-                className={`flex items-center gap-1 px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${selectedCategory === cat ? 'bg-primary text-white' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+                className={`px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest transition-all ${selectedCategory === cat ? 'bg-white text-black' : 'bg-white/5 text-gray-400 border border-white/10'}`}
               >
-                {cat}
+                {cat?.toUpperCase()}
               </button>
             ))}
           </div>
@@ -287,101 +266,56 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
       {/* Main Content: Service Listing */}
       <main className="flex-1 p-4 pb-24 md:pb-8">
         {loading ? (
-          <div className="w-full max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 transition-all duration-300">
+          <div className="w-full max-w-7xl mx-auto px-0 md:px-4 grid grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-6 transition-all duration-300">
             {[1, 2, 3, 4, 5, 6].map(i => <SkeletonCard key={i} />)}
           </div>
         ) : (
-          <div className="w-full max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 transition-all duration-300">
+          <div className="w-full max-w-7xl mx-auto px-0 md:px-4 grid grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-6 transition-all duration-300">
             {filteredProfessionals.map((professional) => (
             <div 
               key={professional.id}
               onClick={() => onNavigate('profile', { professionalId: professional.id })} 
-              className="bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border border-slate-100 dark:border-slate-800 flex gap-4 transition-all hover:shadow-md cursor-pointer group"
+              className="group cursor-pointer"
             >
-            <div className="w-24 h-24 rounded-lg bg-slate-200 dark:bg-slate-800 shrink-0 overflow-hidden">
-              <img
-                alt={professional.name}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                src={professional.image}
-              />
-            </div>
-            <div className="flex flex-col justify-between flex-1">
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  {professional.plan_type === 'plus' ? (
-                    <span className="bg-amber-500/10 text-amber-600 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-500/20 flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[12px]" style={{ fontVariationSettings: "'FILL' 1" }}>stars</span>
-                      Premium
-                    </span>
-                  ) : professional.isAffiliate ? (
-                    <span className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full">
-                      Afiliado
-                    </span>
-                  ) : (
-                    <span className="bg-slate-100 dark:bg-slate-800 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                      Profissional
-                    </span>
-                  )}
-                  <div className="flex items-center gap-1 text-amber-500 bg-amber-500/5 px-2 py-0.5 rounded-lg border border-amber-500/10">
-                    <StarRating rating={professional.rating || 0} size={14} maxStars={1} />
-                    <span className="text-xs font-black">
-                      {Number(professional.rating || 0).toFixed(1).replace('.', ',')}
-                    </span>
-                    {professional.reviews > 0 && (
-                      <span className="text-[10px] text-slate-400 font-medium ml-0.5">
-                        ({professional.reviews})
-                      </span>
-                    )}
-                  </div>
+              <div className="relative aspect-[2/3] md:aspect-video rounded-md md:rounded-xl overflow-hidden shadow-2xl bg-white/5 transition-all duration-300 md:group-hover:scale-110 md:group-hover:z-50 ring-0 md:group-hover:ring-4 ring-primary/40">
+                <img
+                  alt={professional.name}
+                  className="w-full h-full object-cover transition-transform duration-700"
+                  src={professional.image}
+                />
+                
+                {/* Badges Overlay */}
+                <div className="absolute top-1 left-1 flex flex-col gap-1">
+                   {professional.plan_type === 'plus' && (
+                     <div className="bg-primary text-[6px] md:text-[8px] font-black text-white px-1.5 py-0.5 rounded shadow-lg italic">PREMIUM</div>
+                   )}
+                   <div className="bg-black/80 backdrop-blur-md px-1 py-0.5 rounded text-[8px] font-black flex items-center gap-1 border border-white/10 w-fit">
+                      <span className="material-symbols-outlined text-[10px] text-yellow-500 filled">star</span>
+                      <span className="text-white">{Number(professional.rating || 0).toFixed(1)}</span>
+                   </div>
                 </div>
-                <div className="flex items-center gap-1.5 mt-1 relative z-20 pointer-events-auto">
-                  <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-primary transition-colors hover:underline cursor-pointer" onClick={(e) => { e.stopPropagation(); onNavigate('profile', { professionalId: professional.id }); }}>
-                    {professional.name}
-                  </h3>
-                  {professional.isVerified && <VerifiedBadge />}
-                </div>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                  {professional.service}
-                </p>
 
-                {/* Pricing Info */}
-                <div className="mt-2 text-xs font-bold">
-                  {(professional as any).show_price ? (
-                    <div className="flex items-center gap-1 text-slate-900 dark:text-white">
-                      {(professional as any).pricing_model === 'negotiable' ? (
-                        <span className="text-primary italic">A combinar</span>
-                      ) : (
-                        <>
-                          {(professional as any).pricing_model === 'starting_at' && <span className="text-[10px] text-slate-500 font-normal">A partir de</span>}
-                          <span>{formatCurrency((professional as any).price || 0)}</span>
-                          <span className="text-[10px] text-slate-500 font-normal">
-                            {(professional as any).pricing_model === 'hourly' ? '/ h' : 
-                             (professional as any).pricing_model === 'fixed' ? '(Fixo)' : ''}
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  ) : (
-                    <span className="text-slate-400 italic font-normal">Preço sob consulta</span>
-                  )}
+                <div className="absolute inset-x-0 bottom-0 p-1.5 md:p-3 bg-gradient-to-t from-black via-black/40 to-transparent">
+                  <h4 className="text-[10px] md:text-sm font-black text-white leading-tight truncate drop-shadow-md">
+                    {professional.name}
+                  </h4>
+                  <p className="text-[7px] md:text-[10px] font-bold text-primary italic uppercase tracking-tighter truncate drop-shadow-md">
+                    {professional.service}
+                  </p>
                 </div>
               </div>
-              <div className="mt-3">
-                <button 
-                  onClick={(e) => { e.stopPropagation(); onNavigate('profile', { professionalId: professional.id }); }} 
-                  className="w-full py-2 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm font-semibold rounded-lg hover:bg-primary hover:text-white transition-colors"
-                >
-                  Ver Perfil
-                </button>
+              
+              {/* Desktop Details (Text below) */}
+              <div className="mt-2 hidden md:block group-hover:opacity-0 transition-opacity">
+                 <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">{professional.city}</p>
               </div>
             </div>
-          </div>
           ))}
           
           {filteredProfessionals.length === 0 && (
-            <div className="col-span-full text-center py-12 text-slate-500">
-              <span className="material-symbols-outlined text-4xl mb-2">search_off</span>
-              <p>Nenhum profissional encontrado.</p>
+            <div className="col-span-full text-center py-20 text-gray-500">
+              <span className="material-symbols-outlined text-5xl mb-4 opacity-20">search_off</span>
+              <p className="font-bold tracking-widest uppercase text-xs">Nenhum resultado encontrado</p>
             </div>
           )}
         </div>
@@ -395,14 +329,9 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
 
 function SkeletonCard() {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border border-slate-100 dark:border-slate-800 flex gap-4 animate-pulse">
-      <div className="w-24 h-24 rounded-lg bg-slate-200 dark:bg-slate-800 shrink-0"></div>
-      <div className="flex-1 space-y-3">
-        <div className="h-3 w-16 bg-slate-200 dark:bg-slate-800 rounded"></div>
-        <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded"></div>
-        <div className="h-3 w-24 bg-slate-200 dark:bg-slate-800 rounded"></div>
-        <div className="h-8 w-full bg-slate-200 dark:bg-slate-800 rounded-lg mt-2"></div>
-      </div>
+    <div className="flex flex-col gap-2 animate-pulse">
+      <div className="aspect-[2/3] md:aspect-video rounded-md md:rounded-xl bg-white/5 shadow-2xl"></div>
+      <div className="h-2 md:h-3 w-1/2 bg-white/5 rounded mx-auto md:mx-0"></div>
     </div>
   );
 }

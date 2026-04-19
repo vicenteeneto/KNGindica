@@ -670,77 +670,106 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
       </header>
 
       <main className="flex-1 w-full relative">
-        {/* Prime-Style Hero Carousel */}
+        {/* Netflix-Style Cinematic Hero */}
         <section 
-          className="relative w-full h-[60vh] md:h-[75vh] overflow-hidden bg-background-light dark:bg-black touch-pan-y"
+          className="relative w-full h-[75vh] md:h-[85vh] overflow-hidden bg-black touch-pan-y"
           onTouchStart={handleTouchStartHero}
           onTouchMove={handleTouchMoveHero}
           onTouchEnd={handleTouchEndHero}
         >
           {heroProviders.length > 0 ? (
             <div className="absolute inset-0 w-full h-full">
-              {heroProviders.slice(0, 5).map((p, idx) => (
-                <div 
-                  key={p.id}
-                  className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${idx === currentHeroIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
-                >
-                  <img
-                    src={p.image}
-                    alt={p.name}
-                    className="w-full h-full object-cover opacity-50 scale-105 transform hover:scale-100 transition-transform duration-[10000ms]"
-                  />
-                  {/* Gradients - Theme-aware Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-background-light dark:from-background-dark via-transparent to-transparent"></div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-background-light/40 dark:from-black/80 via-transparent to-transparent"></div>
+              {heroProviders.slice(0, 5).map((p, idx) => {
+                const isFavorited = favoriteProviders.some(f => f.id === p.id);
+                
+                return (
+                  <div 
+                    key={p.id}
+                    className={`absolute inset-0 transition-all duration-1000 ease-in-out ${idx === currentHeroIndex ? 'opacity-100 z-10 scale-100' : 'opacity-0 z-0 scale-105'}`}
+                  >
+                    {/* Background - Responsive (Mobile Poster vs Desktop Banner) */}
+                    <img
+                      src={p.image}
+                      alt={p.name}
+                      className="w-full h-full object-cover opacity-60 md:opacity-50"
+                    />
+                    
+                    {/* Cinematic Overlays */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-transparent hidden md:block"></div>
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent md:hidden"></div>
 
-                  {/* Content */}
-                  <div className="absolute bottom-16 md:bottom-24 left-0 right-0 w-full transition-all duration-300">
-                    <div className="max-w-7xl mx-auto px-4 lg:px-12 animate-fade-in-up flex flex-col items-start text-left md:ml-0">
-                      <div className="flex items-center gap-2 mb-3">
-                        {p.isVerified && (
-                          <div className="flex items-center gap-1.5 bg-emerald-500/20 backdrop-blur-md px-2 py-0.5 rounded border border-emerald-500/30">
-                            <span className="text-[9px] font-black tracking-tighter text-emerald-400">Conta Verificada</span>
-                            <VerifiedBadge size="sm" />
-                          </div>
-                        )}
-                      </div>
-                      <h1 className="text-3xl md:text-6xl font-black text-slate-900 dark:text-white leading-[0.9] mb-3 drop-shadow-2xl">
-                        {p.name.split(' ')[0]} <br />
-                        <span className="text-primary">{p.name.split(' ').slice(1).join(' ')}</span>
-                      </h1>
-                      <div className="flex items-center justify-start gap-1 sm:gap-3 mb-6 flex-wrap">
-                        <div className="flex items-center text-yellow-500 gap-1 bg-black/40 backdrop-blur-md px-2 py-1 rounded-md border border-white/10 shrink-0">
-                          <span className="material-symbols-outlined text-sm filled">star</span>
-                          <span className="text-sm font-black">{p.rating}</span>
+                    {/* Content Section */}
+                    <div className="absolute bottom-10 md:bottom-24 left-0 right-0 w-full px-4 lg:px-12 transition-all duration-500">
+                      <div className="max-w-7xl mx-auto flex flex-col items-center md:items-start text-center md:text-left">
+                        {/* Tags / Info Line */}
+                        <div className="flex items-center justify-center md:justify-start gap-2 mb-4 overflow-hidden">
+                           <span className="text-[10px] font-black text-primary italic uppercase tracking-[0.2em]">Destaque KNGindica</span>
                         </div>
-                        <span className="text-sm font-bold text-slate-300 drop-shadow-md">• {p.service}</span>
-                        <span className="text-sm font-bold text-slate-300 drop-shadow-md">• {p.city}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 md:gap-3">
-                        <button
-                          onClick={() => onNavigate('profile', { professionalId: p.id })}
-                          className="flex items-center gap-1.5 bg-primary text-white px-6 md:px-10 py-2 md:py-3.5 rounded-lg font-black text-[10px] md:text-sm hover:bg-orange-600 transition-all active:scale-95 shadow-xl shadow-primary/20"
-                        >
-                          <span className="material-symbols-outlined text-[16px] md:text-[24px] filled">play_arrow</span>
-                          Ver Perfil
-                        </button>
+
+                        <h1 className="text-4xl md:text-7xl font-black text-white leading-none mb-4 drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] italic tracking-tighter">
+                          {p.name.toUpperCase()}
+                        </h1>
+
+                        <div className="flex items-center justify-center md:justify-start gap-3 mb-8 flex-wrap">
+                          <div className="flex items-center text-yellow-500 gap-1 bg-black/60 backdrop-blur-md px-2 py-1 rounded-md border border-white/10 shrink-0">
+                            <span className="material-symbols-outlined text-sm filled">star</span>
+                            <span className="text-sm font-black">{p.rating}</span>
+                          </div>
+                          <span className="text-xs md:text-sm font-bold text-slate-300 drop-shadow-md uppercase tracking-widest">• {p.service}</span>
+                          <span className="text-xs md:text-sm font-bold text-slate-300 drop-shadow-md uppercase tracking-widest">• {p.city}</span>
+                        </div>
+                        
+                        <div className="flex items-center justify-center md:justify-start gap-2 md:gap-4 w-full md:w-auto">
+                          <button
+                            onClick={() => onNavigate('profile', { professionalId: p.id })}
+                            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white text-black px-6 md:px-10 py-3 md:py-4 rounded font-black text-xs md:text-base hover:bg-white/90 transition-all active:scale-95 shadow-2xl"
+                          >
+                            <span className="material-symbols-outlined filled">play_arrow</span>
+                            Assistir
+                          </button>
+                          
+                          <button
+                            onClick={async () => {
+                              try {
+                                if (isFavorited) {
+                                  await supabase.from('favorites').delete().eq('client_id', user?.id).eq('provider_id', p.id);
+                                } else {
+                                  await supabase.from('favorites').insert({ client_id: user?.id, provider_id: p.id });
+                                }
+                                // Re-trigger favorites fetch by refreshing state if possible, or relying on real-time
+                              } catch (e) {
+                                console.error("Erro ao favoritar", e);
+                              }
+                            }}
+                            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 md:px-10 py-3 md:py-4 rounded font-black text-xs md:text-base transition-all active:scale-95 border-2 ${
+                              isFavorited 
+                                ? 'bg-primary border-primary text-white' 
+                                : 'bg-black/40 backdrop-blur-md text-white border-white/20 hover:bg-white/10'
+                            }`}
+                          >
+                            <span className="material-symbols-outlined">{isFavorited ? 'check' : 'add'}</span>
+                            {isFavorited ? 'Na Lista' : 'Minha Lista'}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               
-              {/* Carousel Indicators */}
-              <div className="absolute bottom-8 right-8 z-30 flex gap-2">
+              {/* Carousel Indicators - Refined */}
+              <div className="absolute bottom-6 right-1/2 translate-x-1/2 md:translate-x-0 md:right-12 z-30 flex gap-2">
                 {heroProviders.slice(0, 5).map((_, idx) => (
                   <button 
                     key={idx}
                     onClick={() => setCurrentHeroIndex(idx)}
-                    className={`h-1.5 transition-all rounded-full ${idx === currentHeroIndex ? 'w-8 bg-primary' : 'w-2 bg-white/30'}`}
+                    className={`h-1 transition-all rounded-full ${idx === currentHeroIndex ? 'w-8 bg-primary' : 'w-2 bg-white/20'}`}
                   ></button>
                 ))}
               </div>
+            </div>
+    </div>
             </div>
           ) : (
              /* Fallback for empty plus providers */
@@ -1069,49 +1098,59 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
 
         <div 
           ref={scrollRef}
-          className="flex gap-4 md:gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory px-4 lg:px-12"
+          className="flex gap-2.5 md:gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory px-4 lg:px-12"
           style={{ touchAction: 'pan-x', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
         >
           {providers.map((p) => (
             <div
               key={p.id}
               onClick={() => onNavigate('profile', { professionalId: p.id })}
-              className="snap-start shrink-0 w-[160px] md:w-[260px] group cursor-pointer"
+              className="snap-start shrink-0 w-[110px] md:w-[260px] group cursor-pointer"
             >
-              <div className={`relative aspect-[16/9] md:aspect-video rounded-xl overflow-hidden shadow-2xl bg-white dark:bg-[#0a0a0a] transition-all duration-300 group-hover:scale-105 group-hover:ring-4 ${highlight ? 'group-hover:ring-primary/40' : 'group-hover:ring-slate-200 dark:group-hover:ring-white/5'}`}>
+              <div className={`relative aspect-[2/3] md:aspect-video rounded-md md:rounded-xl overflow-hidden shadow-2xl bg-white dark:bg-[#0a0a0a] transition-all duration-300 md:group-hover:scale-110 md:group-hover:z-50 md:group-hover:ring-4 ${highlight ? 'md:group-hover:ring-primary/40' : 'md:group-hover:ring-white/10'}`}>
                 <img
                   className="w-full h-full object-cover transition-transform duration-700"
                   src={p.image}
                   alt={p.name}
                 />
+                
+                {/* Netflix-style Top-10 / New Badge (Optional - using highlight) */}
+                {highlight && (
+                   <div className="absolute top-0 right-0">
+                      <div className="bg-red-600 text-[8px] font-black tracking-tighter text-white px-2 py-0.5 rounded-bl-md shadow-lg italic">NOVO</div>
+                   </div>
+                )}
+
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
                 
-                {/* Rating Mini - Improved version with StarRating */}
-                <div className="absolute top-1 right-1 bg-black/80 backdrop-blur-md px-1.5 py-0.5 rounded-md text-[8px] font-black flex items-center gap-1 border border-white/10">
-                  <StarRating rating={p.rating || 0} size={10} maxStars={1} />
+                {/* Rating Mini */}
+                <div className="absolute top-1 left-1 bg-black/80 backdrop-blur-md px-1 py-0.5 rounded text-[8px] font-black flex items-center gap-1 border border-white/10">
+                  <span className="material-symbols-outlined text-[10px] text-yellow-500 filled">star</span>
                   <span className="text-white">
-                    {Number(p.rating || 0).toFixed(1).replace('.', ',')}
+                    {Number(p.rating || 0).toFixed(1)}
                   </span>
-                  {p.reviews > 0 && (
-                    <span className="text-white/40 font-medium ml-0.5">
-                      ({p.reviews})
-                    </span>
-                  )}
                 </div>
 
-                {/* Info Overlay - Cleaner version with even smaller text */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"></div>
-                <div className="absolute bottom-1.5 left-1.5 right-1.5 flex items-center justify-between">
-                  <span className="text-[7px] font-black text-white px-1 py-0 bg-primary/20 backdrop-blur-md rounded border border-primary/30 italic">
+                {/* Mobile Info Overlay (Name on top of card) */}
+                <div className="absolute inset-x-0 bottom-0 p-1.5 md:hidden bg-gradient-to-t from-black/90 via-black/40 to-transparent">
+                  <h4 className="text-[9px] font-black text-white leading-tight truncate">
+                    {p.name.split(' ')[0]}
+                  </h4>
+                  <p className="text-[7px] font-bold text-gray-400 truncate uppercase tracking-tighter">
                     {p.service}
-                  </span>
-                  <span className="text-[7px] font-black text-white/40">{p.distance} km</span>
+                  </p>
+                </div>
+
+                {/* Desktop Detailed Overlay (Appears on hover or stays clean) */}
+                <div className="hidden md:absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
+                   <span className="text-[10px] font-black text-primary italic uppercase tracking-widest mb-1">{p.service}</span>
+                   <h4 className="text-sm font-black text-white leading-none">{p.name}</h4>
                 </div>
               </div>
               
-              {/* Name Below Card for cleaner look */}
-              <div className="mt-2 text-center">
-                <h4 className="font-bold text-[11px] md:text-xs truncate text-slate-500 dark:text-gray-400 group-hover:text-primary transition-colors tracking-tight">
+              {/* Desktop Name Below Card */}
+              <div className="mt-2 hidden md:block group-hover:opacity-0 transition-opacity">
+                <h4 className="font-bold text-xs truncate text-slate-500 dark:text-gray-400 transition-colors tracking-tight">
                   {p.name}
                 </h4>
               </div>
@@ -1119,18 +1158,18 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
           ))}
           
           {onViewMore && (
-            <div className="snap-start shrink-0 w-[160px] md:w-[260px] cursor-pointer">
+            <div className="snap-start shrink-0 w-[110px] md:w-[260px] cursor-pointer">
                <button 
                 onClick={onViewMore}
-                className="w-full aspect-[16/9] md:aspect-video rounded-xl border-2 border-slate-200/50 dark:border-white/5 bg-slate-100 dark:bg-white/2 hover:bg-primary hover:text-white dark:hover:bg-white dark:hover:text-black transition-all flex flex-col items-center justify-center gap-2 group shadow-sm dark:shadow-none"
+                className="w-full aspect-[2/3] md:aspect-video rounded-md md:rounded-xl border-2 border-white/5 bg-white/2 hover:bg-white hover:text-black transition-all flex flex-col items-center justify-center gap-2 group shadow-sm dark:shadow-none"
               >
-                <span className="size-10 rounded-full bg-slate-200 dark:bg-white/5 flex items-center justify-center group-hover:bg-black/10">
-                  <span className="material-symbols-outlined">add</span>
+                <span className="size-8 md:size-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-black/10">
+                  <span className="material-symbols-outlined text-sm md:text-base">add</span>
                 </span>
-                <span className="text-xs font-black">Ver Mais</span>
+                <span className="text-[9px] md:text-xs font-black">Ver Mais</span>
                </button>
                {/* Alignment placeholder */}
-               <div className="mt-2 text-center h-[20px] md:h-[24px]"></div>
+               <div className="mt-2 hidden md:block h-[12px] md:h-[24px]"></div>
             </div>
           )}
         </div>
