@@ -106,28 +106,28 @@ export default function ChatListScreen({ onNavigate, params }: NavigationProps) 
       
       {/* Header Centralizado */}
       <div className="shrink-0 z-50 bg-slate-900 border-b border-white/5 h-[60px] flex items-center px-6 justify-between">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4 flex-1 min-w-0">
            <button 
              onClick={() => onNavigate(role === 'provider' ? 'dashboard' : 'home')}
-             className="size-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-all font-black"
+             className="size-9 md:size-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-all font-black shrink-0"
            >
-             <span className="material-symbols-outlined">arrow_back</span>
+             <span className="material-symbols-outlined text-sm md:text-base">arrow_back</span>
            </button>
-           <div className="flex flex-col">
-             <p className="text-[12px] font-black text-primary uppercase tracking-[2px] leading-none mb-1.5">Mensagens</p>
-             <div className="flex items-center gap-2">
-               <div className="size-2.5 rounded-full bg-green-500 animate-pulse" />
-               <h1 className="text-lg font-black text-white uppercase tracking-[1px] italic leading-none">Minhas Mensagens</h1>
+           <div className="flex flex-col min-w-0">
+             <p className="text-[10px] md:text-[12px] font-black text-primary uppercase tracking-[1px] md:tracking-[2px] leading-none mb-1 md:mb-1.5 truncate">Mensagens</p>
+             <div className="flex items-center gap-1.5 md:gap-2">
+               <div className="size-2 rounded-full bg-green-500 animate-pulse shrink-0" />
+               <h1 className="text-sm md:text-lg font-black text-white uppercase tracking-[1px] italic leading-none truncate">Minhas Mensagens</h1>
              </div>
            </div>
         </div>
 
         <button 
           onClick={() => onNavigate('listing')}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:brightness-110 transition-all shadow-lg shadow-primary/20"
+          className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-primary text-white rounded-xl font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:brightness-110 transition-all shadow-lg shadow-primary/20 shrink-0"
         >
-          <span className="material-symbols-outlined text-[18px]">add_comment</span>
-          Novo Chat
+          <span className="material-symbols-outlined text-[16px] md:text-[18px]">add_comment</span>
+          <span className="hidden xs:inline">Novo</span> Chat
         </button>
       </div>
 

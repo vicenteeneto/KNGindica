@@ -128,13 +128,21 @@ function AppContent() {
 
     window.addEventListener('popstate', handlePopState);
     
+    // Global Scroll Reset on Screen Change
+    window.scrollTo(0, 0);
+
     // Initial state push for the first load
     if (!window.history.state) {
       window.history.replaceState({ screen: currentScreen, params: navigationParams }, '', '');
     }
 
     return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  }, [role]);
+
+  // Global Scroll Reset on Screen Change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentScreen]);
 
   // Listen for password recovery trigger
   useEffect(() => {

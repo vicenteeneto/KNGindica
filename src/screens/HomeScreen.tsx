@@ -529,10 +529,11 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
     <div className="w-full bg-[#000000] min-h-screen flex flex-col font-display text-white md:pb-0 overflow-x-hidden transition-colors duration-500">
       
       {/* Floating Header */}
-      <header className={`relative lg:fixed top-0 left-0 lg:left-0 right-0 z-50 transition-all duration-500 px-4 lg:px-12 pt-3 pb-1.5 ${isScrolled
+      <header className={`relative lg:fixed top-0 left-0 lg:left-16 right-0 lg:w-[calc(100%-4rem)] z-50 transition-all duration-500 pt-3 pb-1.5 ${isScrolled
         ? 'bg-black/95 backdrop-blur-md shadow-2xl border-b border-white/5'
         : 'bg-gradient-to-b from-black/90 via-black/30 to-transparent'
         }`}>
+        <div className="max-w-7xl mx-auto px-4 lg:px-12 transition-all duration-300">
         <div className="flex items-center justify-between transition-all duration-300">
           <div className="flex items-center gap-3">
             <div 
@@ -663,6 +664,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             </button>
           ))}
         </div>
+        </div>
       </header>
 
       <main className="flex-1 w-full relative">
@@ -690,8 +692,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                   <div className="absolute inset-0 bg-gradient-to-r from-background-light/40 dark:from-black/80 via-transparent to-transparent"></div>
 
                   {/* Content */}
-                  <div className="absolute bottom-16 md:bottom-24 left-0 lg:left-0 right-0 w-full px-4 lg:px-12 max-w-none transition-all duration-300">
-                    <div className="max-w-2xl animate-fade-in-up flex flex-col items-start text-left md:ml-0">
+                  <div className="absolute bottom-16 md:bottom-24 left-0 right-0 w-full transition-all duration-300">
+                    <div className="max-w-7xl mx-auto px-4 lg:px-12 animate-fade-in-up flex flex-col items-start text-left md:ml-0">
                       <div className="flex items-center gap-2 mb-3">
                         {p.isVerified ? (
                           <div className="flex items-center gap-1.5 bg-emerald-500/20 backdrop-blur-md px-2 py-0.5 rounded border border-emerald-500/30">
@@ -825,11 +827,11 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         </section>
 
         {/* Collection Rows */}
-        <div className={`w-full max-w-7xl mx-auto relative z-20 pb-20 ${!activeRequest ? '-mt-8' : ''}`}>
+        <div className={`w-full max-w-7xl mx-auto relative z-20 pb-10 ${!activeRequest ? '-mt-8' : ''}`}>
           
           {/* Action Row - Search & View Toggle */}
           <div className="px-4 lg:px-12 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="relative group max-w-lg w-full">
+            <div className="relative group max-w-2xl w-full">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                     <span className="material-symbols-outlined text-gray-400 group-focus-within:text-primary transition-colors">sparkles</span>
                   </div>
@@ -839,7 +841,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && onNavigate('listing', { searchQuery })}
-                    className="w-full pl-10 pr-4 py-2 bg-slate-100/10 backdrop-blur-xl border border-white/10 rounded-full text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all placeholder:text-gray-500"
+                    className="w-full pl-10 pr-4 py-3 bg-slate-100/10 backdrop-blur-xl border border-white/10 rounded-full text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all placeholder:text-gray-500 shadow-inner"
                   />
             </div>
             
@@ -1076,7 +1078,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
 
         <div 
           ref={scrollRef}
-          className="flex gap-4 md:gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory px-0"
+          className="flex gap-4 md:gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory px-4 md:px-0 -mx-4 md:mx-0"
         >
           {providers.map((p) => (
             <div
