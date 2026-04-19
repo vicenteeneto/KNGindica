@@ -61,7 +61,8 @@ export default function MyRequestsScreen({ onNavigate, params }: NavigationProps
           category_id,
           provider_id,
           profiles:provider_id(full_name, avatar_url),
-          service_categories(name, icon)
+          service_categories(name, icon),
+          reviews(id)
         `)
         .eq('client_id', user.id)
         .in('status', statuses)
@@ -147,8 +148,8 @@ export default function MyRequestsScreen({ onNavigate, params }: NavigationProps
                   className={`bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm cursor-pointer hover:border-primary/50 transition-colors ${req.status === 'cancelled' ? 'opacity-75 grayscale' : ''
                     }`}
                 >
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap justify-between items-start gap-2 mb-3">
+                    <div className="flex items-center gap-3 min-w-0">
                       <div className="size-10 rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden border border-slate-200 dark:border-slate-600">
                         <img
                           src={req.profiles?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"}
@@ -156,36 +157,38 @@ export default function MyRequestsScreen({ onNavigate, params }: NavigationProps
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <div>
-                        <h3 className="text-sm font-semibold tracking-tight text-slate-900 dark:text-white">{req.profiles?.full_name || 'Aguardando Profissional'}</h3>
-                        <p className="text-[13px] font-medium text-slate-500">{req.title || req.service_categories?.name || 'Serviço'}</p>
+                      <div className="min-w-0">
+                        <h3 className="text-sm font-semibold tracking-tight text-slate-900 dark:text-white truncate">{req.profiles?.full_name || 'Aguardando Profissional'}</h3>
+                        <p className="text-[13px] font-medium text-slate-500 truncate">{req.title || req.service_categories?.name || 'Serviço'}</p>
                       </div>
                     </div>
                     {/* Status Badge */}
-                    {req.status === 'open' && (
-                      <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-500 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">Aberto</span>
-                    )}
-                    {req.status === 'proposed' && (
-                      <span className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-500 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">Proposta Recebida</span>
-                    )}
-                    {req.status === 'awaiting_payment' && (
-                      <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-500 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">Aguardando Pagamento</span>
-                    )}
-                    {req.status === 'paid' && (
-                      <span className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-500 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">Confirmado / Pago</span>
-                    )}
-                    {req.status === 'accepted' && (
-                      <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-500 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">Aceito</span>
-                    )}
-                    {req.status === 'in_progress' && (
-                      <span className="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-500 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">Iniciado</span>
-                    )}
-                    {req.status === 'completed' && (
-                      <span className="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">Finalizado</span>
-                    )}
-                    {req.status === 'cancelled' && (
-                      <span className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-500 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">Cancelado</span>
-                    )}
+                    <div className="shrink-0">
+                      {req.status === 'open' && (
+                        <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-500 text-[10px] font-bold px-2 py-1 rounded tracking-tight">Aberto</span>
+                      )}
+                      {req.status === 'proposed' && (
+                        <span className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-500 text-[10px] font-bold px-2 py-1 rounded tracking-tight">Proposta recebida</span>
+                      )}
+                      {req.status === 'awaiting_payment' && (
+                        <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-500 text-[10px] font-bold px-2 py-1 rounded tracking-tight">Aguardando pagamento</span>
+                      )}
+                      {req.status === 'paid' && (
+                        <span className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-500 text-[10px] font-bold px-2 py-1 rounded tracking-tight">Confirmado / Pago</span>
+                      )}
+                      {req.status === 'accepted' && (
+                        <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-500 text-[10px] font-bold px-2 py-1 rounded tracking-tight">Aceito</span>
+                      )}
+                      {req.status === 'in_progress' && (
+                        <span className="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-500 text-[10px] font-bold px-2 py-1 rounded tracking-tight">Iniciado</span>
+                      )}
+                      {req.status === 'completed' && (
+                        <span className="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold px-2 py-1 rounded tracking-tight">Finalizado</span>
+                      )}
+                      {req.status === 'cancelled' && (
+                        <span className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-500 text-[10px] font-bold px-2 py-1 rounded tracking-tight">Cancelado</span>
+                      )}
+                    </div>
                   </div>
                   
                   <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-50 dark:border-white/5">
@@ -193,7 +196,7 @@ export default function MyRequestsScreen({ onNavigate, params }: NavigationProps
                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date(req.created_at).toLocaleDateString('pt-BR')}</span>
                     </div>
 
-                    {req.status === 'completed' ? (
+                    {req.status === 'completed' && !req.reviews?.length ? (
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
@@ -204,11 +207,16 @@ export default function MyRequestsScreen({ onNavigate, params }: NavigationProps
                             serviceTitle: req.title || req.service_categories?.name
                           });
                         }}
-                        className="h-8 px-4 bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-amber-500/20 transition-all flex items-center gap-1"
+                        className="h-8 px-4 bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-black rounded-lg shadow-lg shadow-amber-500/20 transition-all flex items-center gap-1"
                       >
                         <span className="material-symbols-outlined text-xs">star</span>
                         Avaliar
                       </button>
+                    ) : req.status === 'completed' ? (
+                      <div className="flex items-center gap-1 text-emerald-500 font-bold text-[10px]">
+                         <span className="material-symbols-outlined text-xs filled">check_circle</span>
+                         Avaliado
+                      </div>
                     ) : (
                       <span className="material-symbols-outlined text-sm text-slate-400">arrow_forward</span>
                     )}

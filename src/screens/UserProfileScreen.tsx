@@ -919,10 +919,10 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                     <span className="material-symbols-outlined text-2xl">handyman</span>
                   </div>
                   <div>
-                    <h3 className="font-black text-base uppercase tracking-tight italic">
-                      Seja um Prestador
+                    <h3 className="font-black text-base tracking-tight italic">
+                      Seja um prestador
                     </h3>
-                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest leading-none mt-0.5">GANHE DINHEIRO COM SEUS SERVIÇOS</p>
+                    <p className="text-[10px] text-slate-400 font-black leading-none mt-0.5">Ganhe dinheiro com seus serviços</p>
                   </div>
                 </div>
                 <p className="text-xs text-slate-400 leading-relaxed mb-1">
@@ -931,10 +931,10 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
               </div>
               <button
                 onClick={() => setShowUpgradeModal(true)}
-                className="relative z-10 bg-primary hover:bg-primary/90 text-white font-black px-6 py-3.5 rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all w-full flex justify-center items-center gap-2 uppercase tracking-widest text-xs"
+                className="relative z-10 bg-primary hover:bg-primary/90 text-white font-black px-6 py-3.5 rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all w-full flex justify-center items-center gap-2 text-xs"
               >
                 <span className="material-symbols-outlined text-sm">switch_account</span>
-                Mudar para Prestador
+                Mudar para prestador
               </button>
             </div>
           </section>
@@ -1147,23 +1147,23 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                         setShowProfileModal(false);
                         setShowLocationPickerModal(true);
                       }}
-                      className="w-full h-11 flex items-center justify-center gap-3 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-xs uppercase tracking-widest shadow-xl hover:opacity-90 active:scale-[0.98] transition-all"
+                      className="w-full h-11 flex items-center justify-center gap-3 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-xs shadow-xl hover:opacity-90 active:scale-[0.98] transition-all"
                     >
                       <span className="material-symbols-outlined">pin_drop</span>
-                      {(profile as any)?.latitude ? 'Ajustar Localização no Mapa' : 'Marcar Meu Local no Mapa'}
+                      {(profile as any)?.latitude ? 'Ajustar localização no mapa' : 'Marcar meu local no mapa'}
                     </button>
                   )}
                 {/* Seção 03: Verificação de Identidade (Apenas para Prestadores) */}
                 {role === 'provider' && (
                   <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                     <div className="flex items-center gap-2 mb-2 px-1">
-                      <span className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em]">03. Verificação de Identidade</span>
+                      <span className="text-[10px] font-black text-amber-500 tracking-[1px]">03. Verificação de identidade</span>
                       <div className="flex-1 h-[1px] bg-slate-100 dark:bg-slate-800"></div>
                     </div>
 
                     <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 p-4 rounded-2xl flex gap-3 items-start">
                       <span className="material-symbols-outlined text-amber-500 mt-0.5 text-sm">info</span>
-                      <p className="text-[10px] text-amber-700 dark:text-amber-400 font-bold uppercase tracking-widest leading-relaxed">
+                      <p className="text-[10px] text-amber-700 dark:text-amber-400 font-bold leading-relaxed">
                         Envie fotos nítidas para ganhar o selo de verificado. A análise leva até 48h.
                       </p>
                     </div>
@@ -1202,7 +1202,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                                  alt="Frente" 
                                />
                                <span className="material-symbols-outlined text-emerald-500 text-3xl">check_circle</span>
-                               <span className="text-[10px] font-black text-emerald-600 uppercase italic">Documento Enviado</span>
+                               <span className="text-[10px] font-black text-emerald-600 italic">Documento enviado</span>
                              </>
                            ) : (
                              <>
@@ -1409,7 +1409,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
                         <span className="material-symbols-outlined text-[20px]">payments</span>
-                        <span className="text-[10px] font-black uppercase tracking-widest italic">Preço à Combinar</span>
+                        <span className="text-[10px] font-black italic">Preço à combinar</span>
                       </div>
                       <button
                         type="button"

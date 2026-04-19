@@ -123,10 +123,10 @@ export default function ChatListScreen({ onNavigate, params }: NavigationProps) 
 
         <button 
           onClick={() => onNavigate('listing')}
-          className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-primary text-white rounded-xl font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:brightness-110 transition-all shadow-lg shadow-primary/20 shrink-0"
+          className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-primary text-white rounded-xl font-black text-[9px] md:text-[10px] hover:brightness-110 transition-all shadow-lg shadow-primary/20 shrink-0"
         >
           <span className="material-symbols-outlined text-[16px] md:text-[18px]">add_comment</span>
-          <span className="hidden xs:inline">Novo</span> Chat
+          <span className="hidden xs:inline">Novo</span> chat
         </button>
       </div>
 
@@ -159,7 +159,7 @@ export default function ChatListScreen({ onNavigate, params }: NavigationProps) 
                     setActiveTab(tab);
                     setSelectedRoomId(null);
                   }}
-                  className={`flex-1 flex items-center justify-center py-2.5 rounded-md text-[9px] font-black uppercase tracking-tighter transition-all border whitespace-nowrap ${
+                  className={`flex-1 flex items-center justify-center py-2.5 rounded-md text-[9px] font-black tracking-tighter transition-all border whitespace-nowrap ${
                     activeTab === tab 
                       ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20' 
                       : 'bg-white/5 border-transparent text-slate-500 hover:text-slate-300'
@@ -176,7 +176,7 @@ export default function ChatListScreen({ onNavigate, params }: NavigationProps) 
             {loading ? (
               <div className="flex flex-col items-center justify-center h-full gap-4 opacity-50">
                 <div className="size-10 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
-                <p className="text-[10px] font-black uppercase tracking-widest text-primary">Carregando Conversas...</p>
+                <p className="text-[10px] font-black text-primary">Carregando conversas...</p>
               </div>
             ) : (
               (() => {
@@ -206,7 +206,7 @@ export default function ChatListScreen({ onNavigate, params }: NavigationProps) 
                   return (
                     <div className="flex flex-col items-center justify-center h-full p-10 text-center opacity-30">
                       <span className="material-symbols-outlined text-6xl mb-4 italic">chat_bubble_outline</span>
-                      <p className="text-xs font-black uppercase tracking-widest">Nenhuma conversa encontrada</p>
+                      <p className="text-xs font-black">Nenhuma conversa encontrada</p>
                     </div>
                   );
                 }

@@ -15,6 +15,36 @@ export default function WriteReviewScreen({ onNavigate, params }: WriteReviewScr
   const [hoveredRating, setHoveredRating] = useState<number>(0);
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  React.useEffect(() => {
+    checkExistingReview();
+  }, [params?.requestId]);
+
+  const checkExistingReview = async () => {
+    if (!params?.requestId || !user) {
+      setChecking(false);
+      return;
+    }
+    
+    try {
+      const { data, error } = await supabase
+        .from('reviews')
+        .select('id')
+        .eq(params.isFreelance ? 'freelance_order_id' : 'request_id', params.requestId)
+        .eq('reviewer_id', user.id)
+        .maybeSingle();
+
+      if (data) {
+        showToast("Já avaliado", "Você já enviou uma avaliação para este serviço.", "notification");
+        onNavigate(params.isFreelance ? 'myFreelances' : 'myRequests');
+      }
+    } catch (err) {
+      console.error("Erro ao verificar avaliação:", err);
+    } finally {
+      setChecking(false);
+    }
+  };
 
   const providerName = params?.providerName || 'Profissional';
   const providerAvatar = params?.providerAvatar || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png';
@@ -79,7 +109,7 @@ export default function WriteReviewScreen({ onNavigate, params }: WriteReviewScr
         >
           <span className="material-symbols-outlined text-slate-700 dark:text-slate-300">close</span>
         </button>
-        <h1 className="text-lg font-bold tracking-tight flex-1 text-center pr-10">Avaliar Serviço</h1>
+        <h1 className="text-lg font-bold tracking-tight flex-1 text-center pr-10">Avaliar serviço</h1>
       </header>
 
       {/* Main Content */}
@@ -99,7 +129,7 @@ export default function WriteReviewScreen({ onNavigate, params }: WriteReviewScr
 
             {/* Star Rating Interactive */}
             <div className="flex flex-col items-center gap-2">
-              <p className="text-sm font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Sua Nota</p>
+              <p className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-2">Sua nota</p>
               <div className="flex gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -134,7 +164,7 @@ export default function WriteReviewScreen({ onNavigate, params }: WriteReviewScr
             {/* Comment Field */}
             <div className="w-full space-y-2 animate-in fade-in slide-in-from-bottom-4 delay-100 fill-mode-both">
               <label htmlFor="comment" className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Conte mais sobre a sua experiência (Opcional)
+                Conte mais sobre a sua experiência (opcional)
               </label>
               <textarea
                 id="comment"
@@ -148,13 +178,13 @@ export default function WriteReviewScreen({ onNavigate, params }: WriteReviewScr
             {/* Submit */}
             <button
               type="submit"
-              disabled={rating === 0 || isSubmitting}
-              className={`w-full py-3 px-6 rounded-xl font-bold text-sm shadow-lg transition-all ${rating > 0 && !isSubmitting
+              disabled={rating === 0 || isSubmitting || checking}
+              className={`w-full py-3 px-6 rounded-xl font-bold text-sm shadow-lg transition-all ${rating > 0 && !isSubmitting && !checking
                   ? 'bg-primary text-white hover:bg-primary/90 shadow-primary/30 hover:-translate-y-0.5'
                   : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed shadow-none'
                 }`}
             >
-              {isSubmitting ? 'Enviando...' : 'Enviar Avaliação'}
+              {isSubmitting ? 'Enviando...' : checking ? 'Verificando...' : 'Enviar Avaliação'}
             </button>
             <button
               type="button"

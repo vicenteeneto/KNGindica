@@ -170,7 +170,7 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
             </div>
           </div>
           <div className="flex items-center gap-3">
-             <div className="px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest bg-primary/20 text-primary border border-primary/20">
+             <div className="px-2 py-0.5 rounded-md text-[8px] font-black bg-primary/20 text-primary border border-primary/20">
                 {displayData.status}
              </div>
           </div>
@@ -187,7 +187,7 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
             </div>
           </div>
           <div className="flex items-center gap-3">
-             <div className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-primary/20 text-primary border border-primary/20">
+             <div className="px-3 py-1 rounded-full text-[10px] font-black bg-primary/20 text-primary border border-primary/20">
                 {displayData.status}
              </div>
           </div>
@@ -207,16 +207,16 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                     <span className="material-symbols-outlined text-[100px] italic">target</span>
                   </div>
                   <div className="relative z-10 flex flex-col items-center text-center">
-                    <div className="px-3 py-0.5 rounded-full bg-primary/10 text-primary text-[9px] font-black uppercase tracking-widest mb-3">
+                    <div className="px-3 py-0.5 rounded-full bg-primary/10 text-primary text-[9px] font-black mb-3">
                        {displayData.status}
                     </div>
-                    <h2 className="text-xl lg:text-2xl font-black text-white uppercase tracking-tighter italic leading-tight mb-2">
-                       {displayData.status === 'open' ? 'Solicitação em Análise' : 
-                        displayData.status === 'proposed' ? (isClient ? 'Proposta Recebida' : 'Proposta Enviada') :
-                        displayData.status === 'awaiting_payment' ? (isClient ? 'Pague a Taxa de Indicação' : 'Aguardando Cliente') :
-                        displayData.status === 'paid' ? (isClient ? 'Pago e Confirmado' : 'Pagamento Garantido!') :
-                        displayData.status === 'scheduled' ? (isClient ? 'Tudo Agendado' : 'Horário Definido') : 
-                        displayData.status === 'in_service' ? 'Trabalho em Curso' : 'Serviço Concluído'}
+                    <h2 className="text-xl lg:text-2xl font-black text-white tracking-tighter italic leading-tight mb-2">
+                       {displayData.status === 'open' ? 'Solicitação em análise' : 
+                        displayData.status === 'proposed' ? (isClient ? 'Proposta recebida' : 'Proposta enviada') :
+                        displayData.status === 'awaiting_payment' ? (isClient ? 'Pague a taxa de indicação' : 'Aguardando cliente') :
+                        displayData.status === 'paid' ? (isClient ? 'Pago e confirmado' : 'Pagamento garantido!') :
+                        displayData.status === 'scheduled' ? (isClient ? 'Tudo agendado' : 'Horário definido') : 
+                        displayData.status === 'in_service' ? 'Trabalho em curso' : 'Serviço concluído'}
                     </h2>
                     <p className="text-[11px] text-slate-400 max-w-sm mb-6 font-medium leading-relaxed">
                        {displayData.status === 'open' ? 'Tudo pronto para iniciar. Envie seu orçamento.' : 'Acompanhe o progresso do pedido abaixo.'}
@@ -328,13 +328,13 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                         <span className="material-symbols-outlined text-4xl italic">payments</span>
                      </div>
-                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-[2px] mb-2 leading-none">Orçamento do Serviço</p>
+                     <p className="text-[10px] font-black text-slate-500 tracking-[1px] mb-2 leading-none">Orçamento do serviço</p>
                      {displayData.status === 'open' ? (
-                        <p className="text-xl font-black text-primary animate-pulse italic">A DEFINIR</p>
+                        <p className="text-[10px] font-black text-primary animate-pulse italic">A DEFINIR</p>
                      ) : (
                         <div>
-                           <p className="text-2xl font-black text-white italic leading-none mb-1">{formatCurrency(displayData.budget_amount || 0)}</p>
-                           <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Pagamento via KNG Indica</p>
+                           <p className="text-xl font-black text-white italic leading-none mb-1">{formatCurrency(displayData.budget_amount || 0)}</p>
+                           <p className="text-[8px] font-bold text-emerald-500 tracking-tight">Pagamento via KNG Indica</p>
                         </div>
                      )}
                   </div>
@@ -343,11 +343,11 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                         <span className="material-symbols-outlined text-4xl italic">event_available</span>
                      </div>
-                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-[2px] mb-2 leading-none">Prazo Previsto</p>
+                     <p className="text-[10px] font-black text-slate-500 tracking-[1px] mb-2 leading-none">Prazo previsto</p>
                      <p className="text-xl font-black text-white italic leading-none mb-1">
                         {displayData.desired_date ? new Date(displayData.desired_date).toLocaleDateString('pt-BR') : 'A DEFINIR'}
                      </p>
-                     <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                     <p className="text-[8px] font-bold text-slate-500 tracking-tight">
                         {displayData.desired_date ? new Date(displayData.desired_date).toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}) : 'Horário pendente'}
                      </p>
                   </div>
@@ -361,8 +361,8 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                            <span className="material-symbols-outlined text-xl italic">{displayData.category?.icon || 'construction'}</span>
                         </div>
                         <div>
-                           <p className="text-[9px] font-black text-primary uppercase tracking-[2px] leading-none mb-1">Categoria do Serviço</p>
-                           <h4 className="text-sm font-black text-white uppercase tracking-tighter truncate leading-none">{displayData.title || displayData.category?.name}</h4>
+                           <p className="text-[8px] lg:text-[9px] font-black text-primary tracking-[1px] leading-none mb-1">Categoria do serviço</p>
+                           <h4 className="text-xs lg:text-sm font-black text-white tracking-tighter truncate leading-none">{displayData.title || displayData.category?.name}</h4>
                         </div>
                      </div>
                      <button onClick={() => {
@@ -375,16 +375,16 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                           }
                         };
                         handleLocate();
-                     }} className="h-10 px-4 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 flex items-center gap-2 text-emerald-500 transition-colors border border-emerald-500/20">
-                        <span className="material-symbols-outlined text-sm">near_me</span>
-                        <span className="text-[9px] font-black uppercase tracking-widest">Localizar</span>
+                     }} className="h-8 lg:h-10 px-3 lg:px-4 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 flex items-center gap-1 lg:gap-2 text-emerald-500 transition-colors border border-emerald-500/20 shrink-0">
+                        <span className="material-symbols-outlined text-xs lg:text-sm">near_me</span>
+                        <span className="text-[8px] lg:text-[9px] font-black tracking-tight">Localizar</span>
                      </button>
                   </div>
                   <div className="p-6">
                      <div className="mb-6">
-                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-2 leading-none">Instruções do Cliente</p>
+                        <p className="text-[9px] font-black text-slate-500 tracking-[1px] mb-2 leading-none">Instruções do cliente</p>
                         <div className="bg-slate-950/40 p-4 rounded-2xl border border-white/5">
-                           <p className="text-[13px] text-slate-300 italic leading-relaxed">"{displayData.description || 'Sem descrição detalhada fornecida pelo cliente.'}"</p>
+                           <p className="text-[12px] text-slate-300 italic leading-relaxed">"{displayData.description || 'Sem descrição detalhada fornecida pelo cliente.'}"</p>
                         </div>
                      </div>
 
@@ -401,12 +401,12 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                         </div>
                      )}
                   </div>
-                  <div className="bg-slate-950/40 px-6 py-3 flex items-center justify-between border-t border-white/5">
-                    <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-slate-500 text-sm">location_on</span>
-                      <p className="text-[10px] font-bold text-slate-400 truncate">{displayData.street}, {displayData.number} - {displayData.neighborhood}</p>
+                  <div className="bg-slate-950/40 px-6 py-3 flex flex-wrap items-center justify-between gap-2 border-t border-white/5">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="material-symbols-outlined text-slate-500 text-xs">location_on</span>
+                      <p className="text-[9px] font-bold text-slate-400 truncate">{displayData.street}, {displayData.number} - {displayData.neighborhood}</p>
                     </div>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{displayData.city} / {displayData.state}</p>
+                    <p className="text-[9px] font-bold text-slate-500 tracking-tight shrink-0">{displayData.city} / {displayData.state}</p>
                   </div>
                </div>
             </div>
