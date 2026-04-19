@@ -1,13 +1,12 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import StarRating from '../components/StarRating';
-
+import { TabBar } from '../components/TabBar';
 import { NavigationProps } from '../types';
 
-type Tab = 'Concluídos' | 'Em andamento' | 'Cancelados';
+type Tab = 'finalizados' | 'em_andamento' | 'cancelados';
 
 export default function ServiceHistoryScreen({ onNavigate }: NavigationProps) {
-  const [activeTab, setActiveTab] = useState<Tab>('Concluídos');
-  const tabs: Tab[] = ['Concluídos', 'Em andamento', 'Cancelados'];
+  const [activeTab, setActiveTab] = useState<Tab>('finalizados');
 
   return (
     <div className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
@@ -25,24 +24,16 @@ export default function ServiceHistoryScreen({ onNavigate }: NavigationProps) {
             </button>
           </div>
           
-          {/* Tabs */}
-          <div className="flex px-4 gap-6 sm:gap-12 justify-center overflow-x-auto no-scrollbar">
-            {tabs.map(tab => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`flex flex-col items-center justify-center border-b-2 transition-colors ${
-                  activeTab === tab
-                    ? 'border-primary text-primary pb-3 pt-2'
-                    : 'border-transparent text-slate-500 dark:text-slate-400 pb-3 pt-2 hover:text-slate-700 dark:hover:text-slate-300'
-                }`}
-              >
-                <p className={`text-sm whitespace-nowrap ${activeTab === tab ? 'font-bold' : 'font-medium'}`}>
-                  {tab}
-                </p>
-              </button>
-            ))}
-          </div>
+          <TabBar
+            variant="light"
+            active={activeTab}
+            onChange={(key) => setActiveTab(key as Tab)}
+            tabs={[
+              { key: 'finalizados',   label: 'Finalizados'  },
+              { key: 'em_andamento', label: 'Em andamento' },
+              { key: 'cancelados',   label: 'Cancelados'   },
+            ]}
+          />
         </div>
 
         {/* History List */}

@@ -278,13 +278,13 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
               onNavigate('openOrders', { tab: key, orderId: null });
             }}
             tabs={[
-              { key: 'available', label: 'Disponíveis' },
-              { key: 'bidded',    label: 'Lances'      },
-              { key: 'approved',  label: 'Aprovados'   },
-              { key: 'scheduled', label: 'Agendados'   },
-              { key: 'in_progress', label: 'Em curso'  },
-              { key: 'completed', label: 'Finais'      },
-              { key: 'dismissed', label: 'Recusas'     },
+              { key: 'available',   label: 'Disponíveis'  },
+              { key: 'bidded',      label: 'Lances'       },
+              { key: 'approved',    label: 'Aprovados'    },
+              { key: 'scheduled',   label: 'Agendados'    },
+              { key: 'in_progress', label: 'Em andamento' },
+              { key: 'completed',   label: 'Finalizados'  },
+              { key: 'dismissed',   label: 'Recusados'    },
             ]}
           />
 

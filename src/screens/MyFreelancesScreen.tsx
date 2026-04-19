@@ -151,7 +151,7 @@ export default function MyFreelancesScreen({ onNavigate, params }: NavigationPro
             }}
             tabs={[
               { key: 'open',        label: 'Abertos'    },
-              { key: 'in_progress', label: 'Em curso'   },
+              { key: 'in_progress', label: 'Em andamento' },
               { key: 'completed',   label: 'Finalizados' },
               { key: 'cancelled',   label: 'Cancelados' },
             ]}
@@ -238,7 +238,7 @@ export default function MyFreelancesScreen({ onNavigate, params }: NavigationPro
                                 </button>
                               )}
                            </div>
-                           <span className="text-[10px] font-black text-slate-600 tracking-tight">{order.status === 'open' ? 'Ativo' : 'Em curso'}</span>
+                           <span className="text-[10px] font-black text-slate-600 tracking-tight">{order.status === 'open' ? 'Ativo' : 'Em andamento'}</span>
                         </div>
                       </div>
                     </div>

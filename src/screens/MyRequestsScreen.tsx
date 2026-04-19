@@ -5,62 +5,55 @@ import { useAuth } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
 import { formatCurrency } from '../lib/formatters';
 import { TabBar } from '../components/TabBar';
+import { ServiceDashboardDetail } from '../components/ServiceDashboardDetail';
+
+const STATUS_LABEL: Record<string, { label: string; color: string }> = {
+  open:             { label: 'Aberto',              color: 'bg-blue-500/20 text-blue-400' },
+  proposed:         { label: 'Proposta recebida',   color: 'bg-orange-500/20 text-orange-400' },
+  awaiting_payment: { label: 'Aguardando pagamento',color: 'bg-amber-500/20 text-amber-400' },
+  paid:             { label: 'Confirmado / Pago',   color: 'bg-emerald-500/20 text-emerald-400' },
+  accepted:         { label: 'Aceito',              color: 'bg-amber-500/20 text-amber-400' },
+  in_progress:      { label: 'Em andamento',        color: 'bg-indigo-500/20 text-indigo-400' },
+  completed:        { label: 'Finalizado',          color: 'bg-slate-500/20 text-slate-400' },
+  cancelled:        { label: 'Cancelado',           color: 'bg-red-500/20 text-red-400' },
+};
 
 export default function MyRequestsScreen({ onNavigate, params }: NavigationProps) {
   const { user } = useAuth();
   const { showToast } = useNotifications();
-  const [activeTab, setActiveTab] = useState<'ativos' | 'concluidos' | 'cancelados'>(
+  const [activeTab, setActiveTab] = useState<'ativos' | 'finalizados' | 'cancelados'>(
     params?.tab && params.tab !== 'freelance' ? params.tab : 'ativos'
   );
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
+    params?.requestId || null
+  );
 
+  // Real-time subscription
   useEffect(() => {
     if (!user) return;
-    
-    // Configurar assinatura real-time para atualizar a lista automaticamente
     const channel = supabase.channel('my_requests_realtime')
-      .on('postgres_changes', { 
-        event: '*', 
-        schema: 'public', 
-        table: 'service_requests',
-        filter: `client_id=eq.${user.id}`
-      }, () => {
-        fetchRequests();
-      })
-      .on('postgres_changes', { 
-        event: '*', 
-        schema: 'public', 
-        table: 'freelance_orders',
-        filter: `client_id=eq.${user.id}`
-      }, () => {
-        fetchRequests();
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'service_requests', filter: `client_id=eq.${user.id}` }, () => fetchRequests())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'freelance_orders', filter: `client_id=eq.${user.id}` }, () => fetchRequests())
       .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, [user]);
 
   const fetchRequests = async () => {
     if (!user) return;
     setLoading(true);
     try {
-      let statuses = ['open', 'proposed', 'accepted', 'in_progress', 'awaiting_payment', 'paid'];
-      if (activeTab === 'concluidos') statuses = ['completed'];
+      let statuses = ['open', 'proposed', 'accepted', 'in_progress', 'awaiting_payment', 'paid', 'scheduled'];
+      if (activeTab === 'finalizados') statuses = ['completed'];
       else if (activeTab === 'cancelados') statuses = ['cancelled'];
 
       const { data, error } = await supabase
         .from('service_requests')
         .select(`
-          id,
-          title,
-          description,
-          status,
-          created_at,
-          category_id,
-          provider_id,
+          id, title, description, status, created_at,
+          category_id, provider_id, display_id,
           profiles:provider_id(full_name, avatar_url),
           service_categories(name, icon),
           reviews(id)
@@ -71,152 +64,195 @@ export default function MyRequestsScreen({ onNavigate, params }: NavigationProps
 
       if (error) throw error;
       setRequests(data || []);
+
+      // Auto-select first on desktop
+      if (!selectedRequestId && (data || []).length > 0 && window.innerWidth >= 1024) {
+        setSelectedRequestId((data || [])[0].id);
+      }
     } catch (err: any) {
-      console.error("Erro ao buscar pedidos:", err);
-      showToast("Erro", "Erro ao buscar pedidos: " + err.message, "error");
+      showToast('Erro ao buscar pedidos: ' + err.message, 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchRequests();
-  }, [activeTab, user]);
+  useEffect(() => { fetchRequests(); }, [activeTab, user]);
+
+  const filteredRequests = requests.filter(req => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      req.profiles?.full_name?.toLowerCase().includes(q) ||
+      req.title?.toLowerCase().includes(q) ||
+      req.service_categories?.name?.toLowerCase().includes(q) ||
+      req.display_id?.toLowerCase().includes(q)
+    );
+  });
+
+  const handleSelectRequest = (reqId: string) => {
+    if (window.innerWidth < 1024) {
+      // Mobile → full screen detail
+      onNavigate('serviceStatus', { requestId: reqId });
+    } else {
+      setSelectedRequestId(reqId);
+    }
+  };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
+    <div className="flex flex-col h-screen bg-slate-950 font-display text-slate-100 antialiased overflow-hidden">
 
       {/* Header */}
-      <header className="flex flex-col bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 relative z-20">
-        <div className="flex items-center gap-3 p-4 max-w-4xl lg:mx-0 lg:ml-12 w-full transition-all duration-300">
-          <button 
-            onClick={() => onNavigate('back')}
-            className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-all shrink-0"
-          >
-            <span className="material-symbols-outlined">arrow_back</span>
-          </button>
-          <h1 className="text-lg md:text-xl font-bold tracking-tight">Serviços</h1>
+      <div className="shrink-0 z-50 bg-slate-900 border-b border-white/5 h-[60px] flex items-center px-6">
+        <div className="flex flex-col">
+          <p className="text-[12px] font-black text-primary leading-none mb-1.5">Meus Pedidos</p>
+          <div className="flex items-center gap-2">
+            <div className="size-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            <h1 className="text-lg font-black text-white italic leading-none">Central de Serviços</h1>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-1 overflow-hidden relative">
+
+        {/* MASTER LIST */}
+        <div className={`flex flex-col border-r border-white/5 bg-slate-900/50 ${selectedRequestId ? 'hidden lg:flex' : 'flex'} w-full lg:w-[570px] shrink-0 overflow-hidden`}>
+
+          {/* Search Bar */}
+          <div className="px-4 py-3 bg-slate-900/80 backdrop-blur-md border-b border-white/5">
+            <div className="relative group/search">
+              <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-[20px] group-focus-within/search:text-primary transition-colors">search</span>
+              <input
+                type="text"
+                placeholder="Pesquisar serviços..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-slate-800/40 border-none rounded-xl py-2.5 pl-11 pr-4 text-sm font-medium placeholder:text-slate-500 focus:ring-1 focus:ring-primary/40 transition-all outline-none text-white shadow-inner"
+              />
+            </div>
+          </div>
+
+          {/* Tab Bar */}
+          <TabBar
+            variant="dark"
+            active={activeTab}
+            onChange={(key) => {
+              setActiveTab(key as any);
+              setSelectedRequestId(null);
+            }}
+            tabs={[
+              { key: 'ativos',      label: 'Em andamento' },
+              { key: 'finalizados', label: 'Finalizados'  },
+              { key: 'cancelados',  label: 'Cancelados'   },
+            ]}
+          />
+
+          {/* List */}
+          <div className="flex-1 overflow-y-auto no-scrollbar divide-y divide-white/5 relative">
+            {loading && requests.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full gap-4 opacity-50">
+                <div className="size-10 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
+                <p className="text-[10px] font-black text-primary">Carregando...</p>
+              </div>
+            ) : filteredRequests.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full p-10 text-center opacity-30">
+                <span className="material-symbols-outlined text-6xl mb-4">receipt_long</span>
+                <p className="text-sm font-black">Nenhum serviço aqui</p>
+                {activeTab === 'ativos' && (
+                  <button
+                    onClick={() => onNavigate('home')}
+                    className="mt-4 px-4 py-2 bg-primary text-white rounded-full text-xs font-bold opacity-100"
+                  >
+                    Explorar serviços
+                  </button>
+                )}
+              </div>
+            ) : (
+              filteredRequests.map((req) => {
+                const isActive = selectedRequestId === req.id;
+                const statusInfo = STATUS_LABEL[req.status];
+                return (
+                  <div
+                    key={req.id}
+                    onClick={() => handleSelectRequest(req.id)}
+                    className={`p-4 flex gap-4 cursor-pointer transition-all relative group ${
+                      isActive ? 'bg-primary/10 border-l-4 border-l-primary' : 'hover:bg-white/5 border-l-4 border-l-transparent'
+                    } ${req.status === 'cancelled' ? 'opacity-60' : ''}`}
+                  >
+                    {/* Avatar */}
+                    <div className="size-12 rounded-2xl bg-slate-800 shrink-0 overflow-hidden border border-white/5">
+                      <img
+                        src={req.profiles?.avatar_url || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'}
+                        className="w-full h-full object-cover"
+                        alt=""
+                      />
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0 py-0.5">
+                      <div className="flex justify-between items-center gap-2 mb-1">
+                        <h4 className={`text-sm font-black truncate leading-none ${isActive ? 'text-primary' : 'text-white'}`}>
+                          {req.profiles?.full_name || 'Aguardando profissional'}
+                        </h4>
+                        <span className="text-[9px] font-bold text-slate-500 shrink-0">
+                          {new Date(req.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                        </span>
+                      </div>
+                      <p className="text-[12px] font-bold text-slate-400 truncate leading-none mb-2">
+                        {req.title || req.service_categories?.name || 'Serviço'}
+                      </p>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${statusInfo?.color || 'bg-slate-700 text-slate-400'}`}>
+                          {statusInfo?.label || req.status}
+                        </span>
+                        {/* Avaliar badge */}
+                        {req.status === 'completed' && !req.reviews?.length && (
+                          <span className="text-[9px] font-black text-amber-400 flex items-center gap-0.5">
+                            <span className="material-symbols-outlined text-[12px]">star</span>
+                            Avaliar
+                          </span>
+                        )}
+                        {req.status === 'completed' && req.reviews?.length > 0 && (
+                          <span className="text-[9px] font-black text-emerald-400 flex items-center gap-0.5">
+                            <span className="material-symbols-outlined text-[12px]">check_circle</span>
+                            Avaliado
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
         </div>
 
-        <TabBar
-          variant="light"
-          active={activeTab}
-          onChange={(key) => setActiveTab(key as any)}
-          tabs={[
-            { key: 'ativos',     label: 'Em andamento' },
-            { key: 'concluidos', label: 'Concluídos'   },
-            { key: 'cancelados', label: 'Cancelados'   },
-          ]}
-        />
-      </header>
-
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto w-full">
-        <div className="max-w-4xl lg:mx-0 lg:ml-12 w-full p-4 space-y-4 transition-all duration-300">
-
-          {loading ? (
-            <div className="flex justify-center p-8">
-              <span className="material-symbols-outlined animate-spin text-4xl text-slate-300">progress_activity</span>
-            </div>
-          ) : requests.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center text-slate-500">
-              <span className="material-symbols-outlined text-6xl mb-4 opacity-50">shopping_bag</span>
-              <p className="text-lg font-medium">Você ainda não possui pedidos nesta categoria.</p>
-              <button 
-                onClick={() => onNavigate('home')}
-                className="mt-6 px-6 py-2 bg-primary text-white rounded-full font-bold text-sm hover:opacity-90 transition-opacity"
+        {/* DETAIL PANEL */}
+        <div className={`flex-1 flex flex-col bg-slate-950 ${selectedRequestId ? 'flex' : 'hidden lg:flex'} relative overflow-hidden`}>
+          {selectedRequestId ? (
+            <div className="h-full flex flex-col">
+              <button
+                onClick={() => setSelectedRequestId(null)}
+                className="lg:hidden absolute top-4 left-4 z-[60] size-10 rounded-full bg-slate-900 border border-white/10 flex items-center justify-center text-white"
               >
-                Explorar Serviços
+                <span className="material-symbols-outlined">arrow_back</span>
               </button>
+              <ServiceDashboardDetail
+                requestId={selectedRequestId}
+                onNavigate={onNavigate}
+                isEmbedded={true}
+              />
             </div>
           ) : (
-            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
-              {requests.map((req) => (
-                <div
-                  key={req.id}
-                  onClick={() => onNavigate('serviceStatus', { requestId: req.id })}
-                  className={`bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm cursor-pointer hover:border-primary/50 transition-colors ${req.status === 'cancelled' ? 'opacity-75 grayscale' : ''
-                    }`}
-                >
-                  <div className="flex flex-wrap justify-between items-start gap-2 mb-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="size-10 rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden border border-slate-200 dark:border-slate-600">
-                        <img
-                          src={req.profiles?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"}
-                          alt="Provider"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="min-w-0">
-                        <h3 className="text-sm font-semibold tracking-tight text-slate-900 dark:text-white truncate">{req.profiles?.full_name || 'Aguardando Profissional'}</h3>
-                        <p className="text-[13px] font-medium text-slate-500 truncate">{req.title || req.service_categories?.name || 'Serviço'}</p>
-                      </div>
-                    </div>
-                    {/* Status Badge */}
-                    <div className="shrink-0">
-                      {req.status === 'open' && (
-                        <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-500 text-[10px] font-bold px-2 py-1 rounded tracking-tight">Aberto</span>
-                      )}
-                      {req.status === 'proposed' && (
-                        <span className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-500 text-[10px] font-bold px-2 py-1 rounded tracking-tight">Proposta recebida</span>
-                      )}
-                      {req.status === 'awaiting_payment' && (
-                        <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-500 text-[10px] font-bold px-2 py-1 rounded tracking-tight">Aguardando pagamento</span>
-                      )}
-                      {req.status === 'paid' && (
-                        <span className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-500 text-[10px] font-bold px-2 py-1 rounded tracking-tight">Confirmado / Pago</span>
-                      )}
-                      {req.status === 'accepted' && (
-                        <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-500 text-[10px] font-bold px-2 py-1 rounded tracking-tight">Aceito</span>
-                      )}
-                      {req.status === 'in_progress' && (
-                        <span className="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-500 text-[10px] font-bold px-2 py-1 rounded tracking-tight">Iniciado</span>
-                      )}
-                      {req.status === 'completed' && (
-                        <span className="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold px-2 py-1 rounded tracking-tight">Finalizado</span>
-                      )}
-                      {req.status === 'cancelled' && (
-                        <span className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-500 text-[10px] font-bold px-2 py-1 rounded tracking-tight">Cancelado</span>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-50 dark:border-white/5">
-                    <div className="flex items-center gap-2">
-                       <span className="text-[10px] font-bold text-slate-400">{new Date(req.created_at).toLocaleDateString('pt-BR')}</span>
-                    </div>
-
-                    {req.status === 'completed' && !req.reviews?.length ? (
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onNavigate('writeReview', { 
-                            requestId: req.id, 
-                            providerId: req.provider_id, 
-                            providerName: req.profiles?.full_name,
-                            serviceTitle: req.title || req.service_categories?.name
-                          });
-                        }}
-                        className="h-8 px-4 bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-black rounded-lg shadow-lg shadow-amber-500/20 transition-all flex items-center gap-1"
-                      >
-                        <span className="material-symbols-outlined text-xs">star</span>
-                        Avaliar
-                      </button>
-                    ) : req.status === 'completed' ? (
-                      <div className="flex items-center gap-1 text-emerald-500 font-bold text-[10px]">
-                         <span className="material-symbols-outlined text-xs filled">check_circle</span>
-                         Avaliado
-                      </div>
-                    ) : (
-                      <span className="material-symbols-outlined text-sm text-slate-400">arrow_forward</span>
-                    )}
-                  </div>
-                </div>
-              ))}
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-20 opacity-20">
+              <div className="size-32 rounded-full border-2 border-dashed border-white/20 flex items-center justify-center mb-6">
+                <span className="material-symbols-outlined text-6xl italic">receipt_long</span>
+              </div>
+              <h3 className="text-2xl font-black italic mb-2">Selecione um Serviço</h3>
+              <p className="text-sm font-medium max-w-xs">Escolha um pedido da lista à esquerda para gerenciar.</p>
             </div>
           )}
         </div>
-      </main>
+      </div>
     </div>
   );
 }
