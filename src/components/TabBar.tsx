@@ -20,10 +20,9 @@ interface TabBarProps<T extends string = string> {
  * TabBar — componente unificado de abas para todo o sistema KNGindica.
  *
  * Regras de design:
- * - Altura fixa h-8 (32px) em todos os botões
- * - Fonte text-[11px] font-semibold
+ * - Mobile  : h-8 (32px), text-[11px], px-3 — scroll horizontal oculto (arraste com o dedo)
+ * - Desktop : h-7 (28px), text-[10px], px-2 — sem scrollbar, todos os tabs cabem na tela
  * - Formato pill (rounded-full)
- * - Scroll horizontal oculto no mobile quando muitos tabs
  * - Ativo: bg-primary text-white
  * - Inativo: fundo sutil + texto cinza
  */
@@ -45,9 +44,12 @@ export function TabBar<T extends string = string>({
       : 'bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-slate-200';
 
   return (
-    <div className={`${containerBase} px-2 py-1.5 ${className}`}>
-      {/* overflow-x-auto com scrollbar oculta para mobile */}
-      <div className="flex gap-1 overflow-x-auto no-scrollbar">
+    <div className={`${containerBase} px-2 py-1 ${className}`}>
+      {/*
+        Mobile  : scroll horizontal com scrollbar oculta (arraste com o dedo)
+        Desktop : overflow-x-hidden — os botões menores (lg:) cabem sem precisar rolar
+      */}
+      <div className="flex gap-1 overflow-x-auto lg:overflow-x-hidden no-scrollbar">
         {tabs.map((tab) => {
           const isActive = active === tab.key;
           return (
@@ -55,9 +57,13 @@ export function TabBar<T extends string = string>({
               key={tab.key}
               onClick={() => onChange(tab.key)}
               className={`
-                h-8 shrink-0 flex items-center justify-center gap-1.5
-                px-3 rounded-full
-                text-[11px] font-semibold
+                h-8 lg:h-7
+                shrink-0 lg:flex-1
+                flex items-center justify-center gap-1
+                px-3 lg:px-2
+                rounded-full
+                text-[11px] lg:text-[10px]
+                font-semibold
                 transition-all duration-150
                 whitespace-nowrap
                 ${isActive
@@ -71,7 +77,7 @@ export function TabBar<T extends string = string>({
                 <span
                   className={`
                     inline-flex items-center justify-center
-                    min-w-[16px] h-4 px-1 rounded-full text-[9px] font-black
+                    min-w-[14px] h-3.5 px-1 rounded-full text-[8px] font-black
                     ${isActive
                       ? 'bg-white/25 text-white'
                       : 'bg-primary/20 text-primary'

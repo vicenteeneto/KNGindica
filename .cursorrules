@@ -109,6 +109,10 @@ import { TabBar } from '../components/TabBar';
 - `variant="light"` para telas de conteúdo (fundo branco/slate-50)
 - Labels em Sentence Case (`Em andamento`, não `EM ANDAMENTO`)
 - Usar prop `badge` para contadores (ex: notificações não lidas)
+- **Tamanhos responsivos** (automático via componente):
+  - Mobile  : `h-8` (32px), `text-[11px]`, `px-3`, scroll horizontal oculto
+  - Desktop : `h-7` (28px), `text-[10px]`, `px-2`, `flex-1` sem scrollbar
+- NUNCA redefinir tamanhos manualmente na tela — apenas mudar o `TabBar` se necessário
 
 ### StarRating — SEMPRE usar o componente centralizado
 ```tsx
