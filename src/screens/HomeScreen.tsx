@@ -708,8 +708,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                            <span className="text-[10px] font-black text-primary italic uppercase tracking-[0.2em]">Destaque KNGindica</span>
                         </div>
 
-                        <div className="relative mb-2 md:mb-4 px-0 md:px-8 py-0 md:py-2 max-w-[90vw] md:max-w-none">
-                          <h1 className="text-2xl md:text-7xl font-black text-white leading-none drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] italic tracking-tighter truncate">
+                        <div className="relative mb-2 md:mb-4 px-0 md:px-8 py-0 md:py-2 max-w-[92vw] md:max-w-none pr-6">
+                          <h1 className="text-2xl md:text-7xl font-black text-white leading-none drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] italic tracking-tighter truncate pr-2">
                             {p.name.toUpperCase()}
                           </h1>
                         </div>
@@ -719,8 +719,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                             <span className="material-symbols-outlined text-[10px] md:text-sm filled">star</span>
                             <span className="text-[10px] md:text-sm font-black">{(p.rating || 5.0).toString().replace('.', ',')}</span>
                           </div>
-                          <span className="text-[9px] md:text-sm font-bold text-slate-300 drop-shadow-md uppercase tracking-tight md:tracking-widest opacity-80 md:opacity-100">• {p.service}</span>
-                          <span className="text-[9px] md:text-sm font-bold text-slate-300 drop-shadow-md uppercase tracking-tight md:tracking-widest opacity-80 md:opacity-100">• {p.city}</span>
+                          <span className="text-[9px] md:text-sm font-bold text-slate-300 drop-shadow-md uppercase tracking-tight md:tracking-widest opacity-80 md:opacity-100">- {p.service}</span>
+                          <span className="text-[9px] md:text-sm font-bold text-slate-300 drop-shadow-md uppercase tracking-tight md:tracking-widest opacity-80 md:opacity-100">- {p.city}</span>
                         </div>
                         
                         <div className="flex items-center justify-center md:justify-start gap-2 md:gap-4 w-full md:w-auto">
