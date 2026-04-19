@@ -703,21 +703,21 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                     <div className="absolute bottom-10 md:bottom-24 left-0 right-0 w-full px-4 lg:px-12 transition-all duration-500">
                       <div className="max-w-7xl mx-auto flex flex-col items-center md:items-start text-center md:text-left">
                         {/* Tags / Info Line */}
-                        <div className="flex items-center justify-center md:justify-start gap-2 mb-4 overflow-hidden">
+                        <div className="hidden md:flex items-center justify-start gap-2 mb-4 overflow-hidden">
                            <span className="text-[10px] font-black text-primary italic uppercase tracking-[0.2em]">Destaque KNGindica</span>
                         </div>
 
-                        <h1 className="text-4xl md:text-7xl font-black text-white leading-none mb-4 drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] italic tracking-tighter">
+                        <h1 className="text-4xl md:text-7xl font-black text-white leading-none mb-1 md:mb-4 drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] italic tracking-tighter">
                           {p.name.toUpperCase()}
                         </h1>
 
-                        <div className="flex items-center justify-center md:justify-start gap-3 mb-8 flex-wrap">
-                          <div className="flex items-center text-yellow-500 gap-1 bg-black/60 backdrop-blur-md px-2 py-1 rounded-md border border-white/10 shrink-0">
-                            <span className="material-symbols-outlined text-sm filled">star</span>
-                            <span className="text-sm font-black">{p.rating}</span>
+                        <div className="flex items-center justify-center md:justify-start gap-2 mb-8 transition-all duration-300">
+                          <div className="flex items-center text-yellow-500 gap-1 bg-black/40 md:bg-black/60 backdrop-blur-md px-1.5 md:px-2 py-0.5 md:py-1 rounded border border-white/10 shrink-0">
+                            <span className="material-symbols-outlined text-[10px] md:text-sm filled">star</span>
+                            <span className="text-[10px] md:text-sm font-black">{(p.rating || 5.0).toString().replace('.', ',')}</span>
                           </div>
-                          <span className="text-xs md:text-sm font-bold text-slate-300 drop-shadow-md uppercase tracking-widest">• {p.service}</span>
-                          <span className="text-xs md:text-sm font-bold text-slate-300 drop-shadow-md uppercase tracking-widest">• {p.city}</span>
+                          <span className="text-[9px] md:text-sm font-bold text-slate-300 drop-shadow-md uppercase tracking-tight md:tracking-widest opacity-80 md:opacity-100">• {p.service}</span>
+                          <span className="text-[9px] md:text-sm font-bold text-slate-300 drop-shadow-md uppercase tracking-tight md:tracking-widest opacity-80 md:opacity-100">• {p.city}</span>
                         </div>
                         
                         <div className="flex items-center justify-center md:justify-start gap-2 md:gap-4 w-full md:w-auto">
@@ -725,8 +725,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                             onClick={() => onNavigate('profile', { professionalId: p.id })}
                             className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white text-black px-6 md:px-10 py-3 md:py-4 rounded font-black text-xs md:text-base hover:bg-white/90 transition-all active:scale-95 shadow-2xl"
                           >
-                            <span className="material-symbols-outlined filled">play_arrow</span>
-                            Assistir
+                            <span className="material-symbols-outlined filled">visibility</span>
+                            Ver Perfil
                           </button>
                           
                           <button
@@ -742,7 +742,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                                 console.error("Erro ao favoritar", e);
                               }
                             }}
-                            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 md:px-10 py-3 md:py-4 rounded font-black text-xs md:text-base transition-all active:scale-95 border-2 ${
+                            className={`hidden md:flex flex-1 md:flex-none items-center justify-center gap-2 px-6 md:px-10 py-3 md:py-4 rounded font-black text-xs md:text-base transition-all active:scale-95 border-2 ${
                               isFavorited 
                                 ? 'bg-primary border-primary text-white' 
                                 : 'bg-black/40 backdrop-blur-md text-white border-white/20 hover:bg-white/10'
