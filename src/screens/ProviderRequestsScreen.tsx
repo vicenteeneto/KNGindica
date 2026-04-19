@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
@@ -6,6 +6,7 @@ import { useNotifications } from '../NotificationContext';
 import { formatCurrency } from '../lib/formatters';
 import { ProviderHeader } from '../components/ProviderHeader';
 import { ServiceDashboardDetail } from '../components/ServiceDashboardDetail';
+import { TabBar } from '../components/TabBar';
 
 type Tab = 'Novos' | 'Orçados' | 'Aprovados' | 'Agendados' | 'Finalizados' | 'Recusados';
 
@@ -162,27 +163,23 @@ export default function ProviderRequestsScreen({ onNavigate, params }: Navigatio
             </div>
           </div>
 
-          <div className="p-1 px-2 border-b border-white/5 bg-slate-900/80 backdrop-blur-md">
-            <div className="flex w-full gap-1">
-              {tabs.map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => { 
-                    setActiveTab(tab); 
-                    setSelectedRequestId(null);
-                    onNavigate('providerRequests', { tab, requestId: null });
-                  }}
-                  className={`flex-1 flex items-center justify-center py-1.5 rounded-md text-[12px] font-black transition-all border whitespace-nowrap ${
-                    activeTab === tab 
-                      ? 'bg-primary border-primary text-white shadow-md' 
-                      : 'bg-white/5 border-transparent text-slate-500 hover:text-slate-300'
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-          </div>
+          <TabBar
+            variant="dark"
+            active={activeTab}
+            onChange={(tab) => {
+              setActiveTab(tab as Tab);
+              setSelectedRequestId(null);
+              onNavigate('providerRequests', { tab, requestId: null });
+            }}
+            tabs={[
+              { key: 'Novos',       label: 'Novos'       },
+              { key: 'Orçados',     label: 'Orçados'     },
+              { key: 'Aprovados',   label: 'Aprovados'   },
+              { key: 'Agendados',   label: 'Agendados'   },
+              { key: 'Finalizados', label: 'Finalizados' },
+              { key: 'Recusados',   label: 'Recusados'   },
+            ]}
+          />
 
           <div className="flex-1 overflow-y-auto no-scrollbar divide-y divide-white/5 relative">
             {loading && requests.length === 0 ? (

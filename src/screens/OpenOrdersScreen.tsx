@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
@@ -6,6 +6,7 @@ import { useNotifications } from '../NotificationContext';
 import { formatCurrency } from '../lib/formatters';
 import { ProviderHeader } from '../components/ProviderHeader';
 import { FreelanceOrderDetail } from '../components/FreelanceOrderDetail';
+import { TabBar } from '../components/TabBar';
 
 export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps) {
   const { user } = useAuth();
@@ -267,36 +268,25 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
             </div>
           </div>
 
-          {/* TABS COMPACTAS */}
-          <div className="p-1 px-2 border-b border-white/5 bg-slate-900/80 backdrop-blur-md">
-            <div className="flex w-full gap-1">
-              {([
-                { key: 'available', label: 'Disponíveis' },
-                { key: 'bidded', label: 'Lances' },
-                { key: 'approved', label: 'Aprovados' },
-                { key: 'scheduled', label: 'Agendados' },
-                { key: 'in_progress', label: 'Em Curso' },
-                { key: 'completed', label: 'Finais' },
-                { key: 'dismissed', label: 'Recusas' },
-              ] as const).map(tab => (
-                <button
-                  key={tab.key}
-                  onClick={() => {
-                    setActiveTab(tab.key);
-                    setSelectedOrderId(null);
-                    onNavigate('openOrders', { tab: tab.key, orderId: null });
-                  }}
-                  className={`flex-1 flex items-center justify-center py-2 rounded-md text-[9px] font-black transition-all border whitespace-nowrap ${
-                    activeTab === tab.key 
-                      ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20' 
-                      : 'bg-white/5 border-transparent text-slate-500 hover:text-slate-300'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* TAB BAR — componente unificado */}
+          <TabBar
+            variant="dark"
+            active={activeTab}
+            onChange={(key) => {
+              setActiveTab(key);
+              setSelectedOrderId(null);
+              onNavigate('openOrders', { tab: key, orderId: null });
+            }}
+            tabs={[
+              { key: 'available', label: 'Disponíveis' },
+              { key: 'bidded',    label: 'Lances'      },
+              { key: 'approved',  label: 'Aprovados'   },
+              { key: 'scheduled', label: 'Agendados'   },
+              { key: 'in_progress', label: 'Em curso'  },
+              { key: 'completed', label: 'Finais'      },
+              { key: 'dismissed', label: 'Recusas'     },
+            ]}
+          />
 
           {/* LISTA DE TRABALHOS */}
           <div className="flex-1 overflow-y-auto no-scrollbar divide-y divide-white/5 relative">

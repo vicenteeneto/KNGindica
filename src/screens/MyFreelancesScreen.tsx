@@ -1,10 +1,11 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationProps, Screen } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
 import { formatCurrency } from '../lib/formatters';
 import { FreelanceOrderDetail } from '../components/FreelanceOrderDetail';
+import { TabBar } from '../components/TabBar';
 
 export default function MyFreelancesScreen({ onNavigate, params }: NavigationProps) {
   const { user } = useAuth();
@@ -138,34 +139,23 @@ export default function MyFreelancesScreen({ onNavigate, params }: NavigationPro
             </div>
           </div>
 
-          {/* TABS COMPACTAS */}
-          <div className="p-1 px-2 border-b border-white/5 bg-slate-900/80 backdrop-blur-md">
-            <div className="flex w-full gap-1">
-              {([
-                { key: 'open', label: 'Abertos' },
-                { key: 'in_progress', label: 'Em Curso' },
-                { key: 'completed', label: 'Finais' },
-                { key: 'cancelled', label: 'Cancelados' },
-              ] as const).map(tab => (
-                <button
-                  key={tab.key}
-                  onClick={() => {
-                    setActiveTab(tab.key);
-                    setActiveTab(tab.key);
-                    setSelectedOrderId(null);
-                    onNavigate('myFreelances', { tab: tab.key, orderId: null });
-                  }}
-                  className={`flex-1 flex items-center justify-center py-2.5 rounded-md text-[9px] font-black tracking-tighter transition-all border whitespace-nowrap ${
-                    activeTab === tab.key 
-                      ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20' 
-                      : 'bg-white/5 border-transparent text-slate-500 hover:text-slate-300'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          </div>
+
+          {/* TAB BAR — componente unificado */}
+          <TabBar
+            variant="dark"
+            active={activeTab}
+            onChange={(key) => {
+              setActiveTab(key as any);
+              setSelectedOrderId(null);
+              onNavigate('myFreelances', { tab: key, orderId: null });
+            }}
+            tabs={[
+              { key: 'open',        label: 'Abertos'    },
+              { key: 'in_progress', label: 'Em curso'   },
+              { key: 'completed',   label: 'Finalizados' },
+              { key: 'cancelled',   label: 'Cancelados' },
+            ]}
+          />
 
           {/* LISTA DE TRABALHOS */}
           <div className="flex-1 overflow-y-auto no-scrollbar divide-y divide-white/5 relative">

@@ -1,8 +1,9 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
+import { TabBar } from '../components/TabBar';
 
 export default function HelpCenterScreen({ onNavigate, params }: NavigationProps) {
   const [activeTab, setActiveTab] = useState<'faq' | 'tickets'>('tickets');
@@ -199,20 +200,16 @@ export default function HelpCenterScreen({ onNavigate, params }: NavigationProps
           </div>
 
           {/* Tabs */}
-          <div className="flex border-b border-slate-200 dark:border-slate-800 mb-6">
-            <button 
-              onClick={() => setActiveTab('tickets')}
-              className={`pb-3 px-4 text-sm font-bold flex-1 text-center ${activeTab === 'tickets' ? 'border-b-2 border-primary text-primary' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
-            >
-              Meus Chamados
-            </button>
-            <button 
-              onClick={() => setActiveTab('faq')}
-              className={`pb-3 px-4 text-sm font-bold flex-1 text-center ${activeTab === 'faq' ? 'border-b-2 border-primary text-primary' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
-            >
-              Dúvidas Frequentes
-            </button>
-          </div>
+          <TabBar
+            variant="light"
+            active={activeTab}
+            onChange={(key) => setActiveTab(key as any)}
+            tabs={[
+              { key: 'tickets', label: 'Meus chamados'      },
+              { key: 'faq',     label: 'Dúvidas frequentes' },
+            ]}
+            className="mb-6 -mx-0 rounded-xl"
+          />
 
           {/* Tab Content */}
           {activeTab === 'tickets' && (

@@ -83,6 +83,33 @@ tracking-widest   ← OK para badges de branding (ex: "KNGindica", "Powered by")
 
 ## 🧱 Padrões de Componente
 
+### TabBar — SEMPRE usar o componente centralizado para abas de filtro
+```tsx
+import { TabBar } from '../components/TabBar';
+
+// ✅ CORRETO — componente unificado
+<TabBar
+  variant="dark"   // dark = tela dashboard escura | light = tela conteúdo clara
+  active={activeTab}
+  onChange={(key) => setActiveTab(key as any)}
+  tabs={[
+    { key: 'tab1', label: 'Aba 1' },
+    { key: 'tab2', label: 'Aba 2', badge: 3 }, // badge opcional
+  ]}
+/>
+
+// ❌ ERRADO — nunca crie abas manualmente com botões inline
+<div className="flex gap-1">
+  <button className="...">Tab</button>
+</div>
+```
+
+**Regras do TabBar:**
+- `variant="dark"` para telas de dashboard (fundo preto/slate-900)
+- `variant="light"` para telas de conteúdo (fundo branco/slate-50)
+- Labels em Sentence Case (`Em andamento`, não `EM ANDAMENTO`)
+- Usar prop `badge` para contadores (ex: notificações não lidas)
+
 ### StarRating — SEMPRE usar o componente centralizado
 ```tsx
 import StarRating from '../components/StarRating';

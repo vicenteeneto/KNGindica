@@ -1,9 +1,10 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
 import { formatCurrency } from '../lib/formatters';
+import { TabBar } from '../components/TabBar';
 
 export default function MyRequestsScreen({ onNavigate, params }: NavigationProps) {
   const { user } = useAuth();
@@ -97,27 +98,16 @@ export default function MyRequestsScreen({ onNavigate, params }: NavigationProps
           <h1 className="text-lg md:text-xl font-bold tracking-tight">Serviços</h1>
         </div>
 
-        {/* Tabs */}
-        <div className="px-4 max-w-4xl lg:mx-0 lg:ml-12 w-full flex gap-6 overflow-x-auto no-scrollbar transition-all duration-300">
-          <button
-            onClick={() => setActiveTab('ativos')}
-            className={`pb-3 text-sm font-bold whitespace-nowrap transition-colors border-b-2 ${activeTab === 'ativos' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
-          >
-            Em Andamento
-          </button>
-          <button
-            onClick={() => setActiveTab('concluidos')}
-            className={`pb-3 text-sm font-bold whitespace-nowrap transition-colors border-b-2 ${activeTab === 'concluidos' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
-          >
-            Concluídos
-          </button>
-          <button
-            onClick={() => setActiveTab('cancelados')}
-            className={`pb-3 text-sm font-bold whitespace-nowrap transition-colors border-b-2 ${activeTab === 'cancelados' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
-          >
-            Cancelados
-          </button>
-        </div>
+        <TabBar
+          variant="light"
+          active={activeTab}
+          onChange={(key) => setActiveTab(key as any)}
+          tabs={[
+            { key: 'ativos',     label: 'Em andamento' },
+            { key: 'concluidos', label: 'Concluídos'   },
+            { key: 'cancelados', label: 'Cancelados'   },
+          ]}
+        />
       </header>
 
       {/* Main Content */}

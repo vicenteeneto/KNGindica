@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationProps, Screen } from '../types';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
@@ -6,6 +6,7 @@ import { useNotifications } from '../NotificationContext';
 import { usePushNotifications } from '../hooks/usePushNotifications';
 import { formatCurrency } from '../lib/formatters';
 import { ProviderHeader } from '../components/ProviderHeader';
+import { TabBar } from '../components/TabBar';
 
 interface Notification {
   id: string;
@@ -220,20 +221,15 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
               </button>
             }
           />
-          {/* Tab Navigation */}
-          <div className="flex px-4 w-full">
-            <button onClick={() => setActiveTab('all')} className={`flex-1 py-4 text-xs md:text-sm font-black border-b-2 transition-colors ${activeTab === 'all' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'}`}>
-              Todas
-            </button>
-            <button onClick={() => setActiveTab('unread')} className={`flex-1 py-4 text-xs md:text-sm font-black border-b-2 transition-colors ${activeTab === 'unread' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'} flex items-center justify-center gap-2`}>
-              Não lidas
-              {notifications.filter(n => !n.is_read).length > 0 && (
-                <span className="bg-primary text-white text-[10px] size-5 rounded-full flex items-center justify-center">
-                  {notifications.filter(n => !n.is_read).length}
-                </span>
-              )}
-            </button>
-          </div>
+          <TabBar
+            variant="light"
+            active={activeTab}
+            onChange={(key) => setActiveTab(key as any)}
+            tabs={[
+              { key: 'all',    label: 'Todas' },
+              { key: 'unread', label: 'Não lidas', badge: notifications.filter(n => !n.is_read).length },
+            ]}
+          />
         </div>
       ) : (
         <header className="sticky top-0 z-10 bg-white dark:bg-background-dark border-b border-slate-200 dark:border-slate-800">
@@ -253,20 +249,15 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
             <h1 className="text-xl font-bold flex-1">Notificações</h1>
             <button onClick={handleClearAll} className="text-primary font-medium text-sm px-2">Limpar tudo</button>
           </div>
-          {/* Tab Navigation */}
-          <div className="flex px-4 w-full">
-            <button onClick={() => setActiveTab('all')} className={`flex-1 py-4 text-xs md:text-sm font-black border-b-2 ${activeTab === 'all' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'}`}>
-              Todas
-            </button>
-            <button onClick={() => setActiveTab('unread')} className={`flex-1 py-4 text-xs md:text-sm font-black border-b-2 ${activeTab === 'unread' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-slate-400'} flex items-center justify-center gap-2`}>
-              Não lidas
-              {notifications.filter(n => !n.is_read).length > 0 && (
-                <span className="bg-primary text-white text-[10px] size-5 rounded-full flex items-center justify-center">
-                  {notifications.filter(n => !n.is_read).length}
-                </span>
-              )}
-            </button>
-          </div>
+          <TabBar
+            variant="light"
+            active={activeTab}
+            onChange={(key) => setActiveTab(key as any)}
+            tabs={[
+              { key: 'all',    label: 'Todas' },
+              { key: 'unread', label: 'Não lidas', badge: notifications.filter(n => !n.is_read).length },
+            ]}
+          />
         </header>
       )}
 

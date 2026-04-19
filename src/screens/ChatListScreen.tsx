@@ -1,10 +1,11 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
 import { useNotifications } from '../NotificationContext';
 import { ProviderHeader } from '../components/ProviderHeader';
 import ChatScreen from './ChatScreen';
+import { TabBar } from '../components/TabBar';
 
 export default function ChatListScreen({ onNavigate, params }: NavigationProps) {
   const { user, role } = useAuth();
@@ -149,27 +150,21 @@ export default function ChatListScreen({ onNavigate, params }: NavigationProps) 
             </div>
           </div>
 
-          {/* TABS COMPACTAS */}
-          <div className="p-1 px-2 border-b border-white/5 bg-slate-900/80 backdrop-blur-md">
-            <div className="flex w-full gap-1">
-              {(['Todas', 'Serviços', 'Suporte', 'Arquivadas'] as const).map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => {
-                    setActiveTab(tab);
-                    setSelectedRoomId(null);
-                  }}
-                  className={`flex-1 flex items-center justify-center py-2.5 rounded-md text-[9px] font-black tracking-tighter transition-all border whitespace-nowrap ${
-                    activeTab === tab 
-                      ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20' 
-                      : 'bg-white/5 border-transparent text-slate-500 hover:text-slate-300'
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* TAB BAR — componente unificado */}
+          <TabBar
+            variant="dark"
+            active={activeTab}
+            onChange={(tab) => {
+              setActiveTab(tab as any);
+              setSelectedRoomId(null);
+            }}
+            tabs={[
+              { key: 'Todas',      label: 'Todas'      },
+              { key: 'Serviços',   label: 'Serviços'   },
+              { key: 'Suporte',    label: 'Suporte'    },
+              { key: 'Arquivadas', label: 'Arquivadas' },
+            ]}
+          />
 
           {/* LISTA DE CONVERSAS */}
           <div className="flex-1 overflow-y-auto no-scrollbar divide-y divide-white/5 relative">
