@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { NavigationProps, Screen } from '../types';
 // import { professionals as mockProfessionals } from '../data/mockData';
 import MobileNav from '../components/MobileNav';
@@ -697,15 +697,11 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                   <div className="absolute bottom-16 md:bottom-24 left-0 right-0 w-full transition-all duration-300">
                     <div className="max-w-7xl mx-auto px-4 lg:px-12 animate-fade-in-up flex flex-col items-start text-left md:ml-0">
                       <div className="flex items-center gap-2 mb-3">
-                        {p.isVerified ? (
+                        {p.isVerified && (
                           <div className="flex items-center gap-1.5 bg-emerald-500/20 backdrop-blur-md px-2 py-0.5 rounded border border-emerald-500/30">
                             <span className="text-[9px] font-black tracking-tighter text-emerald-400">Conta Verificada</span>
                             <VerifiedBadge size="sm" />
                           </div>
-                        ) : p.plan_type === 'plus' ? (
-                          <span className="bg-primary px-2 py-0.5 rounded text-[10px] font-black tracking-tighter italic text-white shadow-lg">PREMIUM</span>
-                        ) : (
-                          <span className="bg-white/10 px-2 py-0.5 rounded text-[10px] font-black tracking-tighter italic text-gray-400 shadow-lg border border-white/5">DESTAQUE</span>
                         )}
                       </div>
                       <h1 className="text-3xl md:text-6xl font-black text-slate-900 dark:text-white leading-[0.9] mb-3 drop-shadow-2xl">
@@ -724,17 +720,10 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                       <div className="flex items-center gap-2 md:gap-3">
                         <button
                           onClick={() => onNavigate('profile', { professionalId: p.id })}
-                          className="flex items-center gap-1.5 bg-primary text-white px-3 md:px-8 py-2 md:py-3.5 rounded-lg font-black text-[10px] md:text-sm hover:bg-orange-600 transition-all active:scale-95 shadow-xl shadow-primary/20"
+                          className="flex items-center gap-1.5 bg-primary text-white px-6 md:px-10 py-2 md:py-3.5 rounded-lg font-black text-[10px] md:text-sm hover:bg-orange-600 transition-all active:scale-95 shadow-xl shadow-primary/20"
                         >
                           <span className="material-symbols-outlined text-[16px] md:text-[24px] filled">play_arrow</span>
                           Ver Perfil
-                        </button>
-                        <button
-                          onClick={() => onNavigate('listing', { category: p.service })}
-                          className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md text-white px-3 md:px-8 py-2 md:py-3.5 rounded-lg font-bold text-[10px] md:text-sm hover:bg-white/20 transition-all border border-white/10"
-                        >
-                          <span className="material-symbols-outlined text-[16px] md:text-[24px]">info</span>
-                          Detalhes
                         </button>
                       </div>
                     </div>
@@ -1080,11 +1069,9 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
 
         <div 
           ref={scrollRef}
-          className="flex gap-4 md:gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory"
+          className="flex gap-4 md:gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory px-4 lg:px-12"
+          style={{ touchAction: 'pan-x', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
         >
-          {/* Alignment Spacers */}
-          <div className="w-4 lg:w-12 shrink-0" />
-
           {providers.map((p) => (
             <div
               key={p.id}
@@ -1132,23 +1119,20 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
           ))}
           
           {onViewMore && (
-          <div className="snap-start shrink-0 w-[160px] md:w-[260px] cursor-pointer">
-             <button 
-              onClick={onViewMore}
-              className="w-full aspect-[16/9] md:aspect-video rounded-xl border-2 border-slate-200/50 dark:border-white/5 bg-slate-100 dark:bg-white/2 hover:bg-primary hover:text-white dark:hover:bg-white dark:hover:text-black transition-all flex flex-col items-center justify-center gap-2 group shadow-sm dark:shadow-none"
-            >
-              <span className="size-10 rounded-full bg-slate-200 dark:bg-white/5 flex items-center justify-center group-hover:bg-black/10">
-                <span className="material-symbols-outlined">add</span>
-              </span>
-              <span className="text-xs font-black">Ver Mais</span>
-             </button>
-             {/* Alignment placeholder */}
-             <div className="mt-2 text-center h-[20px] md:h-[24px]"></div>
-          </div>
+            <div className="snap-start shrink-0 w-[160px] md:w-[260px] cursor-pointer">
+               <button 
+                onClick={onViewMore}
+                className="w-full aspect-[16/9] md:aspect-video rounded-xl border-2 border-slate-200/50 dark:border-white/5 bg-slate-100 dark:bg-white/2 hover:bg-primary hover:text-white dark:hover:bg-white dark:hover:text-black transition-all flex flex-col items-center justify-center gap-2 group shadow-sm dark:shadow-none"
+              >
+                <span className="size-10 rounded-full bg-slate-200 dark:bg-white/5 flex items-center justify-center group-hover:bg-black/10">
+                  <span className="material-symbols-outlined">add</span>
+                </span>
+                <span className="text-xs font-black">Ver Mais</span>
+               </button>
+               {/* Alignment placeholder */}
+               <div className="mt-2 text-center h-[20px] md:h-[24px]"></div>
+            </div>
           )}
-
-          {/* End Alignment Spacer */}
-          <div className="w-4 lg:w-12 shrink-0" />
         </div>
       </div>
     </section>
