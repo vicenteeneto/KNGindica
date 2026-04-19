@@ -701,58 +701,29 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                     <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent md:hidden"></div>
 
                     {/* Content Section */}
-                    <div className="absolute bottom-10 md:bottom-24 left-0 right-0 w-full px-4 lg:px-12 transition-all duration-500">
-                      <div className="max-w-7xl mx-auto flex flex-col items-center md:items-start text-center md:text-left">
-                        {/* Tags / Info Line */}
-                        <div className="hidden md:flex items-center justify-start gap-2 mb-4 overflow-hidden">
-                           <span className="text-[10px] font-black text-primary italic uppercase tracking-[0.2em]">Destaque KNGindica</span>
-                        </div>
+                    <div className="absolute bottom-10 md:bottom-24 left-0 right-0 w-full px-8 md:px-16 lg:px-20 transition-all duration-500">
+                      <div className="max-w-full lg:max-w-7xl mx-auto flex flex-col items-center md:items-start text-center md:text-left">
+                        <h1 className="text-2xl md:text-7xl font-black text-white leading-none drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] italic tracking-tighter mb-2 md:mb-6 whitespace-nowrap overflow-visible">
+                          {p.name.toUpperCase()}
+                        </h1>
 
-                        <div className="relative mb-2 md:mb-4 px-0 md:px-8 py-0 md:py-2 max-w-[92vw] md:max-w-none pr-6">
-                          <h1 className="text-2xl md:text-7xl font-black text-white leading-none drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] italic tracking-tighter truncate pr-2">
-                            {p.name.toUpperCase()}
-                          </h1>
-                        </div>
-
-                        <div className="flex items-center justify-center md:justify-start gap-2 mb-8 transition-all duration-300">
-                          <div className="flex items-center text-yellow-500 gap-1 bg-black/40 md:bg-black/60 backdrop-blur-md px-1.5 md:px-2 py-0.5 md:py-1 rounded border border-white/10 shrink-0">
+                        <div className="flex items-center justify-center md:justify-start gap-2 mb-10 transition-all duration-300">
+                          <div className="flex items-center text-yellow-500 gap-1 bg-black/40 md:bg-black/60 backdrop-blur-md px-2 py-1 rounded border border-white/10 shrink-0">
                             <span className="material-symbols-outlined text-[10px] md:text-sm filled">star</span>
                             <span className="text-[10px] md:text-sm font-black">{(p.rating || 5.0).toString().replace('.', ',')}</span>
                           </div>
-                          <span className="text-[9px] md:text-sm font-bold text-slate-300 drop-shadow-md uppercase tracking-tight md:tracking-widest opacity-80 md:opacity-100">- {p.service}</span>
-                          <span className="text-[9px] md:text-sm font-bold text-slate-300 drop-shadow-md uppercase tracking-tight md:tracking-widest opacity-80 md:opacity-100">- {p.city}</span>
+                          <span className="text-[10px] md:text-sm font-bold text-slate-300 drop-shadow-md uppercase tracking-tight md:tracking-widest opacity-80 md:opacity-100">
+                            {p.service} - {p.city}
+                          </span>
                         </div>
                         
-                        <div className="flex items-center justify-center md:justify-start gap-2 md:gap-4 w-full md:w-auto">
+                        <div className="flex items-center justify-center md:justify-start w-full md:w-auto">
                           <button
                             onClick={() => onNavigate('profile', { professionalId: p.id })}
-                            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white text-black px-6 md:px-10 py-3 md:py-4 rounded font-black text-xs md:text-base hover:bg-white/90 transition-all active:scale-95 shadow-2xl"
+                            className="flex-none flex items-center justify-center gap-2 bg-white text-black px-8 py-2.5 md:px-12 md:py-4 rounded-full font-bold text-[11px] md:text-base hover:bg-white/90 transition-all active:scale-95 shadow-2xl"
                           >
-                            <span className="material-symbols-outlined filled">visibility</span>
+                            <span className="material-symbols-outlined filled md:text-xl">visibility</span>
                             Ver Perfil
-                          </button>
-                          
-                          <button
-                            onClick={async () => {
-                              try {
-                                if (isFavorited) {
-                                  await supabase.from('favorites').delete().eq('client_id', user?.id).eq('provider_id', p.id);
-                                } else {
-                                  await supabase.from('favorites').insert({ client_id: user?.id, provider_id: p.id });
-                                }
-                                // Re-trigger favorites fetch by refreshing state if possible, or relying on real-time
-                              } catch (e) {
-                                console.error("Erro ao favoritar", e);
-                              }
-                            }}
-                            className={`hidden md:flex flex-1 md:flex-none items-center justify-center gap-2 px-6 md:px-10 py-3 md:py-4 rounded font-black text-xs md:text-base transition-all active:scale-95 border-2 ${
-                              isFavorited 
-                                ? 'bg-primary border-primary text-white' 
-                                : 'bg-black/40 backdrop-blur-md text-white border-white/20 hover:bg-white/10'
-                            }`}
-                          >
-                            <span className="material-symbols-outlined">{isFavorited ? 'check' : 'add'}</span>
-                            {isFavorited ? 'Na Lista' : 'Minha Lista'}
                           </button>
                         </div>
                       </div>
