@@ -103,11 +103,16 @@ export default function MyRequestsScreen({ onNavigate, params }: NavigationProps
 
       {/* Header */}
       <div className="shrink-0 z-50 bg-slate-900 border-b border-white/5 h-[60px] flex items-center px-6">
-        <div className="flex flex-col">
-          <p className="text-[12px] font-black text-primary leading-none mb-1.5">Meus Pedidos</p>
+        <div className="flex items-center gap-4 flex-1">
+          <button 
+            onClick={() => onNavigate('home')}
+            className="size-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-all shrink-0"
+          >
+            <span className="material-symbols-outlined text-sm">arrow_back</span>
+          </button>
           <div className="flex items-center gap-2">
-            <div className="size-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <h1 className="text-lg font-black text-white italic leading-none">Central de Serviços</h1>
+            <div className="size-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+            <h1 className="text-lg font-black text-white italic leading-none truncate">Central de Serviços</h1>
           </div>
         </div>
       </div>

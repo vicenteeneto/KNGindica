@@ -187,19 +187,16 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
 
       {/* Header */}
       <div className="shrink-0 z-50 bg-slate-900 border-b border-white/5 h-[60px] flex items-center justify-between px-6">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 flex-1">
           <button
             onClick={() => onNavigate(backTarget)}
-            className="size-9 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-all shrink-0"
+            className="size-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-all shrink-0"
           >
             <span className="material-symbols-outlined text-sm">arrow_back</span>
           </button>
-          <div className="flex flex-col">
-            <p className="text-[11px] font-black text-primary leading-none mb-1">Avisos &amp; Alertas</p>
-            <div className="flex items-center gap-1.5">
-              <div className="size-2 rounded-full bg-green-500 animate-pulse" />
-              <h1 className="text-base font-black text-white italic leading-none">Notificações</h1>
-            </div>
+          <div className="flex items-center gap-2">
+            <div className="size-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+            <h1 className="text-lg font-black text-white italic leading-none truncate">Notificações</h1>
           </div>
         </div>
 
