@@ -769,8 +769,6 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                 ))}
               </div>
             </div>
-    </div>
-            </div>
           ) : (
              /* Fallback for empty plus providers */
              <div className="absolute inset-0 flex items-center justify-center">
@@ -1105,9 +1103,9 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
             <div
               key={p.id}
               onClick={() => onNavigate('profile', { professionalId: p.id })}
-              className="snap-start shrink-0 w-[110px] md:w-[260px] group cursor-pointer"
+              className="snap-start shrink-0 w-[110px] lg:w-[300px] group cursor-pointer"
             >
-              <div className={`relative aspect-[2/3] md:aspect-video rounded-md md:rounded-xl overflow-hidden shadow-2xl bg-white dark:bg-[#0a0a0a] transition-all duration-300 md:group-hover:scale-110 md:group-hover:z-50 md:group-hover:ring-4 ${highlight ? 'md:group-hover:ring-primary/40' : 'md:group-hover:ring-white/10'}`}>
+              <div className={`relative aspect-[2/3] lg:aspect-video rounded-md lg:rounded-xl overflow-hidden shadow-2xl bg-white dark:bg-[#0a0a0a] transition-all duration-300 lg:group-hover:scale-110 lg:group-hover:z-50 lg:group-hover:ring-4 ${highlight ? 'lg:group-hover:ring-primary/40' : 'lg:group-hover:ring-white/10'}`}>
                 <img
                   className="w-full h-full object-cover transition-transform duration-700"
                   src={p.image}

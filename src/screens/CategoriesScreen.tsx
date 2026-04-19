@@ -12,7 +12,7 @@ export default function CategoriesScreen({ onNavigate }: NavigationProps) {
 
   return (
     <div className="bg-black font-display text-white min-h-screen">
-      <div className="relative flex min-h-screen w-full flex-col max-w-5xl mx-auto bg-black shadow-2xl overflow-x-hidden transition-all duration-300">
+      <div className="relative flex min-h-screen w-full flex-col bg-black shadow-2xl overflow-x-hidden transition-all duration-300">
         
         <header className="flex items-center bg-black/90 backdrop-blur-md p-4 pb-2 justify-between sticky top-0 z-10 border-b border-white/5 transition-colors">
           <button onClick={() => onNavigate('home')} className="text-white flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-white/10 rounded-full transition-colors">
@@ -52,7 +52,7 @@ export default function CategoriesScreen({ onNavigate }: NavigationProps) {
               <button onClick={() => onNavigate('listing')} className="text-primary text-[10px] font-black uppercase tracking-widest hover:underline">Ver tudo</button>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4">
               {[
                 { icon: 'cleaning_services', title: 'Limpeza', desc: 'Residencial' },
                 { icon: 'bolt', title: 'Elétrica', desc: 'Reparos' },

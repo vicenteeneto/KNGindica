@@ -120,7 +120,7 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
   const visibleProviders = isLogged ? providers : providers.slice(0, TEASER_COUNT);
 
   return (
-    <div className="min-h-screen bg-black text-white font-display overflow-x-hidden">
+    <div className="relative flex min-h-screen w-full flex-col bg-black shadow-2xl overflow-x-hidden transition-all duration-300">
       {/* Background Decor */}
       <div className="fixed top-0 left-0 w-full h-[50vh] bg-gradient-to-b from-primary/20 via-primary/5 to-transparent pointer-events-none" />
       <div className="fixed -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
@@ -143,7 +143,7 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
             Mais bem avaliados em Rondonópolis
           </p>
             {/* Provider Grid - Netflix Style Posters */}
-        <div className="grid grid-cols-2 gap-4 mb-8">
+          <div className="w-full max-w-none px-4 lg:px-12 grid grid-cols-2 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4 transition-all duration-300">
           {visibleProviders.length > 0 ? (
             visibleProviders.map((p) => {
               const isBlurred = !isLogged;
@@ -151,7 +151,7 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
                 <div
                   key={p.id}
                   onClick={() => isLogged && onNavigate('profile', { professionalId: p.id })}
-                  className={`group relative aspect-[2/3] rounded-2xl overflow-hidden bg-white/5 border border-white/5 transition-all active:scale-95 cursor-pointer ${
+                  className={`group relative aspect-[2/3] lg:aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/5 transition-all active:scale-95 cursor-pointer ${
                     isLogged ? 'hover:border-primary/50 hover:shadow-2xl' : ''
                   }`}
                 >
@@ -202,14 +202,6 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
           )}
         </div>
       </div>
-
-          {/* Indicador de "mais resultados" para não logados */}
-          {!isLogged && providers.length > TEASER_COUNT && (
-            <div className="text-center py-3 text-slate-500 text-xs font-bold">
-              + {providers.length - TEASER_COUNT} profissional{providers.length - TEASER_COUNT !== 1 ? 'is' : ''} disponível{providers.length - TEASER_COUNT !== 1 ? 'is' : ''} • Faça login para ver todos
-            </div>
-          )}
-        </div>
 
         {/* CTA Wall — só para não logados com resultados */}
         {!isLogged && providers.length > 0 && (

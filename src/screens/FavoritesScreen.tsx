@@ -106,7 +106,7 @@ export default function FavoritesScreen({ onNavigate, params }: FavoritesScreenP
                   onClick={() => onNavigate('profile', { professionalId: provider.id })}
                   className="group relative cursor-pointer"
                 >
-                  <div className="aspect-[2/3] md:aspect-video rounded-md md:rounded-2xl overflow-hidden bg-white/5 border border-white/5 transition-all duration-300 md:group-hover:scale-110 md:group-hover:z-50 md:group-hover:ring-4 ring-primary/40 shadow-2xl">
+                  <div className="aspect-[2/3] lg:aspect-video rounded-md lg:rounded-2xl overflow-hidden bg-white/5 border border-white/5 transition-all duration-300 lg:group-hover:scale-110 lg:group-hover:z-50 lg:group-hover:ring-4 ring-primary/40 shadow-2xl">
                     <img 
                       src={provider.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} 
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"

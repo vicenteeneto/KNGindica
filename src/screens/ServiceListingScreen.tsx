@@ -266,18 +266,18 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
       {/* Main Content: Service Listing */}
       <main className="flex-1 p-4 pb-24 md:pb-8">
         {loading ? (
-          <div className="w-full max-w-7xl mx-auto px-0 md:px-4 grid grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-6 transition-all duration-300">
+          <div className="w-full max-w-none px-4 lg:px-12 grid grid-cols-2 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4 transition-all duration-300">
             {[1, 2, 3, 4, 5, 6].map(i => <SkeletonCard key={i} />)}
           </div>
         ) : (
-          <div className="w-full max-w-7xl mx-auto px-0 md:px-4 grid grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-6 transition-all duration-300">
+          <div className="w-full max-w-none px-4 lg:px-12 grid grid-cols-2 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4 transition-all duration-300">
             {filteredProfessionals.map((professional) => (
             <div 
               key={professional.id}
               onClick={() => onNavigate('profile', { professionalId: professional.id })} 
               className="group cursor-pointer"
             >
-              <div className="relative aspect-[2/3] md:aspect-video rounded-md md:rounded-xl overflow-hidden shadow-2xl bg-white/5 transition-all duration-300 md:group-hover:scale-110 md:group-hover:z-50 ring-0 md:group-hover:ring-4 ring-primary/40">
+              <div className="relative aspect-[2/3] lg:aspect-video rounded-md lg:rounded-xl overflow-hidden shadow-2xl bg-white/5 transition-all duration-300 lg:group-hover:scale-110 lg:group-hover:z-50 ring-0 lg:group-hover:ring-4 ring-primary/40">
                 <img
                   alt={professional.name}
                   className="w-full h-full object-cover transition-transform duration-700"
