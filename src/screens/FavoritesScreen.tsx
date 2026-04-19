@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import StarRating from '../components/StarRating';
+
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
@@ -128,8 +130,8 @@ export default function FavoritesScreen({ onNavigate, params }: FavoritesScreenP
                     </p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-900/20 px-2 py-0.5 rounded text-amber-600 dark:text-amber-400">
-                        <span className="material-symbols-outlined text-[14px] fill-current">star</span>
-                        <span className="text-xs font-bold">{provider.rating?.toFixed(1) || '5.0'}</span>
+                        <StarRating rating={provider.rating || 5.0} size={14} maxStars={1} />
+                        <span className="text-xs font-bold">{(provider.rating || 5.0).toFixed(1).replace('.', ',')}</span>
                       </div>
                       <span className="text-xs font-bold text-primary group-hover:underline">Ver Perfil</span>
                     </div>

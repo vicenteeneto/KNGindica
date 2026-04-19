@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import StarRating from '../components/StarRating';
+
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
@@ -171,8 +173,8 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
                       <div className="flex items-center gap-1.5 mb-1">
                         <span className="bg-primary/20 text-primary text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter italic">Top Pro</span>
                         <div className="flex items-center text-yellow-500 gap-0.5 ml-auto">
-                          <span className="material-symbols-outlined text-xs filled">star</span>
-                          <span className="text-xs font-black">{p.stats?.rating?.toFixed(1) || '5.0'}</span>
+                          <StarRating rating={p.stats?.rating || 5.0} size={10} maxStars={1} />
+                          <span className="text-xs font-black">{(p.stats?.rating || 5.0).toFixed(1).replace('.', ',')}</span>
                         </div>
                       </div>
 

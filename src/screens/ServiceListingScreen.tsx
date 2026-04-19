@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import StarRating from '../components/StarRating';
+
 import { NavigationProps, Professional, Screen } from '../types';
 import { professionals as mockProfessionals } from '../data/mockData';
 import { requestNotificationPermission } from '../lib/OneSignalService';
@@ -321,9 +323,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
                     </span>
                   )}
                   <div className="flex items-center gap-1 text-amber-500 bg-amber-500/5 px-2 py-0.5 rounded-lg border border-amber-500/10">
-                    <span className="material-symbols-outlined text-[14px] filled">
-                      star
-                    </span>
+                    <StarRating rating={professional.rating || 0} size={14} maxStars={1} />
                     <span className="text-xs font-black">
                       {Number(professional.rating || 0).toFixed(1).replace('.', ',')}
                     </span>

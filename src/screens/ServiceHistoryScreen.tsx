@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import StarRating from '../components/StarRating';
+
 import { NavigationProps } from '../types';
 
 type Tab = 'Concluídos' | 'Em andamento' | 'Cancelados';
@@ -57,9 +59,7 @@ export default function ServiceHistoryScreen({ onNavigate }: NavigationProps) {
                   </div>
                   <p className="text-primary text-xs font-medium mb-1">Encanador Hidráulico</p>
                   <div className="flex items-center gap-1 mb-1">
-                    {[1, 2, 3, 4, 5].map(i => (
-                      <span key={i} className="material-symbols-outlined text-yellow-400 text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                    ))}
+                    <StarRating rating={5} size={14} />
                     <span className="text-slate-400 dark:text-slate-500 text-[10px] ml-1">(Sua avaliação)</span>
                   </div>
                   <p className="text-slate-500 dark:text-slate-400 text-xs">15 de Outubro, 2023 • Ref. #8842</p>
@@ -86,10 +86,7 @@ export default function ServiceHistoryScreen({ onNavigate }: NavigationProps) {
                   </div>
                   <p className="text-primary text-xs font-medium mb-1">Faxina Residencial</p>
                   <div className="flex items-center gap-1 mb-1">
-                    {[1, 2, 3, 4].map(i => (
-                      <span key={i} className="material-symbols-outlined text-yellow-400 text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                    ))}
-                    <span className="material-symbols-outlined text-slate-300 dark:text-slate-600 text-sm">star</span>
+                    <StarRating rating={4} size={14} />
                     <span className="text-slate-400 dark:text-slate-500 text-[10px] ml-1">(Sua avaliação)</span>
                   </div>
                   <p className="text-slate-500 dark:text-slate-400 text-xs">02 de Outubro, 2023 • Ref. #7921</p>
@@ -116,9 +113,7 @@ export default function ServiceHistoryScreen({ onNavigate }: NavigationProps) {
                   </div>
                   <p className="text-primary text-xs font-medium mb-1">Eletricista</p>
                   <div className="flex items-center gap-1 mb-1">
-                    {[1, 2, 3, 4, 5].map(i => (
-                      <span key={i} className="material-symbols-outlined text-yellow-400 text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                    ))}
+                    <StarRating rating={5} size={14} />
                   </div>
                   <p className="text-slate-500 dark:text-slate-400 text-xs">20 de Setembro, 2023 • Ref. #6455</p>
                 </div>

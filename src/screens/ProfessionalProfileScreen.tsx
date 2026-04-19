@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { NavigationProps } from '../types';
 import VerifiedBadge from '../components/VerifiedBadge';
+import StarRating from '../components/StarRating';
+
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
 import { useSEO } from '../hooks/useSEO';
@@ -450,7 +452,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                     </div>
                     <div className="flex-1 flex justify-center border-r border-slate-100 dark:border-white/5 h-7 md:h-10 items-center gap-1">
                       <p className="text-slate-900 dark:text-slate-100 text-sm md:text-base font-black italic tracking-tight leading-none pb-0.5">{displayRating}</p>
-                      <span className="material-symbols-outlined text-amber-400 text-[14px] md:text-[18px] leading-none mb-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                      <StarRating rating={Number(displayRating?.replace(',', '.') || 0)} size={14} maxStars={1} />
                     </div>
                     <div className="flex-1 flex justify-center h-7 md:h-10 items-center">
                       {professional.show_price ? (
@@ -542,7 +544,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                   </h3>
                   <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
                     <span className="text-sm font-bold">{displayRating}</span>
-                    <span className="material-symbols-outlined text-[16px] text-amber-400" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                    <StarRating rating={Number(displayRating?.replace(',', '.') || 0)} size={16} maxStars={1} />
                     <span className="text-[10px] text-slate-400 uppercase font-black">({displayReviewsCount})</span>
                   </div>
                 </div>
@@ -567,11 +569,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                             </div>
                           </div>
                           <div className="flex text-amber-400 gap-0.5">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <span key={star} className={`material-symbols-outlined text-[16px] ${star <= review.rating ? 'text-amber-400' : 'text-slate-200 dark:text-slate-700'}`} style={{ fontVariationSettings: star <= review.rating ? "'FILL' 1" : "'FILL' 0" }}>
-                                star
-                              </span>
-                            ))}
+                            <StarRating rating={review.rating} size={16} />
                           </div>
                         </div>
                         {review.comment && (

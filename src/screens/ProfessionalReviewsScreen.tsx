@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import StarRating from '../components/StarRating';
+
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useNotifications } from '../NotificationContext';
@@ -78,12 +80,8 @@ export default function ProfessionalReviewsScreen({ onNavigate, params }: Profes
               {/* Note / Average */}
               <div className="flex flex-col items-center justify-center min-w-[100px] md:w-1/3">
                 <p className="text-6xl font-black text-slate-900 dark:text-white leading-none">{stats.average > 0 ? stats.average.toFixed(1) : '0'}</p>
-                <div className="flex gap-0.5 my-2 text-primary">
-                  {[1, 2, 3, 4, 5].map(star => (
-                    <span key={star} className="material-symbols-outlined" style={{ fontVariationSettings: `\'FILL\' ${stats.average >= star - 0.5 ? 1 : 0}` }}>
-                      {stats.average >= star ? 'star' : stats.average >= star - 0.5 ? 'star_half' : 'star'}
-                    </span>
-                  ))}
+                <div className="flex gap-0.5 my-2">
+                  <StarRating rating={stats.average} size={20} />
                 </div>
                 <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">{stats.total} avaliações</p>
               </div>
@@ -139,12 +137,8 @@ export default function ProfessionalReviewsScreen({ onNavigate, params }: Profes
                           <p className="text-[13px] font-medium text-slate-500">{new Date(review.created_at).toLocaleDateString('pt-BR')} • Avaliação validada</p>
                         </div>
                       </div>
-                      <div className="flex text-primary">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <span key={star} className="material-symbols-outlined text-lg" style={{ fontVariationSettings: `\'FILL\' ${review.rating >= star ? 1 : 0}` }}>
-                            star
-                          </span>
-                        ))}
+                      <div className="flex">
+                        <StarRating rating={review.rating} size={18} />
                       </div>
                     </div>
                     {review.comment && (
@@ -186,12 +180,8 @@ export default function ProfessionalReviewsScreen({ onNavigate, params }: Profes
                           <p className="text-[13px] font-medium text-slate-500">2 dias atrás • Pintura Residencial</p>
                         </div>
                       </div>
-                      <div className="flex text-primary">
-                        <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                        <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                        <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                        <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                        <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                      <div className="flex">
+                        <StarRating rating={5} size={18} />
                       </div>
                     </div>
                     <p className="text-slate-700 dark:text-slate-300 leading-relaxed">Trabalho excelente, muito pontual! Recomendo fortemente para quem busca qualidade e capricho nos detalhes.</p>

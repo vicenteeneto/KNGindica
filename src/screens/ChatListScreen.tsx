@@ -113,8 +113,7 @@ export default function ChatListScreen({ onNavigate, params }: NavigationProps) 
            >
              <span className="material-symbols-outlined text-sm md:text-base">arrow_back</span>
            </button>
-           <div className="flex flex-col min-w-0">
-             <p className="text-[10px] md:text-[12px] font-black text-primary uppercase tracking-[1px] md:tracking-[2px] leading-none mb-1 md:mb-1.5 truncate">Mensagens</p>
+           <div className="flex-1 min-w-0">
              <div className="flex items-center gap-1.5 md:gap-2">
                <div className="size-2 rounded-full bg-green-500 animate-pulse shrink-0" />
                <h1 className="text-sm md:text-lg font-black text-white uppercase tracking-[1px] italic leading-none truncate">Minhas Mensagens</h1>

@@ -10,6 +10,8 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { CityAutocomplete } from '../components/CityAutocomplete';
 import VerifiedBadge from '../components/VerifiedBadge';
+import StarRating from '../components/StarRating';
+
 
 // Fix Leaflet Default Icon issue in React
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
@@ -1052,8 +1054,8 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
   if (providers.length === 0) return null;
 
   return (
-    <section className="px-4 lg:px-12 mb-12">
-      <div className="flex flex-col mb-5">
+    <section className="mb-12">
+      <div className="flex flex-col mb-5 px-4 lg:px-12">
         <h3 className={`text-lg md:text-xl font-black tracking-tighter uppercase italic flex items-center gap-2 ${highlight ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>
           {title}
           <span className="material-symbols-outlined text-sm font-normal not-italic opacity-20">chevron_right</span>
@@ -1078,8 +1080,11 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
 
         <div 
           ref={scrollRef}
-          className="flex gap-4 md:gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory px-4 md:px-0 -mx-4 md:mx-0"
+          className="flex gap-4 md:gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory"
         >
+          {/* Alignment Spacers */}
+          <div className="w-4 lg:w-12 shrink-0" />
+
           {providers.map((p) => (
             <div
               key={p.id}
@@ -1094,14 +1099,9 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
                 
-                {/* Rating Mini - Improved version with larger star and count */}
+                {/* Rating Mini - Improved version with StarRating */}
                 <div className="absolute top-1 right-1 bg-black/80 backdrop-blur-md px-1.5 py-0.5 rounded-md text-[8px] font-black flex items-center gap-1 border border-white/10">
-                  <span 
-                    className="material-symbols-outlined text-yellow-500 filled"
-                    style={{ fontSize: '10px', width: '10px', height: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
-                  >
-                    star
-                  </span>
+                  <StarRating rating={p.rating || 0} size={10} maxStars={1} />
                   <span className="text-white">
                     {Number(p.rating || 0).toFixed(1).replace('.', ',')}
                   </span>
@@ -1146,8 +1146,12 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
              <div className="mt-2 text-center h-[20px] md:h-[24px]"></div>
           </div>
           )}
+
+          {/* End Alignment Spacer */}
+          <div className="w-4 lg:w-12 shrink-0" />
         </div>
       </div>
     </section>
   );
 }
+
