@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
@@ -3281,20 +3281,20 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
               <button 
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)} 
-                className={`flex flex-col items-center justify-center min-w-[44px] h-12 rounded-xl transition-all shrink-0 ${
+                className={`flex flex-col items-center justify-center px-4 h-12 rounded-xl transition-all shrink-0 ${
                   activeTab === tab.id 
                     ? 'text-primary bg-primary/10 scale-105' 
                     : 'text-slate-400 active:scale-95'
                 }`}
               >
                 <span 
-                  className="material-symbols-outlined text-[18px]" 
+                  className="material-symbols-outlined text-[20px]" 
                   style={activeTab === tab.id ? { fontVariationSettings: "'FILL' 1" } : {}}
                 >
                   {tab.icon}
                 </span>
-                <span className="text-[7px] font-black mt-0.5 opacity-70">
-                  {tab.label.substring(0, 4)}
+                <span className="text-[10px] font-black mt-0.5 opacity-90 whitespace-nowrap">
+                  {tab.label}
                 </span>
               </button>
             ))}
