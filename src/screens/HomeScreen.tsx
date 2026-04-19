@@ -529,11 +529,11 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
     <div className="w-full bg-[#000000] min-h-screen flex flex-col font-display text-white md:pb-0 overflow-x-hidden transition-colors duration-500">
       
       {/* Floating Header */}
-      <header className={`relative lg:fixed top-0 left-0 lg:left-16 right-0 z-50 transition-all duration-500 px-4 pt-3 pb-1.5 ${isScrolled
+      <header className={`relative lg:fixed top-0 left-0 lg:left-16 right-0 z-50 transition-all duration-500 px-4 lg:px-12 pt-3 pb-1.5 ${isScrolled
         ? 'bg-black/95 backdrop-blur-md shadow-2xl border-b border-white/5'
         : 'bg-gradient-to-b from-black/90 via-black/30 to-transparent'
         }`}>
-        <div className="flex items-center justify-between lg:ml-12 lg:pr-4 transition-all duration-300">
+        <div className="flex items-center justify-between transition-all duration-300">
           <div className="flex items-center gap-3">
             <div 
               className="relative flex items-center gap-1.5 cursor-pointer group"
@@ -652,7 +652,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         </div>
 
         {/* Category Chips - Prime Style */}
-        <div className="lg:ml-12 lg:pr-4 mt-4 overflow-x-auto hide-scrollbar flex items-center gap-2 pb-2 transition-all duration-300">
+        <div className="mt-4 overflow-x-auto hide-scrollbar flex items-center gap-2 pb-2 transition-all duration-300">
           {dynamicCategories.map((cat) => (
             <button
               key={cat.name}
@@ -690,8 +690,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                   <div className="absolute inset-0 bg-gradient-to-r from-background-light/40 dark:from-black/80 via-transparent to-transparent"></div>
 
                   {/* Content */}
-                  <div className="absolute bottom-16 md:bottom-24 left-0 lg:left-16 w-full px-4 md:px-12 max-w-none pr-6 transition-all duration-300">
-                    <div className="max-w-2xl animate-fade-in-up flex flex-col items-start text-left ml-4 md:ml-0">
+                  <div className="absolute bottom-16 md:bottom-24 left-0 lg:left-16 w-full px-4 lg:px-12 max-w-none transition-all duration-300">
+                    <div className="max-w-2xl animate-fade-in-up flex flex-col items-start text-left md:ml-0">
                       <div className="flex items-center gap-2 mb-3">
                         {p.isVerified ? (
                           <div className="flex items-center gap-1.5 bg-emerald-500/20 backdrop-blur-md px-2 py-0.5 rounded border border-emerald-500/30">
@@ -766,7 +766,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
         {/* Active Service Tracker (Live Activity Style) */}
         {activeRequest && (
-          <div className="lg:ml-16 lg:mr-auto px-4 -mt-12 md:-mt-16 mb-8 relative z-30 transition-all duration-300">
+          <div className="lg:ml-16 px-4 lg:px-12 -mt-12 md:-mt-16 mb-8 relative z-30 transition-all duration-300">
             <div 
               onClick={() => onNavigate('myRequests')}
               className="bg-primary/95 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl flex items-center justify-between cursor-pointer hover:scale-[1.02] transition-transform animate-pulse-subtle"
@@ -797,7 +797,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         )}
 
 
-        <section className="lg:ml-16 lg:mr-auto px-4 mb-10 relative z-30 transition-all duration-300">
+        <section className="lg:ml-16 px-4 lg:px-12 mb-10 relative z-30 transition-all duration-300">
           <div className="bg-gradient-to-r from-emerald-600/90 to-emerald-800/95 rounded-xl p-4 md:p-6 shadow-xl relative overflow-hidden group border border-emerald-400/20">
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -825,10 +825,10 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         </section>
 
         {/* Collection Rows */}
-        <div className={`w-full mx-auto relative z-20 pb-20 ${!activeRequest ? '-mt-8' : ''}`}>
+        <div className={`w-full lg:ml-16 lg:w-[calc(100%-64px)] mx-auto relative z-20 pb-20 ${!activeRequest ? '-mt-8' : ''}`}>
           
           {/* Action Row - Search & View Toggle */}
-          <div className="px-4 md:px-8 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between lg:ml-12">
+          <div className="px-4 lg:px-12 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="relative group max-w-lg w-full">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                     <span className="material-symbols-outlined text-gray-400 group-focus-within:text-primary transition-colors">sparkles</span>
@@ -1012,7 +1012,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
 function SkeletonRow() {
   return (
-    <div className="px-4 md:px-8 mb-12 animate-pulse">
+    <div className="px-4 md:px-12 mb-12 animate-pulse">
       <div className="h-6 w-48 bg-slate-800 rounded-md mb-2"></div>
       <div className="h-4 w-64 bg-slate-800/50 rounded-md mb-5"></div>
       <div className="flex gap-4 overflow-x-hidden">
@@ -1050,7 +1050,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
   if (providers.length === 0) return null;
 
   return (
-    <section className="px-4 md:px-8 mb-12">
+    <section className="px-4 lg:px-12 mb-12">
       <div className="flex flex-col mb-5">
         <h3 className={`text-xl md:text-2xl font-black tracking-tighter uppercase italic flex items-center gap-2 ${highlight ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>
           {title}
@@ -1076,7 +1076,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
 
         <div 
           ref={scrollRef}
-          className="flex gap-4 md:gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory px-2 md:-mx-2"
+          className="flex gap-4 md:gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory px-0"
         >
           {providers.map((p) => (
             <div
