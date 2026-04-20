@@ -674,8 +674,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
           onTouchEnd={handleTouchEndHero}
         >
           {heroProviders.length > 0 ? (
-            <div className="px-6 h-full">
-              <div className="relative h-full w-full max-w-lg mx-auto overflow-visible">
+            <div className="md:px-0 h-full">
+              <div className="relative h-full w-full lg:max-w-none mx-auto overflow-visible">
                 {heroProviders.slice(0, 5).map((p, idx) => {
                   const isFavorited = favoriteProviders.some(f => f.id === p.id);
                   
@@ -684,7 +684,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                       key={p.id}
                       className={`absolute inset-0 transition-all duration-1000 ease-in-out ${idx === currentHeroIndex ? 'opacity-100 z-10 translate-y-0 scale-100' : 'opacity-0 z-0 translate-y-4 scale-95'}`}
                     >
-                      <div className="relative h-full w-full rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] bg-transparent">
+                      <div className="relative h-full w-full md:rounded-none rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] bg-transparent">
                         {/* Background (Poster Style) */}
                         <img
                           src={p.image}
@@ -697,9 +697,9 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent"></div>
                         <div className="absolute inset-0 bg-black/5"></div>
 
-                        {/* Content Section - Anchored at the very bottom */}
-                        <div className="absolute bottom-4 left-0 right-0 px-4 transition-all duration-500">
-                          <div className="w-full flex flex-col items-center text-center">
+                        {/* Content Section - Anchored at the bottom */}
+                        <div className="absolute bottom-4 lg:bottom-20 left-0 right-0 px-6 lg:px-16 transition-all duration-500">
+                          <div className="w-full flex flex-col items-center text-center lg:items-start lg:text-left">
                             {/* Professional Name - "Graphic Logo" Style */}
                             <h1 className="netflix-title-logo text-2xl md:text-6xl mb-0.5 max-w-[95%] break-words drop-shadow-2xl leading-none">
                               {p.name}
@@ -711,7 +711,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                             </div>
                             
                             {/* Action Buttons */}
-                            <div className="flex items-center justify-center gap-2.5 w-full max-w-[320px] mx-auto">
+                            <div className="flex items-center justify-center lg:justify-start gap-2.5 w-full max-w-[320px] lg:max-w-none lg:mx-0 mx-auto">
                               <button
                                 onClick={() => onNavigate('profile', { professionalId: p.id })}
                                 className="flex-1 flex items-center justify-center gap-1.5 bg-white text-black h-9 rounded font-black text-[10px] md:text-sm hover:bg-white/90 transition-all active:scale-95 shadow-2xl"
@@ -736,8 +736,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                 })}
               </div>
               
-              {/* Indicators */}
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-30 flex gap-2">
+              {/* Indicators - Positioned left on desktop */}
+              <div className="absolute bottom-2 lg:bottom-10 left-1/2 lg:left-16 -translate-x-1/2 lg:translate-x-0 z-30 flex gap-2">
                 {heroProviders.slice(0, 5).map((_, idx) => (
                   <button 
                     key={idx}
