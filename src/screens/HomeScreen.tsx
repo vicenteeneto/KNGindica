@@ -1014,7 +1014,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
 function SkeletonRow() {
   return (
-    <div className="px-4 md:px-12 mb-12 animate-pulse">
+    <div className="px-4 lg:px-12 mb-12 animate-pulse">
       <div className="h-6 w-48 bg-slate-800 rounded-md mb-2"></div>
       <div className="h-4 w-64 bg-slate-800/50 rounded-md mb-5"></div>
       <div className="flex gap-4 overflow-x-hidden">
@@ -1053,12 +1053,14 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
 
   return (
     <section className="mb-12">
-      <div className="flex flex-col mb-4 md:mb-5 px-6 md:px-16">
-        <h3 className={`text-lg md:text-xl font-black tracking-tighter italic flex items-center gap-2 ${highlight ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>
-          {title}
-          <span className="material-symbols-outlined text-sm font-normal not-italic opacity-20">chevron_right</span>
-        </h3>
-        <p className="text-xs md:text-sm text-slate-500 dark:text-gray-400 font-medium">{subtitle}</p>
+      <div className="flex items-center justify-between mb-3 md:mb-4 px-4 lg:px-12">
+        <div>
+          <h3 className={`text-lg md:text-xl font-black tracking-tighter italic flex items-center gap-2 ${highlight ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>
+            {title}
+            <span className="material-symbols-outlined text-sm font-normal not-italic opacity-20">chevron_right</span>
+          </h3>
+          <p className="text-xs md:text-sm text-slate-500 dark:text-gray-400 font-medium">{subtitle}</p>
+        </div>
       </div>
 
       <div className="relative group">
@@ -1078,11 +1080,11 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
 
         <div 
           ref={scrollRef}
-          className="flex gap-2.5 md:gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory px-0"
-          style={{ touchAction: 'pan-x', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+          className="flex gap-2.5 md:gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory"
+          style={{ touchAction: 'pan-x', WebkitOverflowScrolling: 'touch', paddingLeft: undefined, scrollPaddingLeft: undefined } as React.CSSProperties}
         >
-          {/* Spacer to align first card with the title above */}
-          <div className="shrink-0 w-6 md:w-16 h-1"></div>
+          {/* First card aligned via section padding */}
+          <div className="shrink-0 w-4 lg:w-12 h-1 pointer-events-none" aria-hidden="true" />
           {providers.map((p) => (
             <div
               key={p.id}
