@@ -992,7 +992,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
 function SkeletonRow() {
   return (
-    <div className="mb-4 md:mb-6 animate-pulse">
+    <div className="mb-2 md:mb-4 animate-pulse">
       <div className="h-4 w-32 bg-zinc-800 rounded mb-2 ml-4 lg:ml-[var(--gutter-desktop)]"></div>
       <div className="flex overflow-x-hidden no-scrollbar snap-x snap-mandatory">
         {/* Leading Spacer */}
@@ -1000,7 +1000,202 @@ function SkeletonRow() {
         
         <div className="flex gap-2">
           {[1, 2, 3, 4].map(i => (
-            <div key={i} className="shrink-0 w-[135px] md:w-[220px] lg:w-[280px]">
+            <div key={i} className="shrink-0 w-[115px] md:w-[220px] lg:w-[280px]">
+              <div className="aspect-[2/3] md:aspect-video bg-zinc-800 rounded-lg"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+          </div>
+        </section>
+
+        {/* Collection Rows */}
+        <div className={`w-full relative z-20 pb-10 ${!activeRequest ? '-mt-8' : ''}`}>
+          
+          {/* Action Row - Search & View Toggle */}
+          <div className="netflix-gutter mb-8 flex flex-col md:flex-row gap-4 items-center justify-between lg:max-w-xl">
+            <div className="relative group w-full flex-1">
+                  <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                    <span className="material-symbols-outlined text-gray-400 group-focus-within:text-primary transition-colors">sparkles</span>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Busque por serviço ou cidade..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && onNavigate('listing', { searchQuery })}
+                    className="w-full pl-10 pr-4 py-3 bg-slate-100/10 backdrop-blur-xl border border-white/10 rounded-full text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all placeholder:text-gray-500 shadow-inner"
+                  />
+            </div>
+            
+            <div className="flex items-center gap-4">
+               <button 
+                onClick={() => setViewMode(prev => prev === 'list' ? 'map' : 'list')}
+                className="flex items-center gap-2 bg-slate-100 dark:bg-[#1a242f] text-slate-900 dark:text-white px-5 py-2.5 rounded-full text-xs font-black border border-slate-200 dark:border-slate-700 hover:border-primary transition-colors shadow-lg"
+              >
+                <span className="material-symbols-outlined text-[18px]">{viewMode === 'list' ? 'map' : 'format_list_bulleted'}</span>
+                {viewMode === 'list' ? 'Ver Mapa' : 'Ver Lista'}
+              </button>
+            </div>
+          </div>
+
+          {viewMode === 'map' ? (
+             /* Map View Container */
+             <div className="w-full h-[600px] rounded-2xl overflow-hidden shadow-2xl border border-slate-800 relative ring-1 ring-white/10">
+                <MapContainer 
+                  center={mapCenter} 
+                  zoom={userCoords ? 13 : 12} 
+                  style={{ height: '100%', width: '100%' }}
+                  className="z-0"
+                >
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  />
+                  <MapUpdater center={mapCenter} />
+                  {userCoords && (
+                    <CircleMarker 
+                      center={[userCoords.lat, userCoords.lng]}
+                      radius={8}
+                      pathOptions={{ 
+                        fillColor: '#3b82f6', 
+                        color: '#ffffff', 
+                        weight: 3, 
+                        fillOpacity: 1 
+                      }}
+                    >
+                      <Popup>📍 Você está aqui</Popup>
+                    </CircleMarker>
+                  )}
+                  {providers.map(p => {
+                    if (!p.latitude || !p.longitude) return null;
+                    return (
+                      <Marker 
+                        key={p.id} 
+                        position={[p.latitude, p.longitude]} 
+                        icon={createProviderIcon(p.image)}
+                      >
+                        <Popup className="provider-popup">
+                          <div className="p-2 w-48 font-display bg-[#0f171e] text-white rounded-lg">
+                            <img src={p.image} className="w-full h-24 object-cover rounded-md mb-2" alt={p.name} />
+                            <h4 className="font-bold text-white">{p.name}</h4>
+                            <p className="text-xs text-primary font-bold mb-1">{p.service}</p>
+                            <button 
+                              onClick={() => onNavigate('profile', { professionalId: p.id })}
+                              className="w-full bg-primary text-white text-[10px] py-2 rounded font-black mt-2"
+                            >
+                              Ver Perfil
+                            </button>
+                          </div>
+                        </Popup>
+                      </Marker>
+                    );
+                  })}
+                </MapContainer>
+             </div>
+          ) : (
+            <>
+              {loadingProviders ? (
+                <>
+                  <SkeletonRow />
+                  <SkeletonRow />
+                  <SkeletonRow />
+                </>
+              ) : (
+                <>
+                  {/* Row: Hire Again (Prioritizing loyal customers) */}
+                  {previousProviders.length > 0 && (
+                    <CollectionRow 
+                      title="Contratar Novamente" 
+                      subtitle="Profissionais que já prestaram serviços para você."
+                      providers={previousProviders} 
+                      onNavigate={onNavigate}
+                      onViewMore={() => onNavigate('myRequests')}
+                    />
+                  )}
+
+                  {/* Row: Alvo Indica Recommendations */}
+                    <CollectionRow 
+                      title="Destaques KNGindica" 
+                      subtitle="Os profissionais mais bem avaliados e recomendados."
+                      providers={featuredProviders.length > 0 ? featuredProviders : plusProviders.slice(0, 10)} 
+                      onNavigate={onNavigate}
+                      highlight
+                      onViewMore={() => onNavigate('listing', { featured: true })}
+                    />
+
+                  {/* Row: All Providers (Fallback/Discovery) */}
+                    <CollectionRow 
+                      title="KNGindica" 
+                      subtitle="Explore todos os prestadores em sua região."
+                      providers={providers} 
+                      onNavigate={onNavigate}
+                      onViewMore={() => onNavigate('listing', { searchQuery: '' })}
+                    />
+
+                  {/* Row: My Favorites (Now positioned before dynamic categories) */}
+                  {favoriteProviders.length > 0 && (
+                    <CollectionRow 
+                      title="Meus Favoritos" 
+                      subtitle="Seus profissionais preferidos salvos para acesso rápido."
+                      providers={favoriteProviders} 
+                      onNavigate={onNavigate}
+                    />
+                  )}
+
+                  {/* Dynamic Category Rows (Auto-generated from available services) */}
+                  {groupedByCategory.map(group => (
+                    <CollectionRow 
+                      key={group.name}
+                      title={group.name} 
+                      subtitle={`Confira os melhores profissionais de ${group.name.toLowerCase()}.`}
+                      providers={group.items} 
+                      onNavigate={onNavigate}
+                      onViewMore={() => onNavigate('listing', { category: group.name })}
+                    />
+                  ))}
+
+                </>
+              )}
+            </>
+          )}
+        </div>
+      </main>
+
+
+
+      {/* Custom Styles */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48; }
+        
+        @keyframes pulse-subtle {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.95; transform: scale(0.99); }
+        }
+        .animate-pulse-subtle { animation: pulse-subtle 4s infinite ease-in-out; }
+      `}} />
+    </div>
+  );
+}
+
+function SkeletonRow() {
+  return (
+    <div className="mb-2 md:mb-4 animate-pulse">
+      <div className="h-4 w-32 bg-zinc-800 rounded mb-2 ml-4 lg:ml-[var(--gutter-desktop)]"></div>
+      <div className="flex overflow-x-hidden no-scrollbar snap-x snap-mandatory">
+        {/* Leading Spacer */}
+        <div className="shrink-0 w-4 lg:w-[var(--gutter-desktop)] snap-start" />
+        
+        <div className="flex gap-2">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="shrink-0 w-[115px] md:w-[220px] lg:w-[280px]">
               <div className="aspect-[2/3] md:aspect-video bg-zinc-800 rounded-lg"></div>
             </div>
           ))}
@@ -1033,17 +1228,17 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
   if (providers.length === 0) return null;
 
   return (
-    <section className="mb-4 md:mb-6">
-      <div className="flex items-end justify-between mb-1 ml-4 lg:ml-[var(--gutter-desktop)] pr-4 lg:pr-[var(--gutter-desktop)]">
+    <section className="mb-2 md:mb-4">
+      <div className="flex items-end justify-between mb-0.5 ml-4 lg:ml-[var(--gutter-desktop)] pr-4 lg:pr-[var(--gutter-desktop)]">
         <h3 
           onClick={onViewMore}
-          className="text-sm md:text-xl font-bold text-gray-200 hover:text-white transition-colors cursor-pointer flex items-center group/title"
+          className="text-[11px] md:text-xl font-bold text-gray-200 hover:text-white transition-colors cursor-pointer flex items-center group/title"
         >
           {title}
-          <span className="material-symbols-outlined text-[16px] md:text-xl opacity-0 group-hover/title:opacity-100 transition-all translate-x-[-4px] group-hover/title:translate-x-1">chevron_right</span>
+          <span className="material-symbols-outlined text-[14px] md:text-xl opacity-0 group-hover/title:opacity-100 transition-all translate-x-[-4px] group-hover/title:translate-x-1">chevron_right</span>
         </h3>
         {onViewMore && (
-           <button onClick={onViewMore} className="text-[10px] md:text-sm font-bold text-primary hover:underline">Ver tudo</button>
+           <button onClick={onViewMore} className="text-[9px] md:text-sm font-bold text-primary hover:underline">Ver tudo</button>
         )}
       </div>
 
@@ -1065,7 +1260,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
         <div 
           ref={scrollRef}
           className="flex overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory justify-start"
-          style={{ touchAction: 'pan-x', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+          style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
         >
           {/* THE DEFINITIVE FIX: snap-start on the Spacer */}
           <div className="shrink-0 w-4 lg:w-[var(--gutter-desktop)] snap-start" />
@@ -1075,7 +1270,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
             <div
               key={p.id}
               onClick={() => onNavigate('profile', { professionalId: p.id })}
-              className={`shrink-0 w-[135px] md:w-[220px] lg:w-[280px] cursor-pointer snap-start transition-transform duration-300 active:scale-95`}
+              className={`shrink-0 w-[115px] md:w-[200px] lg:w-[280px] cursor-pointer snap-start transition-transform duration-300 active:scale-95`}
             >
               <div className="relative aspect-[2/3] md:aspect-video rounded-lg overflow-hidden bg-zinc-900 shadow-lg border border-white/5">
                 <img
@@ -1118,7 +1313,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
           ))}
 
             {onViewMore && (
-              <div className="snap-start shrink-0 w-[135px] md:w-[220px] lg:w-[280px] cursor-pointer">
+              <div className="snap-start shrink-0 w-[115px] md:w-[200px] lg:w-[280px] cursor-pointer">
                  <button 
                   onClick={onViewMore}
                   className="w-full aspect-[2/3] md:aspect-video rounded-lg border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all flex flex-col items-center justify-center gap-2 group"
