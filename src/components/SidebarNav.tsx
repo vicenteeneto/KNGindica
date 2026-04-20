@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { NavigationProps, Screen } from '../types';
 import { useNotifications } from '../NotificationContext';
 import { useAuth } from '../AuthContext';
@@ -48,7 +48,7 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
       ];
 
   return (
-    <nav className="hidden lg:flex fixed left-0 top-0 bottom-0 w-16 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-r border-slate-200 dark:border-white/10 flex-col items-center py-4 z-[100] shadow-lg overflow-hidden">
+    <nav className="hidden lg:flex fixed left-0 top-0 bottom-0 w-16 bg-white dark:bg-[#001c30] border-r border-slate-200 dark:border-white/5 flex-col items-center py-4 z-[100] shadow-2xl overflow-hidden">
       <div className="flex-1 flex flex-col gap-0.5 overflow-hidden py-1 w-full px-0.5">
         {navItems.map((item) => {
           const isActive = currentScreen === item.screen;
@@ -59,7 +59,7 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
               className={`flex flex-col items-center justify-center group relative p-1 rounded-lg transition-all w-full ${
                 isActive 
                   ? 'bg-primary/20 text-primary' 
-                  : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10'
               }`}
               title={item.label}
             >
@@ -96,7 +96,7 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
                   className={`flex flex-col items-center justify-center group relative p-1 rounded-lg transition-all w-full ${
                     isActive 
                       ? 'bg-primary/30 text-primary border border-primary/20' 
-                      : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                      : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10'
                   }`}
                   title={tab.label}
                 >
@@ -121,7 +121,7 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
       <div className="mt-auto pt-4 border-t border-slate-100 dark:border-white/5 w-full flex justify-center">
         <button
           onClick={() => onNavigate('userProfile')}
-          className="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border border-transparent hover:border-primary/20"
+          className="size-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-white/10 transition-all border border-transparent hover:border-primary/20"
         >
           <span className="material-symbols-outlined text-[24px]">settings</span>
         </button>
