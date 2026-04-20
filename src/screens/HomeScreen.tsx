@@ -1009,8 +1009,8 @@ function SkeletonRow() {
       <div className="h-5 w-40 bg-zinc-800 rounded mb-4"></div>
       <div className="flex gap-2 overflow-x-hidden">
         {[1, 2, 3, 4, 5].map(i => (
-          <div key={i} className="shrink-0 w-[110px] md:w-[240px]">
-            <div className="aspect-[2/3] md:aspect-video bg-zinc-800 rounded-md"></div>
+          <div key={i} className="shrink-0 w-[110px] md:w-[220px] lg:w-[280px]">
+            <div className="aspect-[2/3] md:aspect-video bg-zinc-800 rounded-sm"></div>
           </div>
         ))}
       </div>
@@ -1059,13 +1059,13 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
         {/* Scroll Buttons (Desktop Only) */}
         <button 
           onClick={() => scroll('left')}
-          className="absolute left-0 top-0 bottom-4 w-[4%] z-40 bg-black/40 hover:bg-black/60 flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity text-white hidden md:flex"
+          className="absolute left-0 top-0 bottom-4 w-[var(--gutter-desktop)] z-40 bg-black/40 hover:bg-black/60 flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity text-white hidden lg:flex"
         >
           <span className="material-symbols-outlined text-4xl">chevron_left</span>
         </button>
         <button 
           onClick={() => scroll('right')}
-          className="absolute right-0 top-0 bottom-4 w-[4%] z-40 bg-black/40 hover:bg-black/60 flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity text-white hidden md:flex"
+          className="absolute right-0 top-0 bottom-4 w-[var(--gutter-desktop)] z-40 bg-black/40 hover:bg-black/60 flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity text-white hidden lg:flex"
         >
           <span className="material-symbols-outlined text-4xl">chevron_right</span>
         </button>
