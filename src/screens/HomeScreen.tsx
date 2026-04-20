@@ -1003,7 +1003,7 @@ function SkeletonRow() {
         <div className="flex gap-2">
           {[1, 2, 3, 4, 5].map(i => (
             <div key={i} className="shrink-0 w-[115px] md:w-[200px] lg:w-[280px]">
-              <div className="aspect-[2/2.5] md:aspect-video bg-zinc-800 rounded-lg"></div>
+              <div className="aspect-[2/2.6] md:aspect-video bg-zinc-800 rounded-lg"></div>
             </div>
           ))}
         </div>
@@ -1079,7 +1079,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
               onClick={() => onNavigate('profile', { professionalId: p.id })}
               className={`shrink-0 w-[115px] md:w-[200px] lg:w-[280px] cursor-pointer snap-start`}
             >
-              <div className="relative aspect-[2/2.5] md:aspect-video rounded-lg overflow-hidden bg-zinc-900 shadow-lg border border-white/5">
+              <div className="relative aspect-[2/2.6] md:aspect-video rounded-lg overflow-hidden bg-zinc-900 shadow-lg border border-white/5">
                 <img
                   src={p.image}
                   alt={p.name}
@@ -1123,7 +1123,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
               <div className="snap-start shrink-0 w-[115px] md:w-[200px] lg:w-[280px] cursor-pointer">
                  <button 
                   onClick={onViewMore}
-                  className="w-full aspect-[2/2.5] md:aspect-video rounded-lg border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all flex flex-col items-center justify-center gap-2 group"
+                  className="w-full aspect-[2/2.6] md:aspect-video rounded-lg border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all flex flex-col items-center justify-center gap-2 group"
                 >
                   <span className="material-symbols-outlined text-2xl opacity-40 group-hover:opacity-100 group-hover:scale-110 transition-all transition-transform">add_circle</span>
                   <span className="text-[9px] md:text-xs font-bold text-gray-500 uppercase tracking-widest">Ver tudo</span>
