@@ -711,10 +711,10 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                             </div>
                             
                             {/* Action Buttons */}
-                            <div className="flex items-center justify-center lg:justify-start gap-2.5 w-full max-w-[320px] lg:max-w-none lg:mx-0 mx-auto">
+                            <div className="flex items-center justify-start gap-2.5 w-full">
                               <button
                                 onClick={() => onNavigate('profile', { professionalId: p.id })}
-                                className="flex-1 flex items-center justify-center gap-1.5 bg-white text-black h-9 rounded font-black text-[10px] md:text-sm hover:bg-white/90 transition-all active:scale-95 shadow-2xl"
+                                className="px-6 flex items-center justify-center gap-1.5 bg-white text-black h-9 rounded font-black text-[10px] md:text-sm hover:bg-white/90 transition-all active:scale-95 shadow-2xl min-w-fit"
                               >
                                 <span className="material-symbols-outlined filled text-[18px]">play_arrow</span>
                                 Ver Perfil
@@ -722,7 +722,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                               
                               <button
                                 onClick={() => toggleFavorite(p.id)}
-                                className="flex-1 flex items-center justify-center gap-1.5 bg-white/20 backdrop-blur-md text-white h-9 rounded font-black text-[10px] md:text-sm hover:bg-white/30 transition-all active:scale-95 border border-white/10"
+                                className="px-6 flex items-center justify-center gap-1.5 bg-white/20 backdrop-blur-md text-white h-9 rounded font-black text-[10px] md:text-sm hover:bg-white/30 transition-all active:scale-95 border border-white/10 min-w-fit"
                               >
                                 <span className="material-symbols-outlined text-[16px]">{isFavorited ? 'check' : 'add'}</span>
                                 Meus favoritos
