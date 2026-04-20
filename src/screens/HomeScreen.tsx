@@ -595,7 +595,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
               <button 
                 onClick={() => onNavigate('userProfile')} 
-                className={`size-8 rounded-md overflow-hidden border transition-all ${
+                className={`size-8 rounded-full overflow-hidden border transition-all ${
                   isPremiumUser ? 'border-primary' : 'border-white/20'
                 }`}
               >
@@ -698,23 +698,16 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                         <div className="absolute inset-0 bg-black/5"></div>
 
                         {/* Content Section - Anchored at the very bottom */}
-                        <div className="absolute bottom-6 left-0 right-0 px-4 transition-all duration-500">
+                        <div className="absolute bottom-4 left-0 right-0 px-4 transition-all duration-500">
                           <div className="w-full flex flex-col items-center text-center">
                             {/* Professional Name - "Graphic Logo" Style */}
-                            <h1 className="netflix-title-logo text-2xl md:text-6xl mb-4 max-w-[95%] break-words drop-shadow-2xl">
+                            <h1 className="netflix-title-logo text-2xl md:text-6xl mb-0.5 max-w-[95%] break-words drop-shadow-2xl leading-none">
                               {p.name}
                             </h1>
 
                             {/* Tags */}
-                            <div className="flex items-center justify-center gap-1.5 mb-8 flex-wrap opacity-90">
-                              <span className="text-[9px] md:text-sm font-black text-gray-100 uppercase tracking-widest">{p.service}</span>
-                              <span className="text-white/30">•</span>
-                              <div className="flex items-center text-primary gap-0.5">
-                                <span className="material-symbols-outlined text-[10px] md:text-sm filled">star</span>
-                                <span className="text-[10px] md:text-sm font-black">{(p.rating || 5.0).toString().replace('.', ',')}</span>
-                              </div>
-                              <span className="text-white/30">•</span>
-                              <span className="text-[9px] md:text-sm font-black text-gray-100 uppercase tracking-widest">{p.city}</span>
+                            <div className="flex items-center justify-center gap-1.5 mb-2.5 flex-wrap opacity-90">
+                              <span className="text-[10px] md:text-sm font-black text-gray-100 uppercase tracking-[0.2em]">{p.service} - {p.city}</span>
                             </div>
                             
                             {/* Action Buttons */}
