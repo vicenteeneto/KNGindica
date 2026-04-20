@@ -712,7 +712,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                             </div>
                             
                             {/* Action Buttons */}
-                            <div className="flex items-center justify-start gap-2.5 w-full">
+                            <div className="flex items-center justify-center lg:justify-start gap-2.5 w-full">
                               <button
                                 onClick={() => onNavigate('profile', { professionalId: p.id })}
                                 className="px-6 flex items-center justify-center gap-1.5 bg-white text-black h-9 rounded font-black text-[10px] md:text-sm hover:bg-white/90 transition-all active:scale-95 shadow-2xl min-w-fit"
@@ -1029,7 +1029,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
 
   return (
     <section className="mb-8 md:mb-12">
-      <div className="flex items-end justify-between mb-2 px-4 lg:netflix-gutter">
+      <div className="flex items-end justify-between mb-2 px-4 lg:px-[var(--gutter-desktop)]">
         <h3 
           onClick={onViewMore}
           className="text-sm md:text-xl font-bold text-gray-200 hover:text-white transition-colors cursor-pointer flex items-center group/title"
@@ -1059,10 +1059,10 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
 
         <div 
           ref={scrollRef}
-          className="flex gap-1.5 md:gap-2 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory px-4 lg:px-[var(--gutter-desktop)]"
+          className="flex gap-1.5 md:gap-2 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory px-4 lg:px-[var(--gutter-desktop)]"
           style={{ touchAction: 'pan-x', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
         >
-          {providers.map((p) => (
+          {providers.filter(Boolean).map((p) => (
             <div
               key={p.id}
               onClick={() => onNavigate('profile', { professionalId: p.id })}
