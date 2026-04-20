@@ -140,6 +140,30 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
     }
   };
 
+  // Toggle favorite provider
+  const toggleFavorite = async (providerId: string) => {
+    if (!user) return;
+    const isFavorited = favoriteProviders.some(f => f.id === providerId);
+    try {
+      if (isFavorited) {
+        await supabase
+          .from('user_favorites')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('provider_id', providerId);
+        setFavoriteProviders(prev => prev.filter(f => f.id !== providerId));
+      } else {
+        await supabase
+          .from('user_favorites')
+          .insert({ user_id: user.id, provider_id: providerId });
+        const provider = dbProviders.find(p => p.id === providerId);
+        if (provider) setFavoriteProviders(prev => [...prev, provider]);
+      }
+    } catch (e) {
+      console.error("Erro ao favoritar", e);
+    }
+  };
+
   // Ask for location on mount
   useEffect(() => {
     const savedLocation = localStorage.getItem('KNGindica_manualCity');
@@ -644,14 +668,14 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
       <main className="flex-1 w-full relative">
         {/* Netflix-Style Cinematic Hero */}
         <section 
-          className="relative w-full h-[580px] pt-12 pb-6 md:h-[85vh] overflow-hidden transition-all duration-700 bg-gradient-to-b from-zinc-900 via-black to-black"
+          className="relative w-full h-[640px] pt-4 pb-6 md:h-[85vh] overflow-hidden transition-all duration-700 bg-gradient-to-b from-zinc-900 via-black to-black"
           onTouchStart={handleTouchStartHero}
           onTouchMove={handleTouchMoveHero}
           onTouchEnd={handleTouchEndHero}
         >
           {heroProviders.length > 0 ? (
-            <div className="px-2 h-full">
-              <div className="relative h-full w-full max-w-2xl mx-auto overflow-visible">
+            <div className="px-12 h-full">
+              <div className="relative h-full w-full max-w-lg mx-auto overflow-visible">
                 {heroProviders.slice(0, 5).map((p, idx) => {
                   const isFavorited = favoriteProviders.some(f => f.id === p.id);
                   
@@ -693,20 +717,21 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                             </div>
                             
                             {/* Action Buttons */}
-                            <div className="flex items-center justify-center gap-3 w-full max-w-[280px] mx-auto">
+                            <div className="flex items-center justify-center gap-2.5 w-full max-w-[320px] mx-auto">
                               <button
                                 onClick={() => onNavigate('profile', { professionalId: p.id })}
-                                className="flex-1 flex items-center justify-center gap-2 bg-white text-black py-2.5 rounded-md font-black text-[11px] md:text-sm hover:bg-white/90 transition-all active:scale-95 shadow-2xl"
+                                className="flex-1 flex items-center justify-center gap-1.5 bg-white text-black h-9 rounded font-black text-[10px] md:text-sm hover:bg-white/90 transition-all active:scale-95 shadow-2xl"
                               >
                                 <span className="material-symbols-outlined filled text-[18px]">play_arrow</span>
                                 Ver Perfil
                               </button>
                               
                               <button
-                                onClick={() => {/* Toggle favoritar */}}
-                                className="w-10 h-10 flex items-center justify-center bg-white/20 backdrop-blur-md text-white rounded-md hover:bg-white/30 transition-all active:scale-95"
+                                onClick={() => toggleFavorite(p.id)}
+                                className="flex-1 flex items-center justify-center gap-1.5 bg-white/20 backdrop-blur-md text-white h-9 rounded font-black text-[10px] md:text-sm hover:bg-white/30 transition-all active:scale-95 border border-white/10"
                               >
-                                <span className="material-symbols-outlined text-[20px]">{isFavorited ? 'check' : 'add'}</span>
+                                <span className="material-symbols-outlined text-[16px]">{isFavorited ? 'check' : 'add'}</span>
+                                Meus favoritos
                               </button>
                             </div>
                           </div>
