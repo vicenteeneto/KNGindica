@@ -1093,26 +1093,17 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
                 {/* Badge Overlay (Optional: Affiliate/Verified) */}
                 {(p.isAffiliate || p.isVerified) && (
                   <div className="absolute top-1.5 right-1.5">
-                    <span className="material-symbols-outlined text-primary text-[14px] md:text-[18px] filled drop-shadow-lg">
+                    <span className="material-symbols-outlined text-primary text-[10px] md:text-[14px] filled drop-shadow-lg">
                       {p.isVerified ? 'verified' : 'star'}
                     </span>
                   </div>
                 )}
                 
                 {/* Provider Info Overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-1.5 md:p-3">
-                  <h4 className="text-[9px] md:text-sm font-black text-white truncate leading-tight drop-shadow-md uppercase tracking-tight">
+                <div className="absolute bottom-0 left-0 right-0 p-1 md:p-1.5 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
+                  <h4 className="text-[8px] md:text-xs font-black text-white truncate leading-tight drop-shadow-md uppercase tracking-tight">
                     {p.name}
                   </h4>
-                  <div className="flex items-center justify-between mt-0.5 opacity-90">
-                    <span className="text-[7px] md:text-[10px] text-gray-300 font-bold uppercase tracking-wider truncate max-w-[70%]">
-                      {p.service}
-                    </span>
-                    <div className="flex items-center gap-0.5">
-                      <span className="material-symbols-outlined text-[#FF7A00] text-[8px] md:text-[12px] filled">star</span>
-                      <span className="text-[7px] md:text-[10px] font-black text-white">{p.rating.toFixed(1)}</span>
-                    </div>
-                  </div>
                 </div>
 
                 {/* Progress Bar Highlight */}
