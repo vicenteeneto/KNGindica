@@ -994,8 +994,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
 function SkeletonRow() {
   return (
-    <div className="mb-0.5 md:mb-2 animate-pulse">
-      <div className="h-[16px] w-24 bg-zinc-800 rounded mb-1 ml-4 lg:ml-[var(--gutter-desktop)]"></div>
+    <div className="mb-2.5 md:mb-4 animate-pulse">
+      <div className="h-[16px] w-24 bg-zinc-800 rounded mb-1.5 ml-4 lg:ml-[var(--gutter-desktop)]"></div>
       <div className="flex overflow-x-hidden no-scrollbar snap-x snap-mandatory">
         {/* Leading Spacer */}
         <div className="shrink-0 w-4 lg:w-[var(--gutter-desktop)] snap-start" />
@@ -1003,7 +1003,7 @@ function SkeletonRow() {
         <div className="flex gap-2">
           {[1, 2, 3, 4, 5].map(i => (
             <div key={i} className="shrink-0 w-[115px] md:w-[200px] lg:w-[280px]">
-              <div className="aspect-[2/2.75] md:aspect-video bg-zinc-800 rounded-lg"></div>
+              <div className="aspect-[2/2.95] md:aspect-video bg-zinc-800 rounded-lg"></div>
             </div>
           ))}
         </div>
@@ -1035,8 +1035,8 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
   if (providers.length === 0) return null;
 
   return (
-    <section className="mb-0.5 md:mb-2">
-      <div className="flex items-end justify-between mb-0.5 ml-4 lg:ml-[var(--gutter-desktop)] pr-4 lg:pr-[var(--gutter-desktop)]">
+    <section className="mb-2.5 md:mb-4">
+      <div className="flex items-end justify-between mb-1.5 ml-4 lg:ml-[var(--gutter-desktop)] pr-4 lg:pr-[var(--gutter-desktop)]">
         <h3 
           onClick={onViewMore}
           className="text-[14px] md:text-xl font-bold text-gray-200 hover:text-white transition-colors cursor-pointer flex items-center group/title"
@@ -1053,20 +1053,20 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
         {/* Scroll Buttons (Desktop Only) */}
         <button 
           onClick={() => scroll('left')}
-          className="absolute left-0 top-0 bottom-1.5 w-[var(--gutter-desktop)] z-40 bg-black/40 hover:bg-black/60 flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity text-white hidden lg:flex"
+          className="absolute left-0 top-0 bottom-2 w-[var(--gutter-desktop)] z-40 bg-black/40 hover:bg-black/60 flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity text-white hidden lg:flex"
         >
           <span className="material-symbols-outlined text-4xl">chevron_left</span>
         </button>
         <button 
           onClick={() => scroll('right')}
-          className="absolute right-0 top-0 bottom-1.5 w-[var(--gutter-desktop)] z-40 bg-black/40 hover:bg-black/60 flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity text-white hidden lg:flex"
+          className="absolute right-0 top-0 bottom-2 w-[var(--gutter-desktop)] z-40 bg-black/40 hover:bg-black/60 flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity text-white hidden lg:flex"
         >
           <span className="material-symbols-outlined text-4xl">chevron_right</span>
         </button>
 
         <div 
           ref={scrollRef}
-          className="flex overflow-x-auto pb-1.5 no-scrollbar snap-x snap-mandatory justify-start"
+          className="flex overflow-x-auto pb-2 no-scrollbar snap-x snap-mandatory justify-start"
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {/* THE DEFINITIVE FIX: snap-start on the Spacer */}
@@ -1079,7 +1079,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
               onClick={() => onNavigate('profile', { professionalId: p.id })}
               className={`shrink-0 w-[115px] md:w-[200px] lg:w-[280px] cursor-pointer snap-start`}
             >
-              <div className="relative aspect-[2/2.75] md:aspect-video rounded-lg overflow-hidden bg-zinc-900 shadow-lg border border-white/5">
+              <div className="relative aspect-[2/2.95] md:aspect-video rounded-lg overflow-hidden bg-zinc-900 shadow-lg border border-white/5">
                 <img
                   src={p.image}
                   alt={p.name}
@@ -1123,7 +1123,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
               <div className="snap-start shrink-0 w-[115px] md:w-[200px] lg:w-[280px] cursor-pointer">
                  <button 
                   onClick={onViewMore}
-                  className="w-full aspect-[2/2.75] md:aspect-video rounded-lg border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all flex flex-col items-center justify-center gap-2 group"
+                  className="w-full aspect-[2/2.95] md:aspect-video rounded-lg border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all flex flex-col items-center justify-center gap-2 group"
                 >
                   <span className="material-symbols-outlined text-2xl opacity-40 group-hover:opacity-100 group-hover:scale-110 transition-all transition-transform">add_circle</span>
                   <span className="text-[9px] md:text-xs font-bold text-gray-500 uppercase tracking-widest">Ver tudo</span>
@@ -1139,4 +1139,3 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
     </section>
   );
 }
-// Sync Deployment 04/20/2026 18:11:50
