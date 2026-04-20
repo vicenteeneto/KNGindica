@@ -792,7 +792,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         )}
 
         <section className="w-full netflix-gutter mb-10 relative z-30 transition-all duration-300">
-          <div className="bg-gradient-to-r from-emerald-600/90 to-emerald-800/95 rounded-xl p-4 md:p-6 shadow-xl relative overflow-hidden group border border-emerald-400/20 lg:max-w-2xl lg:mx-0">
+          <div className="bg-gradient-to-r from-emerald-600/90 to-emerald-800/95 rounded-xl p-4 md:p-6 shadow-xl relative overflow-hidden group border border-emerald-400/20 lg:max-w-xl lg:mx-0">
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
               <div className="flex-1 text-center md:text-left">
@@ -840,7 +840,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             <div className="flex items-center gap-4">
                <button 
                 onClick={() => setViewMode(prev => prev === 'list' ? 'map' : 'list')}
-                className="flex items-center gap-2 bg-slate-100 dark:bg-[#1a242f] text-slate-900 dark:text-white px-5 py-2.5 rounded-xl text-xs font-black border border-slate-200 dark:border-slate-700 hover:border-primary transition-colors shadow-lg"
+                className="flex items-center gap-2 bg-slate-100 dark:bg-[#1a242f] text-slate-900 dark:text-white px-5 py-2.5 rounded-full text-xs font-black border border-slate-200 dark:border-slate-700 hover:border-primary transition-colors shadow-lg"
               >
                 <span className="material-symbols-outlined text-[18px]">{viewMode === 'list' ? 'map' : 'format_list_bulleted'}</span>
                 {viewMode === 'list' ? 'Ver Mapa' : 'Ver Lista'}
