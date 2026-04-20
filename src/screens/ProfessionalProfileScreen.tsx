@@ -419,18 +419,17 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                       className="size-24 md:size-40 rounded-full border-[4px] border-white/20 shadow-2xl object-cover"
                       alt={professional.name}
                     />
-                    {professional.isVerified && <VerifiedBadge className="absolute bottom-2 right-2 scale-150" />}
                   </div>
 
                   <div className="mb-2">
-                    <div className="flex flex-wrap gap-2 mb-2">
-                       <span className="bg-primary/20 text-primary text-[10px] font-black px-2 py-1 rounded italic uppercase tracking-widest border border-primary/20">KNG Original</span>
-                       {professional.plan_type === 'plus' && (
-                         <span className="bg-amber-500/20 text-amber-500 text-[10px] font-black px-2 py-1 rounded italic uppercase tracking-widest border border-amber-500/20">PREMIUM</span>
-                       )}
-                    </div>
-                    <h1 className="text-4xl md:text-6xl font-black italic tracking-tighter leading-none mb-1 drop-shadow-2xl">
+                    {professional.plan_type === 'plus' && (
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        <span className="bg-amber-500/20 text-amber-500 text-[10px] font-black px-2 py-1 rounded italic uppercase tracking-widest border border-amber-500/20">PREMIUM</span>
+                      </div>
+                    )}
+                    <h1 className="text-2xl md:text-5xl font-black italic tracking-tighter leading-none mb-1 drop-shadow-2xl flex items-center gap-2 flex-wrap">
                       {professional.name?.toUpperCase()}
+                      {professional.isVerified && <VerifiedBadge className="inline-block shrink-0" />}
                     </h1>
                     <p className="text-primary font-black uppercase text-xs md:text-sm tracking-[0.2em] italic">
                       {professional.category} • {professional.city || 'Disponível'}
@@ -738,17 +737,17 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
       </main>
 
       {/* Sticky Footer Action: Mobile Only - Netflix Glass */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 pb-6 bg-black/60 backdrop-blur-2xl border-t border-white/5 flex items-center justify-center gap-3 z-[100] lg:hidden">
+      <div className="fixed bottom-0 left-0 right-0 p-3 pb-5 bg-black/60 backdrop-blur-2xl border-t border-white/5 flex items-center justify-center gap-2 z-[100] lg:hidden">
         {professional.plan_type === 'plus' && professional.whatsapp && (
           <a
             href={`https://wa.me/55${professional.whatsapp.replace(/\D/g, '')}`}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackLead(professional.id, 'whatsapp_click')}
-            className="h-14 w-14 bg-emerald-600 text-white rounded-2xl flex items-center justify-center shadow-2xl transition-transform active:scale-90 shrink-0"
+            className="h-11 w-11 bg-emerald-600 text-white rounded-xl flex items-center justify-center shadow-2xl transition-transform active:scale-90 shrink-0"
             title="WhatsApp"
           >
-            <span className="material-symbols-outlined !text-3xl">chat</span>
+            <span className="material-symbols-outlined !text-xl">chat</span>
           </a>
         )}
         <div className="flex-1 flex gap-2 max-w-lg">
@@ -761,9 +760,9 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
               trackLead(professional.id, 'chat_start');
               onNavigate('chat', { opponentId: professional.id, opponentName: professional.name, opponentAvatar: professional.image });
             }}
-            className="flex-1 bg-white/10 text-white h-14 rounded-2xl font-black italic uppercase tracking-widest text-[10px] flex flex-col items-center justify-center gap-0.5 transition-transform active:scale-95 min-w-0"
+            className="flex-1 bg-white/10 text-white h-11 rounded-xl font-black italic uppercase tracking-widest text-[10px] flex items-center justify-center gap-1.5 transition-transform active:scale-95 min-w-0 px-2"
           >
-            <span className="material-symbols-outlined !text-xl">forum</span>
+            <span className="material-symbols-outlined !text-base">forum</span>
             <span>Chat</span>
           </button>
           <button
@@ -771,9 +770,9 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
               trackLead(professional.id, 'chat_start');
               onNavigate('serviceRequestForm', { providerId: professional.id, providerName: professional.name });
             }}
-            className="flex-[2] bg-primary text-white h-14 px-4 rounded-2xl font-black italic uppercase tracking-tighter text-sm flex items-center justify-center gap-2 shadow-2xl shadow-primary/40 transition-transform active:scale-95"
+            className="flex-[2] bg-primary text-white h-11 px-4 rounded-xl font-black italic uppercase tracking-tighter text-xs flex items-center justify-center gap-1.5 shadow-2xl shadow-primary/40 transition-transform active:scale-95"
           >
-            <span className="material-symbols-outlined !text-2xl">bolt</span>
+            <span className="material-symbols-outlined !text-base">bolt</span>
             <span>Contratar</span>
           </button>
         </div>

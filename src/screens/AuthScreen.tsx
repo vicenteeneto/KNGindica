@@ -104,14 +104,13 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
       {/* Main Content */}
       <main className="flex-1 flex flex-col justify-center px-4 py-12 z-10 w-full">
         <div className="w-full max-w-[450px] mx-auto bg-black/60 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-3xl p-8 md:p-12 flex flex-col items-center">
-          {/* Logo/Header - KNGflix Style */}
+          {/* Logo/Header */}
           <div className="flex flex-col items-center mb-10">
             <div className="size-20 bg-primary text-white rounded-3xl flex items-center justify-center mb-6 shadow-2xl shadow-primary/40 rotate-3 transform-cpu">
               <span className="material-symbols-outlined text-5xl">handyman</span>
             </div>
             <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter mb-2 text-center leading-none uppercase">
-              {isLogin ? 'NETFLIX' : 'SIGN UP'} <br/>
-              <span className="text-primary italic">STYLE UI</span>
+              KNG<span className="text-primary italic">indica</span>
             </h1>
             <p className="text-gray-400 text-center text-[10px] font-black uppercase tracking-[0.25em] italic">
               {isLogin
