@@ -542,7 +542,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         ? 'bg-black/95 backdrop-blur-md shadow-2xl border-b border-white/5'
         : 'bg-gradient-to-b from-black/90 via-black/30 to-transparent'
         }`}>
-        <div className="max-w-7xl mx-auto px-4 lg:px-12 transition-all duration-300">
+        <div className="px-6 lg:px-12 transition-all duration-300">
         <div className="flex items-center justify-between transition-all duration-300">
           <div className="flex items-center gap-3">
             <div 
@@ -708,8 +708,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                     <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent md:hidden"></div>
 
                     {/* Content Section - Anchored Bottom */}
-                    <div className="absolute bottom-4 md:bottom-24 left-0 right-0 w-full px-6 md:px-16 lg:px-20 transition-all duration-500">
-                      <div className="max-w-full lg:max-w-7xl mx-auto flex flex-col items-center md:items-start text-center md:text-left">
+                    <div className="absolute bottom-4 md:bottom-24 left-0 right-0 w-full px-6 lg:px-12 transition-all duration-500">
+                      <div className="w-full flex flex-col items-center md:items-start text-center md:text-left">
                         <h1 className="text-2xl md:text-7xl font-black text-white leading-none drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] italic tracking-tighter mb-1.5 md:mb-6 whitespace-nowrap overflow-visible">
                           {p.name.toUpperCase()}
                         </h1>
@@ -768,7 +768,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
         {/* Active Service Tracker (Live Activity Style) */}
         {activeRequest && (
-          <div className="w-full max-w-7xl mx-auto px-4 lg:px-12 -mt-12 md:-mt-16 mb-8 relative z-30 transition-all duration-300">
+          <div className="w-full px-6 lg:px-12 -mt-12 md:-mt-16 mb-8 relative z-30 transition-all duration-300">
             <div 
               onClick={() => onNavigate('myRequests')}
               className="bg-primary/95 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl flex items-center justify-between cursor-pointer hover:scale-[1.02] transition-transform animate-pulse-subtle"
@@ -798,8 +798,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
           </div>
         )}
 
-
-        <section className="w-full max-w-7xl mx-auto px-4 lg:px-12 mb-10 relative z-30 transition-all duration-300">
+        <section className="w-full px-6 lg:px-12 mb-10 relative z-30 transition-all duration-300">
           <div className="bg-gradient-to-r from-emerald-600/90 to-emerald-800/95 rounded-xl p-4 md:p-6 shadow-xl relative overflow-hidden group border border-emerald-400/20">
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -827,10 +826,10 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         </section>
 
         {/* Collection Rows */}
-        <div className={`w-full max-w-7xl mx-auto relative z-20 pb-10 ${!activeRequest ? '-mt-8' : ''}`}>
+        <div className={`w-full relative z-20 pb-10 ${!activeRequest ? '-mt-8' : ''}`}>
           
           {/* Action Row - Search & View Toggle */}
-          <div className="px-4 lg:px-12 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
+          <div className="px-6 lg:px-12 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="relative group max-w-2xl w-full">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                     <span className="material-symbols-outlined text-gray-400 group-focus-within:text-primary transition-colors">sparkles</span>
@@ -1014,14 +1013,14 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
 function SkeletonRow() {
   return (
-    <div className="px-4 lg:px-12 mb-12 animate-pulse">
+    <div className="px-6 lg:px-12 mb-12 animate-pulse">
       <div className="h-6 w-48 bg-slate-800 rounded-md mb-2"></div>
       <div className="h-4 w-64 bg-slate-800/50 rounded-md mb-5"></div>
       <div className="flex gap-4 overflow-x-hidden">
         {[1, 2, 3, 4].map(i => (
           <div key={i} className="shrink-0 w-[160px] md:w-[260px]">
             <div className="aspect-[16/9] md:aspect-video bg-slate-800 rounded-xl mb-2"></div>
-            <div className="h-3 w-24 bg-slate-800/50 rounded-md mx-auto"></div>
+            <div className="h-3 w-24 bg-slate-800/50 rounded-md"></div>
           </div>
         ))}
       </div>
@@ -1053,7 +1052,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
 
   return (
     <section className="mb-12">
-      <div className="flex items-center justify-between mb-3 md:mb-4 px-4 lg:px-12">
+      <div className="flex items-center justify-between mb-3 md:mb-4 px-6 lg:px-12">
         <div>
           <h3 className={`text-lg md:text-xl font-black tracking-tighter italic flex items-center gap-2 ${highlight ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>
             {title}
@@ -1081,10 +1080,11 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
         <div 
           ref={scrollRef}
           className="flex gap-2.5 md:gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory"
-          style={{ touchAction: 'pan-x', WebkitOverflowScrolling: 'touch', paddingLeft: undefined, scrollPaddingLeft: undefined } as React.CSSProperties}
+          style={{ touchAction: 'pan-x', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
         >
-          {/* First card aligned via section padding */}
-          <div className="shrink-0 w-4 lg:w-12 h-1 pointer-events-none" aria-hidden="true" />
+          {/* Edge Alignment Spacer */}
+          <div className="shrink-0 w-6 lg:w-12 h-1 invisible" />
+
           {providers.map((p) => (
             <div
               key={p.id}
@@ -1156,6 +1156,8 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
                <div className="mt-2 hidden md:block h-[12px] md:h-[24px]"></div>
             </div>
           )}
+          {/* End Edge Alignment Spacer */}
+          <div className="shrink-0 w-6 lg:w-12 h-1 invisible" />
         </div>
       </div>
     </section>
