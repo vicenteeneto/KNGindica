@@ -49,6 +49,7 @@ const ICON_FOR_TYPE: Record<string, { icon: string; color: string; bg: string }>
   new_bid:             { icon: 'gavel',                  color: 'text-primary',    bg: 'bg-primary/20' },
   freelance_bid:       { icon: 'gavel',                  color: 'text-primary',    bg: 'bg-primary/20' },
   freelance_approved:  { icon: 'task_alt',               color: 'text-emerald-400', bg: 'bg-emerald-500/20' },
+  freelance_cancelled: { icon: 'cancel',                 color: 'text-red-400',    bg: 'bg-red-500/20' },
   freelance_scheduled: { icon: 'event_available',        color: 'text-indigo-400', bg: 'bg-indigo-500/20' },
   freelance_paid:      { icon: 'payments',               color: 'text-emerald-400', bg: 'bg-emerald-500/20' },
   freelance_status:    { icon: 'work_history',           color: 'text-blue-400',   bg: 'bg-blue-500/20' },
@@ -141,6 +142,7 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
       case 'review':    return { target: 'serviceStatus', navParams: { requestId: id } };
       case 'new_bid':
       case 'freelance_bid': return { target: 'bidRoom', navParams: { orderId: id } };
+      case 'freelance_cancelled': return { target: 'bidRoom', navParams: { orderId: id } };
       case 'freelance_approved':
       case 'freelance_scheduled':
       case 'freelance_status':

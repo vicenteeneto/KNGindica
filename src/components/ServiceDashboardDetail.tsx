@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNotifications } from '../NotificationContext';
 import { formatCurrency } from '../lib/formatters';
@@ -25,6 +25,18 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
   });
   const [isActing, setIsActing] = useState(false);
   const [isSendingBudget, setIsSendingBudget] = useState(false);
+  const [cancelModal, setCancelModal] = useState<{ isOpen: boolean; reason: string; otherText: string }>({
+    isOpen: false, reason: '', otherText: ''
+  });
+
+  const CANCEL_REASONS = [
+    'Não preciso mais do serviço',
+    'Encontrei outro profissional',
+    'O orçamento estava alto demais',
+    'O profissional demorou para responder',
+    'Erro ao criar o pedido',
+    'Outro motivo',
+  ];
 
   const fetchRequest = async () => {
     if (!requestId) return;
@@ -291,16 +303,6 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                              {displayData.status === 'in_service' && (
                                 <button onClick={async () => {
                                   await supabase.from('service_requests').update({ status: 'completed' }).eq('id', request.id);
-                                  
-                                  // Notificar o CLIENTE que o trabalho foi finalizado
-                                  await supabase.from('notifications').insert({
-                                    user_id: displayData.client_id,
-                                    title: 'Trabalho Finalizado! ✅',
-                                    message: `O profissional concluiu "${displayData.title || displayData.category?.name}". Avalie para liberar o pagamento.`,
-                                    type: 'status',
-                                    related_entity_id: displayData.id
-                                  });
-
                                   showToast("Sucesso", "Serviço finalizado!", "success");
                                   refreshData();
                                 }} className="w-full h-11 bg-emerald-600 text-white text-xs font-black rounded-xl shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2">
@@ -318,6 +320,15 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                            <span className="material-symbols-outlined text-sm">chat</span> Abrir Chat
                          </button>
                        )}
+
+                       {isClient && ['open', 'proposed', 'awaiting_payment'].includes(displayData.status) && (
+                          <button
+                            onClick={() => setCancelModal({ isOpen: true, reason: '', otherText: '' })}
+                            className="w-full h-10 bg-red-500/10 text-red-400 text-xs font-bold rounded-xl hover:bg-red-500/20 transition-all flex items-center justify-center gap-2 border border-red-500/20"
+                          >
+                            <span className="material-symbols-outlined text-sm">cancel</span> Cancelar Solicitação
+                          </button>
+                        )}
                     </div>
                   </div>
                </div>
@@ -490,6 +501,91 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
               <button onClick={handleScheduleSubmit} className="w-full h-12 bg-orange-500 text-white font-black rounded-xl mb-3">Agendar Agora</button>
               <button onClick={() => setScheduleModal({ ...scheduleModal, isOpen: false })} className="w-full text-[10px] font-black text-slate-500">Voltar</button>
            </div>
+        </div>
+      )}
+      {cancelModal.isOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-xl animate-in fade-in">
+          <div className="w-full max-w-sm bg-slate-900 border border-white/10 rounded-[28px] p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="size-10 rounded-xl bg-red-500/10 flex items-center justify-center text-red-400 shrink-0">
+                <span className="material-symbols-outlined">cancel</span>
+              </div>
+              <div>
+                <h3 className="text-base font-black text-white italic">Cancelar Solicitação</h3>
+                <p className="text-[10px] text-slate-400 font-medium">Informe o motivo para continuar</p>
+              </div>
+            </div>
+
+            <div className="space-y-2 mb-4">
+              {CANCEL_REASONS.map((r) => (
+                <button
+                  key={r}
+                  onClick={() => setCancelModal(prev => ({ ...prev, reason: r, otherText: r === 'Outro motivo' ? prev.otherText : '' }))}
+                  className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold transition-all border ${
+                    cancelModal.reason === r
+                      ? 'bg-red-500/20 border-red-500/40 text-red-300'
+                      : 'bg-white/5 border-white/5 text-slate-300 hover:bg-white/10'
+                  }`}
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
+
+            {cancelModal.reason === 'Outro motivo' && (
+              <textarea
+                value={cancelModal.otherText}
+                onChange={(e) => setCancelModal(prev => ({ ...prev, otherText: e.target.value }))}
+                placeholder="Descreva o motivo..."
+                rows={3}
+                className="w-full bg-slate-800 border border-white/5 rounded-xl px-4 py-3 text-xs text-white outline-none resize-none mb-4 placeholder:text-slate-600"
+              />
+            )}
+
+            <button
+              disabled={!cancelModal.reason || (cancelModal.reason === 'Outro motivo' && !cancelModal.otherText.trim()) || isActing}
+              onClick={async () => {
+                setIsActing(true);
+                try {
+                  const finalReason = cancelModal.reason === 'Outro motivo' ? cancelModal.otherText.trim() : cancelModal.reason;
+                  const { error } = await supabase.from('service_requests').update({
+                    status: 'cancelled',
+                    cancellation_reason: finalReason
+                  }).eq('id', request.id);
+                  if (error) throw error;
+
+                  // Notificar o prestador se já havia um atribuído
+                  if (displayData.provider_id) {
+                    await supabase.from('notifications').insert({
+                      user_id: displayData.provider_id,
+                      title: 'Pedido Cancelado ❌',
+                      message: `O cliente cancelou o pedido "${displayData.title || displayData.category?.name}". Motivo: ${finalReason}.`,
+                      type: 'cancel',
+                      related_entity_id: displayData.id
+                    });
+                  }
+
+                  showToast('Solicitação cancelada', 'Seu pedido foi cancelado com sucesso.', 'success');
+                  setCancelModal({ isOpen: false, reason: '', otherText: '' });
+                  refreshData();
+                } catch (e: any) {
+                  showToast('Erro', e.message || 'Falha ao cancelar', 'error');
+                } finally {
+                  setIsActing(false);
+                }
+              }}
+              className="w-full h-12 bg-red-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-black rounded-xl mb-3 transition-opacity flex items-center justify-center gap-2"
+            >
+              {isActing ? <span className="material-symbols-outlined animate-spin text-sm">progress_activity</span> : <span className="material-symbols-outlined text-sm">check</span>}
+              {isActing ? 'Cancelando...' : 'Confirmar Cancelamento'}
+            </button>
+            <button
+              onClick={() => setCancelModal({ isOpen: false, reason: '', otherText: '' })}
+              className="w-full text-[10px] font-black text-slate-500 py-2"
+            >
+              Voltar
+            </button>
+          </div>
         </div>
       )}
     </div>

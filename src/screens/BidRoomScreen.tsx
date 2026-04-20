@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
@@ -145,15 +145,30 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
     setConfirmModal({
       isOpen: true,
       title: "Cancelar Freelance?",
-      message: "Certeza que deseja CANCELAR este freelance? Esta ação é irreversível.",
+      message: "Certeza que deseja CANCELAR este freelance? Esta ação é irreversível e todos os prestadores que deram lance serão notificados.",
       confirmText: "Sim, Cancelar",
       variant: 'danger',
       action: async () => {
         try {
           const { error } = await supabase.from('freelance_orders').update({ status: 'cancelled' }).eq('id', order.id);
           if (error) throw error;
-          showToast("Cancelado", "Freelance cancelado com sucesso", "notification");
-          onNavigate('back');
+
+          // Notificar todos os prestadores que deram lance
+          if (bids.length > 0) {
+            const uniqueProviderIds = [...new Set(bids.map((b: any) => b.provider_id))];
+            const notifications = uniqueProviderIds.map((providerId) => ({
+              user_id: providerId,
+              title: 'Freelance Cancelado ❌',
+              message: `O pedido "${order.title}" foi cancelado pelo solicitante. Sua proposta foi encerrada.`,
+              type: 'freelance_cancelled',
+              related_entity_id: order.id
+            }));
+            await supabase.from('notifications').insert(notifications);
+          }
+
+          showToast("Cancelado", "Freelance cancelado. Prestadores notificados.", "notification");
+          setOrder((prev: any) => ({ ...prev, status: 'cancelled' }));
+          setConfirmModal(prev => ({ ...prev, isOpen: false }));
         } catch (e) {
           console.error(e);
           showToast("Erro", "Falha ao cancelar freelance", "error");
@@ -249,6 +264,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
 
   const isClient = user?.id === order.client_id;
   const isExpired = timeLeft === 'Expirado' || timeLeft === 'Encerrado';
+  const isCancelled = order.status === 'cancelled';
   const hasBidded = bids.some(b => b.provider_id === user?.id);
 
   return (
@@ -344,7 +360,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
                       </p>
                     )}
                     
-                    {isClient && !isExpired && (
+                    {isClient && !isExpired && !isCancelled && (
                       <div className="mt-3 flex justify-end">
                         <button onClick={() => handleAcceptBid(bid)} className="bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[10px] px-4 py-2 rounded-xl shadow-lg shadow-emerald-500/20 active:scale-95 transition-all">
                           Aceitar Proposta
@@ -390,7 +406,14 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
         </div>
       )}
       
-      {isClient && !isExpired && (
+      {isCancelled && (
+        <div className="shrink-0 p-4 border-t border-red-500/20 bg-red-500/5 z-20 text-center flex items-center justify-center gap-3">
+          <span className="material-symbols-outlined text-red-500">cancel</span>
+          <p className="text-sm font-black text-red-500">Este freelance foi cancelado.</p>
+        </div>
+      )}
+
+      {isClient && !isExpired && !isCancelled && (
         <div className="shrink-0 p-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 z-20 text-center">
           <p className="text-sm font-bold text-slate-500 mb-2">Você é o criador deste pedido.</p>
           <div className="flex flex-col gap-2">
