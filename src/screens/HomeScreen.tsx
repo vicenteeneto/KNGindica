@@ -994,7 +994,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
 function SkeletonRow() {
   return (
-    <div className="mb-2 md:mb-4 animate-pulse">
+    <div className="mb-0.5 md:mb-2 animate-pulse">
       <div className="h-[16px] w-24 bg-zinc-800 rounded mb-1 ml-4 lg:ml-[var(--gutter-desktop)]"></div>
       <div className="flex overflow-x-hidden no-scrollbar snap-x snap-mandatory">
         {/* Leading Spacer */}
@@ -1035,7 +1035,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
   if (providers.length === 0) return null;
 
   return (
-    <section className="mb-2 md:mb-4">
+    <section className="mb-0.5 md:mb-2">
       <div className="flex items-end justify-between mb-0.5 ml-4 lg:ml-[var(--gutter-desktop)] pr-4 lg:pr-[var(--gutter-desktop)]">
         <h3 
           onClick={onViewMore}
@@ -1053,20 +1053,20 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
         {/* Scroll Buttons (Desktop Only) */}
         <button 
           onClick={() => scroll('left')}
-          className="absolute left-0 top-0 bottom-4 w-[var(--gutter-desktop)] z-40 bg-black/40 hover:bg-black/60 flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity text-white hidden lg:flex"
+          className="absolute left-0 top-0 bottom-1.5 w-[var(--gutter-desktop)] z-40 bg-black/40 hover:bg-black/60 flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity text-white hidden lg:flex"
         >
           <span className="material-symbols-outlined text-4xl">chevron_left</span>
         </button>
         <button 
           onClick={() => scroll('right')}
-          className="absolute right-0 top-0 bottom-4 w-[var(--gutter-desktop)] z-40 bg-black/40 hover:bg-black/60 flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity text-white hidden lg:flex"
+          className="absolute right-0 top-0 bottom-1.5 w-[var(--gutter-desktop)] z-40 bg-black/40 hover:bg-black/60 flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity text-white hidden lg:flex"
         >
           <span className="material-symbols-outlined text-4xl">chevron_right</span>
         </button>
 
         <div 
           ref={scrollRef}
-          className="flex overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory justify-start"
+          className="flex overflow-x-auto pb-1.5 no-scrollbar snap-x snap-mandatory justify-start"
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {/* THE DEFINITIVE FIX: snap-start on the Spacer */}
