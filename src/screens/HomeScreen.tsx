@@ -822,8 +822,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         <div className={`w-full relative z-20 pb-10 ${!activeRequest ? '-mt-8' : ''}`}>
           
           {/* Action Row - Search & View Toggle */}
-          <div className="netflix-gutter mb-8 flex flex-col md:flex-row gap-4 items-center justify-start">
-            <div className="relative group w-full md:max-w-md">
+          <div className="netflix-gutter mb-8 flex flex-col md:flex-row gap-4 items-center justify-between lg:max-w-xl">
+            <div className="relative group w-full flex-1">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                     <span className="material-symbols-outlined text-gray-400 group-focus-within:text-primary transition-colors">sparkles</span>
                   </div>
