@@ -504,21 +504,21 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
 
-  // Group professionals for rows
-  const plusProviders = providers.filter(p => p.plan_type === 'plus');
-  const cleaningProviders = providers.filter(p => 
-    p.service.toLowerCase().includes('limpeza') || 
-    p.category?.toLowerCase().includes('limpeza')
-  );
-  const constructionProviders = providers.filter(p => 
-    p.service.toLowerCase().includes('reforma') || 
-    p.service.toLowerCase().includes('obra') ||
-    p.category?.toLowerCase().includes('reforma')
-  );
-  const electricProviders = providers.filter(p => 
-    p.service.toLowerCase().includes('eletri') || 
-    p.category?.toLowerCase().includes('eletri')
-  );
+  // Dynamic category grouping for rows
+  const groupedByCategory = useMemo(() => {
+    const groups: { [key: string]: any[] } = {};
+    providers.forEach(p => {
+      // Use the service name as the grouping key
+      const category = p.service || 'Serviços Gerais';
+      if (!groups[category]) groups[category] = [];
+      groups[category].push(p);
+    });
+    
+    // Convert to sorted array for consistent rendering
+    return Object.entries(groups)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([name, items]) => ({ name, items }));
+  }, [providers]);
   
   // High-priority featured list for Hero
   const heroProviders = featuredProviders.length > 0 ? featuredProviders : providers.slice(0, 5);
@@ -932,33 +932,6 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                       onViewMore={() => onNavigate('listing', { featured: true })}
                     />
 
-                  {/* Row: Cleaning Services */}
-                    <CollectionRow 
-                      title="Mestres da Limpeza" 
-                      subtitle="Deixe sua casa brilhando com especialistas."
-                      providers={cleaningProviders} 
-                      onNavigate={onNavigate}
-                      onViewMore={() => onNavigate('listing', { category: 'Limpeza' })}
-                    />
-
-                  {/* Row: Construction & Renovation */}
-                    <CollectionRow 
-                      title="Reformas e Manutenção" 
-                      subtitle="Sua casa nova, do jeito que você sonhou."
-                      providers={constructionProviders} 
-                      onNavigate={onNavigate}
-                      onViewMore={() => onNavigate('listing', { category: 'Reformas' })}
-                    />
-
-                  {/* Row: Electrical */}
-                    <CollectionRow 
-                      title="Eletricistas e Instalações" 
-                      subtitle="Segurança e rapidez para resolver pane ou instalar aparelhos."
-                      providers={electricProviders} 
-                      onNavigate={onNavigate}
-                      onViewMore={() => onNavigate('listing', { category: 'Eletricista' })}
-                    />
-
                   {/* Row: All Providers (Fallback/Discovery) */}
                     <CollectionRow 
                       title="KNGindica" 
@@ -968,7 +941,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                       onViewMore={() => onNavigate('listing', { searchQuery: '' })}
                     />
 
-                  {/* Row: My Favorites (At the bottom as requested) */}
+                  {/* Row: My Favorites (Now positioned before dynamic categories) */}
                   {favoriteProviders.length > 0 && (
                     <CollectionRow 
                       title="Meus Favoritos" 
@@ -977,6 +950,19 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                       onNavigate={onNavigate}
                     />
                   )}
+
+                  {/* Dynamic Category Rows (Auto-generated from available services) */}
+                  {groupedByCategory.map(group => (
+                    <CollectionRow 
+                      key={group.name}
+                      title={group.name} 
+                      subtitle={`Confira os melhores profissionais de ${group.name.toLowerCase()}.`}
+                      providers={group.items} 
+                      onNavigate={onNavigate}
+                      onViewMore={() => onNavigate('listing', { category: group.name })}
+                    />
+                  ))}
+
                 </>
               )}
             </>
