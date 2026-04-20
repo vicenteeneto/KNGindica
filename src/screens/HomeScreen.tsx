@@ -537,149 +537,109 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   return (
     <div className="w-full bg-[#000000] min-h-screen flex flex-col font-display text-white md:pb-0 overflow-x-hidden transition-colors duration-500">
       
-      {/* Floating Header */}
-      <header className={`relative lg:fixed top-0 left-0 lg:left-16 right-0 lg:w-[calc(100%-4rem)] z-50 transition-all duration-500 pt-3 pb-1.5 ${isScrolled
+      {/* Netflix-Style Header */}
+      <header className={`relative lg:fixed top-0 left-0 lg:left-16 right-0 lg:w-[calc(100%-4rem)] z-50 transition-all duration-500 pt-5 pb-2 ${isScrolled
         ? 'bg-black/95 backdrop-blur-md shadow-2xl border-b border-white/5'
-        : 'bg-gradient-to-b from-black/90 via-black/30 to-transparent'
+        : 'bg-gradient-to-b from-black/80 via-black/20 to-transparent'
         }`}>
-        <div className="px-6 lg:px-12 transition-all duration-300">
-        <div className="flex items-center justify-between transition-all duration-300">
-          <div className="flex items-center gap-3">
-            <div 
-              className="relative flex items-center gap-1.5 cursor-pointer group"
-              onClick={() => setShowLocationDropdown(!showLocationDropdown)}
-            >
-              <span className="material-symbols-outlined text-primary text-xl group-hover:scale-110 transition-transform mt-0.5">location_on</span>
-              <div className="flex flex-col items-start text-left">
-                <span className="text-[9px] font-black text-slate-400">Localização</span>
-                <span className="text-sm font-bold flex items-center gap-1 group-hover:text-primary transition-colors">
-                  {locationName}
-                  <span className={`material-symbols-outlined text-[16px] transition-transform duration-300 ${showLocationDropdown ? 'rotate-180 text-primary' : 'opacity-60'}`}>expand_more</span>
-                </span>
-              </div>
-
-              {/* Box Dropdown de Localização */}
-              {showLocationDropdown && (
-                <div 
-                  className="absolute top-full left-0 mt-3 w-72 bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl p-5 animate-in fade-in slide-in-from-top-2 z-[60]"
-                  onClick={(e) => e.stopPropagation()} // Impede fechar ao clicar dentro
-                >
-                  <div className="mb-4">
-                    <p className="text-[10px] font-black text-primary mb-3">Sua Cidade</p>
-                    <div className="relative">
-                      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm z-10">search</span>
-                      <CityAutocomplete
-                        value={manualCityInput}
-                        onChange={(val) => setManualCityInput(val)}
-                        onSelect={(city) => handleCitySelect(city)}
-                        activeCities={availableCities}
-                        placeholder="Ex: Rondonópolis/MT..."
-                        className="w-full pl-9 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:border-primary outline-none text-xs font-bold"
-                      />
-                    </div>
-                    {availableCities.length > 0 && !manualCityInput && (
-                    <div className="animate-in fade-in slide-in-from-bottom-2">
-                      <p className="text-[10px] font-black text-slate-500 mb-2 ml-1">Cidades Ativas:</p>
-                      <div className="flex flex-col gap-1.5">
-                        {availableCities.map(city => (
-                          <button
-                            key={city}
-                            type="button"
-                            onClick={async () => {
-                              setManualCityInput(city);
-                              setShowLocationDropdown(false);
-                              handleCitySelect(city);
-                            }}
-                            className="flex items-center gap-2 p-3 bg-white/5 border border-white/5 rounded-xl hover:border-primary/50 transition-all text-left group"
-                          >
-                            <span className="size-1.5 rounded-full bg-primary/50 group-hover:bg-primary transition-colors"></span>
-                            <span className="text-sm font-bold text-slate-200">{city}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  </div>
-                  
-                  <div className="mt-4 pt-4 border-t border-white/5">
-                    <button 
-                       onClick={() => setShowLocationDropdown(false)}
-                       className="w-full py-2 bg-primary/10 hover:bg-primary/20 text-primary text-[10px] font-black rounded-lg transition-colors"
-                    >
-                      Fechar
-                    </button>
-                  </div>
-                </div>
-              )}
+        <div className="netflix-gutter transition-all duration-300">
+          <div className="flex items-center justify-between">
+            {/* Left: Branding/Category Name */}
+            <div className="flex items-center gap-4">
+              <h1 className="text-xl md:text-2xl font-black tracking-tighter text-white">
+                Início
+              </h1>
             </div>
-          </div>
 
-          <div className="flex items-center gap-2 md:gap-5">
-            {/* Desktop Navigation - Hidden since migrated to Sidebar */}
-            <nav className="hidden items-center gap-6">
-              {/* Opções migradas para SidebarNav */}
-            </nav>
-
-            <div className="flex items-center gap-1 md:gap-3">
-              {/* Ocultar Chat e Notificações no topo se estiver em Desktop (já estão na Sidebar) */}
-              <button onClick={() => onNavigate('chatList')} className="md:hidden p-2 hover:bg-slate-200 dark:hover:bg-white/10 rounded-full transition-colors relative">
-                <span className="material-symbols-outlined text-[26px]">chat</span>
-                {unreadMessages > 0 && (
-                  <span className="absolute top-2 right-2 size-2 bg-primary rounded-full border border-white dark:border-black animate-pulse"></span>
-                )}
+            {/* Right: Actions */}
+            <div className="flex items-center gap-4">
+              <button onClick={() => onNavigate('listing', { searchQuery: '' })} className="p-1 hover:text-primary transition-colors">
+                <span className="material-symbols-outlined text-[28px] shrink-0">search</span>
               </button>
-              <button onClick={() => onNavigate('notifications')} className="md:hidden p-2 hover:bg-slate-200 dark:hover:bg-white/10 rounded-full transition-colors relative">
-                <span className="material-symbols-outlined text-[26px]">notifications</span>
+              
+              <button onClick={() => onNavigate('notifications')} className="p-1 hover:text-primary transition-colors relative">
+                <span className="material-symbols-outlined text-[28px] shrink-0">notifications</span>
                 {unreadNotifications > 0 && (
-                  <span className="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-white dark:border-black animate-pulse"></span>
+                  <span className="absolute top-1 right-1 size-2 bg-red-500 rounded-full border border-black animate-pulse"></span>
                 )}
               </button>
-              {user && (
-                <div className="flex items-center gap-2">
-                  <div className="hidden sm:flex flex-col items-end mr-1">
-                    <span className="text-[10px] font-black text-white italic leading-none">
-                      {role === 'admin' ? 'Administrador' : role === 'provider' ? 'Prestador' : 'Cliente'}
-                    </span>
-                  </div>
-                  <button 
-                    onClick={() => onNavigate('userProfile')} 
-                    className={`size-9 rounded-full overflow-hidden border-2 transition-all shadow-lg ${
-                      isPremiumUser 
-                        ? 'border-primary animate-glow-incandescent scale-110 shadow-primary/20' 
-                        : 'border-primary/50 hover:border-primary shadow-primary/10'
-                    }`}
-                  >
-                    <img 
-                      src={profile?.avatar_url || user.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${user.email}&background=random`} 
-                      alt="Avatar" 
-                      className="w-full h-full object-cover" 
-                    />
-                  </button>
-                </div>
-              )}
+
+              <button 
+                onClick={() => onNavigate('userProfile')} 
+                className={`size-8 rounded-md overflow-hidden border transition-all ${
+                  isPremiumUser ? 'border-primary' : 'border-white/20'
+                }`}
+              >
+                <img 
+                  src={profile?.avatar_url || user?.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${user?.email}&background=random`} 
+                  alt="Avatar" 
+                  className="w-full h-full object-cover" 
+                />
+              </button>
             </div>
           </div>
-        </div>
 
-        {/* Category Chips - Prime Style */}
-        <div className="mt-4 overflow-x-auto hide-scrollbar flex items-center gap-2 pb-2 transition-all duration-300">
-          {dynamicCategories.map((cat) => (
-            <button
-              key={cat.name}
-              onClick={() => cat.name === 'Todos' ? onNavigate('listing', { searchQuery: '' }) : onNavigate('listing', { category: cat.name })}
-              className="flex-shrink-0 px-3 py-1.5 rounded-full text-[10px] font-black transition-all border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-primary hover:text-white hover:border-primary text-slate-500 dark:text-gray-300"
+          {/* Category Chips - Overlay Style */}
+          <div className="mt-6 overflow-x-auto hide-scrollbar flex items-center gap-3 pb-2 transition-all duration-300">
+            {/* Quick Location Badge (Subtle) */}
+            <button 
+              onClick={() => setShowLocationDropdown(!showLocationDropdown)}
+              className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/20 bg-white/5 text-[11px] font-bold text-white hover:bg-white/10 transition-all"
             >
-              {cat.name}
+              <span className="material-symbols-outlined text-[14px] text-primary">location_on</span>
+              {locationName.split('/')[0]}
+              <span className={`material-symbols-outlined text-[14px] transition-transform ${showLocationDropdown ? 'rotate-180 text-primary' : ''}`}>expand_more</span>
             </button>
-          ))}
-        </div>
+
+            {dynamicCategories.map((cat) => (
+              <button
+                key={cat.name}
+                onClick={() => cat.name === 'Todos' ? onNavigate('listing', { searchQuery: '' }) : onNavigate('listing', { category: cat.name })}
+                className="flex-shrink-0 px-4 py-1.5 rounded-full text-[11px] font-bold transition-all border border-white/20 bg-white/5 hover:border-white hover:bg-white/10 text-gray-300 hover:text-white"
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+
+          {/* Dropdown de Localização (Netflix Overlay Style) */}
+          {showLocationDropdown && (
+            <div 
+              className="absolute top-full left-4 mr-4 mt-2 w-[calc(100%-2rem)] md:w-80 bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl p-5 animate-in fade-in slide-in-from-top-2 z-[60]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="mb-4">
+                <p className="text-[10px] font-black text-primary mb-3 uppercase tracking-widest">Sua Região</p>
+                <div className="relative">
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm z-10">search</span>
+                  <CityAutocomplete
+                    value={manualCityInput}
+                    onChange={(val) => setManualCityInput(val)}
+                    onSelect={(city) => handleCitySelect(city)}
+                    activeCities={availableCities}
+                    placeholder="Mudar cidade..."
+                    className="w-full pl-9 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:border-primary outline-none text-xs font-bold"
+                  />
+                </div>
+              </div>
+              
+              <div className="mt-4 pt-4 border-t border-white/5">
+                <button 
+                   onClick={() => setShowLocationDropdown(false)}
+                   className="w-full py-2 bg-primary/10 hover:bg-primary/20 text-primary text-[10px] font-black rounded-lg transition-colors uppercase"
+                >
+                  Confirmar
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
       <main className="flex-1 w-full relative">
         {/* Netflix-Style Cinematic Hero */}
         <section 
-          className="relative w-full h-[78vh] md:h-[85vh] overflow-hidden bg-black touch-pan-y"
+          className="relative w-full h-[75vh] md:h-[85vh] overflow-hidden bg-black touch-pan-y"
           onTouchStart={handleTouchStartHero}
           onTouchMove={handleTouchMoveHero}
           onTouchEnd={handleTouchEndHero}
@@ -692,80 +652,89 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                 return (
                   <div 
                     key={p.id}
-                    className={`absolute inset-0 md:inset-0 transition-all duration-1000 ease-in-out ${idx === currentHeroIndex ? 'opacity-100 z-10 scale-100' : 'opacity-0 z-0 scale-105'} px-4 md:px-0 py-2 md:py-0`}
+                    className={`absolute inset-0 transition-all duration-1000 ease-in-out ${idx === currentHeroIndex ? 'opacity-100 z-10 scale-100' : 'opacity-0 z-0 scale-105'}`}
                   >
-                    <div className="relative w-full h-full rounded-[2.5rem] md:rounded-none border border-white/10 md:border-none overflow-hidden shadow-2xl">
-                    {/* Background - Responsive (Mobile Poster vs Desktop Banner) */}
-                    <img
-                      src={p.image}
-                      alt={p.name}
-                      className="w-full h-full object-cover opacity-60 md:opacity-50"
-                    />
-                    
-                    {/* Cinematic Overlays */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
-                    <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-transparent hidden md:block"></div>
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent md:hidden"></div>
+                    <div className="relative w-full h-full overflow-hidden">
+                      {/* Background (Poster Style) */}
+                      <img
+                        src={p.image}
+                        alt={p.name}
+                        className="w-full h-full object-cover opacity-80 md:opacity-50"
+                      />
+                      
+                      {/* Deep Cinematic Gradients */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-transparent"></div>
+                      <div className="absolute inset-0 bg-black/20"></div>
 
-                    {/* Content Section - Anchored Bottom */}
-                    <div className="absolute bottom-4 md:bottom-24 left-0 right-0 w-full px-6 lg:px-12 transition-all duration-500">
-                      <div className="w-full flex flex-col items-center md:items-start text-center md:text-left">
-                        <h1 className="text-2xl md:text-7xl font-black text-white leading-none drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] italic tracking-tighter mb-1.5 md:mb-6 whitespace-nowrap overflow-visible">
-                          {p.name.toUpperCase()}
-                        </h1>
+                      {/* Content Section - Anchored at the very bottom */}
+                      <div className="absolute bottom-8 left-0 right-0 w-full netflix-gutter transition-all duration-500">
+                        <div className="w-full flex flex-col items-center text-center">
+                          {/* Professional Name - "Graphic Logo" Style */}
+                          <h1 className="netflix-title-logo text-3xl md:text-8xl mb-2 max-w-[90%] break-words">
+                            {p.name}
+                          </h1>
 
-                        <div className="flex items-center justify-center md:justify-start gap-2 mb-6 md:mb-10 transition-all duration-300">
-                          <div className="flex items-center text-yellow-500 gap-1 bg-black/40 md:bg-black/60 backdrop-blur-md px-2 py-1 rounded border border-white/10 shrink-0">
-                            <span className="material-symbols-outlined text-[10px] md:text-sm filled">star</span>
-                            <span className="text-[10px] md:text-sm font-black">{(p.rating || 5.0).toString().replace('.', ',')}</span>
+                          {/* Quick Info Tags */}
+                          <div className="flex items-center justify-center gap-2 mb-8 transition-all duration-300">
+                            <span className="text-[10px] md:text-sm font-bold text-gray-200 uppercase tracking-widest">
+                              {p.service}
+                            </span>
+                            <span className="text-white/40">•</span>
+                            <div className="flex items-center text-primary gap-1">
+                              <span className="material-symbols-outlined text-[12px] md:text-sm filled">star</span>
+                              <span className="text-[10px] md:text-sm font-black">{(p.rating || 5.0).toString().replace('.', ',')}</span>
+                            </div>
+                            <span className="text-white/40">•</span>
+                            <span className="text-[10px] md:text-sm font-bold text-gray-200 uppercase tracking-widest">
+                              {p.city}
+                            </span>
                           </div>
-                          <span className="text-[10px] md:text-sm font-bold text-slate-300 drop-shadow-md uppercase tracking-tight md:tracking-widest opacity-80 md:opacity-100">
-                            {p.service} - {p.city}
-                          </span>
-                        </div>
-                        
-                        <div className="flex items-center justify-center md:justify-start w-full md:w-auto">
-                          <button
-                            onClick={() => onNavigate('profile', { professionalId: p.id })}
-                            className="flex-none flex items-center justify-center gap-2 bg-white text-black px-8 py-2.5 md:px-12 md:py-4 rounded-full font-bold text-[11px] md:text-base hover:bg-white/90 transition-all active:scale-95 shadow-2xl"
-                          >
-                            <span className="material-symbols-outlined filled md:text-xl">visibility</span>
-                            Ver Perfil
-                          </button>
+                          
+                          {/* Action Buttons (Netflix Play/Add style) */}
+                          <div className="flex items-center justify-center gap-4 w-full">
+                            <button
+                              onClick={() => onNavigate('profile', { professionalId: p.id })}
+                              className="flex-1 max-w-[150px] flex items-center justify-center gap-2 bg-white text-black py-2.5 rounded font-black text-xs md:text-base hover:bg-white/90 transition-all active:scale-95 shadow-xl"
+                            >
+                              <span className="material-symbols-outlined filled text-[18px] md:text-2xl">visibility</span>
+                              Ver Perfil
+                            </button>
+                            
+                            <button
+                              onClick={() => {/* Lógica de favoritar já existe no sistema? */}}
+                              className="flex-none w-10 h-10 flex items-center justify-center bg-[#2b2b2b] text-white rounded font-bold hover:bg-[#3b3b3b] transition-all active:scale-95 shadow-xl"
+                            >
+                              <span className="material-symbols-outlined text-[24px] md:text-2xl">{isFavorited ? 'check' : 'add'}</span>
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
               
-              {/* Carousel Indicators - Refined */}
-              <div className="absolute bottom-6 right-1/2 translate-x-1/2 md:translate-x-0 md:right-12 z-30 flex gap-2">
+              {/* Carousel Indicators - Thin Sashes */}
+              <div className="absolute bottom-4 right-1/2 translate-x-1/2 z-30 flex gap-1.5">
                 {heroProviders.slice(0, 5).map((_, idx) => (
                   <button 
                     key={idx}
                     onClick={() => setCurrentHeroIndex(idx)}
-                    className={`h-1 transition-all rounded-full ${idx === currentHeroIndex ? 'w-8 bg-primary' : 'w-2 bg-white/20'}`}
+                    className={`h-1 transition-all rounded-full ${idx === currentHeroIndex ? 'w-4 bg-primary' : 'w-1 bg-white/20'}`}
                   ></button>
                 ))}
               </div>
             </div>
           ) : (
-             /* Fallback for empty plus providers */
-             <div className="absolute inset-0 flex items-center justify-center">
-                <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6958?q=80&w=2070&auto=format&fit=crop" className="opacity-30 object-cover w-full h-full" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0f171e] to-transparent"></div>
-                <div className="relative z-10 text-center">
-                  <h2 className="text-5xl font-black mb-4">KNGindica Premium</h2>
-                  <p className="text-xl text-slate-300 font-medium max-w-xl mx-auto mb-10 leading-relaxed">
-                    Torne-se um parceiro KNGindica e multiplique seus serviços com exposição máxima e ferramentas exclusivas.
-                  </p>
+             <div className="absolute inset-0 flex items-center justify-center bg-zinc-900">
+                <div className="text-center">
+                  <h2 className="text-3xl font-black mb-2 netflix-title-logo text-primary">KNGindica</h2>
+                  <p className="text-sm text-gray-500 font-bold uppercase tracking-widest">Premium Discovery</p>
                 </div>
              </div>
           )}
         </section>
-
         {/* Active Service Tracker (Live Activity Style) */}
         {activeRequest && (
           <div className="w-full px-6 lg:px-12 -mt-12 md:-mt-16 mb-8 relative z-30 transition-all duration-300">
@@ -1013,14 +982,12 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
 function SkeletonRow() {
   return (
-    <div className="px-6 lg:px-12 mb-12 animate-pulse">
-      <div className="h-6 w-48 bg-slate-800 rounded-md mb-2"></div>
-      <div className="h-4 w-64 bg-slate-800/50 rounded-md mb-5"></div>
-      <div className="flex gap-4 overflow-x-hidden">
-        {[1, 2, 3, 4].map(i => (
-          <div key={i} className="shrink-0 w-[160px] md:w-[260px]">
-            <div className="aspect-[16/9] md:aspect-video bg-slate-800 rounded-xl mb-2"></div>
-            <div className="h-3 w-24 bg-slate-800/50 rounded-md"></div>
+    <div className="netflix-gutter mb-10 animate-pulse">
+      <div className="h-5 w-40 bg-zinc-800 rounded mb-4"></div>
+      <div className="flex gap-2 overflow-x-hidden">
+        {[1, 2, 3, 4, 5].map(i => (
+          <div key={i} className="shrink-0 w-[110px] md:w-[240px]">
+            <div className="aspect-[2/3] md:aspect-video bg-zinc-800 rounded-md"></div>
           </div>
         ))}
       </div>
@@ -1051,113 +1018,93 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
   if (providers.length === 0) return null;
 
   return (
-    <section className="mb-12">
-      <div className="flex items-center justify-between mb-3 md:mb-4 px-6 lg:px-12">
-        <div>
-          <h3 className={`text-lg md:text-xl font-black tracking-tighter italic flex items-center gap-2 ${highlight ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>
-            {title}
-            <span className="material-symbols-outlined text-sm font-normal not-italic opacity-20">chevron_right</span>
-          </h3>
-          <p className="text-xs md:text-sm text-slate-500 dark:text-gray-400 font-medium">{subtitle}</p>
-        </div>
+    <section className="mb-8 md:mb-12">
+      <div className="flex items-end justify-between mb-2 netflix-gutter">
+        <h3 
+          onClick={onViewMore}
+          className="text-sm md:text-xl font-bold text-gray-200 hover:text-white transition-colors cursor-pointer flex items-center group/title"
+        >
+          {title}
+          <span className="material-symbols-outlined text-[16px] md:text-xl opacity-0 group-hover/title:opacity-100 transition-all translate-x-[-4px] group-hover/title:translate-x-1">chevron_right</span>
+        </h3>
+        {onViewMore && (
+           <button onClick={onViewMore} className="text-[10px] md:text-sm font-bold text-primary hover:underline">Ver tudo</button>
+        )}
       </div>
 
-      <div className="relative group">
+      <div className="relative group/row">
         {/* Scroll Buttons (Desktop Only) */}
         <button 
           onClick={() => scroll('left')}
-          className="absolute -left-4 top-1/2 -translate-y-1/2 z-40 size-10 rounded-full bg-black/60 backdrop-blur-xl border border-white/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-primary text-white hidden md:flex"
+          className="absolute left-0 top-0 bottom-4 w-[4%] z-40 bg-black/40 hover:bg-black/60 flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity text-white hidden md:flex"
         >
-          <span className="material-symbols-outlined">chevron_left</span>
+          <span className="material-symbols-outlined text-4xl">chevron_left</span>
         </button>
         <button 
           onClick={() => scroll('right')}
-          className="absolute -right-4 top-1/2 -translate-y-1/2 z-40 size-10 rounded-full bg-black/60 backdrop-blur-xl border border-white/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-primary text-white hidden md:flex"
+          className="absolute right-0 top-0 bottom-4 w-[4%] z-40 bg-black/40 hover:bg-black/60 flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity text-white hidden md:flex"
         >
-          <span className="material-symbols-outlined">chevron_right</span>
+          <span className="material-symbols-outlined text-4xl">chevron_right</span>
         </button>
 
         <div 
           ref={scrollRef}
-          className="flex gap-2.5 md:gap-5 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory"
+          className="flex gap-1.5 md:gap-2 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory px-[var(--gutter-mobile)] md:px-[var(--gutter-desktop)]"
           style={{ touchAction: 'pan-x', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
         >
-          {/* Edge Alignment Spacer */}
-          <div className="shrink-0 w-6 lg:w-12 h-1 invisible" />
-
           {providers.map((p) => (
             <div
               key={p.id}
               onClick={() => onNavigate('profile', { professionalId: p.id })}
-              className="snap-start shrink-0 w-[110px] lg:w-[300px] group cursor-pointer first:ml-0"
+              className="snap-start shrink-0 w-[110px] md:w-[220px] lg:w-[280px] group cursor-pointer transition-transform duration-300 hover:z-50"
             >
-              <div className={`relative aspect-[2/3] lg:aspect-video rounded-md lg:rounded-xl overflow-hidden shadow-2xl bg-white dark:bg-[#0a0a0a] transition-all duration-300 lg:group-hover:-translate-y-2 lg:group-hover:scale-[1.02] lg:group-hover:z-50 lg:group-hover:ring-4 ${highlight ? 'lg:group-hover:ring-primary/40' : 'lg:group-hover:ring-white/10'}`}>
+              <div className="relative aspect-[2/3] md:aspect-video rounded-sm overflow-hidden bg-zinc-900 transition-all duration-300 md:group-hover:scale-105 md:group-hover:shadow-[0_0_20px_rgba(0,0,0,0.5)]">
                 <img
-                  className="w-full h-full object-cover transition-transform duration-700"
+                  className="w-full h-full object-cover"
                   src={p.image}
                   alt={p.name}
                 />
                 
-                {/* Netflix-style Top-10 / New Badge (Optional - using highlight) */}
+                {/* Netflix-style Overlay (Mobile Minimalist, Desktop Detailed) */}
+                <div className="absolute inset-x-0 bottom-0 p-1.5 md:p-3 bg-gradient-to-t from-black/90 via-black/20 to-transparent">
+                  <h4 className="text-[9px] md:text-sm font-black text-white leading-tight truncate">
+                    {p.name}
+                  </h4>
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <span className="text-[7px] md:text-[10px] font-bold text-gray-400 uppercase tracking-tighter truncate flex-1">
+                      {p.service}
+                    </span>
+                    <div className="flex items-center text-primary gap-0.5">
+                       <span className="material-symbols-outlined text-[8px] md:text-[10px] filled">star</span>
+                       <span className="text-[7px] md:text-[10px] font-black text-white">{(p.rating || 5.0)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Progress Bar Style decoration (Optional - Netflix feel) */}
                 {highlight && (
-                   <div className="absolute top-0 right-0">
-                      <div className="bg-red-600 text-[8px] font-black tracking-tighter text-white px-2 py-0.5 rounded-bl-md shadow-lg italic">NOVO</div>
+                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-zinc-800">
+                      <div className="h-full bg-primary w-2/3 shadow-[0_0_10px_#FF7A00]"></div>
                    </div>
                 )}
-
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
-                
-                {/* Rating Mini */}
-                <div className="absolute top-1 left-1 bg-black/80 backdrop-blur-md px-1 py-0.5 rounded text-[8px] font-black flex items-center gap-1 border border-white/10">
-                  <span className="material-symbols-outlined text-[10px] text-yellow-500 filled">star</span>
-                  <span className="text-white">
-                    {Number(p.rating || 0).toFixed(1)}
-                  </span>
-                </div>
-
-                {/* Mobile Info Overlay (Name on top of card) */}
-                <div className="absolute inset-x-0 bottom-0 p-1.5 md:hidden bg-gradient-to-t from-black/90 via-black/40 to-transparent">
-                  <h4 className="text-[9px] font-black text-white leading-tight truncate">
-                    {p.name.split(' ')[0]}
-                  </h4>
-                  <p className="text-[7px] font-bold text-gray-400 truncate uppercase tracking-tighter">
-                    {p.service}
-                  </p>
-                </div>
-
-                {/* Desktop Detailed Overlay (Appears on hover or stays clean) */}
-                <div className="hidden md:absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
-                   <span className="text-[10px] font-black text-primary italic uppercase tracking-widest mb-1">{p.service}</span>
-                   <h4 className="text-sm font-black text-white leading-none">{p.name}</h4>
-                </div>
-              </div>
-              
-              {/* Desktop Name Below Card */}
-              <div className="mt-2 hidden md:block group-hover:opacity-0 transition-opacity">
-                <h4 className="font-bold text-xs truncate text-slate-500 dark:text-gray-400 transition-colors tracking-tight">
-                  {p.name}
-                </h4>
               </div>
             </div>
           ))}
           
           {onViewMore && (
-            <div className="snap-start shrink-0 w-[110px] md:w-[260px] cursor-pointer">
+            <div className="snap-start shrink-0 w-[110px] md:w-[220px] lg:w-[280px] cursor-pointer">
                <button 
                 onClick={onViewMore}
-                className="w-full aspect-[2/3] md:aspect-video rounded-md md:rounded-xl border-2 border-white/5 bg-white/2 hover:bg-white hover:text-black transition-all flex flex-col items-center justify-center gap-2 group shadow-sm dark:shadow-none"
+                className="w-full aspect-[2/3] md:aspect-video rounded-sm border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all flex flex-col items-center justify-center gap-2 group"
               >
-                <span className="size-8 md:size-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-black/10">
-                  <span className="material-symbols-outlined text-sm md:text-base">add</span>
-                </span>
-                <span className="text-[9px] md:text-xs font-black">Ver Mais</span>
+                <span className="material-symbols-outlined text-2xl opacity-40 group-hover:opacity-100 group-hover:scale-110 transition-all transition-transform">add_circle</span>
+                <span className="text-[9px] md:text-xs font-bold text-gray-500 uppercase tracking-widest">Ver tudo</span>
                </button>
-               {/* Alignment placeholder */}
-               <div className="mt-2 hidden md:block h-[12px] md:h-[24px]"></div>
             </div>
           )}
-          {/* End Edge Alignment Spacer */}
-          <div className="shrink-0 w-6 lg:w-12 h-1 invisible" />
+          
+          {/* End Spacer to match gutter */}
+          <div className="shrink-0 w-4 md:w-[4%] h-1 invisible" />
         </div>
       </div>
     </section>

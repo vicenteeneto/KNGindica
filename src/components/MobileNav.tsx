@@ -27,7 +27,7 @@ export default function MobileNav({ onNavigate, currentScreen, role, params }: M
       ];
 
   return (
-    <nav className="lg:hidden w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200 dark:border-white/10 px-2 pt-2 pb-8 flex items-center justify-around z-10 shadow-[0_-8px_30px_rgb(0,0,0,0.08)]">
+    <nav className="lg:hidden w-full bg-black border-t border-white/5 px-2 pt-2 pb-6 flex items-center justify-around z-50">
       {navItems.map((item) => {
         const isActive = currentScreen === item.screen;
         const badgeValue = item.badge || 0;
@@ -36,15 +36,20 @@ export default function MobileNav({ onNavigate, currentScreen, role, params }: M
           <button 
             key={item.id}
             onClick={() => onNavigate(item.screen)} 
-            className={`flex flex-1 flex-col items-center justify-end gap-1 group transition-colors relative ${isActive ? 'text-primary' : 'text-slate-400 hover:text-primary'}`}
+            className={`flex flex-1 flex-col items-center justify-center gap-1 transition-all relative ${isActive ? 'text-white' : 'text-zinc-500 hover:text-gray-300'}`}
           >
-            <span className="material-symbols-outlined text-[26px]" style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}>{item.icon}</span>
-            <span className={`text-[10px] font-medium leading-normal whitespace-nowrap mt-0.5 ${isActive ? 'text-primary' : 'text-slate-500'}`}>{item.label}</span>
+            <span className="material-symbols-outlined text-[24px]" style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}>{item.icon}</span>
+            <span className={`text-[9px] font-medium leading-normal whitespace-nowrap ${isActive ? 'text-white font-bold' : 'text-zinc-500'}`}>{item.label}</span>
             
             {badgeValue > 0 && (
-              <span className="absolute top-0 right-1/4 size-4 bg-red-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900">
+              <span className="absolute top-0 right-[20%] size-3.5 bg-red-600 text-white text-[8px] font-black rounded-full flex items-center justify-center border-2 border-black">
                 {badgeValue > 9 ? '9+' : badgeValue}
               </span>
+            )}
+            
+            {/* Active Indicator (Optional - Netflix sometimes uses a dot or nothing) */}
+            {isActive && (
+              <span className="absolute -bottom-1 size-1 bg-primary rounded-full md:hidden"></span>
             )}
           </button>
         );
