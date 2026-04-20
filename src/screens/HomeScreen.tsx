@@ -668,13 +668,13 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
       <main className="flex-1 w-full relative">
         {/* Netflix-Style Cinematic Hero */}
         <section 
-          className="relative w-full h-[640px] pt-4 pb-6 md:h-[85vh] overflow-hidden transition-all duration-700 bg-gradient-to-b from-zinc-900 via-black to-black"
+          className="relative w-full h-[540px] pt-4 pb-6 md:h-[85vh] overflow-hidden transition-all duration-700 bg-gradient-to-b from-zinc-900 via-black to-black"
           onTouchStart={handleTouchStartHero}
           onTouchMove={handleTouchMoveHero}
           onTouchEnd={handleTouchEndHero}
         >
           {heroProviders.length > 0 ? (
-            <div className="px-12 h-full">
+            <div className="px-6 h-full">
               <div className="relative h-full w-full max-w-lg mx-auto overflow-visible">
                 {heroProviders.slice(0, 5).map((p, idx) => {
                   const isFavorited = favoriteProviders.some(f => f.id === p.id);
