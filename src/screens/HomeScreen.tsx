@@ -685,7 +685,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                       key={p.id}
                       className={`absolute inset-0 transition-all duration-1000 ease-in-out ${idx === currentHeroIndex ? 'opacity-100 z-10 translate-y-0 scale-100' : 'opacity-0 z-0 translate-y-4 scale-95'}`}
                     >
-                      <div className="relative h-full w-full md:rounded-none rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] bg-transparent">
+                      <div className="relative h-full w-full md:rounded-none rounded-2xl overflow-hidden bg-[#0A0A0A]">
                         {/* Background (Poster Style) */}
                         <img
                           src={p.image}
@@ -712,21 +712,21 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                             </div>
                             
                             {/* Action Buttons */}
-                            <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center lg:justify-start gap-3 w-full max-w-[280px] sm:max-w-none">
+                            <div className="flex flex-row items-center justify-center lg:justify-start gap-2 w-full">
                               <button
                                 onClick={() => onNavigate('profile', { professionalId: p.id })}
-                                className="w-full sm:w-auto px-8 flex items-center justify-center gap-1.5 bg-white text-black h-10 md:h-9 rounded font-black text-[11px] md:text-sm hover:bg-white/90 transition-all active:scale-95 shadow-2xl"
+                                className="flex-1 sm:flex-none px-4 flex items-center justify-center gap-1 bg-white text-black h-8 md:h-9 rounded-lg font-black text-[9px] md:text-sm hover:bg-white/90 transition-all active:scale-95 shadow-lg"
                               >
-                                <span className="material-symbols-outlined filled text-[20px] md:text-[18px]">play_arrow</span>
+                                <span className="material-symbols-outlined filled text-[16px] md:text-[18px]">play_arrow</span>
                                 Ver Perfil
                               </button>
                               
                               <button
                                 onClick={() => toggleFavorite(p.id)}
-                                className="w-full sm:w-auto px-8 flex items-center justify-center gap-1.5 bg-white/20 backdrop-blur-md text-white h-10 md:h-9 rounded font-black text-[11px] md:text-sm hover:bg-white/30 transition-all active:scale-95 border border-white/10"
+                                className="flex-1 sm:flex-none px-4 flex items-center justify-center gap-1 bg-white/10 backdrop-blur-md text-white h-8 md:h-9 rounded-lg font-black text-[9px] md:text-sm hover:bg-white/20 transition-all active:scale-95 border border-white/10"
                               >
-                                <span className="material-symbols-outlined text-[18px] md:text-[16px]">{isFavorited ? 'check' : 'add'}</span>
-                                Meus favoritos
+                                <span className="material-symbols-outlined text-[14px] md:text-[16px]">{isFavorited ? 'check' : 'add'}</span>
+                                Favoritos
                               </button>
                             </div>
                           </div>
