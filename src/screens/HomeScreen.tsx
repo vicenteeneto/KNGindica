@@ -992,7 +992,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
 function SkeletonRow() {
   return (
-    <div className="netflix-gutter mb-10 animate-pulse">
+    <div className="px-4 lg:netflix-gutter mb-10 animate-pulse">
       <div className="h-5 w-40 bg-zinc-800 rounded mb-4"></div>
       <div className="flex gap-2 overflow-x-hidden">
         {[1, 2, 3, 4, 5].map(i => (
@@ -1029,7 +1029,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
 
   return (
     <section className="mb-8 md:mb-12">
-      <div className="flex items-end justify-between mb-2 netflix-gutter">
+      <div className="flex items-end justify-between mb-2 px-4 lg:netflix-gutter">
         <h3 
           onClick={onViewMore}
           className="text-sm md:text-xl font-bold text-gray-200 hover:text-white transition-colors cursor-pointer flex items-center group/title"
@@ -1059,7 +1059,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
 
         <div 
           ref={scrollRef}
-          className="flex gap-1.5 md:gap-2 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory px-[var(--gutter-mobile)] md:px-[var(--gutter-desktop)]"
+          className="flex gap-1.5 md:gap-2 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory px-4 lg:px-[var(--gutter-desktop)]"
           style={{ touchAction: 'pan-x', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
         >
           {providers.map((p) => (
