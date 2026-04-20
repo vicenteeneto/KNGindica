@@ -584,18 +584,18 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             {/* Quick Location Badge (Subtle) */}
             <button 
               onClick={() => setShowLocationDropdown(!showLocationDropdown)}
-              className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/20 bg-white/5 text-[11px] font-bold text-white hover:bg-white/10 transition-all"
+              className="h-8 flex-shrink-0 flex items-center gap-1 px-3 rounded-full border border-white/20 bg-white/5 text-[11px] font-bold text-white hover:bg-white/10 transition-all"
             >
-              <span className="material-symbols-outlined text-[14px] text-primary">location_on</span>
-              {locationName.split('/')[0]}
-              <span className={`material-symbols-outlined text-[14px] transition-transform ${showLocationDropdown ? 'rotate-180 text-primary' : ''}`}>expand_more</span>
+              <span className="material-symbols-outlined text-[16px] text-primary leading-none">location_on</span>
+              <span className="leading-none">{locationName.split('/')[0]}</span>
+              <span className={`material-symbols-outlined text-[16px] leading-none transition-transform ${showLocationDropdown ? 'rotate-180 text-primary' : ''}`}>expand_more</span>
             </button>
 
             {dynamicCategories.map((cat) => (
               <button
                 key={cat.name}
                 onClick={() => cat.name === 'Todos' ? onNavigate('listing', { searchQuery: '' }) : onNavigate('listing', { category: cat.name })}
-                className="flex-shrink-0 px-4 py-1.5 rounded-full text-[11px] font-bold transition-all border border-white/20 bg-white/5 hover:border-white hover:bg-white/10 text-gray-300 hover:text-white"
+                className="h-8 flex-shrink-0 px-4 rounded-full text-[11px] font-bold transition-all border border-white/20 bg-white/5 hover:border-white hover:bg-white/10 text-gray-300 hover:text-white flex items-center justify-center"
               >
                 {cat.name}
               </button>
@@ -639,98 +639,97 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
       <main className="flex-1 w-full relative">
         {/* Netflix-Style Cinematic Hero */}
         <section 
-          className="relative w-full h-[75vh] md:h-[85vh] overflow-hidden bg-black touch-pan-y"
+          className="relative w-full pt-16 pb-8 md:h-[85vh] overflow-hidden transition-all duration-700 bg-gradient-to-b from-zinc-900 via-black to-black"
           onTouchStart={handleTouchStartHero}
           onTouchMove={handleTouchMoveHero}
           onTouchEnd={handleTouchEndHero}
         >
           {heroProviders.length > 0 ? (
-            <div className="absolute inset-0 w-full h-full">
-              {heroProviders.slice(0, 5).map((p, idx) => {
-                const isFavorited = favoriteProviders.some(f => f.id === p.id);
-                
-                return (
-                  <div 
-                    key={p.id}
-                    className={`absolute inset-0 transition-all duration-1000 ease-in-out ${idx === currentHeroIndex ? 'opacity-100 z-10 scale-100' : 'opacity-0 z-0 scale-105'}`}
-                  >
-                    <div className="relative w-full h-full overflow-hidden">
-                      {/* Background (Poster Style) */}
-                      <img
-                        src={p.image}
-                        alt={p.name}
-                        className="w-full h-full object-cover opacity-80 md:opacity-50"
-                      />
-                      
-                      {/* Deep Cinematic Gradients */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
-                      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-transparent"></div>
-                      <div className="absolute inset-0 bg-black/20"></div>
+            <div className="netflix-gutter h-full">
+              <div className="relative h-full w-full max-w-lg mx-auto overflow-visible">
+                {heroProviders.slice(0, 5).map((p, idx) => {
+                  const isFavorited = favoriteProviders.some(f => f.id === p.id);
+                  
+                  return (
+                    <div 
+                      key={p.id}
+                      className={`absolute inset-0 transition-all duration-1000 ease-in-out ${idx === currentHeroIndex ? 'opacity-100 z-10 translate-y-0 scale-100' : 'opacity-0 z-0 translate-y-4 scale-95'}`}
+                    >
+                      <div className="relative h-full w-full rounded-[2.5rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/5 bg-zinc-900">
+                        {/* Background (Poster Style) */}
+                        <img
+                          src={p.image}
+                          alt={p.name}
+                          className="w-full h-full object-cover"
+                        />
+                        
+                        {/* Cinematic Gradients */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+                        <div className="absolute inset-0 bg-black/10"></div>
 
-                      {/* Content Section - Anchored at the very bottom */}
-                      <div className="absolute bottom-8 left-0 right-0 w-full netflix-gutter transition-all duration-500">
-                        <div className="w-full flex flex-col items-center text-center">
-                          {/* Professional Name - "Graphic Logo" Style */}
-                          <h1 className="netflix-title-logo text-3xl md:text-8xl mb-2 max-w-[90%] break-words">
-                            {p.name}
-                          </h1>
+                        {/* Content Section - Anchored at the very bottom */}
+                        <div className="absolute bottom-6 left-0 right-0 px-4 transition-all duration-500">
+                          <div className="w-full flex flex-col items-center text-center">
+                            {/* Professional Name - "Graphic Logo" Style */}
+                            <h1 className="netflix-title-logo text-2xl md:text-6xl mb-4 max-w-[95%] break-words drop-shadow-2xl">
+                              {p.name}
+                            </h1>
 
-                          {/* Quick Info Tags */}
-                          <div className="flex items-center justify-center gap-2 mb-8 transition-all duration-300">
-                            <span className="text-[10px] md:text-sm font-bold text-gray-200 uppercase tracking-widest">
-                              {p.service}
-                            </span>
-                            <span className="text-white/40">•</span>
-                            <div className="flex items-center text-primary gap-1">
-                              <span className="material-symbols-outlined text-[12px] md:text-sm filled">star</span>
-                              <span className="text-[10px] md:text-sm font-black">{(p.rating || 5.0).toString().replace('.', ',')}</span>
+                            {/* Tags */}
+                            <div className="flex items-center justify-center gap-1.5 mb-8 flex-wrap opacity-90">
+                              <span className="text-[9px] md:text-sm font-black text-gray-100 uppercase tracking-widest">{p.service}</span>
+                              <span className="text-white/30">•</span>
+                              <div className="flex items-center text-primary gap-0.5">
+                                <span className="material-symbols-outlined text-[10px] md:text-sm filled">star</span>
+                                <span className="text-[10px] md:text-sm font-black">{(p.rating || 5.0).toString().replace('.', ',')}</span>
+                              </div>
+                              <span className="text-white/30">•</span>
+                              <span className="text-[9px] md:text-sm font-black text-gray-100 uppercase tracking-widest">{p.city}</span>
                             </div>
-                            <span className="text-white/40">•</span>
-                            <span className="text-[10px] md:text-sm font-bold text-gray-200 uppercase tracking-widest">
-                              {p.city}
-                            </span>
-                          </div>
-                          
-                          {/* Action Buttons (Netflix Play/Add style) */}
-                          <div className="flex items-center justify-center gap-4 w-full">
-                            <button
-                              onClick={() => onNavigate('profile', { professionalId: p.id })}
-                              className="flex-1 max-w-[150px] flex items-center justify-center gap-2 bg-white text-black py-2.5 rounded font-black text-xs md:text-base hover:bg-white/90 transition-all active:scale-95 shadow-xl"
-                            >
-                              <span className="material-symbols-outlined filled text-[18px] md:text-2xl">visibility</span>
-                              Ver Perfil
-                            </button>
                             
-                            <button
-                              onClick={() => {/* Lógica de favoritar já existe no sistema? */}}
-                              className="flex-none w-10 h-10 flex items-center justify-center bg-[#2b2b2b] text-white rounded font-bold hover:bg-[#3b3b3b] transition-all active:scale-95 shadow-xl"
-                            >
-                              <span className="material-symbols-outlined text-[24px] md:text-2xl">{isFavorited ? 'check' : 'add'}</span>
-                            </button>
+                            {/* Action Buttons */}
+                            <div className="flex items-center justify-center gap-3 w-full max-w-[280px] mx-auto">
+                              <button
+                                onClick={() => onNavigate('profile', { professionalId: p.id })}
+                                className="flex-1 flex items-center justify-center gap-2 bg-white text-black py-2.5 rounded-md font-black text-[11px] md:text-sm hover:bg-white/90 transition-all active:scale-95 shadow-2xl"
+                              >
+                                <span className="material-symbols-outlined filled text-[18px]">play_arrow</span>
+                                Ver Perfil
+                              </button>
+                              
+                              <button
+                                onClick={() => {/* Toggle favoritar */}}
+                                className="w-10 h-10 flex items-center justify-center bg-white/20 backdrop-blur-md text-white rounded-md hover:bg-white/30 transition-all active:scale-95"
+                              >
+                                <span className="material-symbols-outlined text-[20px]">{isFavorited ? 'check' : 'add'}</span>
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
               
-              {/* Carousel Indicators - Thin Sashes */}
-              <div className="absolute bottom-4 right-1/2 translate-x-1/2 z-30 flex gap-1.5">
+              {/* Indicators */}
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-30 flex gap-2">
                 {heroProviders.slice(0, 5).map((_, idx) => (
                   <button 
                     key={idx}
                     onClick={() => setCurrentHeroIndex(idx)}
-                    className={`h-1 transition-all rounded-full ${idx === currentHeroIndex ? 'w-4 bg-primary' : 'w-1 bg-white/20'}`}
+                    className={`h-1 rounded-full transition-all duration-500 ${idx === currentHeroIndex ? 'w-6 bg-primary' : 'w-1.5 bg-white/20'}`}
                   ></button>
                 ))}
               </div>
             </div>
           ) : (
-             <div className="absolute inset-0 flex items-center justify-center bg-zinc-900">
-                <div className="text-center">
-                  <h2 className="text-3xl font-black mb-2 netflix-title-logo text-primary">KNGindica</h2>
-                  <p className="text-sm text-gray-500 font-bold uppercase tracking-widest">Premium Discovery</p>
+             <div className="netflix-gutter h-full">
+                <div className="h-full w-full rounded-[2.5rem] bg-zinc-900 flex items-center justify-center border border-white/5">
+                  <div className="text-center opacity-50">
+                    <h2 className="text-2xl font-black mb-1 netflix-title-logo text-primary">KNGindica</h2>
+                    <p className="text-[10px] font-bold uppercase tracking-widest">Premium Discovery</p>
+                  </div>
                 </div>
              </div>
           )}
