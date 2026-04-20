@@ -712,20 +712,20 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                             </div>
                             
                             {/* Action Buttons */}
-                            <div className="flex items-center justify-center lg:justify-start gap-2.5 w-full">
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center lg:justify-start gap-3 w-full max-w-[280px] sm:max-w-none">
                               <button
                                 onClick={() => onNavigate('profile', { professionalId: p.id })}
-                                className="px-6 flex items-center justify-center gap-1.5 bg-white text-black h-9 rounded font-black text-[10px] md:text-sm hover:bg-white/90 transition-all active:scale-95 shadow-2xl min-w-fit"
+                                className="w-full sm:w-auto px-8 flex items-center justify-center gap-1.5 bg-white text-black h-10 md:h-9 rounded font-black text-[11px] md:text-sm hover:bg-white/90 transition-all active:scale-95 shadow-2xl"
                               >
-                                <span className="material-symbols-outlined filled text-[18px]">play_arrow</span>
+                                <span className="material-symbols-outlined filled text-[20px] md:text-[18px]">play_arrow</span>
                                 Ver Perfil
                               </button>
                               
                               <button
                                 onClick={() => toggleFavorite(p.id)}
-                                className="px-6 flex items-center justify-center gap-1.5 bg-white/20 backdrop-blur-md text-white h-9 rounded font-black text-[10px] md:text-sm hover:bg-white/30 transition-all active:scale-95 border border-white/10 min-w-fit"
+                                className="w-full sm:w-auto px-8 flex items-center justify-center gap-1.5 bg-white/20 backdrop-blur-md text-white h-10 md:h-9 rounded font-black text-[11px] md:text-sm hover:bg-white/30 transition-all active:scale-95 border border-white/10"
                               >
-                                <span className="material-symbols-outlined text-[16px]">{isFavorited ? 'check' : 'add'}</span>
+                                <span className="material-symbols-outlined text-[18px] md:text-[16px]">{isFavorited ? 'check' : 'add'}</span>
                                 Meus favoritos
                               </button>
                             </div>

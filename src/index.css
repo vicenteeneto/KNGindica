@@ -55,15 +55,20 @@
     min-height: 100%;
     font-family: var(--font-display);
     width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden !important;
+    position: relative;
   }
 
-  /* Safe utility for hiding scrollbars on specific elements only */
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
+  /* Universal scrollbar hide for mobile-like experience */
+  * {
+    scrollbar-width: none !important; /* Firefox */
+    -ms-overflow-style: none !important; /* IE/Edge */
   }
-  .no-scrollbar {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+  ::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
   }
 }
 
