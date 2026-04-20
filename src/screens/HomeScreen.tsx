@@ -505,6 +505,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
 
   // Dynamic category grouping for rows
+  const plusProviders = providers.filter(p => p.plan_type === 'plus');
   const groupedByCategory = useMemo(() => {
     const groups: { [key: string]: any[] } = {};
     providers.forEach(p => {
