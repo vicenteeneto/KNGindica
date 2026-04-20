@@ -992,15 +992,15 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
 function SkeletonRow() {
   return (
-    <div className="mb-10 animate-pulse">
-      <div className="h-5 w-40 bg-zinc-800 rounded mb-4 px-4 lg:px-[var(--gutter-desktop)]"></div>
+    <div className="mb-6 md:mb-8 animate-pulse">
+      <div className="h-5 w-40 bg-zinc-800 rounded mb-3 px-4 lg:px-[var(--gutter-desktop)]"></div>
       <div className="flex gap-2 overflow-x-hidden no-scrollbar snap-x snap-mandatory">
         {/* Leading Spacer (with snap-start to force alignment) */}
         <div className="shrink-0 w-4 lg:w-[var(--gutter-desktop)] snap-start" />
         
         {[1, 2, 3, 4, 5].map(i => (
-          <div key={i} className="shrink-0 w-[110px] md:w-[220px] lg:w-[280px]">
-            <div className="aspect-[2/3] md:aspect-video bg-zinc-800 rounded-sm"></div>
+          <div key={i} className="shrink-0 w-[135px] md:w-[220px] lg:w-[280px]">
+            <div className="aspect-[2/3] md:aspect-video bg-zinc-800 rounded-lg"></div>
           </div>
         ))}
       </div>
@@ -1031,8 +1031,8 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
   if (providers.length === 0) return null;
 
   return (
-    <section className="mb-8 md:mb-12">
-      <div className="flex items-end justify-between mb-2 px-4 lg:px-[var(--gutter-desktop)]">
+    <section className="mb-5 md:mb-8">
+      <div className="flex items-end justify-between mb-1.5 px-4 lg:px-[var(--gutter-desktop)]">
         <h3 
           onClick={onViewMore}
           className="text-sm md:text-xl font-bold text-gray-200 hover:text-white transition-colors cursor-pointer flex items-center group/title"
@@ -1074,9 +1074,9 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
             <div
               key={p.id}
               onClick={() => onNavigate('profile', { professionalId: p.id })}
-              className={`shrink-0 w-[110px] md:w-[220px] lg:w-[280px] cursor-pointer snap-start transition-transform duration-300 active:scale-95`}
+              className={`shrink-0 w-[135px] md:w-[220px] lg:w-[280px] cursor-pointer snap-start transition-transform duration-300 active:scale-95`}
             >
-              <div className="relative aspect-[2/3] md:aspect-video rounded-sm overflow-hidden bg-zinc-900 shadow-lg border border-white/5">
+              <div className="relative aspect-[2/3] md:aspect-video rounded-lg overflow-hidden bg-zinc-900 shadow-lg border border-white/5">
                 <img
                   src={p.image}
                   alt={p.name}
