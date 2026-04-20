@@ -675,7 +675,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
           onTouchEnd={handleTouchEndHero}
         >
           {heroProviders.length > 0 ? (
-            <div className="md:px-0 h-full">
+            <div className="px-4 md:px-0 h-full">
               <div className="relative h-full w-full lg:max-w-none mx-auto overflow-visible">
                 {heroProviders.slice(0, 5).map((p, idx) => {
                   const isFavorited = favoriteProviders.some(f => f.id === p.id);
