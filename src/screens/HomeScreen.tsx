@@ -974,6 +974,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
 
       {/* Custom Styles */}
+      {/* Custom Styles */}
       <style dangerouslySetInnerHTML={{
         __html: `
         .hide-scrollbar::-webkit-scrollbar { display: none; }
@@ -981,18 +982,20 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         .filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48; }
         
         @keyframes pulse-subtle {
-              </button>
-            </div>
-          </div>
-        )}
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.95; transform: scale(0.99); }
+        }
+        .animate-pulse-subtle { animation: pulse-subtle 4s infinite ease-in-out; }
+        `
+      }} />
+    </div>
+  );
+}
 
-        <section className="w-full netflix-gutter mb-10 relative z-30 transition-all duration-300">
-          <div className="bg-gradient-to-r from-emerald-600/90 to-emerald-800/95 rounded-xl p-4 md:p-6 shadow-xl relative overflow-hidden group border border-emerald-400/20 lg:max-w-xl lg:mx-0">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
 function SkeletonRow() {
   return (
     <div className="mb-2 md:mb-4 animate-pulse">
-      <div className="h-[15px] w-24 bg-zinc-800 rounded mb-1 ml-4 lg:ml-[var(--gutter-desktop)]"></div>
+      <div className="h-[16px] w-24 bg-zinc-800 rounded mb-1 ml-4 lg:ml-[var(--gutter-desktop)]"></div>
       <div className="flex overflow-x-hidden no-scrollbar snap-x snap-mandatory">
         {/* Leading Spacer */}
         <div className="shrink-0 w-4 lg:w-[var(--gutter-desktop)] snap-start" />
@@ -1000,7 +1003,7 @@ function SkeletonRow() {
         <div className="flex gap-2">
           {[1, 2, 3, 4, 5].map(i => (
             <div key={i} className="shrink-0 w-[115px] md:w-[200px] lg:w-[280px]">
-              <div className="aspect-[2/2.7] md:aspect-video bg-zinc-800 rounded-lg"></div>
+              <div className="aspect-[2/2.5] md:aspect-video bg-zinc-800 rounded-lg"></div>
             </div>
           ))}
         </div>
@@ -1036,7 +1039,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
       <div className="flex items-end justify-between mb-0.5 ml-4 lg:ml-[var(--gutter-desktop)] pr-4 lg:pr-[var(--gutter-desktop)]">
         <h3 
           onClick={onViewMore}
-          className="text-[13px] md:text-xl font-bold text-gray-200 hover:text-white transition-colors cursor-pointer flex items-center group/title"
+          className="text-[14px] md:text-xl font-bold text-gray-200 hover:text-white transition-colors cursor-pointer flex items-center group/title"
         >
           {title}
           <span className="material-symbols-outlined text-[14px] md:text-xl opacity-0 group-hover/title:opacity-100 transition-all translate-x-[-4px] group-hover/title:translate-x-1">chevron_right</span>
@@ -1064,7 +1067,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
         <div 
           ref={scrollRef}
           className="flex overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory justify-start"
-          style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+          style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {/* THE DEFINITIVE FIX: snap-start on the Spacer */}
           <div className="shrink-0 w-4 lg:w-[var(--gutter-desktop)] snap-start" />
@@ -1076,13 +1079,13 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
               onClick={() => onNavigate('profile', { professionalId: p.id })}
               className={`shrink-0 w-[115px] md:w-[200px] lg:w-[280px] cursor-pointer snap-start`}
             >
-              <div className="relative aspect-[2/2.7] md:aspect-video rounded-lg overflow-hidden bg-zinc-900 shadow-lg border border-white/5">
+              <div className="relative aspect-[2/2.5] md:aspect-video rounded-lg overflow-hidden bg-zinc-900 shadow-lg border border-white/5">
                 <img
                   src={p.image}
                   alt={p.name}
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    const target = e.target as HTMLImageElement;
+                    const target = e.target;
                     target.src = 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png';
                   }}
                 />
@@ -1120,7 +1123,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
               <div className="snap-start shrink-0 w-[115px] md:w-[200px] lg:w-[280px] cursor-pointer">
                  <button 
                   onClick={onViewMore}
-                  className="w-full aspect-[2/2.7] md:aspect-video rounded-lg border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all flex flex-col items-center justify-center gap-2 group"
+                  className="w-full aspect-[2/2.5] md:aspect-video rounded-lg border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all flex flex-col items-center justify-center gap-2 group"
                 >
                   <span className="material-symbols-outlined text-2xl opacity-40 group-hover:opacity-100 group-hover:scale-110 transition-all transition-transform">add_circle</span>
                   <span className="text-[9px] md:text-xs font-bold text-gray-500 uppercase tracking-widest">Ver tudo</span>
