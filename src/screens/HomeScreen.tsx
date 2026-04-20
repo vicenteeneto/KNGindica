@@ -543,7 +543,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
     <div className="w-full bg-[#000000] min-h-screen flex flex-col font-display text-white md:pb-0 overflow-x-hidden transition-colors duration-500">
       
       {/* Netflix-Style Header */}
-      <header className={`relative lg:fixed top-0 left-0 lg:left-16 right-0 lg:w-[calc(100%-4rem)] z-50 transition-all duration-500 pt-5 pb-2 ${isScrolled
+      <header className={`relative lg:fixed top-0 left-0 lg:left-16 right-0 lg:w-[calc(100%-4rem)] z-50 transition-all duration-500 pt-2 pb-2 ${isScrolled
         ? 'bg-black/95 backdrop-blur-md shadow-2xl border-b border-white/5'
         : 'bg-gradient-to-b from-black/80 via-black/20 to-transparent'
         }`}>
@@ -585,7 +585,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
           </div>
 
           {/* Category Chips - Overlay Style */}
-          <div className="mt-6 overflow-x-auto hide-scrollbar flex items-center gap-3 pb-2 transition-all duration-300">
+          <div className="mt-3 overflow-x-auto hide-scrollbar flex items-center gap-3 pb-2 transition-all duration-300">
             {/* Quick Location Badge (Subtle) */}
             <button 
               onClick={() => setShowLocationDropdown(!showLocationDropdown)}
@@ -644,14 +644,14 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
       <main className="flex-1 w-full relative">
         {/* Netflix-Style Cinematic Hero */}
         <section 
-          className="relative w-full h-[520px] pt-16 pb-8 md:h-[85vh] overflow-hidden transition-all duration-700 bg-gradient-to-b from-zinc-900 via-black to-black"
+          className="relative w-full h-[580px] pt-12 pb-6 md:h-[85vh] overflow-hidden transition-all duration-700 bg-gradient-to-b from-zinc-900 via-black to-black"
           onTouchStart={handleTouchStartHero}
           onTouchMove={handleTouchMoveHero}
           onTouchEnd={handleTouchEndHero}
         >
           {heroProviders.length > 0 ? (
-            <div className="netflix-gutter h-full">
-              <div className="relative h-full w-full max-w-lg mx-auto overflow-visible">
+            <div className="px-2 h-full">
+              <div className="relative h-full w-full max-w-2xl mx-auto overflow-visible">
                 {heroProviders.slice(0, 5).map((p, idx) => {
                   const isFavorited = favoriteProviders.some(f => f.id === p.id);
                   
@@ -660,7 +660,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                       key={p.id}
                       className={`absolute inset-0 transition-all duration-1000 ease-in-out ${idx === currentHeroIndex ? 'opacity-100 z-10 translate-y-0 scale-100' : 'opacity-0 z-0 translate-y-4 scale-95'}`}
                     >
-                      <div className="relative h-full w-full rounded-[2.5rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/5 bg-zinc-900">
+                      <div className="relative h-full w-full rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/5 bg-zinc-900">
                         {/* Background (Poster Style) */}
                         <img
                           src={p.image}
