@@ -791,7 +791,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         )}
 
         <section className="w-full px-6 lg:px-12 mb-10 relative z-30 transition-all duration-300">
-          <div className="bg-gradient-to-r from-emerald-600/90 to-emerald-800/95 rounded-xl p-4 md:p-6 shadow-xl relative overflow-hidden group border border-emerald-400/20">
+          <div className="bg-gradient-to-r from-emerald-600/90 to-emerald-800/95 rounded-xl p-4 md:p-6 shadow-xl relative overflow-hidden group border border-emerald-400/20 lg:max-w-2xl lg:mx-0">
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
               <div className="flex-1 text-center md:text-left">
@@ -821,8 +821,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         <div className={`w-full relative z-20 pb-10 ${!activeRequest ? '-mt-8' : ''}`}>
           
           {/* Action Row - Search & View Toggle */}
-          <div className="px-6 lg:px-12 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="relative group max-w-2xl w-full">
+          <div className="px-6 lg:px-12 mb-8 flex flex-col md:flex-row gap-4 items-center justify-start">
+            <div className="relative group w-full md:max-w-md">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                     <span className="material-symbols-outlined text-gray-400 group-focus-within:text-primary transition-colors">sparkles</span>
                   </div>
