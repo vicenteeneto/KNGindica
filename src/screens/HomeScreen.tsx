@@ -698,7 +698,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                         <div className="absolute inset-0 bg-black/5"></div>
 
                         {/* Content Section - Anchored at the bottom */}
-                        <div className="absolute bottom-4 lg:bottom-20 left-0 right-0 px-6 lg:px-16 transition-all duration-500">
+                        <div className="absolute bottom-4 lg:bottom-20 left-0 right-0 netflix-gutter transition-all duration-500">
                           <div className="w-full flex flex-col items-center text-center lg:items-start lg:text-left">
                             {/* Professional Name - "Graphic Logo" Style */}
                             <h1 className="netflix-title-logo text-2xl md:text-6xl mb-0.5 max-w-[95%] break-words drop-shadow-2xl leading-none">
@@ -737,7 +737,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
               </div>
               
               {/* Indicators - Positioned left on desktop */}
-              <div className="absolute bottom-2 lg:bottom-10 left-1/2 lg:left-16 -translate-x-1/2 lg:translate-x-0 z-30 flex gap-2">
+              <div className="absolute bottom-2 lg:bottom-10 left-1/2 lg:left-[var(--gutter-desktop)] -translate-x-1/2 lg:translate-x-0 z-30 flex gap-2">
                 {heroProviders.slice(0, 5).map((_, idx) => (
                   <button 
                     key={idx}
@@ -760,7 +760,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         </section>
         {/* Active Service Tracker (Live Activity Style) */}
         {activeRequest && (
-          <div className="w-full px-6 lg:px-12 -mt-12 md:-mt-16 mb-8 relative z-30 transition-all duration-300">
+          <div className="w-full netflix-gutter -mt-12 md:-mt-16 mb-8 relative z-30 transition-all duration-300">
             <div 
               onClick={() => onNavigate('myRequests')}
               className="bg-primary/95 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl flex items-center justify-between cursor-pointer hover:scale-[1.02] transition-transform animate-pulse-subtle"
@@ -790,7 +790,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
           </div>
         )}
 
-        <section className="w-full px-6 lg:px-12 mb-10 relative z-30 transition-all duration-300">
+        <section className="w-full netflix-gutter mb-10 relative z-30 transition-all duration-300">
           <div className="bg-gradient-to-r from-emerald-600/90 to-emerald-800/95 rounded-xl p-4 md:p-6 shadow-xl relative overflow-hidden group border border-emerald-400/20 lg:max-w-2xl lg:mx-0">
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -821,7 +821,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         <div className={`w-full relative z-20 pb-10 ${!activeRequest ? '-mt-8' : ''}`}>
           
           {/* Action Row - Search & View Toggle */}
-          <div className="px-6 lg:px-12 mb-8 flex flex-col md:flex-row gap-4 items-center justify-start">
+          <div className="netflix-gutter mb-8 flex flex-col md:flex-row gap-4 items-center justify-start">
             <div className="relative group w-full md:max-w-md">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                     <span className="material-symbols-outlined text-gray-400 group-focus-within:text-primary transition-colors">sparkles</span>
