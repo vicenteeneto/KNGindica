@@ -185,10 +185,10 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
   const backTarget = params?.returnTo ?? (role === 'provider' ? 'dashboard' : 'userProfile');
 
   return (
-    <div className="flex flex-col h-screen bg-slate-950 font-display text-slate-100 antialiased overflow-hidden">
+    <div className="flex flex-col h-screen netflix-main-bg font-display text-slate-100 antialiased overflow-hidden">
 
       {/* Header */}
-      <div className="shrink-0 z-50 bg-slate-900 border-b border-white/5 h-[60px] flex items-center justify-between px-6">
+      <div className="shrink-0 z-50 bg-[#000814]/80 backdrop-blur-md border-b border-white/5 h-[60px] flex items-center justify-between px-6">
         <div className="flex items-center gap-4 flex-1">
           <button
             onClick={() => onNavigate(backTarget)}
@@ -213,10 +213,10 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
       <div className="flex flex-1 overflow-hidden relative">
 
         {/* ── MASTER LIST ─────────────────────────────────── */}
-        <div className={`flex flex-col border-r border-white/5 bg-slate-900/50 ${selectedNotif ? 'hidden lg:flex' : 'flex'} w-full lg:w-[570px] shrink-0 overflow-hidden`}>
+        <div className={`flex flex-col border-r border-white/5 bg-[#000814]/30 ${selectedNotif ? 'hidden lg:flex' : 'flex'} w-full lg:w-[570px] shrink-0 overflow-hidden`}>
 
           {/* Search */}
-          <div className="px-4 py-3 bg-slate-900/80 backdrop-blur-md border-b border-white/5">
+          <div className="px-4 py-3 bg-[#000814]/60 backdrop-blur-md border-b border-white/5">
             <div className="relative group/search">
               <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-[20px] group-focus-within/search:text-primary transition-colors">search</span>
               <input
@@ -329,7 +329,7 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
         </div>
 
         {/* ── DETAIL PANEL ────────────────────────────────── */}
-        <div className={`flex-1 flex flex-col bg-slate-950 ${selectedNotif ? 'flex' : 'hidden lg:flex'} relative overflow-hidden`}>
+        <div className={`flex-1 flex flex-col bg-transparent ${selectedNotif ? 'flex' : 'hidden lg:flex'} relative overflow-hidden`}>
           {selectedNotif ? (
             <div className="h-full flex flex-col overflow-y-auto">
               {/* Mobile back button */}

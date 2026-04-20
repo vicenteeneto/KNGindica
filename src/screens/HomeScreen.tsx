@@ -564,12 +564,12 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   };
 
   return (
-    <div className="w-full bg-[#000000] min-h-screen flex flex-col font-display text-white md:pb-0 overflow-x-hidden transition-colors duration-500">
+    <div className="w-full netflix-main-bg min-h-screen flex flex-col font-display text-white md:pb-0 overflow-x-hidden transition-colors duration-500">
       
       {/* Netflix-Style Header */}
       <header className={`relative lg:fixed top-0 left-0 lg:left-16 right-0 lg:w-[calc(100%-4rem)] z-50 transition-all duration-500 pt-2 pb-2 ${isScrolled
         ? 'bg-black/95 backdrop-blur-md shadow-2xl border-b border-white/5'
-        : 'bg-gradient-to-b from-black/80 via-black/20 to-transparent'
+        : 'bg-gradient-to-b from-[#000814]/80 via-[#000814]/20 to-transparent'
         }`}>
         <div className="netflix-gutter transition-all duration-300">
           <div className="flex items-center justify-between">
@@ -668,7 +668,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
       <main className="flex-1 w-full relative">
         {/* Netflix-Style Cinematic Hero */}
         <section 
-          className="relative w-full h-[540px] pt-4 pb-6 md:h-[85vh] overflow-hidden transition-all duration-700 bg-gradient-to-b from-zinc-900 via-black to-black"
+          className="relative w-full h-[540px] pt-4 pb-6 md:h-[85vh] overflow-hidden transition-all duration-700 bg-transparent"
           onTouchStart={handleTouchStartHero}
           onTouchMove={handleTouchMoveHero}
           onTouchEnd={handleTouchEndHero}
@@ -684,7 +684,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                       key={p.id}
                       className={`absolute inset-0 transition-all duration-1000 ease-in-out ${idx === currentHeroIndex ? 'opacity-100 z-10 translate-y-0 scale-100' : 'opacity-0 z-0 translate-y-4 scale-95'}`}
                     >
-                      <div className="relative h-full w-full rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/5 bg-zinc-900">
+                      <div className="relative h-full w-full rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/5 bg-transparent">
                         {/* Background (Poster Style) */}
                         <img
                           src={p.image}
@@ -694,7 +694,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                         
                         {/* Cinematic Gradients */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
-                        <div className="absolute inset-0 bg-black/10"></div>
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent"></div>
+                        <div className="absolute inset-0 bg-black/5"></div>
 
                         {/* Content Section - Anchored at the very bottom */}
                         <div className="absolute bottom-6 left-0 right-0 px-4 transition-all duration-500">

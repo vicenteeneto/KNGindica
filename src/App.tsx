@@ -241,7 +241,7 @@ function AppContent() {
 
   if (loading && !profile) {
     return (
-      <div className="min-h-screen bg-white dark:bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen netflix-main-bg flex items-center justify-center">
         <span className="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span>
       </div>
     );
@@ -342,7 +342,7 @@ function AppContent() {
 
   return (
     <NotificationProvider onNavigate={handleNavigate}>
-      <div className="flex bg-white dark:bg-slate-900 min-h-screen">
+      <div className="flex netflix-main-bg min-h-screen">
         {!NON_PERSISTENT_SCREENS.includes(currentScreen) && (
           <SidebarNav 
             onNavigate={handleNavigate} 

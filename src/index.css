@@ -15,6 +15,7 @@
   --gutter-mobile: 16px;
   --gutter-desktop: 4%;
   --netflix-red: #E50914;
+  --color-navy-dark: #000814;
 }
 
 @theme {
@@ -85,6 +86,12 @@
   .netflix-title-logo {
     @apply font-black italic tracking-tighter uppercase leading-none;
     text-shadow: 0 4px 12px rgba(0,0,0,0.8);
+  }
+
+  /* Netflix Dynamic Background System */
+  .netflix-main-bg {
+    background: linear-gradient(to bottom, var(--color-navy-dark) 0%, #000000 600px, #000000 100%);
+    background-attachment: scroll;
   }
 }
 

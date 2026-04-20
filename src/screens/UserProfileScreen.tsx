@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { NavigationProps } from '../types';
 import { useTheme } from '../ThemeContext';
 import { useAuth } from '../AuthContext';
@@ -635,7 +635,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
+    <div className="flex flex-col min-h-screen netflix-main-bg font-display text-slate-100 antialiased overflow-hidden">
 
       {/* Header Profile Area */}
       <div 
@@ -776,7 +776,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         <div className="space-y-4 mb-6">
           
           {/* Grupo 1: Conta & Configurações */}
-          <div className="bg-white dark:bg-[#1C1C1E] rounded-xl shadow-sm border border-slate-200/60 dark:border-white/10 overflow-hidden">
+          <div className="bg-[#000814]/40 backdrop-blur-md rounded-xl shadow-sm border border-white/10 overflow-hidden">
             {/* Editar Dados */}
             <button
               onClick={() => setShowProfileModal(true)}
