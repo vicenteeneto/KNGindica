@@ -1270,7 +1270,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
             <div
               key={p.id}
               onClick={() => onNavigate('profile', { professionalId: p.id })}
-              className={`shrink-0 w-[115px] md:w-[200px] lg:w-[280px] cursor-pointer snap-start transition-transform duration-300 active:scale-95`}
+              className={`shrink-0 w-[115px] md:w-[200px] lg:w-[280px] cursor-pointer snap-start`}
             >
               <div className="relative aspect-[2/3] md:aspect-video rounded-lg overflow-hidden bg-zinc-900 shadow-lg border border-white/5">
                 <img
