@@ -992,9 +992,12 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
 function SkeletonRow() {
   return (
-    <div className="px-4 lg:netflix-gutter mb-10 animate-pulse">
-      <div className="h-5 w-40 bg-zinc-800 rounded mb-4"></div>
-      <div className="flex gap-2 overflow-x-hidden">
+    <div className="mb-10 animate-pulse">
+      <div className="h-5 w-40 bg-zinc-800 rounded mb-4 px-4 lg:px-[var(--gutter-desktop)]"></div>
+      <div className="flex gap-2 overflow-x-hidden no-scrollbar snap-x snap-mandatory">
+        {/* Leading Spacer (with snap-start to force alignment) */}
+        <div className="shrink-0 w-4 lg:w-[var(--gutter-desktop)] snap-start" />
+        
         {[1, 2, 3, 4, 5].map(i => (
           <div key={i} className="shrink-0 w-[110px] md:w-[220px] lg:w-[280px]">
             <div className="aspect-[2/3] md:aspect-video bg-zinc-800 rounded-sm"></div>
@@ -1059,48 +1062,69 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
 
         <div 
           ref={scrollRef}
-          className="flex gap-1.5 md:gap-2 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory px-4 lg:px-[var(--gutter-desktop)]"
+          className="flex gap-1.5 md:gap-2 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory justify-start"
           style={{ touchAction: 'pan-x', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
         >
+          {/* 🧩 THE DEFINITIVE FIX: snap-start on the Spacer
+              By adding snap-start here, we force the browser to anchor the row at the 
+              16px padding instead of snapping past it to the first card. */}
+          <div className="shrink-0 w-4 lg:w-[var(--gutter-desktop)] snap-start" />
+
           {providers.filter(Boolean).map((p) => (
             <div
               key={p.id}
               onClick={() => onNavigate('profile', { professionalId: p.id })}
-              className="snap-start shrink-0 w-[110px] md:w-[220px] lg:w-[280px] group cursor-pointer transition-transform duration-300 hover:z-50"
+              className={`shrink-0 w-[110px] md:w-[220px] lg:w-[280px] cursor-pointer snap-start transition-transform duration-300 active:scale-95`}
             >
-              <div className="relative aspect-[2/3] md:aspect-video rounded-sm overflow-hidden bg-zinc-900 transition-all duration-300 md:group-hover:scale-105 md:group-hover:shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+              <div className="relative aspect-[2/3] md:aspect-video rounded-sm overflow-hidden bg-zinc-900 shadow-lg border border-white/5">
                 <img
-                  className="w-full h-full object-cover"
                   src={p.image}
                   alt={p.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png';
+                  }}
                 />
                 
-                {/* Netflix-style Overlay (Mobile Minimalist, Desktop Detailed) */}
-                <div className="absolute inset-x-0 bottom-0 p-1.5 md:p-3 bg-gradient-to-t from-black/90 via-black/20 to-transparent">
-                  <h4 className="text-[9px] md:text-sm font-black text-white leading-tight truncate">
+                {/* Overlay Gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                
+                {/* Badge Overlay (Optional: Affiliate/Verified) */}
+                {(p.isAffiliate || p.isVerified) && (
+                  <div className="absolute top-1.5 right-1.5">
+                    <span className="material-symbols-outlined text-primary text-[14px] md:text-[18px] filled drop-shadow-lg">
+                      {p.isVerified ? 'verified' : 'star'}
+                    </span>
+                  </div>
+                )}
+                
+                {/* Provider Info Overlay */}
+                <div className="absolute bottom-0 left-0 right-0 p-1.5 md:p-3">
+                  <h4 className="text-[9px] md:text-sm font-black text-white truncate leading-tight drop-shadow-md uppercase tracking-tight">
                     {p.name}
                   </h4>
-                  <div className="flex items-center gap-1 mt-0.5">
-                    <span className="text-[7px] md:text-[10px] font-bold text-gray-400 uppercase tracking-tighter truncate flex-1">
+                  <div className="flex items-center justify-between mt-0.5 opacity-90">
+                    <span className="text-[7px] md:text-[10px] text-gray-300 font-bold uppercase tracking-wider truncate max-w-[70%]">
                       {p.service}
                     </span>
-                    <div className="flex items-center text-primary gap-0.5">
-                       <span className="material-symbols-outlined text-[8px] md:text-[10px] filled">star</span>
-                       <span className="text-[7px] md:text-[10px] font-black text-white">{(p.rating || 5.0)}</span>
+                    <div className="flex items-center gap-0.5">
+                      <span className="material-symbols-outlined text-[#FF7A00] text-[8px] md:text-[12px] filled">star</span>
+                      <span className="text-[7px] md:text-[10px] font-black text-white">{p.rating.toFixed(1)}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Progress Bar Style decoration (Optional - Netflix feel) */}
+                {/* Progress Bar Highlight */}
                 {highlight && (
-                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-zinc-800">
-                      <div className="h-full bg-primary w-2/3 shadow-[0_0_10px_#FF7A00]"></div>
-                   </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-zinc-800">
+                    <div className="h-full bg-primary w-2/3 shadow-[0_0_10px_#FF7A00]"></div>
+                  </div>
                 )}
               </div>
             </div>
           ))}
-          
+
           {onViewMore && (
             <div className="snap-start shrink-0 w-[110px] md:w-[220px] lg:w-[280px] cursor-pointer">
                <button 
