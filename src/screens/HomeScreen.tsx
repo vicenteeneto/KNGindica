@@ -684,7 +684,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                       key={p.id}
                       className={`absolute inset-0 transition-all duration-1000 ease-in-out ${idx === currentHeroIndex ? 'opacity-100 z-10 translate-y-0 scale-100' : 'opacity-0 z-0 translate-y-4 scale-95'}`}
                     >
-                      <div className="relative h-full w-full rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/5 bg-transparent">
+                      <div className="relative h-full w-full rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] bg-transparent">
                         {/* Background (Poster Style) */}
                         <img
                           src={p.image}
@@ -707,7 +707,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
                             {/* Tags */}
                             <div className="flex items-center justify-center gap-1.5 mb-2.5 flex-wrap opacity-90">
-                              <span className="text-[10px] md:text-sm font-black text-gray-100 uppercase tracking-[0.2em]">{p.service} - {p.city}</span>
+                              <span className="text-[8px] md:text-xs font-black text-gray-100 uppercase tracking-[0.2em]">{p.service} - {p.city}</span>
                             </div>
                             
                             {/* Action Buttons */}
