@@ -409,7 +409,12 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   // Derived filtered providers
   const providers = useMemo(() => {
     let list = dbProviders;
-    if (locationName && !locationName.includes('Brasil') && !locationName.includes('Localização')) {
+    const isStatusMessage = locationName.includes('Buscando') || 
+                            locationName.includes('Indisponível') || 
+                            locationName.includes('Brasil') || 
+                            locationName.includes('Localização');
+
+    if (locationName && !isStatusMessage) {
       const filter = normalizeText(locationName.split('/')[0]);
       list = list.filter(p => {
         const pCity = normalizeText((p.city || '').split('/')[0]);
@@ -639,7 +644,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
       <main className="flex-1 w-full relative">
         {/* Netflix-Style Cinematic Hero */}
         <section 
-          className="relative w-full pt-16 pb-8 md:h-[85vh] overflow-hidden transition-all duration-700 bg-gradient-to-b from-zinc-900 via-black to-black"
+          className="relative w-full h-[520px] pt-16 pb-8 md:h-[85vh] overflow-hidden transition-all duration-700 bg-gradient-to-b from-zinc-900 via-black to-black"
           onTouchStart={handleTouchStartHero}
           onTouchMove={handleTouchMoveHero}
           onTouchEnd={handleTouchEndHero}
