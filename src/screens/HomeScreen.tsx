@@ -992,17 +992,19 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
 function SkeletonRow() {
   return (
-    <div className="mb-6 md:mb-8 animate-pulse">
-      <div className="h-5 w-40 bg-zinc-800 rounded mb-3 px-4 lg:px-[var(--gutter-desktop)]"></div>
-      <div className="flex gap-2 overflow-x-hidden no-scrollbar snap-x snap-mandatory">
-        {/* Leading Spacer (with snap-start to force alignment) */}
+    <div className="mb-4 md:mb-6 animate-pulse">
+      <div className="h-4 w-32 bg-zinc-800 rounded mb-2 ml-4 lg:ml-[var(--gutter-desktop)]"></div>
+      <div className="flex overflow-x-hidden no-scrollbar snap-x snap-mandatory">
+        {/* Leading Spacer */}
         <div className="shrink-0 w-4 lg:w-[var(--gutter-desktop)] snap-start" />
         
-        {[1, 2, 3, 4, 5].map(i => (
-          <div key={i} className="shrink-0 w-[135px] md:w-[220px] lg:w-[280px]">
-            <div className="aspect-[2/3] md:aspect-video bg-zinc-800 rounded-lg"></div>
-          </div>
-        ))}
+        <div className="flex gap-2">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="shrink-0 w-[135px] md:w-[220px] lg:w-[280px]">
+              <div className="aspect-[2/3] md:aspect-video bg-zinc-800 rounded-lg"></div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -1031,8 +1033,8 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
   if (providers.length === 0) return null;
 
   return (
-    <section className="mb-5 md:mb-8">
-      <div className="flex items-end justify-between mb-1.5 px-4 lg:px-[var(--gutter-desktop)]">
+    <section className="mb-4 md:mb-6">
+      <div className="flex items-end justify-between mb-1 ml-4 lg:ml-[var(--gutter-desktop)] pr-4 lg:pr-[var(--gutter-desktop)]">
         <h3 
           onClick={onViewMore}
           className="text-sm md:text-xl font-bold text-gray-200 hover:text-white transition-colors cursor-pointer flex items-center group/title"
@@ -1062,15 +1064,14 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
 
         <div 
           ref={scrollRef}
-          className="flex gap-1.5 md:gap-2 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory justify-start"
+          className="flex overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory justify-start"
           style={{ touchAction: 'pan-x', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
         >
-          {/* 🧩 THE DEFINITIVE FIX: snap-start on the Spacer
-              By adding snap-start here, we force the browser to anchor the row at the 
-              16px padding instead of snapping past it to the first card. */}
+          {/* THE DEFINITIVE FIX: snap-start on the Spacer */}
           <div className="shrink-0 w-4 lg:w-[var(--gutter-desktop)] snap-start" />
 
-          {providers.filter(Boolean).map((p) => (
+          <div className="flex gap-1.5 md:gap-2">
+            {providers.filter(Boolean).map((p) => (
             <div
               key={p.id}
               onClick={() => onNavigate('profile', { professionalId: p.id })}
@@ -1116,23 +1117,23 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
             </div>
           ))}
 
-          {onViewMore && (
-            <div className="snap-start shrink-0 w-[110px] md:w-[220px] lg:w-[280px] cursor-pointer">
-               <button 
-                onClick={onViewMore}
-                className="w-full aspect-[2/3] md:aspect-video rounded-sm border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all flex flex-col items-center justify-center gap-2 group"
-              >
-                <span className="material-symbols-outlined text-2xl opacity-40 group-hover:opacity-100 group-hover:scale-110 transition-all transition-transform">add_circle</span>
-                <span className="text-[9px] md:text-xs font-bold text-gray-500 uppercase tracking-widest">Ver tudo</span>
-               </button>
-            </div>
-          )}
-          
-          {/* End Spacer to match gutter */}
-          <div className="shrink-0 w-4 md:w-[4%] h-1 invisible" />
+            {onViewMore && (
+              <div className="snap-start shrink-0 w-[135px] md:w-[220px] lg:w-[280px] cursor-pointer">
+                 <button 
+                  onClick={onViewMore}
+                  className="w-full aspect-[2/3] md:aspect-video rounded-lg border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all flex flex-col items-center justify-center gap-2 group"
+                >
+                  <span className="material-symbols-outlined text-2xl opacity-40 group-hover:opacity-100 group-hover:scale-110 transition-all transition-transform">add_circle</span>
+                  <span className="text-[9px] md:text-xs font-bold text-gray-500 uppercase tracking-widest">Ver tudo</span>
+                 </button>
+              </div>
+            )}
+            
+            {/* End Spacer */}
+            <div className="shrink-0 w-4 lg:w-[var(--gutter-desktop)]" />
+          </div>
         </div>
       </div>
     </section>
   );
 }
-
