@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
@@ -521,7 +521,7 @@ export default function ChatScreen({ onNavigate, params, onClose, isEmbedded = f
       </div>
     )}
 
-    <div className={`flex flex-col w-full h-full netflix-main-bg text-white border-slate-200 dark:border-slate-800 overflow-hidden font-display text-slate-900 dark:text-slate-100 z-50 ${
+    <div className={`flex flex-col w-full h-full netflix-main-bg text-white border-white/5 overflow-hidden font-display z-50 ${
       isEmbedded 
         ? 'border-none shadow-none rounded-none' 
         : 'md:h-[550px] md:w-[350px] md:rounded-t-2xl sm:shadow-2xl md:border-t md:border-x'
@@ -549,7 +549,7 @@ export default function ChatScreen({ onNavigate, params, onClose, isEmbedded = f
       </nav>
 
       {/* Chat Area */}
-      <main className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar bg-slate-50 dark:netflix-main-bg/50 relative">
+      <main className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar bg-transparent relative">
         {loading ? (
           <div className="flex justify-center p-8">
             <span className="material-symbols-outlined animate-spin text-4xl text-slate-300">progress_activity</span>
@@ -603,7 +603,7 @@ export default function ChatScreen({ onNavigate, params, onClose, isEmbedded = f
                     <img src={opponentAvatar} alt={opponentName} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex flex-col gap-1 items-start">
-                    <div className={`rounded-xl rounded-bl-none shadow-sm border border-primary/5 overflow-hidden ${msg.content.startsWith('[ANEXO]') ? 'bg-transparent border-slate-200 dark:border-slate-800' : msg.content.startsWith('[PROPOSTA]') ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800 p-4 text-slate-800 dark:text-slate-100' : 'bg-white dark:bg-slate-800 p-3 text-slate-800 dark:text-slate-100'}`}>
+                    <div className={`rounded-xl rounded-bl-none shadow-sm border border-primary/5 overflow-hidden ${msg.content.startsWith('[ANEXO]') ? 'bg-transparent border-white/10' : msg.content.startsWith('[PROPOSTA]') ? 'bg-orange-500/20 border-orange-500/30 p-4 text-white backdrop-blur-md' : 'bg-white/10 p-3 text-white backdrop-blur-md border border-white/5'}`}>
                       {msg.content.startsWith('[ANEXO]') ? (
                         <img 
                           src={msg.content.replace('[ANEXO]', '')} 
@@ -671,7 +671,7 @@ export default function ChatScreen({ onNavigate, params, onClose, isEmbedded = f
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={handleKeyPress}
-              className="w-full bg-slate-100 dark:bg-slate-800 border-none focus:ring-2 focus:ring-primary/50 outline-none rounded-2xl py-3 px-4 text-sm"
+              className="w-full bg-white/10 text-white placeholder-white/50 backdrop-blur-md border border-white/10 focus:ring-2 focus:ring-primary/50 outline-none rounded-2xl py-3 px-4 text-sm"
               placeholder="Escreva uma mensagem..."
             />
           </div>
