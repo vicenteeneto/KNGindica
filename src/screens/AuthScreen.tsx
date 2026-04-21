@@ -159,7 +159,7 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
                       required={!isLogin}
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all text-white font-bold"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-10 pr-4 text-base focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all text-white font-bold"
                       placeholder="Como você se chama?"
                     />
                   </div>

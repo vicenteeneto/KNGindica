@@ -661,7 +661,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                     onSelect={(city) => handleCitySelect(city)}
                     activeCities={availableCities}
                     placeholder="Mudar cidade..."
-                    className="w-full pl-9 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:border-primary outline-none text-xs font-bold"
+                    className="w-full pl-9 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:border-primary outline-none text-base font-bold"
                   />
                 </div>
               </div>

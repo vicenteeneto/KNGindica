@@ -206,7 +206,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
                placeholder="Busque serviço..."
                value={searchQuery}
                onChange={(e) => setSearchQuery(e.target.value)}
-               className="w-full bg-white/5 border border-white/10 rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-primary"
+               className="w-full bg-white/5 border border-white/10 rounded-lg pl-9 pr-3 py-2 text-[16px] text-white focus:outline-none focus:ring-1 focus:ring-primary"
              />
           </div>
           <div className="relative">
@@ -215,7 +215,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
                 value={selectedCity}
                 onChange={val => setSelectedCity(val)}
                 placeholder="Qual cidade?"
-                className="w-full bg-white/5 border border-white/10 rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full bg-white/5 border border-white/10 rounded-lg pl-9 pr-3 py-2 text-[16px] text-white focus:outline-none focus:ring-1 focus:ring-primary"
              />
           </div>
         </div>
