@@ -823,7 +823,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
           
           {viewMode === 'map' ? (
              /* Map View Container */
-             <div className="w-full h-[600px] rounded-2xl overflow-hidden shadow-2xl border border-slate-800 relative ring-1 ring-white/10">
+             <div className="w-full h-[600px] netflix-gutter rounded-2xl overflow-hidden shadow-2xl border border-slate-800 relative ring-1 ring-white/10">
                 <MapContainer 
                   center={mapCenter} 
                   zoom={userCoords ? 13 : 12} 
