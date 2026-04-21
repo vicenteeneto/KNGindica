@@ -765,15 +765,15 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                             <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent"></div>
                             
                             {/* Hero Content (Floating Overlay) */}
-                            <div className="absolute inset-x-0 bottom-0 pb-10 md:pb-16 px-6 md:px-12 z-20">
-                              <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
+                            <div className="absolute inset-x-0 bottom-0 pb-10 md:pb-16 px-6 md:px-12 netflix-gutter z-20">
+                              <div className="flex flex-col items-center lg:items-start text-center lg:text-left max-w-4xl mx-auto lg:mx-0">
                                 
                                 <h2 className="text-3xl md:text-6xl font-black text-white mb-6 tracking-tighter leading-tight drop-shadow-2xl">
                                   {p.name}
                                 </h2>
                                 
                                 {/* Hero Action Buttons */}
-                                <div className="flex items-center gap-2 w-full max-w-xs md:max-w-md">
+                                <div className="flex items-center justify-center lg:justify-start gap-2 w-full max-w-xs md:max-w-md">
                                   <button 
                                     onClick={() => onNavigate('profile', { professionalId: p.id })}
                                     className="flex-1 h-8 md:h-9 bg-white text-black rounded flex items-center justify-center gap-2 font-black text-[12px] md:text-sm hover:bg-gray-200 transition-colors shadow-xl"

@@ -204,7 +204,7 @@ export default function MyFreelancesScreen({ onNavigate, params }: NavigationPro
                         isActive ? 'bg-primary/10 border-l-4 border-l-primary' : 'hover:bg-white/5 border-l-4 border-l-transparent'
                       }`}
                     >
-                      <div className="size-12 rounded-2xl bg-slate-800 shrink-0 overflow-hidden border border-white/5 flex items-center justify-center">
+                      <div className="size-12 rounded-full bg-slate-800 shrink-0 overflow-hidden border border-white/5 flex items-center justify-center">
                         <span className="material-symbols-outlined text-primary">{order.service_categories?.icon || 'work'}</span>
                       </div>
                       <div className="flex-1 min-w-0 py-0.5">

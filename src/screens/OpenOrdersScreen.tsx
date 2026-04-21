@@ -335,7 +335,7 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
                         isActive ? 'bg-primary/10 border-l-4 border-l-primary' : 'hover:bg-white/5 border-l-4 border-l-transparent'
                       }`}
                     >
-                      <div className="size-12 rounded-2xl bg-slate-800 shrink-0 overflow-hidden border border-white/5">
+                      <div className="size-12 rounded-full bg-slate-800 shrink-0 overflow-hidden border border-white/5">
                         <img src={order.profiles?.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} className="w-full h-full object-cover" />
                       </div>
                       <div className="flex-1 min-w-0 py-0.5">
