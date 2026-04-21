@@ -797,16 +797,6 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             </div>
           )}
 
-          {/* Hero Navigation Indicators (Dash Style) */}
-          <div className="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-30">
-            {heroProviders.slice(0, 5).map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setCurrentHeroIndex(idx)}
-                className={`w-1 transition-all duration-500 rounded-full ${idx === currentHeroIndex ? 'h-8 bg-primary shadow-[0_0_10px_rgba(255,102,0,0.5)]' : 'h-3 bg-white/20'}`}
-              />
-            ))}
-          </div>
         </section>
 
         {/* Active Service Tracker (If any) */}

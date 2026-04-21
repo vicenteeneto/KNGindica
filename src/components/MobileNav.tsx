@@ -47,10 +47,6 @@ export default function MobileNav({ onNavigate, currentScreen, role, params }: M
               </span>
             )}
             
-            {/* Active Indicator (Optional - Netflix sometimes uses a dot or nothing) */}
-            {isActive && (
-              <span className="absolute -bottom-1 size-1 bg-primary rounded-full md:hidden"></span>
-            )}
           </button>
         );
       })}
