@@ -577,9 +577,16 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
           <div className="flex items-center justify-between">
             {/* Left: Branding/Category Name */}
             <div className="flex items-center gap-4">
-              <h1 className="text-xl md:text-2xl font-black tracking-tighter text-white">
-                Início
-              </h1>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => setShowLocationDropdown(!showLocationDropdown)}
+                className="h-8 flex-shrink-0 flex items-center gap-1.5 px-3 rounded-full border border-white/20 bg-white/5 text-[11px] font-black text-white hover:bg-white/10 transition-all focus:ring-1 focus:ring-primary/50"
+              >
+                <span className="material-symbols-outlined text-[15px] text-primary leading-none">location_on</span>
+                <span className="leading-none">{locationName.split('/')[0]}</span>
+                <span className={`material-symbols-outlined text-[15px] leading-none transition-transform ${showLocationDropdown ? 'rotate-180 text-primary' : ''}`}>expand_more</span>
+              </button>
+            </div>
             </div>
 
             {/* Right: Actions */}
@@ -613,15 +620,6 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
           
           {/* Unified Tool Header (City | Search | Map | Categories) */}
           <div className="mt-3 overflow-x-auto hide-scrollbar flex items-center gap-2 pb-2 transition-all duration-300">
-            {/* 1. Location Badge */}
-            <button 
-              onClick={() => setShowLocationDropdown(!showLocationDropdown)}
-              className="h-8 flex-shrink-0 flex items-center gap-1 px-3 rounded-full border border-white/20 bg-white/5 text-[11px] font-black text-white hover:bg-white/10 transition-all"
-            >
-              <span className="material-symbols-outlined text-[15px] text-primary leading-none">location_on</span>
-              <span className="leading-none">{locationName.split('/')[0]}</span>
-              <span className={`material-symbols-outlined text-[15px] leading-none transition-transform ${showLocationDropdown ? 'rotate-180 text-primary' : ''}`}>expand_more</span>
-            </button>
 
 
             {/* 3. Map View Toggle */}
