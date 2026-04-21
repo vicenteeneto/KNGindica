@@ -51,7 +51,7 @@ export function TabBar<T extends string = string>({
         style touch-action: pan-x → garante que o arraste horizontal funciona no iOS/Android
       */}
       <div
-        className="flex gap-1 overflow-x-auto lg:overflow-x-hidden no-scrollbar"
+        className="flex gap-1 overflow-x-auto no-scrollbar"
         style={{ touchAction: 'pan-x', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
       >
         {tabs.map((tab) => {
@@ -62,7 +62,7 @@ export function TabBar<T extends string = string>({
               onClick={() => onChange(tab.key)}
               className={`
                 h-8 lg:h-7
-                shrink-0 lg:flex-1
+                shrink-0
                 flex items-center justify-center gap-1
                 px-3 lg:px-2
                 rounded-full
