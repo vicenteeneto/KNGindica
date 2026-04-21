@@ -690,52 +690,54 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         >
           {viewMode === 'map' ? (
              /* Map View Container */
-             <div className="w-full h-full md:rounded-none rounded-2xl overflow-hidden shadow-2xl border border-slate-800 relative ring-1 ring-white/10">
-                <MapContainer 
-                  center={mapCenter} 
-                  zoom={userCoords ? 13 : 12} 
-                  style={{ height: '100%', width: '100%' }}
-                  className="z-0"
-                >
-                  <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  />
-                  <MapUpdater center={mapCenter} />
-                  {userCoords && (
-                    <CircleMarker 
-                      center={[userCoords.lat, userCoords.lng]}
-                      radius={8}
-                      pathOptions={{ fillColor: '#3b82f6', color: '#ffffff', weight: 3, fillOpacity: 1 }}
-                    >
-                      <Popup>📍 Você está aqui</Popup>
-                    </CircleMarker>
-                  )}
-                  {providers.map(p => {
-                    if (!p.latitude || !p.longitude) return null;
-                    return (
-                      <Marker 
-                        key={p.id} 
-                        position={[p.latitude, p.longitude]} 
-                        icon={createProviderIcon(p.image)}
+             <div className="px-4 md:px-0 h-full">
+               <div className="w-full h-full md:rounded-none rounded-2xl overflow-hidden shadow-2xl border border-white/10 relative ring-1 ring-white/10">
+                  <MapContainer 
+                    center={mapCenter} 
+                    zoom={userCoords ? 13 : 12} 
+                    style={{ height: '100%', width: '100%' }}
+                    className="z-0"
+                  >
+                    <TileLayer
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    />
+                    <MapUpdater center={mapCenter} />
+                    {userCoords && (
+                      <CircleMarker 
+                        center={[userCoords.lat, userCoords.lng]}
+                        radius={8}
+                        pathOptions={{ fillColor: '#3b82f6', color: '#ffffff', weight: 3, fillOpacity: 1 }}
                       >
-                        <Popup className="provider-popup">
-                          <div className="p-2 w-48 font-display bg-[#0f171e] text-white rounded-lg">
-                            <img src={p.image} className="w-full h-24 object-cover rounded-md mb-2" alt={p.name} />
-                            <h4 className="font-bold text-white">{p.name}</h4>
-                            <p className="text-xs text-primary font-bold mb-1">{p.service}</p>
-                            <button 
-                              onClick={() => onNavigate('profile', { professionalId: p.id })}
-                              className="w-full bg-primary text-white text-[10px] py-2 rounded font-black mt-2"
-                            >
-                              Ver Perfil
-                            </button>
-                          </div>
-                        </Popup>
-                      </Marker>
-                    );
-                  })}
-                </MapContainer>
+                        <Popup>📍 Você está aqui</Popup>
+                      </CircleMarker>
+                    )}
+                    {providers.map(p => {
+                      if (!p.latitude || !p.longitude) return null;
+                      return (
+                        <Marker 
+                          key={p.id} 
+                          position={[p.latitude, p.longitude]} 
+                          icon={createProviderIcon(p.image)}
+                        >
+                          <Popup className="provider-popup">
+                            <div className="p-2 w-48 font-display bg-[#0f171e] text-white rounded-lg">
+                              <img src={p.image} className="w-full h-24 object-cover rounded-md mb-2" alt={p.name} />
+                              <h4 className="font-bold text-white">{p.name}</h4>
+                              <p className="text-xs text-primary font-bold mb-1">{p.service}</p>
+                              <button 
+                                onClick={() => onNavigate('profile', { professionalId: p.id })}
+                                className="w-full bg-primary text-white text-[10px] py-2 rounded font-black mt-2"
+                              >
+                                Ver Perfil
+                              </button>
+                            </div>
+                          </Popup>
+                        </Marker>
+                      );
+                    })}
+                  </MapContainer>
+               </div>
              </div>
           ) : (
             <>
