@@ -105,7 +105,6 @@ export default function MyFreelancesScreen({ onNavigate, params }: NavigationPro
            </button>
            <div className="flex-1 min-w-0">
              <div className="flex items-center gap-1.5 md:gap-2">
-               <div className="size-2 rounded-full bg-blue-500 animate-pulse shrink-0" />
                <h1 className="text-sm md:text-lg font-black text-white italic leading-none truncate">Meus Freelances</h1>
              </div>
            </div>

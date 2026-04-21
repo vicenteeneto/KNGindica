@@ -248,7 +248,6 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
             <span className="material-symbols-outlined text-sm">arrow_back</span>
           </button>
           <div className="flex items-center gap-2">
-            <div className="size-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
             <h1 className="text-lg font-black text-white italic leading-none truncate">Painel de Oportunidades</h1>
           </div>
         </div>
