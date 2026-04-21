@@ -74,6 +74,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   const [loadingProviders, setLoadingProviders] = useState(true);
   const [activeRequest, setActiveRequest] = useState<any>(null);
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const [touchStartHero, setTouchStartHero] = useState<number | null>(null);
   const [touchEndHero, setTouchEndHero] = useState<number | null>(null);
   const [manualCityInput, setManualCityInput] = useState(() => localStorage.getItem('KNGindica_manualCity') || '');
@@ -609,29 +610,49 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             </div>
           </div>
 
-          {/* Category Chips - Overlay Style */}
-          <div className="mt-3 overflow-x-auto hide-scrollbar flex items-center gap-3 pb-2 transition-all duration-300">
-            {/* Quick Location Badge (Subtle) */}
+          
+          {/* Unified Tool Header (City | Search | Map | Categories) */}
+          <div className="mt-3 overflow-x-auto hide-scrollbar flex items-center gap-2 pb-2 transition-all duration-300">
+            {/* 1. Location Badge */}
             <button 
               onClick={() => setShowLocationDropdown(!showLocationDropdown)}
-              className="h-8 flex-shrink-0 flex items-center gap-1 px-3 rounded-full border border-white/20 bg-white/5 text-[11px] font-bold text-white hover:bg-white/10 transition-all"
+              className="h-8 flex-shrink-0 flex items-center gap-1 px-3 rounded-full border border-white/20 bg-white/5 text-[11px] font-black text-white hover:bg-white/10 transition-all"
             >
-              <span className="material-symbols-outlined text-[16px] text-primary leading-none">location_on</span>
+              <span className="material-symbols-outlined text-[15px] text-primary leading-none">location_on</span>
               <span className="leading-none">{locationName.split('/')[0]}</span>
-              <span className={`material-symbols-outlined text-[16px] leading-none transition-transform ${showLocationDropdown ? 'rotate-180 text-primary' : ''}`}>expand_more</span>
+              <span className={`material-symbols-outlined text-[15px] leading-none transition-transform ${showLocationDropdown ? 'rotate-180 text-primary' : ''}`}>expand_more</span>
             </button>
 
+            {/* 2. Expanding Search Trigger */}
+            <button 
+              onClick={() => setShowSearchDropdown(!showSearchDropdown)}
+              className="h-8 flex-shrink-0 flex items-center gap-1.5 px-3 rounded-full border border-white/20 bg-white/5 text-[11px] font-black text-white hover:bg-white/10 transition-all"
+            >
+              <span className="material-symbols-outlined text-[15px] text-primary">sparkles</span>
+              <span className="leading-none">Busca</span>
+            </button>
+
+            {/* 3. Map View Toggle */}
+            <button 
+              onClick={() => setViewMode(prev => prev === 'list' ? 'map' : 'list')}
+              className="h-8 flex-shrink-0 flex items-center gap-1.5 px-3 rounded-full border border-white/20 bg-white/5 text-[11px] font-black text-white hover:bg-white/10 transition-all"
+            >
+              <span className="material-symbols-outlined text-[15px] text-primary">{viewMode === 'list' ? 'map' : 'format_list_bulleted'}</span>
+              <span className="leading-none">{viewMode === 'list' ? 'Mapa' : 'Lista'}</span>
+            </button>
+
+            <div className="h-4 w-px bg-white/10 shrink-0 mx-1" />
+
+            {/* 4. Category Chips */}
             {dynamicCategories.map((cat) => (
               <button
                 key={cat.name}
                 onClick={() => cat.name === 'Todos' ? onNavigate('listing', { searchQuery: '' }) : onNavigate('listing', { category: cat.name })}
-                className="h-8 flex-shrink-0 px-4 rounded-full text-[11px] font-bold transition-all border border-white/20 bg-white/5 hover:border-white hover:bg-white/10 text-gray-300 hover:text-white flex items-center justify-center"
+                className="h-8 flex-shrink-0 px-4 rounded-full text-[11px] font-black transition-all border border-white/20 bg-white/5 hover:border-white hover:bg-white/10 text-gray-300 hover:text-white flex items-center justify-center"
               >
                 {cat.name}
               </button>
             ))}
-
-                  
           </div>
 
           {/* Dropdown de Localização (Netflix Overlay Style) */}
@@ -800,62 +821,6 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         
         <div className={`w-full relative z-20 pb-10 ${!activeRequest ? '-mt-8' : ''}`}>
           
-          {/* Action Row - Search & View Toggle (Standardized h-9) */}
-          <div className="netflix-gutter mb-6 flex flex-row gap-2 items-center justify-between">
-            <div className="relative group flex-1 h-9">
-              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                <span className="material-symbols-outlined text-gray-400 group-focus-within:text-primary transition-colors text-sm">sparkles</span>
-              </div>
-              <input
-                type="text"
-                placeholder="Busque por serviço..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && onNavigate('listing', { searchQuery })}
-                className="w-full h-full pl-9 pr-4 bg-zinc-900/60 backdrop-blur-xl border border-white/10 rounded-full text-[11px] md:text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-gray-500 shadow-inner"
-              />
-            </div>
-            
-            <div className="flex shrink-0">
-              <button 
-                onClick={() => setViewMode(prev => prev === 'list' ? 'map' : 'list')}
-                className="h-9 flex items-center gap-1.5 bg-zinc-900/80 backdrop-blur-md text-white px-4 rounded-full text-[10px] md:text-xs font-black border border-white/10 hover:border-primary transition-all shadow-xl"
-              >
-                <span className="material-symbols-outlined text-[16px] md:text-[18px]">{viewMode === 'list' ? 'map' : 'format_list_bulleted'}</span>
-                <span>{viewMode === 'list' ? 'Mapa' : 'Lista'}</span>
-              </button>
-            </div>
-          </div>
-          
-          
-        {/* Highlight (Destaque) Card - POSITIONED BELOW SEARCH */}
-        <section className="w-full netflix-gutter mt-2 mb-6 relative z-30 transition-all duration-300">
-          <div className="bg-gradient-to-r from-emerald-600/90 to-emerald-800/95 rounded-xl p-4 md:p-6 shadow-xl relative overflow-hidden group border border-emerald-400/20 lg:max-w-xl lg:mx-0">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
-            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="flex-1 text-center md:text-left">
-                <div className="inline-flex items-center gap-1.5 bg-black/10 backdrop-blur-sm px-2 py-0.5 rounded-full text-[9px] font-black tracking-wider mb-3 text-emerald-200/80">
-                  <span className="material-symbols-outlined text-[10px]">rocket_launch</span>
-                  Destaque
-                </div>
-                <h2 className="text-xl md:text-2xl font-black text-white leading-tight mb-2 tracking-tighter italic">
-                  Você define o <span className="text-emerald-300">preço!</span>
-                </h2>
-                <p className="text-emerald-100/60 text-[10px] md:text-sm font-medium max-w-lg leading-snug">
-                  Poste o que você precisa e os profissionais farão suas ofertas.
-                </p>
-              </div>
-              <button 
-                onClick={() => onNavigate('freelanceRequest')}
-                className="bg-white text-emerald-900 px-5 py-2.5 rounded-lg font-black text-[10px] shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shrink-0"
-              >
-                Solicitar Freelance
-                <span className="material-symbols-outlined text-sm">arrow_forward</span>
-              </button>
-            </div>
-          </div>
-        </section>
-
           {viewMode === 'map' ? (
              /* Map View Container */
              <div className="w-full h-[600px] rounded-2xl overflow-hidden shadow-2xl border border-slate-800 relative ring-1 ring-white/10">
