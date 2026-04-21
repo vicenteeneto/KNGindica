@@ -85,7 +85,8 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
     address_complement: '',
     service_category: '',
     description: '',
-    status: 'active'
+    status: 'active',
+    role: 'client'
   });
   const [chatAuditSearchTerm, setChatAuditSearchTerm] = useState('');
   const [platformCommissionFixed, setPlatformCommissionFixed] = useState(10);
@@ -358,7 +359,8 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
       address_complement: user.address_complement || '',
       service_category: user.service_category || '',
       description: user.description || '',
-      status: user.status || 'active'
+      status: user.status || 'active',
+      role: user.role || 'client'
     });
     setIsEditModalOpen(true);
   };
@@ -381,7 +383,8 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           address_complement: userForm.address_complement,
           service_category: userForm.service_category,
           description: userForm.description,
-          status: userForm.status
+          status: userForm.status,
+          role: userForm.role
         })
         .eq('id', editingUser.id);
 
@@ -3880,6 +3883,18 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       placeholder="(00) 00000-0000"
                       className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm"
                     />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="text-[11px] font-bold text-slate-500 ml-1">Tipo de Perfil</label>
+                    <select
+                      value={userForm.role}
+                      onChange={(e) => setUserForm({...userForm, role: e.target.value})}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm"
+                    >
+                      <option value="client">Cliente</option>
+                      <option value="provider">Prestador</option>
+                      <option value="admin">Administrador</option>
+                    </select>
                   </div>
                 </div>
               </div>
