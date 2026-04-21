@@ -440,18 +440,18 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
 
               <div className="bg-black relative z-10">
                 {/* Information Metadata Bar */}
-                <div className="grid grid-cols-3 border-y border-white/10 bg-white/2 py-6">
+                <div className="grid grid-cols-3 border-y border-white/10 bg-white/5 py-3">
                     <div className="flex flex-col items-center border-r border-white/10">
                        <span className="text-gray-500 text-[9px] font-black uppercase tracking-widest mb-1">Avaliação</span>
                        <div className="flex items-center gap-1.5">
-                          <span className="text-xl font-black italic">{displayRating}</span>
+                          <span className="text-lg font-black italic">{displayRating}</span>
                           <span className="material-symbols-outlined text-yellow-500 filled !text-sm">star</span>
                        </div>
                     </div>
                     <div className="flex flex-col items-center border-r border-white/10">
                        <span className="text-gray-500 text-[9px] font-black uppercase tracking-widest mb-1">Feedback</span>
                        <div className="flex items-center gap-1.5">
-                          <span className="text-xl font-black italic">{displayReviewsCount}</span>
+                          <span className="text-lg font-black italic">{displayReviewsCount}</span>
                           <span className="material-symbols-outlined text-gray-500 !text-sm">reviews</span>
                        </div>
                     </div>
@@ -459,7 +459,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                        <span className="text-gray-500 text-[9px] font-black uppercase tracking-widest mb-1">Investimento</span>
                        <div className="flex flex-col items-center leading-none">
                           {professional.show_price ? (
-                            <span className="text-xl font-black italic truncate max-w-[100px]">
+                            <span className="text-lg font-black italic truncate max-w-[100px]">
                               {professional.pricing_model === 'negotiable' ? 'VAGO' : formatCurrency(parseFloat(professional.price || '0'))}
                             </span>
                           ) : (
@@ -483,13 +483,13 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                 )}
 
                 {/* Bio Section */}
-                <div className="px-8 pt-6 pb-2 border-t border-slate-100 dark:border-white/5">
-                  <h3 className="text-slate-900 dark:text-slate-100 text-[9px] font-black mb-1.5 flex items-center gap-2">
+                <div className="px-8 pt-6 pb-6 border-t border-white/5">
+                  <h3 className="text-slate-100 text-[9px] font-black mb-1.5 flex items-center gap-2">
                     <span className="size-1 w-1 rounded-full bg-primary" />
                     Sobre o Profissional
                   </h3>
-                  <div className="bg-slate-50 dark:bg-white/5 p-3 rounded-2xl border border-slate-100 dark:border-white/5">
-                    <p className="text-slate-600 dark:text-gray-400 text-sm leading-relaxed font-semibold">
+                  <div className="">
+                    <p className="text-gray-400 text-sm leading-relaxed font-semibold">
                       {professional.description}
                     </p>
                   </div>
@@ -498,12 +498,12 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
 
               {/* Portfolio Gallery */}
               {portfolioImages.length > 0 && (
-                <div className="bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 p-4 mt-3">
-                  <h3 className="text-slate-900 dark:text-slate-100 text-[9px] font-black mb-3 flex items-center gap-2">
+                <div className="p-8 border-t border-white/5">
+                  <h3 className="text-slate-100 text-[9px] font-black mb-4 flex items-center gap-2 uppercase tracking-widest">
                     <span className="material-symbols-outlined text-primary text-base">photo_library</span>
                     Portfólio de Trabalhos
                   </h3>
-                  <div className="flex gap-3 overflow-x-auto snap-x hide-scrollbar pb-2 -mx-4 px-4 md:mx-0 md:px-0">
+                  <div className="flex gap-3 overflow-x-auto snap-x hide-scrollbar pb-2 -mx-8 px-8 lg:mx-0 lg:px-0">
                     {portfolioImages.map((img, idx) => (
                       <div 
                         key={img.id} 
@@ -522,9 +522,9 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
               )}
 
               {/* Reviews Section */}
-              <div className="bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-xl md:border md:border-slate-100 dark:md:border-white/5 p-4 mt-3">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-slate-900 dark:text-slate-100 text-[9px] font-black flex items-center gap-2">
+              <div className="p-8 border-t border-white/5">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-slate-100 text-[9px] font-black flex items-center gap-2 uppercase tracking-widest">
                     <span className="material-symbols-outlined text-amber-500 text-base">reviews</span>
                     Avaliações dos Clientes
                   </h3>
@@ -639,8 +639,8 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
               </div>
 
               {/* Business Info Card */}
-              <div className="bg-white dark:bg-slate-900 shadow-xl border border-slate-100 dark:border-white/5 rounded-3xl p-6 space-y-6">
-                <h3 className="text-slate-900 dark:text-slate-100 text-xs font-black flex items-center gap-2">
+              <div className="p-8 border-t border-white/5 space-y-6">
+                <h3 className="text-slate-100 text-xs font-black flex items-center gap-2 uppercase tracking-widest">
                   <span className="material-symbols-outlined text-primary text-base">info</span>
                   Informações Comerciais
                 </h3>
@@ -651,7 +651,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                       <span className="material-symbols-outlined text-primary text-xl">location_on</span>
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Endereço</h4>
+                      <h4 className="text-sm font-bold text-slate-100">Endereço</h4>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
                         {professional.address || `${professional.city || 'Atendimento em domicílio'}, ${professional.state || ''}`}
                       </p>
@@ -663,7 +663,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                       <span className="material-symbols-outlined text-orange-500 text-xl">schedule</span>
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Horário</h4>
+                      <h4 className="text-sm font-bold text-slate-100">Horário</h4>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
                         {professional.opening_hours || 'Seg à Sex: 08:00 - 18:00 (Consulte disponibilidade)'}
                       </p>
@@ -710,8 +710,8 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                 )}
               </div>
 
-              {/* Share & Favorite Mini Card */}
-              <div className="bg-white dark:bg-slate-900 shadow-md border border-slate-100 dark:border-white/5 rounded-2xl p-4 flex items-center justify-around">
+              {/* Share & Favorite Section */}
+              <div className="p-8 border-t border-white/5 flex items-center justify-around">
                 <button 
                   onClick={toggleFavorite}
                   className="flex flex-col items-center gap-1 group"
