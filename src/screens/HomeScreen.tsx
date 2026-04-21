@@ -675,13 +675,49 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                   />
                 </div>
               </div>
-              
               <div className="mt-4 pt-4 border-t border-white/5">
                 <button 
                    onClick={() => setShowLocationDropdown(false)}
                    className="w-full py-2 bg-primary/10 hover:bg-primary/20 text-primary text-[10px] font-black rounded-lg transition-colors uppercase"
                 >
                   Confirmar
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Search Dropdown Overlay */}
+          {showSearchDropdown && (
+            <div 
+              className="absolute top-full left-4 mr-4 mt-2 w-[calc(100%-2rem)] md:w-80 bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl p-4 animate-in fade-in slide-in-from-top-2 z-[60]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm z-10">search</span>
+                <input
+                  autoFocus
+                  type="text"
+                  placeholder="O que você procura?"
+                  className="w-full pl-9 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:border-primary outline-none text-xs font-bold text-white transition-all focus:border-primary/50"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      onNavigate('listing', { searchQuery });
+                      setShowSearchDropdown(false);
+                    }
+                  }}
+                />
+              </div>
+              <div className="mt-3 flex justify-end">
+                <button 
+                  onClick={() => {
+                    onNavigate('listing', { searchQuery });
+                    setShowSearchDropdown(false);
+                  }}
+                  className="px-4 py-1.5 bg-primary text-white text-[10px] font-black rounded-lg hover:bg-primary/90 transition-colors uppercase"
+                >
+                  Buscar
                 </button>
               </div>
             </div>
@@ -723,16 +759,6 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                         {/* Hero Content (Floating Overlay) */}
                         <div className="absolute inset-x-0 bottom-0 pb-10 md:pb-16 px-6 md:px-12 z-20">
                           <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
-                            
-                            <div className="mb-4 flex items-center gap-2">
-                              <div className="bg-primary px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest text-white shadow-lg animate-pulse">
-                                Premium
-                              </div>
-                              <span className="text-white/40 text-[10px] font-bold uppercase tracking-widest truncate max-w-[150px]">
-                                {p.service}
-                              </span>
-                            </div>
-
                             <h2 className="text-3xl md:text-6xl font-black text-white mb-6 tracking-tighter leading-tight drop-shadow-2xl">
                               {p.name}
                             </h2>
@@ -863,6 +889,34 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
              </div>
           ) : (
             <>
+                  {/* Highlight (Destaque) Card - POSITIONED AT TOP OF FEED */}
+                  <section className="w-full netflix-gutter my-6 relative z-30 transition-all duration-300">
+                    <div className="bg-gradient-to-r from-emerald-600/90 to-emerald-800/95 rounded-xl p-4 md:p-6 shadow-xl relative overflow-hidden group border border-emerald-400/20 lg:max-w-xl lg:mx-0">
+                      <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
+                      <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div className="flex-1 text-center md:text-left">
+                          <div className="inline-flex items-center gap-1.5 bg-black/10 backdrop-blur-sm px-2 py-0.5 rounded-full text-[9px] font-black tracking-wider mb-3 text-emerald-200/80">
+                            <span className="material-symbols-outlined text-[10px]">rocket_launch</span>
+                            Destaque
+                          </div>
+                          <h2 className="text-xl md:text-2xl font-black text-white leading-tight mb-2 tracking-tighter italic">
+                            Você define o <span className="text-emerald-300">preço!</span>
+                          </h2>
+                          <p className="text-emerald-100/60 text-[10px] md:text-sm font-medium max-w-lg leading-snug">
+                            Poste o que você precisa e os profissionais farão suas ofertas.
+                          </p>
+                        </div>
+                        <button 
+                          onClick={() => onNavigate('freelanceRequest')}
+                          className="bg-white text-emerald-900 px-5 py-2.5 rounded-lg font-black text-[10px] shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shrink-0"
+                        >
+                          Solicitar Freelance
+                          <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                        </button>
+                      </div>
+                    </div>
+                  </section>
+                  
               {loadingProviders ? (
                 <>
                   <SkeletonRow />
@@ -901,33 +955,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                     onViewMore={() => onNavigate('listing', { searchQuery: '' })}
                   />
 
-                  {/* Highlight (Destaque) Card - POSITIONED AFTER KNGINDICA */}
-                  <section className="w-full netflix-gutter my-6 relative z-30 transition-all duration-300">
-                    <div className="bg-gradient-to-r from-emerald-600/90 to-emerald-800/95 rounded-xl p-4 md:p-6 shadow-xl relative overflow-hidden group border border-emerald-400/20 lg:max-w-xl lg:mx-0">
-                      <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
-                      <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
-                        <div className="flex-1 text-center md:text-left">
-                          <div className="inline-flex items-center gap-1.5 bg-black/10 backdrop-blur-sm px-2 py-0.5 rounded-full text-[9px] font-black tracking-wider mb-3 text-emerald-200/80">
-                            <span className="material-symbols-outlined text-[10px]">rocket_launch</span>
-                            Destaque
-                          </div>
-                          <h2 className="text-xl md:text-2xl font-black text-white leading-tight mb-2 tracking-tighter italic">
-                            Você define o <span className="text-emerald-300">preço!</span>
-                          </h2>
-                          <p className="text-emerald-100/60 text-[10px] md:text-sm font-medium max-w-lg leading-snug">
-                            Poste o que você precisa e os profissionais farão suas ofertas.
-                          </p>
-                        </div>
-                        <button 
-                          onClick={() => onNavigate('freelanceRequest')}
-                          className="bg-white text-emerald-900 px-5 py-2.5 rounded-lg font-black text-[10px] shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shrink-0"
-                        >
-                          Solicitar Freelance
-                          <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                        </button>
-                      </div>
-                    </div>
-                  </section>
+                  
 
                   {/* Row: My Favorites (Now positioned before dynamic categories) */}
                   {favoriteProviders.length > 0 && (
