@@ -19,10 +19,7 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
   const showProviderIcons = role === 'provider' && !isClientScreen;
 
   const navItems = role === 'admin' 
-    ? [
-        { id: 'adminDashboard', icon: 'admin_panel_settings', label: 'Painel Admin', screen: 'adminDashboard' as Screen },
-        { id: 'userProfile', icon: 'person', label: 'Perfil Admin', screen: 'userProfile' as Screen },
-      ]
+    ? []
     : [
         { id: 'home', icon: 'home', label: 'Início', screen: 'home' as Screen },
         ...(role === 'provider' ? [
@@ -86,7 +83,7 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
         {/* Separator if Admin and extra items provided */}
         {currentScreen === 'adminDashboard' && adminTabs && (
           <>
-            <div className="h-px w-6 bg-slate-200 dark:bg-slate-800 mx-auto my-1 shrink-0" />
+            {navItems.length > 0 && <div className="h-px w-6 bg-slate-200 dark:bg-slate-800 mx-auto my-1 shrink-0" />}
             {adminTabs.map((tab) => {
               const isActive = adminTab === tab.id;
               return (
@@ -118,14 +115,16 @@ export default function SidebarNav({ onNavigate, currentScreen, role, adminTab, 
       </div>
 
       {/* Settings at bottom */}
-      <div className="mt-auto pt-4 border-t border-slate-100 dark:border-white/5 w-full flex justify-center">
-        <button
-          onClick={() => onNavigate('userProfile')}
-          className="size-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-white/10 transition-all border border-transparent hover:border-primary/20"
-        >
-          <span className="material-symbols-outlined text-[24px]">settings</span>
-        </button>
-      </div>
+      {role !== 'admin' && (
+        <div className="mt-auto pt-4 border-t border-slate-100 dark:border-white/5 w-full flex justify-center">
+          <button
+            onClick={() => onNavigate('userProfile')}
+            className="size-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-white/10 transition-all border border-transparent hover:border-primary/20"
+          >
+            <span className="material-symbols-outlined text-[24px]">settings</span>
+          </button>
+        </div>
+      )}
     </nav>
   );
 }

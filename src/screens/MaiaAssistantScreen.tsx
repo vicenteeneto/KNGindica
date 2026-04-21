@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { useNotifications } from '../NotificationContext';
 import { supabase } from '../lib/supabase';
@@ -88,7 +88,6 @@ export default function MaiaAssistantScreen({ onNavigate }: NavigationProps) {
             title="Avatar circular da assistente virtual MAIA" 
             style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDU4c5UGnllwSwkYQq6_vbHZO5FLVBPJoM0oH5jqcSFiP989WCLH7Uj2jYnSDzRwL3CWp9aXgIMe1M2mpPQ0R3H4Q4YIFpSHv8tbaWiDsyEYPI_4K6HnK0OrKvefKg0ImNsipqwg-hRe6_dT3DCEEHx6mxOEVxyPbOpMFJ2bDS4_QpprD6gT5YKUO_NZlqKbi8pz4uixK78JVkMuYn5mhMUnvwEI3kX54XzC2ZkbPBx6DkCBcWza_I8Opz3fJ7GbEZbyLvgjNGqfkA")' }}
           />
-          <div className="absolute bottom-0 right-0 size-3 bg-green-500 border-2 border-primary rounded-full"></div>
         </div>
         <div className="flex flex-1 flex-col overflow-hidden">
           <h2 className="text-white text-base font-black leading-tight truncate italic">MAIA</h2>

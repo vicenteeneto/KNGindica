@@ -1469,7 +1469,6 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       <div className="flex items-center gap-3">
                         <div className="relative h-9 w-9 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden shrink-0">
                           <img className="h-full w-full object-cover" alt="Profile" src={provider.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} />
-                          <div className={`absolute bottom-0 right-0 h-2.5 w-2.5 border-2 border-white dark:border-slate-900 rounded-full ${provider.status === 'blocked' ? 'bg-red-500' : 'bg-green-500'}`}></div>
                         </div>
                         <div className="min-w-0">
                           <div className="flex items-center gap-1">
@@ -1667,7 +1666,6 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       <div className="flex items-center gap-3">
                         <div className="relative h-9 w-9 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden shrink-0">
                           <img className="h-full w-full object-cover" alt="Profile" src={client.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} />
-                          <div className={`absolute bottom-0 right-0 h-2.5 w-2.5 border-2 border-white dark:border-slate-900 rounded-full ${client.status === 'blocked' ? 'bg-red-500' : 'bg-green-500'}`}></div>
                         </div>
                         <div className="min-w-0">
                           <p className="font-bold text-[13px] text-slate-900 dark:text-white truncate">{client.full_name || 'Usuário Sem Nome'}</p>

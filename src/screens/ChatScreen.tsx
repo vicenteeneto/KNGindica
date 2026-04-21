@@ -536,7 +536,6 @@ export default function ChatScreen({ onNavigate, params, onClose, isEmbedded = f
             <div className="size-10 rounded-full bg-cover bg-center border border-primary/20 overflow-hidden">
               <img src={opponentAvatar} alt={opponentName} className="w-full h-full object-cover" />
             </div>
-            <div className="absolute bottom-0 right-0 size-3 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full"></div>
           </div>
           <div className="flex flex-col">
             <h1 className="font-bold text-base leading-tight truncate max-w-[150px]">{opponentName}</h1>
