@@ -681,110 +681,16 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
       <main className="flex-1 w-full relative">
         {/* Netflix-Style Cinematic Hero */}
+        
         <section 
-          className="relative w-full h-[540px] pt-4 pb-6 md:h-[85vh] overflow-hidden transition-all duration-700 bg-transparent"
-          onTouchStart={handleTouchStartHero}
-          onTouchMove={handleTouchMoveHero}
-          onTouchEnd={handleTouchEndHero}
+          className="relative w-full h-[540px] md:h-[85vh] overflow-hidden transition-all duration-700 bg-transparent"
+          onTouchStart={viewMode === 'list' ? handleTouchStartHero : undefined}
+          onTouchMove={viewMode === 'list' ? handleTouchMoveHero : undefined}
+          onTouchEnd={viewMode === 'list' ? handleTouchEndHero : undefined}
         >
-          {heroProviders.length > 0 ? (
-            <div className="px-4 md:px-0 h-full">
-              <div className="relative h-full w-full lg:max-w-none mx-auto overflow-visible">
-                {heroProviders.slice(0, 5).map((p, idx) => {
-                  const isFavorited = favoriteProviders.some(f => f.id === p.id);
-                  
-                  return (
-                    <div 
-                      key={p.id}
-                      className={`absolute inset-0 transition-all duration-1000 ease-in-out ${idx === currentHeroIndex ? 'opacity-100 z-10 translate-y-0 scale-100' : 'opacity-0 z-0 translate-y-4 scale-95'}`}
-                    >
-                      <div className="relative h-full w-full md:rounded-none rounded-2xl overflow-hidden bg-[#0A0A0A]">
-                        {/* Background (Poster Style) */}
-                        <img
-                          src={p.image}
-                          alt={p.name}
-                          className="w-full h-full object-cover"
-                        />
-                        
-                        {/* Cinematic Gradients */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
-                        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent"></div>
-                        
-                        {/* Hero Content (Floating Overlay) */}
-                        <div className="absolute inset-x-0 bottom-0 pb-10 md:pb-16 px-6 md:px-12 z-20">
-                          <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
-                            <h2 className="text-3xl md:text-6xl font-black text-white mb-6 tracking-tighter leading-tight drop-shadow-2xl">
-                              {p.name}
-                            </h2>
-                            
-                            {/* Hero Action Buttons */}
-                            <div className="flex items-center gap-2 w-full max-w-xs md:max-w-md">
-                              <button 
-                                onClick={() => onNavigate('profile', { professionalId: p.id })}
-                                className="flex-1 h-8 md:h-9 bg-white text-black rounded flex items-center justify-center gap-2 font-black text-[12px] md:text-sm hover:bg-gray-200 transition-colors shadow-xl"
-                              >
-                                <span className="material-symbols-outlined filled text-xl">play_arrow</span>
-                                Ver Perfil
-                              </button>
-                              <button 
-                                onClick={() => toggleFavorite(p.id)}
-                                className="flex-1 h-8 md:h-9 bg-zinc-600/60 backdrop-blur-md text-white rounded flex items-center justify-center gap-2 font-black text-[12px] md:text-sm hover:bg-zinc-600/80 transition-colors border border-white/10 shadow-xl"
-                              >
-                                <span className={`material-symbols-outlined text-xl ${isFavorited ? 'text-primary filled' : ''}`}>
-                                  {isFavorited ? 'check' : 'add'}
-                                </span>
-                                Favoritos
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ) : (
-            /* Loading State for Hero */
-            <div className="h-full w-full bg-zinc-900/50 animate-pulse flex items-center justify-center">
-              <div className="size-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          )}
-
-        </section>
-
-        {/* Active Service Tracker (If any) */}
-        {activeRequest && (
-          <div className="netflix-gutter -mt-10 mb-8 relative z-30 animate-in slide-in-from-bottom-4 duration-500">
-            <div className="bg-gradient-to-r from-primary/90 to-primary/80 backdrop-blur-xl rounded-2xl p-4 flex items-center justify-between shadow-2xl border border-white/20">
-              <div className="flex items-center gap-4">
-                <div className="size-12 bg-white/20 rounded-xl flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white text-3xl">engineering</span>
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="size-2 bg-white rounded-full animate-ping"></span>
-                    <span className="text-[10px] font-black text-white/80 italic">Serviço Ativo</span>
-                  </div>
-                  <h4 className="text-sm font-black text-white leading-tight">
-                    {activeRequest.status === 'paid' ? 'Aguardando Início' : 'Trabalho em Andamento'}
-                  </h4>
-                  <p className="text-[10px] text-white/70 font-bold">{activeRequest.profiles?.full_name}</p>
-                </div>
-              </div>
-              <button className="bg-white/20 hover:bg-white/30 p-2 rounded-full transition-colors">
-                <span className="material-symbols-outlined text-white">chevron_right</span>
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Collection Rows / Map Area */}
-        <div className={`w-full relative z-20 pb-10 ${!activeRequest ? '-mt-8' : ''}`}>
-          
           {viewMode === 'map' ? (
              /* Map View Container */
-             <div className="w-full h-[600px] netflix-gutter rounded-2xl overflow-hidden shadow-2xl border border-slate-800 relative ring-1 ring-white/10">
+             <div className="w-full h-full md:rounded-none rounded-2xl overflow-hidden shadow-2xl border border-slate-800 relative ring-1 ring-white/10">
                 <MapContainer 
                   center={mapCenter} 
                   zoom={userCoords ? 13 : 12} 
@@ -833,6 +739,114 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
              </div>
           ) : (
             <>
+              {heroProviders.length > 0 ? (
+                <div className="px-4 md:px-0 h-full">
+                  <div className="relative h-full w-full lg:max-w-none mx-auto overflow-visible">
+                    {heroProviders.slice(0, 5).map((p, idx) => {
+                      const isFavorited = favoriteProviders.some(f => f.id === p.id);
+                      
+                      return (
+                        <div 
+                          key={p.id}
+                          className={`absolute inset-0 transition-all duration-1000 ease-in-out ${idx === currentHeroIndex ? 'opacity-100 z-10 translate-y-0 scale-100' : 'opacity-0 z-0 translate-y-4 scale-95'}`}
+                        >
+                          <div className="relative h-full w-full md:rounded-none rounded-2xl overflow-hidden bg-[#0A0A0A]">
+                            {/* Background (Poster Style) */}
+                            <img
+                              src={p.image}
+                              alt={p.name}
+                              className="w-full h-full object-cover"
+                            />
+                            
+                            {/* Cinematic Gradients */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+                            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent"></div>
+                            
+                            {/* Hero Content (Floating Overlay) */}
+                            <div className="absolute inset-x-0 bottom-0 pb-10 md:pb-16 px-6 md:px-12 z-20">
+                              <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
+                                
+                                <h2 className="text-3xl md:text-6xl font-black text-white mb-6 tracking-tighter leading-tight drop-shadow-2xl">
+                                  {p.name}
+                                </h2>
+                                
+                                {/* Hero Action Buttons */}
+                                <div className="flex items-center gap-2 w-full max-w-xs md:max-w-md">
+                                  <button 
+                                    onClick={() => onNavigate('profile', { professionalId: p.id })}
+                                    className="flex-1 h-8 md:h-9 bg-white text-black rounded flex items-center justify-center gap-2 font-black text-[12px] md:text-sm hover:bg-gray-200 transition-colors shadow-xl"
+                                  >
+                                    <span className="material-symbols-outlined filled text-xl">play_arrow</span>
+                                    Ver Perfil
+                                  </button>
+                                  <button 
+                                    onClick={() => toggleFavorite(p.id)}
+                                    className="flex-1 h-8 md:h-9 bg-zinc-600/60 backdrop-blur-md text-white rounded flex items-center justify-center gap-2 font-black text-[12px] md:text-sm hover:bg-zinc-600/80 transition-colors border border-white/10 shadow-xl"
+                                  >
+                                    <span className={`material-symbols-outlined text-xl ${isFavorited ? 'text-primary filled' : ''}`}>
+                                      {isFavorited ? 'check' : 'add'}
+                                    </span>
+                                    Favoritos
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                /* Loading State for Hero */
+                <div className="h-full w-full bg-zinc-900/50 animate-pulse flex items-center justify-center">
+                  <div className="size-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              )}
+
+              {/* Hero Navigation Indicators (Dash Style) - Only if not map */}
+              <div className="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-30">
+                {heroProviders.slice(0, 5).map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentHeroIndex(idx)}
+                    className={`w-1 transition-all duration-500 rounded-full ${idx === currentHeroIndex ? 'h-8 bg-primary shadow-[0_0_10px_rgba(255,102,0,0.5)]' : 'h-3 bg-white/20'}`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </section>
+
+        {/* Active Service Tracker (If any) */}
+        {activeRequest && (
+          <div className="netflix-gutter -mt-10 mb-8 relative z-30 animate-in slide-in-from-bottom-4 duration-500">
+            <div className="bg-gradient-to-r from-primary/90 to-primary/80 backdrop-blur-xl rounded-2xl p-4 flex items-center justify-between shadow-2xl border border-white/20">
+              <div className="flex items-center gap-4">
+                <div className="size-12 bg-white/20 rounded-xl flex items-center justify-center">
+                  <span className="material-symbols-outlined text-white text-3xl">engineering</span>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="size-2 bg-white rounded-full animate-ping"></span>
+                    <span className="text-[10px] font-black text-white/80 italic">Serviço Ativo</span>
+                  </div>
+                  <h4 className="text-sm font-black text-white leading-tight">
+                    {activeRequest.status === 'paid' ? 'Aguardando Início' : 'Trabalho em Andamento'}
+                  </h4>
+                  <p className="text-[10px] text-white/70 font-bold">{activeRequest.profiles?.full_name}</p>
+                </div>
+              </div>
+              <button className="bg-white/20 hover:bg-white/30 p-2 rounded-full transition-colors">
+                <span className="material-symbols-outlined text-white">chevron_right</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        
+          <div className={`w-full relative z-20 pb-10 ${!activeRequest ? '-mt-8' : ''} ${viewMode === 'map' ? 'hidden' : ''}`}>
+             <>
                   {/* Highlight (Destaque) Card - POSITIONED AT TOP OF FEED */}
                   <section className="w-full netflix-gutter my-6 relative z-30 transition-all duration-300">
                     <div className="bg-gradient-to-r from-emerald-600/90 to-emerald-800/95 rounded-xl p-4 md:p-6 shadow-xl relative overflow-hidden group border border-emerald-400/20 lg:max-w-xl lg:mx-0">
@@ -925,14 +939,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                 </>
               )}
             </>
-          )}
-        </div>
-      </main>
-
-
-
-      {/* Custom Styles */}
-      {/* Custom Styles */}
+          </div>
+        </main>
       <style dangerouslySetInnerHTML={{
         __html: `
         .hide-scrollbar::-webkit-scrollbar { display: none; }
