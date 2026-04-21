@@ -256,7 +256,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
 
   if (loading || !order) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white dark:bg-slate-900">
+      <div className="flex items-center justify-center min-h-screen netflix-main-bg text-white">
         <span className="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span>
       </div>
     );
@@ -268,7 +268,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
   const hasBidded = bids.some(b => b.provider_id === user?.id);
 
   return (
-    <div className="flex flex-col h-screen bg-slate-50 dark:bg-slate-900 font-display">
+    <div className="flex flex-col h-screen netflix-main-bg text-white font-display">
       {/* Header */}
       <header className="shrink-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-4 lg:pl-12 flex items-center gap-4 z-10 shadow-sm relative transition-all duration-300">
         <button onClick={() => onNavigate('back')} className="text-slate-500 hover:text-primary transition-colors size-10 flex items-center justify-center bg-slate-100 dark:bg-slate-700/50 rounded-full">
@@ -355,7 +355,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
                       </div>
                     </div>
                     {bid.message && (
-                      <p className="text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50 p-2 rounded-xl mt-1">
+                      <p className="text-sm text-slate-600 dark:text-slate-400 netflix-main-bg text-white/50 p-2 rounded-xl mt-1">
                         "{bid.message}"
                       </p>
                     )}
@@ -379,7 +379,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
       {!isClient && !isExpired && !hasBidded && role === 'provider' && (
         <form onSubmit={handleSendBid} className="shrink-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 p-4 pb-safe z-20 transition-all duration-300">
           <div className="max-w-4xl lg:mx-0 lg:ml-12 flex gap-2 items-center">
-            <div className="flex-1 bg-slate-50 dark:bg-slate-900 rounded-2xl border-2 border-transparent focus-within:border-primary/30 flex items-center px-4 py-2 transition-colors">
+            <div className="flex-1 netflix-main-bg text-white rounded-2xl border-2 border-transparent focus-within:border-primary/30 flex items-center px-4 py-2 transition-colors">
 
               <input 
                 type="text" 
@@ -446,7 +446,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
       {/* Confirm Modal Render */}
       {confirmModal.isOpen && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-xs bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200 text-center">
+          <div className="w-full max-w-xs netflix-main-bg text-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200 text-center">
             <div className="p-6">
               <div className={`size-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
                 confirmModal.variant === 'danger' ? 'bg-red-100 dark:bg-red-900/20 text-red-600' : 

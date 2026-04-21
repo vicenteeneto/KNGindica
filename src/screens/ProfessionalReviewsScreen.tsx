@@ -56,7 +56,7 @@ export default function ProfessionalReviewsScreen({ onNavigate, params }: Profes
   }, [professionalId]);
 
   return (
-    <div className="w-full bg-white dark:bg-slate-900 min-h-screen shadow-xl flex flex-col font-display text-slate-900 dark:text-slate-100 antialiased">
+    <div className="w-full netflix-main-bg min-h-screen shadow-xl flex flex-col font-display text-slate-900 dark:text-slate-100 antialiased text-white">
 
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
@@ -124,7 +124,7 @@ export default function ProfessionalReviewsScreen({ onNavigate, params }: Profes
                 </div>
               ) : reviews.length > 0 ? (
                 reviews.map((review, index) => (
-                  <div key={review.id} className={`flex flex-col gap-3 group bg-white dark:bg-slate-900 ${index > 0 ? 'border-t border-slate-100 dark:border-slate-800 pt-8' : ''}`}>
+                  <div key={review.id} className={`flex flex-col gap-3 group netflix-main-bg text-white ${index > 0 ? 'border-t border-slate-100 dark:border-slate-800 pt-8' : ''}`}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <img
@@ -167,7 +167,7 @@ export default function ProfessionalReviewsScreen({ onNavigate, params }: Profes
               {!professionalId.includes('-') && (
                 <>
                   {/* Commment 1 Mock */}
-                  <div className="flex flex-col gap-3 group bg-white dark:bg-slate-900">
+                  <div className="flex flex-col gap-3 group netflix-main-bg text-white">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <img

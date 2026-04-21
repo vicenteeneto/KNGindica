@@ -7,9 +7,9 @@ interface ServiceConfirmationScreenProps extends NavigationProps {
 
 export default function ServiceConfirmationScreen({ onNavigate, params }: ServiceConfirmationScreenProps) {
   return (
-    <div className="flex flex-col min-h-screen w-full bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 antialiased">
+    <div className="flex flex-col min-h-screen w-full netflix-main-bg font-display text-slate-900 dark:text-slate-100 antialiased text-white">
       {/* Header */}
-      <div className="flex items-center bg-white dark:bg-slate-900 p-4 border-b border-slate-100 dark:border-slate-800 justify-between sticky top-0 z-10">
+      <div className="flex items-center netflix-main-bg text-white p-4 border-b border-slate-100 dark:border-slate-800 justify-between sticky top-0 z-10">
         <button 
           onClick={() => onNavigate('home')} 
           className="text-slate-900 dark:text-slate-100 flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
@@ -94,7 +94,7 @@ export default function ServiceConfirmationScreen({ onNavigate, params }: Servic
       </main>
 
       {/* Bottom Navigation Bar */}
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-4xl bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-4 pb-4 pt-2 flex justify-between items-center z-20">
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-4xl netflix-main-bg text-white border-t border-slate-100 dark:border-slate-800 px-4 pb-4 pt-2 flex justify-between items-center z-20">
         <button onClick={() => onNavigate('home')} className="flex flex-1 flex-col items-center gap-1 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300">
           <span className="material-symbols-outlined text-2xl">home</span>
           <p className="text-[10px] font-medium">Início</p>

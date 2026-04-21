@@ -99,10 +99,10 @@ export default function WriteReviewScreen({ onNavigate, params }: WriteReviewScr
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
+    <div className="flex flex-col min-h-screen netflix-main-bg font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden text-white">
 
       {/* Header */}
-      <header className="flex items-center p-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10 w-full transition-all duration-300">
+      <header className="flex items-center p-4 netflix-main-bg text-white border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10 w-full transition-all duration-300">
         <button
           onClick={() => onNavigate(params?.returnTo || (isFreelance ? 'myFreelances' : 'myRequests'))}
           className="flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"

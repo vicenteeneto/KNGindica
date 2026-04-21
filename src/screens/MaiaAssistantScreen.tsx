@@ -73,7 +73,7 @@ export default function MaiaAssistantScreen({ onNavigate }: NavigationProps) {
   };
 
   return (
-    <div className="relative mx-auto flex h-screen w-full flex-col bg-[#e5ddd5] dark:bg-slate-950 overflow-hidden font-display antialiased">
+    <div className="relative mx-auto flex h-screen w-full flex-col bg-[#e5ddd5] dark:netflix-main-bg overflow-hidden font-display antialiased">
       {/* Header */}
       <div className="flex items-center bg-primary text-white p-3 gap-3 shadow-md z-10 sticky top-0 h-16">
         <button 
@@ -124,7 +124,7 @@ export default function MaiaAssistantScreen({ onNavigate }: NavigationProps) {
               <div className={`relative text-sm font-medium leading-relaxed rounded-2xl px-4 py-2.5 shadow-sm border ${
                 msg.role === 'user' 
                   ? 'bg-primary text-white border-primary rounded-tr-none' 
-                  : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-white/10 rounded-tl-none'
+                  : 'netflix-main-bg text-white text-slate-900 dark:text-slate-100 border-white/10 rounded-tl-none'
               }`}>
                 {msg.parts[0].text}
                 <div className={`flex items-center gap-1 mt-1.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -140,7 +140,7 @@ export default function MaiaAssistantScreen({ onNavigate }: NavigationProps) {
 
         {isTyping && (
           <div className="flex items-start gap-2 max-w-[85%] animate-pulse">
-            <div className="bg-white dark:bg-slate-900 border border-white/10 px-4 py-2 rounded-2xl rounded-tl-none">
+            <div className="netflix-main-bg text-white border border-white/10 px-4 py-2 rounded-2xl rounded-tl-none">
                <div className="flex gap-1">
                   <div className="size-1.5 bg-primary/40 rounded-full animate-bounce"></div>
                   <div className="size-1.5 bg-primary/40 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
@@ -152,7 +152,7 @@ export default function MaiaAssistantScreen({ onNavigate }: NavigationProps) {
       </div>
 
       {/* Message Input */}
-      <div className="bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-t border-white/5 p-3 flex items-center gap-3 z-10 sticky bottom-0">
+      <div className="bg-white/80 dark:netflix-main-bg/80 backdrop-blur-xl border-t border-white/5 p-3 flex items-center gap-3 z-10 sticky bottom-0">
         <div className="flex flex-1 items-center bg-slate-100 dark:bg-slate-900 rounded-2xl px-4 py-3 gap-3 shadow-inner focus-within:ring-2 focus-within:ring-primary/30 transition-all">
           <input 
             className="flex-1 border-none bg-transparent text-sm font-medium focus:ring-0 text-slate-900 dark:text-slate-100 placeholder-slate-500 outline-none w-full" 

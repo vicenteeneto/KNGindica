@@ -318,7 +318,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
   }
 
   return (
-    <div className="w-full bg-black min-h-screen shadow-xl flex flex-col font-display text-white antialiased">
+    <div className="w-full netflix-main-bg min-h-screen shadow-xl flex flex-col font-display text-white antialiased">
       {/* Header - Premium Dark */}
       {user?.id === professionalId && role === 'provider' ? (
         <div className="bg-black/90 backdrop-blur-md sticky top-0 z-50 border-b border-white/5">
@@ -438,7 +438,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                 </div>
               </div>
 
-              <div className="bg-black relative z-10">
+              <div className="bg-transparent relative z-10">
                 {/* Information Metadata Bar */}
                 <div className="grid grid-cols-3 border-y border-white/10 bg-white/5 py-3">
                     <div className="flex flex-col items-center border-r border-white/10">

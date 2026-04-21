@@ -92,7 +92,7 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
 
   if (loading || authLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen netflix-main-bg flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 px-6 text-center">
           <span className="material-symbols-outlined animate-spin text-5xl text-primary">progress_activity</span>
           <p className="text-white font-bold animate-pulse">maia está localizando os melhores profissionais...</p>
@@ -103,7 +103,7 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
 
   if (error) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center p-6">
+      <div className="min-h-screen netflix-main-bg flex items-center justify-center p-6">
         <div className="text-center">
           <span className="material-symbols-outlined text-5xl text-red-400 mb-4 block">error</span>
           <p className="text-white font-bold text-lg">{error}</p>
@@ -120,7 +120,7 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
   const visibleProviders = isLogged ? providers : providers.slice(0, TEASER_COUNT);
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col bg-black shadow-2xl overflow-x-hidden transition-all duration-300">
+    <div className="relative flex min-h-screen w-full flex-col netflix-main-bg shadow-2xl overflow-x-hidden transition-all duration-300">
       {/* Background Decor */}
       <div className="fixed top-0 left-0 w-full h-[50vh] bg-gradient-to-b from-primary/20 via-primary/5 to-transparent pointer-events-none" />
       <div className="fixed -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />

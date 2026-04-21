@@ -105,7 +105,7 @@ export default function ProviderPlanScreen({ onNavigate }: NavigationProps) {
       )}
 
       {/* Header */}
-      <nav className="sticky top-0 z-10 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-4 flex items-center shadow-sm">
+      <nav className="sticky top-0 z-10 netflix-main-bg text-white border-b border-slate-200 dark:border-slate-800 px-4 py-4 flex items-center shadow-sm">
         <button onClick={() => onNavigate('dashboard')} className="p-2 -ml-2 text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">
           <span className="material-symbols-outlined">arrow_back</span>
         </button>
@@ -211,7 +211,7 @@ export default function ProviderPlanScreen({ onNavigate }: NavigationProps) {
           </h3>
           
           <div className="space-y-6 text-sm">
-            <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+            <div className="p-4 netflix-main-bg text-white/50 rounded-2xl border border-slate-100 dark:border-slate-800">
               <h4 className="font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
                 <span className="material-symbols-outlined text-emerald-500 text-sm">link</span>
                 1. Conexão livre (gratuita)

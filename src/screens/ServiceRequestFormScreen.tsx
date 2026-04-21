@@ -293,9 +293,9 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
   };
 
   return (
-    <div className="flex flex-col min-h-screen w-full bg-white dark:bg-slate-900 shadow-xl overflow-x-hidden font-display text-slate-900 dark:text-slate-100 antialiased">
+    <div className="flex flex-col min-h-screen w-full netflix-main-bg shadow-xl overflow-x-hidden font-display text-slate-900 dark:text-slate-100 antialiased text-white">
       {/* TopAppBar */}
-      <div className="flex items-center bg-white dark:bg-slate-900 p-4 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10">
+      <div className="flex items-center netflix-main-bg text-white p-4 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10">
         <button
           onClick={() => onNavigate('back')}
           className="text-slate-900 dark:text-slate-100 flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
@@ -358,7 +358,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
                     <textarea
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
-                      className="form-input flex w-full resize-none overflow-hidden rounded-xl text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-primary focus:border-primary min-h-[120px] md:min-h-[180px] placeholder:text-slate-400 p-4 font-normal leading-normal shadow-inner"
+                      className="form-input flex w-full resize-none overflow-hidden rounded-xl text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 netflix-main-bg text-white focus:ring-2 focus:ring-primary focus:border-primary min-h-[120px] md:min-h-[180px] placeholder:text-slate-400 p-4 font-normal leading-normal shadow-inner"
                       placeholder="Descreva o serviço em detalhes..."
                     ></textarea>
                   </label>
@@ -381,7 +381,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
                       type="date"
                       value={desiredDate}
                       onChange={(e) => setDesiredDate(e.target.value)}
-                      className="form-input w-full p-3 flex items-center h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-primary text-slate-900 dark:text-slate-100 text-sm font-bold"
+                      className="form-input w-full p-3 flex items-center h-12 rounded-xl border border-slate-200 dark:border-slate-800 netflix-main-bg text-white focus:ring-2 focus:ring-primary text-slate-900 dark:text-slate-100 text-sm font-bold"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -390,7 +390,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
                       type="time"
                       value={desiredTime}
                       onChange={(e) => setDesiredTime(e.target.value)}
-                      className="form-input w-full p-3 flex items-center h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-primary text-slate-900 dark:text-slate-100 text-sm font-bold"
+                      className="form-input w-full p-3 flex items-center h-12 rounded-xl border border-slate-200 dark:border-slate-800 netflix-main-bg text-white focus:ring-2 focus:ring-primary text-slate-900 dark:text-slate-100 text-sm font-bold"
                     />
                   </div>
                 </div>
@@ -421,7 +421,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
                         onChange={(e) => setCep(e.target.value)}
                         onBlur={handleCepBlur}
                         placeholder="00000-000"
-                        className="form-input w-full p-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-primary text-slate-900 dark:text-slate-100 text-sm font-bold"
+                        className="form-input w-full p-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 netflix-main-bg text-white focus:ring-2 focus:ring-primary text-slate-900 dark:text-slate-100 text-sm font-bold"
                       />
                       {isFetchingCep && <span className="material-symbols-outlined animate-spin absolute right-3 top-1/2 -translate-y-1/2 text-primary text-sm">progress_activity</span>}
                     </div>
@@ -433,7 +433,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
                       onChange={(val) => setCity(val)}
                       activeCities={activeCities}
                       placeholder="Cidade..."
-                      className="w-full px-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary"
+                      className="w-full px-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 netflix-main-bg text-white text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary"
                     />
                   </div>
                 </div>
@@ -447,7 +447,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
                       value={street}
                       onChange={(e) => setStreet(e.target.value)}
                       placeholder="Rua..."
-                      className="form-input w-full pl-10 pr-4 py-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary"
+                      className="form-input w-full pl-10 pr-4 py-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 netflix-main-bg text-white text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary"
                     />
                   </div>
                 </div>
@@ -460,7 +460,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
                       value={number}
                       onChange={(e) => setNumber(e.target.value)}
                       placeholder="Ex: 123"
-                      className="form-input w-full p-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary"
+                      className="form-input w-full p-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 netflix-main-bg text-white text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary"
                     />
                   </div>
                   <div className="sm:col-span-7 space-y-1.5">
@@ -470,7 +470,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
                       value={neighborhood}
                       onChange={(e) => setNeighborhood(e.target.value)}
                       placeholder="Nome do bairro..."
-                      className="form-input w-full p-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary"
+                      className="form-input w-full p-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 netflix-main-bg text-white text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary"
                     />
                   </div>
                   <div className="sm:col-span-2 space-y-1.5">
@@ -480,7 +480,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
                       value={state}
                       maxLength={2}
                       placeholder="UF"
-                      className="form-input w-full p-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary"
+                      className="form-input w-full p-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 netflix-main-bg text-white text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary"
                       onChange={(e) => setState(e.target.value.toUpperCase())}
                     />
                   </div>
@@ -494,7 +494,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
                       value={addressComplement}
                       onChange={(e) => setAddressComplement(e.target.value)}
                       placeholder="Ap, Bloco..."
-                      className="form-input w-full p-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary"
+                      className="form-input w-full p-3 h-12 rounded-xl border border-slate-200 dark:border-slate-800 netflix-main-bg text-white text-slate-900 dark:text-slate-100 text-sm font-bold focus:ring-2 focus:ring-primary"
                     />
                   </div>
                 </div>
@@ -550,7 +550,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
                 </h3>
                 <div className="flex flex-wrap gap-3">
                   {attachments.length < 5 && (
-                    <label className={`size-16 flex flex-col items-center justify-center rounded-xl border-2 border-dashed transition-colors bg-white dark:bg-slate-900 ${isUploading ? 'border-primary animate-pulse' : 'border-slate-200 dark:border-slate-800 hover:border-primary cursor-pointer'}`}>
+                    <label className={`size-16 flex flex-col items-center justify-center rounded-xl border-2 border-dashed transition-colors netflix-main-bg text-white ${isUploading ? 'border-primary animate-pulse' : 'border-slate-200 dark:border-slate-800 hover:border-primary cursor-pointer'}`}>
                       {isUploading ? (
                         <span className="material-symbols-outlined text-primary text-[20px] animate-spin">progress_activity</span>
                       ) : (
@@ -579,7 +579,7 @@ export default function ServiceRequestFormScreen({ onNavigate, params }: Service
       </div>
 
       {/* Footer: Action Button */}
-      <div className="p-6 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 mt-auto z-10 w-full relative">
+      <div className="p-6 border-t border-slate-200 dark:border-slate-800 netflix-main-bg text-white mt-auto z-10 w-full relative">
         <button
           onClick={handleSendRequest}
           disabled={isSubmitting}

@@ -1013,7 +1013,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           {/* Card: Providers - Clickable */}
           <div 
             onClick={() => setActiveTab('providers')}
-            className="group cursor-pointer bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-primary/50 hover:shadow-lg transition-all active:scale-95"
+            className="group cursor-pointer netflix-main-bg text-white p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-primary/50 hover:shadow-lg transition-all active:scale-95"
           >
             <div className="flex justify-between items-start mb-4">
               <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 group-hover:bg-primary group-hover:text-white rounded-lg flex items-center justify-center transition-colors">
@@ -1034,7 +1034,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           {/* Card: Clients - Clickable */}
           <div 
             onClick={() => setActiveTab('clients')}
-            className="group cursor-pointer bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-purple-500/50 hover:shadow-lg transition-all active:scale-95"
+            className="group cursor-pointer netflix-main-bg text-white p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-purple-500/50 hover:shadow-lg transition-all active:scale-95"
           >
             <div className="flex justify-between items-start mb-4">
               <div className="p-2 bg-purple-50 dark:bg-purple-900/20 text-purple-600 group-hover:bg-purple-600 group-hover:text-white rounded-lg flex items-center justify-center transition-colors">
@@ -1052,7 +1052,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           {/* Card: Referrals Audit - Clickable */}
           <div 
             onClick={() => setActiveTab('referrals')}
-            className="group cursor-pointer bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-primary/50 hover:shadow-lg transition-all active:scale-95"
+            className="group cursor-pointer netflix-main-bg text-white p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-primary/50 hover:shadow-lg transition-all active:scale-95"
           >
             <div className="flex justify-between items-start mb-4">
               <div className="p-2 bg-orange-50 dark:bg-orange-900/20 text-orange-600 group-hover:bg-primary group-hover:text-white rounded-lg flex items-center justify-center transition-colors">
@@ -1069,7 +1069,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
           <div 
             onClick={() => setActiveTab('verifications')}
-            className="group cursor-pointer bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-amber-500/50 hover:shadow-lg transition-all active:scale-95"
+            className="group cursor-pointer netflix-main-bg text-white p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-amber-500/50 hover:shadow-lg transition-all active:scale-95"
           >
             <div className="flex justify-between items-start mb-4">
               <div className="p-2 bg-amber-50 dark:bg-amber-900/20 text-amber-600 group-hover:bg-amber-600 group-hover:text-white rounded-lg flex items-center justify-center transition-colors">
@@ -1089,7 +1089,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           {/* Card: Services - Clickable */}
           <div 
             onClick={() => setActiveTab('orders')}
-            className="group cursor-pointer bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-green-500/50 hover:shadow-lg transition-all active:scale-95"
+            className="group cursor-pointer netflix-main-bg text-white p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-green-500/50 hover:shadow-lg transition-all active:scale-95"
           >
             <div className="flex justify-between items-start mb-4">
               <div className="p-2 bg-green-50 dark:bg-green-900/20 text-green-600 group-hover:bg-green-600 group-hover:text-white rounded-lg flex items-center justify-center transition-colors">
@@ -1104,7 +1104,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           {/* Card: Revenue - Clickable */}
           <div 
             onClick={() => setActiveTab('orders')}
-            className="group cursor-pointer bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-orange-500/50 hover:shadow-lg transition-all active:scale-95"
+            className="group cursor-pointer netflix-main-bg text-white p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-orange-500/50 hover:shadow-lg transition-all active:scale-95"
           >
             <div className="flex justify-between items-start mb-4">
               <div className="p-2 bg-orange-50 dark:bg-orange-900/20 text-orange-600 group-hover:bg-orange-600 group-hover:text-white rounded-lg flex items-center justify-center transition-colors">
@@ -1120,7 +1120,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
       {/* Growth Overview Section */}
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm overflow-hidden">
+        <div className="lg:col-span-2 netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm overflow-hidden">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-lg font-bold text-slate-900 dark:text-white">Visão de Crescimento</h2>
@@ -1182,7 +1182,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm overflow-hidden flex flex-col">
+        <div className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm overflow-hidden flex flex-col">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Últimos Cadastros</h2>
           <div className="space-y-4 flex-1 overflow-y-auto max-h-[300px] pr-2 custom-scrollbar">
             {recentUsersList.slice(0, 8).map((p, idx) => (
@@ -1217,7 +1217,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             <div className="relative flex-1 md:flex-none">
               <span className="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-xl pointer-events-none">search</span>
               <input
-                className="pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all w-full md:w-64"
+                className="pl-10 pr-4 py-2 netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all w-full md:w-64"
                 placeholder="Buscar prestador..."
                 type="text"
               />
@@ -1228,7 +1228,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+        <div className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse whitespace-normal break-words">
               <thead>
@@ -1307,7 +1307,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
               <p className="text-sm text-center text-slate-500 py-4">Nenhuma avaliação encontrada.</p>
             ) : (
               reviewsList.slice(0, 2).map((review: any) => (
-                <div key={review.id} className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm transition-shadow hover:shadow-md">
+                <div key={review.id} className="netflix-main-bg text-white p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm transition-shadow hover:shadow-md">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <span className="font-semibold text-sm">{review.reviewer?.full_name || 'Usuário'}</span>
@@ -1335,7 +1335,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             <h2 className="text-lg font-bold">Pedidos da Plataforma</h2>
             <button className="text-sm font-medium text-primary hover:underline" onClick={() => setActiveTab('orders')}>Gerenciar</button>
           </div>
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+          <div className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
             <div className="divide-y divide-slate-100 dark:divide-slate-800">
               {ordersList.length === 0 ? (
                 <p className="text-sm text-center text-slate-500 py-4">Nenhum pedido encontrado.</p>
@@ -1389,14 +1389,14 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           <div className="relative flex-1 md:flex-none">
             <span className="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-xl pointer-events-none">search</span>
             <input
-              className="pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all w-full md:w-64"
+              className="pl-10 pr-4 py-2 netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all w-full md:w-64"
               placeholder="Buscar prestador por nome, email ou serviço..."
               type="text"
               value={providerSearch}
               onChange={(e) => setProviderSearch(e.target.value)}
             />
           </div>
-          <button className="flex items-center justify-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 px-2 py-1.5 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+          <button className="flex items-center justify-center gap-2 netflix-main-bg text-white border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 px-2 py-1.5 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
             <span className="material-symbols-outlined text-sm md:text-xl">filter_list</span> <span className="hidden sm:inline">Filtros</span>
           </button>
         </div>
@@ -1404,25 +1404,25 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
       {/* Metric Cards for this Tab */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center">
+        <div className="netflix-main-bg text-white p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center">
           <p className="text-xs text-slate-500 font-medium mb-1">Total Cadastrados</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{providersList.length}</h3>
           </div>
         </div>
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-green-500">
+        <div className="netflix-main-bg text-white p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-green-500">
           <p className="text-xs text-slate-500 font-medium mb-1">Ativos</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{providersList.filter(p => p.status !== 'blocked' && p.status !== 'pending').length}</h3>
           </div>
         </div>
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-yellow-500">
+        <div className="netflix-main-bg text-white p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-yellow-500">
           <p className="text-xs text-slate-500 font-medium mb-1">Em Análise (KYC)</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{providersList.filter(p => p.status === 'pending').length}</h3>
           </div>
         </div>
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-red-500">
+        <div className="netflix-main-bg text-white p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-red-500">
           <p className="text-xs text-slate-500 font-medium mb-1">Bloqueados</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{providersList.filter(p => p.status === 'blocked').length}</h3>
@@ -1430,7 +1430,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+      <div className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse whitespace-normal break-words">
             <thead>
@@ -1586,7 +1586,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           <div className="relative">
             <span className="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-xl pointer-events-none">search</span>
             <input
-              className="pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all w-full md:w-64"
+              className="pl-10 pr-4 py-2 netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all w-full md:w-64"
               placeholder="Buscar cliente por nome, e-mail..."
               type="text"
               value={clientSearch}
@@ -1598,25 +1598,25 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
       {/* Metric Cards for this Tab */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center">
+        <div className="netflix-main-bg text-white p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center">
           <p className="text-xs text-slate-500 font-medium mb-1">Total Cadastrados</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{clientsList.length}</h3>
           </div>
         </div>
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-green-500">
+        <div className="netflix-main-bg text-white p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-green-500">
           <p className="text-xs text-slate-500 font-medium mb-1">Ativos</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{clientsList.filter(c => c.status !== 'blocked').length}</h3>
           </div>
         </div>
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-primary">
+        <div className="netflix-main-bg text-white p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-primary">
           <p className="text-xs text-slate-500 font-medium mb-1">Total Pedidos</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{ordersList.filter(o => clientsList.some(c => c.id === o.client_id)).length}</h3>
           </div>
         </div>
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-red-500">
+        <div className="netflix-main-bg text-white p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-red-500">
           <p className="text-xs text-slate-500 font-medium mb-1">Bloqueados</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{clientsList.filter(c => c.status === 'blocked').length}</h3>
@@ -1624,7 +1624,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+      <div className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse whitespace-normal break-words">
             <thead>
@@ -1737,7 +1737,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           <p className="text-sm text-slate-500 dark:text-slate-400">Acompanhe os pedidos, fluxo de caixa e chamados de suporte</p>
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center justify-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 px-2 py-1.5 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+          <button className="flex items-center justify-center gap-2 netflix-main-bg text-white border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 px-2 py-1.5 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
             <span className="material-symbols-outlined text-sm md:text-xl">calendar_month</span> <span className="hidden sm:inline">Últimos 30 Dias</span>
           </button>
           <button className="flex items-center justify-center gap-2 bg-primary text-white px-2 py-1.5 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors shadow-sm">
@@ -1748,28 +1748,28 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
       {/* Financial Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center">
+        <div className="netflix-main-bg text-white p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center">
           <p className="text-xs text-slate-500 font-medium mb-1">Total Pedidos</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{ordersList.length}</h3>
             <span className="text-xs text-green-500 font-bold"></span>
           </div>
         </div>
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center">
+        <div className="netflix-main-bg text-white p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center">
           <p className="text-xs text-slate-500 font-medium mb-1">Volume Transacionado (GMV)</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{formatCurrency(ordersList.reduce((acc, order) => acc + (order.price || 0), 0))}</h3>
             <span className="text-xs text-green-500 font-bold"></span>
           </div>
         </div>
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-primary">
+        <div className="netflix-main-bg text-white p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-primary">
           <p className="text-xs text-slate-500 font-medium mb-1">Receita da Plataforma</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{formatCurrency(ordersList.reduce((acc, order) => acc + ((order.price || 0) * 0.15), 0))}</h3>
             <span className="text-xs text-green-500 font-bold"></span>
           </div>
         </div>
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-primary cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/10 transition-colors">
+        <div className="netflix-main-bg text-white p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-primary cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/10 transition-colors">
           <p className="text-xs text-slate-500 font-medium mb-1 text-primary">Chamados em Aberto</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{supportTickets.filter(t => (t.status === 'open' || t.status === 'in_progress')).length}</h3>
@@ -1812,7 +1812,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         </button>
       </div>
 
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm relative">
+      <div className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm relative">
         {selectedOrders.length > 0 && (
           <div className="absolute top-0 left-0 right-0 bg-primary/10 dark:bg-primary/20 backdrop-blur-sm border-b border-primary/20 px-6 py-2 flex items-center justify-between z-10 animate-in slide-in-from-top duration-300">
             <p className="text-sm font-bold text-primary flex items-center gap-2">
@@ -2005,7 +2005,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           <div className="relative flex-1 md:flex-none">
             <span className="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-xl pointer-events-none">search</span>
             <input
-              className="pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all w-full md:w-64"
+              className="pl-10 pr-4 py-2 netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all w-full md:w-64"
               placeholder="Buscar por termo ofensivo ou nome..."
               type="text"
             />
@@ -2015,7 +2015,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
       {/* Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center">
+        <div className="netflix-main-bg text-white p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center">
           <p className="text-xs text-slate-500 font-medium mb-1">Média da Plataforma</p>
           <div className="flex items-center gap-2 text-orange-400">
             <h3 className="text-3xl font-bold text-slate-900 dark:text-white">
@@ -2024,11 +2024,11 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             <span className="material-symbols-outlined text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
           </div>
         </div>
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center">
+        <div className="netflix-main-bg text-white p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center">
           <p className="text-xs text-slate-500 font-medium mb-1">Total de Avaliações</p>
           <h3 className="text-3xl font-bold text-slate-900 dark:text-white">{reviewsList.length}</h3>
         </div>
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-red-500 cursor-pointer">
+        <div className="netflix-main-bg text-white p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center border-l-4 border-l-red-500 cursor-pointer">
           <p className="text-xs text-slate-500 font-medium mb-1 text-red-600 dark:text-red-400">Denunciadas / Para Moderar</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-2xl font-bold text-red-600 dark:text-red-400">0</h3>
@@ -2054,7 +2054,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           <p className="text-center text-slate-500 p-6">Nenhuma avaliação encontrada.</p>
         ) : (
           reviewsList.map(review => (
-            <div key={review.id} className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
+            <div key={review.id} className="netflix-main-bg text-white p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
@@ -2089,7 +2089,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
       </div>
       <div className="flex justify-center mt-6">
-        <button className="px-6 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-semibold text-primary hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+        <button className="px-6 py-2 netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-semibold text-primary hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
           Carregar Mais
         </button>
       </div>
@@ -2107,7 +2107,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm p-6 overflow-hidden relative">
+        <section className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm p-6 overflow-hidden relative">
           <div className="flex items-center gap-3 mb-6">
             <div className="bg-primary/10 text-primary p-2 rounded-lg flex items-center justify-center">
               <span className="material-symbols-outlined">payments</span>
@@ -2139,7 +2139,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                   type="text" 
                   value={formatCurrency(premiumSubscriptionPrice)} 
                   onChange={(e) => setPremiumSubscriptionPrice(Number(e.target.value.replace(/\D/g, '')) / 100)}
-                  className="w-full px-2 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all font-bold" 
+                  className="w-full px-2 py-1.5 netflix-main-bg text-white border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all font-bold" 
                 />
               </div>
             </div>
@@ -2150,7 +2150,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           </div>
         </section>
 
-        <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm p-6 overflow-hidden relative">
+        <section className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm p-6 overflow-hidden relative">
           <div className="flex items-center gap-3 mb-6">
             <div className="bg-primary/10 text-primary p-2 rounded-lg flex items-center justify-center">
               <span className="material-symbols-outlined">help</span>
@@ -2179,7 +2179,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Gestão de Contas de Teste */}
-        <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+        <section className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
             <div className="bg-red-100 dark:bg-red-900/30 text-red-600 p-2 rounded-lg">
               <span className="material-symbols-outlined">person_remove</span>
@@ -2253,7 +2253,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         </section>
 
         {/* Criação de Avaliações Mock */}
-        <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm overflow-visible">
+        <section className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm overflow-visible">
           <div className="flex items-center gap-3 mb-6">
             <div className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 p-2 rounded-lg">
               <span className="material-symbols-outlined">reviews</span>
@@ -2285,7 +2285,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                 </div>
 
                 {showProviderResults && providerSearchTerm.length > 0 && (
-                  <div className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-xl max-h-40 overflow-y-auto">
+                  <div className="absolute z-50 w-full mt-1 netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-lg shadow-xl max-h-40 overflow-y-auto">
                     {providersList
                       .filter(p => (p.full_name || '').toLowerCase().includes(providerSearchTerm.toLowerCase()))
                       .slice(0, 5)
@@ -2339,7 +2339,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                 </div>
 
                 {showReviewerResults && reviewerSearchTerm.length > 0 && (
-                  <div className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-xl max-h-40 overflow-y-auto">
+                  <div className="absolute z-50 w-full mt-1 netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-lg shadow-xl max-h-40 overflow-y-auto">
                     {clientsList
                       .filter(c => (c.full_name || '').toLowerCase().includes(reviewerSearchTerm.toLowerCase()))
                       .slice(0, 5)
@@ -2431,7 +2431,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
       </div>
 
       {/* Lista de Avaliações Recentes (Para exclusão rápida) */}
-      <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+      <section className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
         <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
           <h3 className="font-bold flex items-center gap-2">
             <span className="material-symbols-outlined text-slate-400">format_list_bulleted</span>
@@ -2492,14 +2492,14 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm text-center">
+          <div className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm text-center">
             <span className="material-symbols-outlined text-4xl text-amber-500 mb-2">pending_actions</span>
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{pendingVerifications.length}</h3>
             <p className="text-sm text-slate-500">Aguardando Análise</p>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+        <div className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
           <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/30">
             <h3 className="font-bold">Solicitações Pendentes ({pendingVerifications.length})</h3>
           </div>
@@ -2612,24 +2612,24 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm text-center border-t-4 border-t-amber-500">
+          <div className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm text-center border-t-4 border-t-amber-500">
             <span className="material-symbols-outlined text-4xl text-amber-500 mb-2">support_agent</span>
             <h3 className="text-3xl font-black text-slate-900 dark:text-white">{openTickets.length}</h3>
             <p className="text-sm text-slate-500 font-bold">Abertos</p>
           </div>
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm text-center border-t-4 border-t-blue-500">
+          <div className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm text-center border-t-4 border-t-blue-500">
             <span className="material-symbols-outlined text-4xl text-blue-500 mb-2">quickreply</span>
             <h3 className="text-3xl font-black text-slate-900 dark:text-white">{answeredTickets.length}</h3>
             <p className="text-sm text-slate-500 font-bold">Respondidos</p>
           </div>
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm text-center border-t-4 border-t-green-500">
+          <div className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm text-center border-t-4 border-t-green-500">
             <span className="material-symbols-outlined text-4xl text-green-500 mb-2">check_circle</span>
             <h3 className="text-3xl font-black text-slate-900 dark:text-white">{resolvedTickets.length}</h3>
             <p className="text-sm text-slate-500 font-bold">Resolvidos</p>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+        <div className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
           <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/30">
             <h3 className="font-bold">Tickets Recentes</h3>
           </div>
@@ -2722,7 +2722,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm">
+          <div className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm">
             <div className="p-2 bg-amber-50 dark:bg-amber-900/20 text-amber-600 rounded-lg inline-flex mb-3">
               <span className="material-symbols-outlined text-2xl">account_balance_wallet</span>
             </div>
@@ -2742,7 +2742,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             </h3>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm">
+          <div className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm">
             <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-lg inline-flex mb-3">
               <span className="material-symbols-outlined text-2xl">monitoring</span>
             </div>
@@ -2754,7 +2754,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+          <div className="lg:col-span-2 netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
             <h3 className="font-bold mb-6">Desempenho Simplificado</h3>
             <div className="space-y-4">
               {/* CSS Progress Bar Mockup for Service Types */}
@@ -2776,7 +2776,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
             <p className="text-xs text-slate-400 mt-6 text-center">* Dados ilustrativos de distribuição por categoria.</p>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm flex flex-col justify-center items-center text-center">
+          <div className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm flex flex-col justify-center items-center text-center">
              <div className="w-20 h-20 bg-emerald-50 text-emerald-500 dark:bg-emerald-900/20 rounded-full flex items-center justify-center mb-4">
                 <span className="material-symbols-outlined text-4xl">inventory</span>
              </div>
@@ -2792,7 +2792,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         </div>
 
         {/* Conversion Metrics Section */}
-        <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+        <section className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
             <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 p-2 rounded-lg">
               <span className="material-symbols-outlined">trending_up</span>
@@ -2858,7 +2858,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           </div>
         </div>
 
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+      <div className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -2913,7 +2913,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
       {/* Category Requests Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
         {/* Gestão de Categorias (Moved from Settings) */}
-        <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden flex flex-col">
+        <section className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden flex flex-col">
           <div className="p-6 border-b border-slate-200 dark:border-slate-800">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -2972,7 +2972,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           </div>
           <div className="space-y-3">
             {categoryRequests.filter(r => r.status === 'pending').slice(0, 3).map(req => (
-              <div key={req.id} className="bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-100 dark:border-slate-800 flex items-center justify-between shadow-sm">
+              <div key={req.id} className="netflix-main-bg text-white p-3 rounded-lg border border-slate-100 dark:border-slate-800 flex items-center justify-between shadow-sm">
                 <div>
                   <p className="text-sm font-bold text-primary italic">{req.category_name}</p>
                   <p className="text-[10px] text-slate-500 font-medium">Por: {req.provider?.full_name?.split(' ')[0]}</p>
@@ -3015,7 +3015,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm border-t-4 border-t-primary">
+          <div className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm border-t-4 border-t-primary">
             <div className="flex items-center gap-3">
               <div className="bg-primary/10 text-primary p-2 rounded-lg">
                 <span className="material-symbols-outlined">share</span>
@@ -3026,7 +3026,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
               </div>
             </div>
           </div>
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm border-t-4 border-t-green-500">
+          <div className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm border-t-4 border-t-green-500">
             <div className="flex items-center gap-3">
               <div className="bg-green-100 dark:bg-green-900/30 text-green-600 p-2 rounded-lg">
                 <span className="material-symbols-outlined">stars</span>
@@ -3039,7 +3039,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           </div>
         </div>
 
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+      <div className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse whitespace-normal break-words">
             <thead>
@@ -3131,11 +3131,11 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
               placeholder="Buscar por nome ou pedido..."
               value={chatAuditSearchTerm}
               onChange={(e) => setChatAuditSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+              className="w-full pl-10 pr-4 py-2 netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
             />
           </div>
         </div>
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+      <div className="netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
@@ -3304,8 +3304,8 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         {/* Modals sibling to main content */}
         {selectedProviderForKYC && (
           <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-              <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white dark:bg-slate-900 z-10">
+            <div className="netflix-main-bg text-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+              <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between sticky top-0 netflix-main-bg text-white z-10">
                 <h3 className="text-xl font-bold">Análise de Prestador (KYC)</h3>
                 <button onClick={() => setSelectedProviderForKYC(null)} className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                   <span className="material-symbols-outlined">close</span>
@@ -3385,7 +3385,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
         {isCategoryModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
+            <div className="netflix-main-bg text-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
               <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/30">
                 <h3 className="text-xl font-bold">{editingCategory ? 'Editar Categoria' : 'Nova Categoria'}</h3>
                 <button onClick={() => setIsCategoryModalOpen(false)} className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
@@ -3451,7 +3451,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
         {selectedDispute && (
           <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="netflix-main-bg text-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
               <div className="p-6 border-b border-red-200 dark:border-red-900/50 flex items-center justify-between sticky top-0 bg-red-50 dark:bg-red-900/20 z-10">
                 <div className="flex items-center gap-3">
                   <span className="material-symbols-outlined text-red-500 text-3xl">gavel</span>
@@ -3507,8 +3507,8 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
         {selectedTicket && (
           <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-              <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white dark:bg-slate-900 z-10">
+            <div className="netflix-main-bg text-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+              <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between sticky top-0 netflix-main-bg text-white z-10">
                 <div className="flex items-center gap-3">
                   <span className="material-symbols-outlined text-primary text-3xl">local_activity</span>
                   <div>
@@ -3555,7 +3555,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                          value={adminResponseText}
                          onChange={(e) => setAdminResponseText(e.target.value)}
                          placeholder="Escreva aqui a resposta que o usuário verá na Central de Ajuda..."
-                         className="w-full h-32 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm focus:ring-2 focus:ring-primary/20 outline-none resize-none shadow-inner"
+                         className="w-full h-32 p-4 rounded-2xl netflix-main-bg text-white border border-slate-200 dark:border-slate-700 text-sm focus:ring-2 focus:ring-primary/20 outline-none resize-none shadow-inner"
                        />
                      <div className="flex justify-between items-center mt-3">
                          {selectedTicket.status !== 'resolved' && (
@@ -3609,7 +3609,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                    <select 
                       value={selectedTicket.status}
                       onChange={(e) => handleUpdateTicketStatus(selectedTicket.id, e.target.value as any)}
-                      className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-bold text-slate-700 dark:text-slate-300 px-2 py-1.5 outline-none focus:ring-2 focus:ring-primary/20 w-full sm:w-auto"
+                      className="netflix-main-bg text-white border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-bold text-slate-700 dark:text-slate-300 px-2 py-1.5 outline-none focus:ring-2 focus:ring-primary/20 w-full sm:w-auto"
                    >
                      <option value="open">Aberto</option>
                      <option value="in_review">Em Análise</option>
@@ -3631,7 +3631,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
 
         {selectedOrderDetail && (
           <div className="fixed inset-0 z-[120] bg-black/70 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300">
-            <div className="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-300">
+            <div className="netflix-main-bg text-white rounded-[2rem] w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-300">
               <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md z-10">
                 <div className="flex items-center gap-4">
                   <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
@@ -3778,7 +3778,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         {/* Modal de Auditoria de Chat - Posicionado Globalmente */}
         {selectedChatRoom && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[85vh]">
+            <div className="netflix-main-bg text-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[85vh]">
               <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
                 <div>
                   <h3 className="font-bold text-slate-900 dark:text-white">Auditoria de Chat</h3>
@@ -3788,7 +3788,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                   <span className="material-symbols-outlined">close</span>
                 </button>
               </div>
-              <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50 dark:bg-slate-950/20">
+              <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50 dark:netflix-main-bg/20">
                 {chatMessages.length === 0 ? (
                   <p className="text-center text-slate-400 text-sm py-10">Nenhuma mensagem trocada ainda.</p>
                 ) : (
@@ -3805,7 +3805,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                   ))
                 )}
               </div>
-              <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+              <div className="p-4 border-t border-slate-100 dark:border-slate-800 netflix-main-bg text-white">
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -3831,7 +3831,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
       </div>
       {isEditModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-2xl max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-300">
+          <div className="netflix-main-bg text-white w-full max-w-2xl max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-300">
             <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
               <div className="flex items-center gap-3">
                 <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">

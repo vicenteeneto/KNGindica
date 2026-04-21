@@ -250,7 +250,7 @@ export default function MyFreelancesScreen({ onNavigate, params }: NavigationPro
         </div>
 
         {/* DETAIL PANEL */}
-        <div className={`flex-1 flex flex-col bg-slate-950 ${selectedOrderId ? 'flex' : 'hidden lg:flex'} relative overflow-hidden`}>
+        <div className={`flex-1 flex flex-col netflix-main-bg ${selectedOrderId ? 'flex' : 'hidden lg:flex'} relative overflow-hidden`}>
            {selectedOrderId ? (
              <div className="h-full flex flex-col">
                 <button 

@@ -9,11 +9,11 @@ export default function ServiceHistoryScreen({ onNavigate }: NavigationProps) {
   const [activeTab, setActiveTab] = useState<Tab>('finalizados');
 
   return (
-    <div className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
-      <div className="w-full bg-white dark:bg-slate-900 min-h-screen flex flex-col shadow-xl lg:pl-16">
+    <div className="netflix-main-bg text-white font-display text-slate-900 dark:text-slate-100 min-h-screen">
+      <div className="w-full netflix-main-bg min-h-screen flex flex-col shadow-xl lg:pl-16 text-white">
         
         {/* Header */}
-        <div className="relative z-10 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 transition-colors">
+        <div className="relative z-10 netflix-main-bg text-white border-b border-slate-200 dark:border-slate-800 transition-colors">
           <div className="flex items-center p-4 justify-between">
             <button onClick={() => onNavigate('home')} className="text-slate-900 dark:text-slate-100 flex size-10 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
               <span className="material-symbols-outlined text-[24px]">arrow_back</span>

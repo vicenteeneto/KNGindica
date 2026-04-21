@@ -521,13 +521,13 @@ export default function ChatScreen({ onNavigate, params, onClose, isEmbedded = f
       </div>
     )}
 
-    <div className={`flex flex-col w-full h-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 overflow-hidden font-display text-slate-900 dark:text-slate-100 z-50 ${
+    <div className={`flex flex-col w-full h-full netflix-main-bg text-white border-slate-200 dark:border-slate-800 overflow-hidden font-display text-slate-900 dark:text-slate-100 z-50 ${
       isEmbedded 
         ? 'border-none shadow-none rounded-none' 
         : 'md:h-[550px] md:w-[350px] md:rounded-t-2xl sm:shadow-2xl md:border-t md:border-x'
     }`}>
         {/* TopAppBar */}
-        <nav className="sticky top-0 z-10 bg-white dark:bg-slate-900 border-b border-primary/10 px-4 py-3 flex items-center justify-between shadow-sm shrink-0">
+        <nav className="sticky top-0 z-10 netflix-main-bg text-white border-b border-primary/10 px-4 py-3 flex items-center justify-between shadow-sm shrink-0">
         <div className="flex items-center gap-3">
           <button onClick={() => onClose ? onClose() : onNavigate('chatList')} className="size-10 rounded-full hover:bg-primary/10 flex items-center justify-center text-slate-600 dark:text-slate-400 transition-all">
             <span className="material-symbols-outlined">{onClose ? 'close' : 'arrow_back'}</span>
@@ -549,7 +549,7 @@ export default function ChatScreen({ onNavigate, params, onClose, isEmbedded = f
       </nav>
 
       {/* Chat Area */}
-      <main className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar bg-slate-50 dark:bg-slate-950/50 relative">
+      <main className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar bg-slate-50 dark:netflix-main-bg/50 relative">
         {loading ? (
           <div className="flex justify-center p-8">
             <span className="material-symbols-outlined animate-spin text-4xl text-slate-300">progress_activity</span>
@@ -648,7 +648,7 @@ export default function ChatScreen({ onNavigate, params, onClose, isEmbedded = f
         <div ref={messagesEndRef} />
       </main>
 
-      <footer className="p-4 bg-white dark:bg-slate-900 border-t border-primary/10">
+      <footer className="p-4 netflix-main-bg text-white border-t border-primary/10">
         <div className="flex items-end gap-3 max-w-5xl mx-auto">
           <div className="flex items-center gap-1 mb-1">
             <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
@@ -688,7 +688,7 @@ export default function ChatScreen({ onNavigate, params, onClose, isEmbedded = f
       {/* Modal de Proposta */}
       {showProposalModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-fade-in-up">
+          <div className="netflix-main-bg text-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-fade-in-up">
             <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
               <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
                 <span className="material-symbols-outlined text-orange-500">request_quote</span>

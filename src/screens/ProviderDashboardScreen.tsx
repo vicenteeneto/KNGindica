@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { useAuth } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
@@ -615,8 +615,8 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
 
 
   return (
-    <div className="bg-slate-50 dark:bg-slate-950 font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
-      <div className="relative flex min-h-screen w-full flex-col mx-auto bg-slate-50 dark:bg-slate-950 overflow-x-hidden">
+    <div className="netflix-main-bg font-display text-white min-h-screen flex flex-col antialiased">
+      <div className="relative flex min-h-screen w-full flex-col mx-auto bg-transparent overflow-x-hidden">
         {renderHeader()}
         <main className="flex-1 overflow-y-auto">
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">

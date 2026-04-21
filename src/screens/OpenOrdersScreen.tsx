@@ -229,7 +229,7 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white dark:bg-slate-900">
+      <div className="flex items-center justify-center min-h-screen netflix-main-bg text-white">
         <span className="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span>
       </div>
     );
@@ -381,7 +381,7 @@ export default function OpenOrdersScreen({ onNavigate, params }: NavigationProps
         </div>
 
         {/* DETAIL PANEL (Desktop) / FULL DETAIL (Mobile) */}
-        <div className={`flex-1 flex flex-col bg-slate-950 ${selectedOrderId ? 'flex' : 'hidden lg:flex'} relative overflow-hidden`}>
+        <div className={`flex-1 flex flex-col netflix-main-bg ${selectedOrderId ? 'flex' : 'hidden lg:flex'} relative overflow-hidden`}>
            {selectedOrderId ? (
              <div className="h-full flex flex-col">
                 <button 

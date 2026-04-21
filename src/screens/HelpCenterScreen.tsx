@@ -165,10 +165,10 @@ export default function HelpCenterScreen({ onNavigate, params }: NavigationProps
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
+    <div className="flex flex-col min-h-screen netflix-main-bg font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden text-white">
       
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 h-16 flex items-center justify-between">
+      <header className="sticky top-0 z-50 netflix-main-bg text-white border-b border-slate-200 dark:border-slate-800 px-4 h-16 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button 
             onClick={() => onNavigate('back')}
@@ -287,7 +287,7 @@ export default function HelpCenterScreen({ onNavigate, params }: NavigationProps
                       <select 
                         value={newCategory}
                         onChange={(e) => setNewCategory(e.target.value)}
-                        className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        className="w-full px-4 py-2 netflix-main-bg text-white border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                       >
                         <option value="question">Dúvida / Ajuda com uso</option>
                         <option value="suggestion">Sugerir Melhoria</option>
@@ -303,7 +303,7 @@ export default function HelpCenterScreen({ onNavigate, params }: NavigationProps
                           required
                           value={newRelatedOrder}
                           onChange={(e) => setNewRelatedOrder(e.target.value)}
-                          className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-red-200 dark:border-red-900/40 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                          className="w-full px-4 py-2 netflix-main-bg text-white border border-red-200 dark:border-red-900/40 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50"
                         >
                           <option value="">Selecione um serviço recente...</option>
                           {userOrders.map(order => (
@@ -323,7 +323,7 @@ export default function HelpCenterScreen({ onNavigate, params }: NavigationProps
                         value={newSubject}
                         onChange={(e) => setNewSubject(e.target.value)}
                         placeholder="Ex: Não consigo trocar minha foto"
-                        className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        className="w-full px-4 py-2 netflix-main-bg text-white border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                       />
                     </div>
                     <div>
@@ -334,7 +334,7 @@ export default function HelpCenterScreen({ onNavigate, params }: NavigationProps
                         onChange={(e) => setNewDescription(e.target.value)}
                         placeholder="Explique o que aconteceu da forma mais clara possível..."
                         rows={4}
-                        className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+                        className="w-full px-4 py-2 netflix-main-bg text-white border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
                       />
                     </div>
                     <div>
@@ -415,8 +415,8 @@ export default function HelpCenterScreen({ onNavigate, params }: NavigationProps
       {/* Ticket Detail Modal Alternative View */}
       {selectedTicket && (
         <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col animate-in slide-in-from-bottom-10 duration-300">
-            <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white dark:bg-slate-900 z-10">
+          <div className="netflix-main-bg text-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col animate-in slide-in-from-bottom-10 duration-300">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between sticky top-0 netflix-main-bg text-white z-10">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-black text-slate-400">{selectedTicket.id.substring(0, 8)}</span>
                 <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
@@ -487,7 +487,7 @@ export default function HelpCenterScreen({ onNavigate, params }: NavigationProps
               )}
             </div>
 
-            <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
+            <div className="p-4 border-t border-slate-100 dark:border-slate-800 netflix-main-bg text-white/50">
               <button 
                 onClick={() => setSelectedTicket(null)}
                 className="w-full py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all"

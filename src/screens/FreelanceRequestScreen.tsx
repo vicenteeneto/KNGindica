@@ -203,14 +203,14 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white dark:bg-slate-900">
+      <div className="flex items-center justify-center min-h-screen netflix-main-bg text-white">
         <span className="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span>
       </div>
     );
   }
 
   return (
-    <div className="bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased pb-10">
+    <div className="netflix-main-bg font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased pb-10 text-white">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-center p-4 justify-between max-w-4xl lg:mx-0 lg:ml-12 w-full transition-all duration-300">
@@ -239,7 +239,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
                 type="text" 
                 required
                 placeholder="Ex: Cortar grama de jardim pequeno"
-                className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm"
+                className="w-full netflix-main-bg text-white border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm"
                 value={formData.title}
                 onChange={e => setFormData({...formData, title: e.target.value})}
               />
@@ -249,7 +249,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
               <label className="block text-xs font-bold mb-1.5 text-slate-400">Categoria</label>
               <select 
                 required
-                className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm appearance-none"
+                className="w-full netflix-main-bg text-white border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm appearance-none"
                 value={formData.category_id}
                 onChange={e => setFormData({...formData, category_id: e.target.value})}
               >
@@ -276,7 +276,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
                   <input 
                     type="text" 
                     placeholder="00000-000"
-                    className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm"
+                    className="w-full netflix-main-bg text-white border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm"
                     value={formData.cep}
                     onChange={e => setFormData({...formData, cep: e.target.value})}
                     onBlur={handleCepBlur}
@@ -291,7 +291,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
                   onChange={val => setFormData({...formData, city: val})}
                   activeCities={activeCities}
                   placeholder="Onde o serviço será realizado?"
-                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm"
+                  className="w-full netflix-main-bg text-white border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm"
                 />
               </div>
             </div>
@@ -301,7 +301,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
               <input 
                 type="text" 
                 placeholder="Nome da rua..."
-                className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm"
+                className="w-full netflix-main-bg text-white border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm"
                 value={formData.street}
                 onChange={e => setFormData({...formData, street: e.target.value})}
               />
@@ -313,7 +313,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
                 <input 
                   type="text" 
                   placeholder="123"
-                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm"
+                  className="w-full netflix-main-bg text-white border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm"
                   value={formData.number}
                   onChange={e => setFormData({...formData, number: e.target.value})}
                 />
@@ -323,7 +323,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
                 <input 
                   type="text" 
                   placeholder="Bairro..."
-                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm"
+                  className="w-full netflix-main-bg text-white border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm"
                   value={formData.neighborhood}
                   onChange={e => setFormData({...formData, neighborhood: e.target.value})}
                 />
@@ -334,7 +334,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
                   type="text" 
                   maxLength={2}
                   placeholder="MT"
-                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm"
+                  className="w-full netflix-main-bg text-white border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm"
                   value={formData.state}
                   onChange={e => setFormData({...formData, state: e.target.value.toUpperCase()})}
                 />
@@ -348,7 +348,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
                   type="text" 
                   required
                   placeholder="Ex: 100,00"
-                  className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-black text-base"
+                  className="w-full netflix-main-bg text-white border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-black text-base"
                   value={formData.budget}
                   onChange={e => {
                     const masked = maskCurrency(e.target.value);
@@ -362,7 +362,7 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
               <label className="block text-xs font-bold mb-1.5 text-slate-400">Prazo da Publicação</label>
               <select 
                 required
-                className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm appearance-none"
+                className="w-full netflix-main-bg text-white border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm appearance-none"
                 value={formData.expiresInHours}
                 onChange={e => setFormData({...formData, expiresInHours: e.target.value})}
               >
@@ -374,11 +374,11 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
               </select>
             </div>
 
-            <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-800">
+            <div className="netflix-main-bg text-white/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-800">
               <label className="block text-sm font-bold mb-4 text-slate-400">Fotos do Serviço (Opcional)</label>
               <div className="flex flex-wrap gap-3">
                 {formData.attachments.length < 5 && (
-                  <label className={`size-20 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed transition-colors bg-white dark:bg-slate-900 ${isUploading ? 'border-primary animate-pulse' : 'border-slate-200 dark:border-slate-800 hover:border-primary cursor-pointer'}`}>
+                  <label className={`size-20 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed transition-colors netflix-main-bg text-white ${isUploading ? 'border-primary animate-pulse' : 'border-slate-200 dark:border-slate-800 hover:border-primary cursor-pointer'}`}>
                     {isUploading ? (
                       <span className="material-symbols-outlined text-primary text-[24px] animate-spin">progress_activity</span>
                     ) : (
@@ -404,13 +404,13 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
               <p className="text-[10px] text-slate-500 mt-2 italic font-medium">Máximo de 5 fotos (JPG ou PNG)</p>
             </div>
 
-            <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-800">
+            <div className="netflix-main-bg text-white/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-800">
               <label className="block text-xs font-bold mb-1.5 text-slate-400">Detalhes extras</label>
               <textarea 
                 required
                 rows={4}
                 placeholder="Dê mais detalhes para os profissionais entenderem melhor o serviço..."
-                className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm resize-none"
+                className="w-full netflix-main-bg text-white border-2 border-transparent focus:border-primary/30 rounded-2xl px-3.5 py-2.5 transition-all outline-none font-medium text-sm resize-none"
                 value={formData.description}
                 onChange={e => setFormData({...formData, description: e.target.value})}
               />

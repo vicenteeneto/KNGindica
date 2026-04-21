@@ -56,9 +56,9 @@ export default function FilterServicesScreen({ onNavigate, params }: NavigationP
   };
 
   return (
-    <div className="relative flex h-screen w-full flex-col bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 overflow-hidden antialiased">
+    <div className="relative flex h-screen w-full flex-col netflix-main-bg text-white font-display text-slate-900 dark:text-slate-100 overflow-hidden antialiased">
       {/* Top Bar */}
-      <div className="flex items-center bg-white dark:bg-slate-900 p-4 border-b border-slate-200 dark:border-slate-800 justify-between sticky top-0 z-10">
+      <div className="flex items-center netflix-main-bg text-white p-4 border-b border-slate-200 dark:border-slate-800 justify-between sticky top-0 z-10">
         <div 
           onClick={() => onNavigate('back')}
           className="text-slate-900 dark:text-slate-100 flex size-10 shrink-0 items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors"
@@ -160,7 +160,7 @@ export default function FilterServicesScreen({ onNavigate, params }: NavigationP
                 <label 
                   key={rating}
                   onClick={() => setTempRating(rating)}
-                  className={`flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all ${tempRating === rating ? 'border-primary bg-primary/5' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                  className={`flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all ${tempRating === rating ? 'border-primary bg-primary/5' : 'border-slate-200 dark:border-slate-800 netflix-main-bg text-white hover:bg-slate-50 dark:hover:bg-slate-800'}`}
                 >
                   <div className="flex items-center gap-2">
                     <span className={`material-symbols-outlined text-yellow-500 ${tempRating === rating ? 'fill-current' : ''}`}>star</span>
@@ -209,14 +209,14 @@ export default function FilterServicesScreen({ onNavigate, params }: NavigationP
             <div className="grid grid-cols-2 gap-3">
               <button 
                 onClick={() => setTempAvailability(tempAvailability === 'now' ? null : 'now')}
-                className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all active:scale-95 ${tempAvailability === 'now' ? 'border-primary bg-primary/5 text-primary font-semibold' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-medium'}`}
+                className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all active:scale-95 ${tempAvailability === 'now' ? 'border-primary bg-primary/5 text-primary font-semibold' : 'border-slate-200 dark:border-slate-800 netflix-main-bg text-white text-slate-700 dark:text-slate-300 font-medium'}`}
               >
                 <span className="material-symbols-outlined text-sm">bolt</span>
                 Disponível Agora
               </button>
               <button 
                 onClick={() => setTempAvailability(tempAvailability === 'thisWeek' ? null : 'thisWeek')}
-                className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all active:scale-95 ${tempAvailability === 'thisWeek' ? 'border-primary bg-primary/5 text-primary font-semibold' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-medium'}`}
+                className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all active:scale-95 ${tempAvailability === 'thisWeek' ? 'border-primary bg-primary/5 text-primary font-semibold' : 'border-slate-200 dark:border-slate-800 netflix-main-bg text-white text-slate-700 dark:text-slate-300 font-medium'}`}
               >
                 <span className="material-symbols-outlined text-sm">calendar_month</span>
                 Esta Semana
@@ -227,7 +227,7 @@ export default function FilterServicesScreen({ onNavigate, params }: NavigationP
       </div>
 
       {/* Bottom Action Button */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shadow-lg md:static">
+      <div className="absolute bottom-0 left-0 right-0 p-4 netflix-main-bg text-white border-t border-slate-200 dark:border-slate-800 shadow-lg md:static">
         <button 
           onClick={handleApply}
           className="w-full bg-primary text-white text-base font-bold py-4 rounded-xl shadow-lg shadow-primary/25 hover:bg-primary/95 active:scale-[0.98] transition-all"

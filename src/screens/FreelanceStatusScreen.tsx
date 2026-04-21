@@ -56,7 +56,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
 
   if (loading && params?.orderId) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-950">
+      <div className="flex items-center justify-center min-h-screen netflix-main-bg">
         <span className="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span>
       </div>
     );
@@ -67,7 +67,7 @@ export default function FreelanceStatusScreen({ onNavigate, params }: Navigation
   const isProvider = user?.id === displayData.assigned_provider_id;
 
   return (
-    <div className="bg-slate-950 font-display text-slate-100 min-h-screen lg:h-screen flex flex-col antialiased overflow-hidden">
+    <div className="netflix-main-bg font-display text-slate-100 min-h-screen lg:h-screen flex flex-col antialiased overflow-hidden">
       
       {/* Header */}
       <header className="h-14 lg:h-20 shrink-0 flex items-center justify-between px-4 lg:px-8 bg-slate-900 border-b border-white/5 z-50">

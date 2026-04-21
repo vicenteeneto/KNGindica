@@ -53,8 +53,8 @@ export default function UpdatePasswordScreen({ onNavigate }: NavigationProps) {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900 justify-center px-4 py-8">
-      <div className="w-full max-w-md mx-auto bg-white dark:bg-black p-8 rounded-3xl shadow-xl dark:border dark:border-white/5">
+    <div className="flex flex-col min-h-screen netflix-main-bg justify-center px-4 py-8">
+      <div className="w-full max-w-md mx-auto bg-white/5 p-8 rounded-3xl shadow-xl border border-white/5 backdrop-blur-md">
         <div className="flex flex-col items-center mb-8">
           <div className="w-16 h-16 bg-primary text-white rounded-2xl flex items-center justify-center mb-4">
             <span className="material-symbols-outlined text-4xl">lock_reset</span>

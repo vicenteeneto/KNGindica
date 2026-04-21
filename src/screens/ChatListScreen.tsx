@@ -252,7 +252,7 @@ export default function ChatListScreen({ onNavigate, params }: NavigationProps) 
         </div>
 
         {/* DETAIL PANEL (Embedded Chat) */}
-        <div className={`flex-1 flex flex-col bg-slate-950 ${selectedRoomId ? 'flex' : 'hidden lg:flex'} relative overflow-hidden`}>
+        <div className={`flex-1 flex flex-col netflix-main-bg ${selectedRoomId ? 'flex' : 'hidden lg:flex'} relative overflow-hidden`}>
            {selectedRoomId && selectedChatParams ? (
              <div className="h-full flex flex-col">
                 <button 

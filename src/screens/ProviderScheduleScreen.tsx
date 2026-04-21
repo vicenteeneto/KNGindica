@@ -135,8 +135,8 @@ export default function ProviderScheduleScreen({ onNavigate }: NavigationProps) 
   const nextMonth = () => setCalendarDate(new Date(calYear, calMonth + 1, 1));
 
   return (
-    <div className="bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
-      <div className="relative flex min-h-screen w-full flex-col max-w-2xl mx-auto bg-white dark:bg-slate-900 shadow-xl overflow-x-hidden">
+    <div className="netflix-main-bg font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased text-white">
+      <div className="relative flex min-h-screen w-full flex-col max-w-2xl mx-auto netflix-main-bg shadow-xl overflow-x-hidden text-white">
 
         {/* Toast */}
         {toast && (
@@ -158,7 +158,7 @@ export default function ProviderScheduleScreen({ onNavigate }: NavigationProps) 
         )}
 
         {/* Header */}
-        <header className="flex items-center p-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 sticky top-0 z-10">
+        <header className="flex items-center p-4 netflix-main-bg text-white border-b border-slate-100 dark:border-slate-800 sticky top-0 z-10">
           <button onClick={() => onNavigate('dashboard')} className="flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
@@ -170,7 +170,7 @@ export default function ProviderScheduleScreen({ onNavigate }: NavigationProps) 
         </header>
 
         {/* Tabs */}
-        <div className="flex border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-[65px] z-10">
+        <div className="flex border-b border-slate-100 dark:border-slate-800 netflix-main-bg text-white sticky top-[65px] z-10">
           {[{ id: 'schedule', label: 'Horários', icon: 'schedule' }, { id: 'calendar', label: 'Bloqueios', icon: 'event_busy' }].map(tab => (
             <button
               key={tab.id}

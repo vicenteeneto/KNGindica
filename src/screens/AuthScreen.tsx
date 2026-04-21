@@ -90,16 +90,7 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-black font-display text-white antialiased relative overflow-hidden">
-      {/* Cinematic Background Layer */}
-      <div className="absolute inset-0 z-0">
-        <div 
-          className="absolute inset-0 bg-cover bg-center opacity-40 scale-110" 
-          style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=2070&auto=format&fit=crop")' }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-black/80 to-black" />
-        <div className="absolute inset-0 bg-radial-gradient from-transparent to-black opacity-60" />
-      </div>
+    <div className="flex flex-col min-h-screen netflix-main-bg font-display text-white antialiased relative overflow-hidden">
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col justify-center px-4 py-12 z-10 w-full">

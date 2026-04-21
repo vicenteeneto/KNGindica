@@ -82,7 +82,7 @@ export default function ProviderWalletScreen({ onNavigate }: NavigationProps) {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
+    <div className="flex flex-col min-h-screen netflix-main-bg font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden text-white">
       
       {/* Header */}
       <header className="flex items-center p-4 bg-primary text-white sticky top-0 z-10">
@@ -223,7 +223,7 @@ export default function ProviderWalletScreen({ onNavigate }: NavigationProps) {
       
       {/* Payout Modal */}
       {payoutModal.isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 netflix-main-bg/60 backdrop-blur-sm animate-in fade-in">
            <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-[32px] p-8 shadow-2xl border border-slate-200 dark:border-slate-700">
               <div className="size-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-6 mx-auto">
                 <span className="material-symbols-outlined text-3xl">account_balance</span>
@@ -243,7 +243,7 @@ export default function ProviderWalletScreen({ onNavigate }: NavigationProps) {
                       setPayoutModal({ ...payoutModal, amount: val ? formatted : "" });
                     }}
                     placeholder="R$ 0,00"
-                    className="w-full h-16 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl px-6 text-2xl font-black text-slate-900 dark:text-white outline-none focus:border-primary transition-colors"
+                    className="w-full h-16 netflix-main-bg text-white border border-slate-200 dark:border-slate-700 rounded-2xl px-6 text-2xl font-black text-slate-900 dark:text-white outline-none focus:border-primary transition-colors"
                   />
                   <p className="mt-2 text-[10px] font-medium text-slate-400">Saldo disponível: {formatCurrency(balance.available)}</p>
                 </div>

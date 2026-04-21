@@ -134,7 +134,7 @@ export default function RewardsScreen({ onNavigate }: NavigationProps) {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
+    <div className="flex flex-col min-h-screen netflix-main-bg font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden text-white">
       
       {/* Header */}
       {role === 'provider' ? (
@@ -144,7 +144,7 @@ export default function RewardsScreen({ onNavigate }: NavigationProps) {
           onNavigate={onNavigate} 
         />
       ) : (
-        <header className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 pr-6 h-16 flex items-center justify-between transition-all duration-300">
+        <header className="sticky top-0 z-50 netflix-main-bg text-white border-b border-slate-200 dark:border-slate-800 px-4 pr-6 h-16 flex items-center justify-between transition-all duration-300">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => onNavigate('back')}

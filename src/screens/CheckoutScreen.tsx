@@ -148,7 +148,7 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-900">
+      <div className="flex items-center justify-center min-h-screen netflix-main-bg text-white">
         <span className="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span>
       </div>
     );
@@ -162,10 +162,10 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
   const PLATFORM_FEE = 9.90;
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900 font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
+    <div className="flex flex-col min-h-screen netflix-main-bg font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden text-white">
       
       {/* Header */}
-      <header className="flex items-center p-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10 max-w-4xl mx-auto w-full">
+      <header className="flex items-center p-4 netflix-main-bg text-white border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10 max-w-4xl mx-auto w-full">
         <button 
           onClick={() => {
             if (params?.freelanceOrderId) {
@@ -243,24 +243,24 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Número do Cartão</label>
                 <div className="relative">
                   <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">credit_score</span>
-                  <input type="text" required placeholder="0000 0000 0000 0000" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-2.5 pl-10 pr-3.5 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all font-mono" />
+                  <input type="text" required placeholder="0000 0000 0000 0000" className="w-full netflix-main-bg text-white border border-slate-200 dark:border-slate-700 rounded-xl py-2.5 pl-10 pr-3.5 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all font-mono" />
                 </div>
               </div>
               
               <div className="space-y-1.5">
                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Nome no Cartão</label>
-                <input type="text" required placeholder="NOME COMO ESTÁ NO CARTÃO" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-2.5 px-3.5 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all" />
+                <input type="text" required placeholder="NOME COMO ESTÁ NO CARTÃO" className="w-full netflix-main-bg text-white border border-slate-200 dark:border-slate-700 rounded-xl py-2.5 px-3.5 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all" />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Validade</label>
-                  <input type="text" required placeholder="MM/AA" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-2.5 px-3.5 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all font-mono" />
+                  <input type="text" required placeholder="MM/AA" className="w-full netflix-main-bg text-white border border-slate-200 dark:border-slate-700 rounded-xl py-2.5 px-3.5 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all font-mono" />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">CVV</label>
                   <div className="relative">
-                    <input type="text" required placeholder="123" className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-2.5 px-3.5 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all font-mono" />
+                    <input type="text" required placeholder="123" className="w-full netflix-main-bg text-white border border-slate-200 dark:border-slate-700 rounded-xl py-2.5 px-3.5 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all font-mono" />
                     <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg cursor-help" title="3 dígitos no verso do cartão">info</span>
                   </div>
                 </div>

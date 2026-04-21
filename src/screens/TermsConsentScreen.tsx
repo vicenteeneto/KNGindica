@@ -47,8 +47,8 @@ export default function TermsConsentScreen({ onNavigate }: NavigationProps) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="min-h-screen bg-slate-50 dark:netflix-main-bg flex flex-col items-center justify-center p-4">
+      <div className="w-full max-w-2xl netflix-main-bg text-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="p-8 border-b border-slate-100 dark:border-slate-800 text-center">
           <div className="inline-flex size-14 bg-primary/10 rounded-2xl items-center justify-center mb-4">
@@ -247,7 +247,7 @@ export default function TermsConsentScreen({ onNavigate }: NavigationProps) {
         </div>
 
         {/* Action Area */}
-        <div className="p-8 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-4">
+        <div className="p-8 netflix-main-bg text-white/50 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-4">
           {!isScrolledToEnd && (
              <div className="flex items-center justify-center gap-2 text-primary font-bold animate-bounce text-sm">
                 <span className="material-symbols-outlined">expand_more</span>

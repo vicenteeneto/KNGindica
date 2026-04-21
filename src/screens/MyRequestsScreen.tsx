@@ -99,7 +99,7 @@ export default function MyRequestsScreen({ onNavigate, params }: NavigationProps
   };
 
   return (
-    <div className="flex flex-col h-screen bg-slate-950 font-display text-slate-100 antialiased overflow-hidden">
+    <div className="flex flex-col h-screen netflix-main-bg font-display text-slate-100 antialiased overflow-hidden">
 
       {/* Header */}
       <div className="shrink-0 z-50 bg-slate-900 border-b border-white/5 h-[60px] flex items-center px-6">
@@ -232,7 +232,7 @@ export default function MyRequestsScreen({ onNavigate, params }: NavigationProps
         </div>
 
         {/* DETAIL PANEL */}
-        <div className={`flex-1 flex flex-col bg-slate-950 ${selectedRequestId ? 'flex' : 'hidden lg:flex'} relative overflow-hidden`}>
+        <div className={`flex-1 flex flex-col netflix-main-bg ${selectedRequestId ? 'flex' : 'hidden lg:flex'} relative overflow-hidden`}>
           {selectedRequestId ? (
             <div className="h-full flex flex-col">
               <button

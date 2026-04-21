@@ -147,7 +147,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
   };
 
   return (
-    <div className="w-full bg-black min-h-screen shadow-xl flex flex-col font-display text-white antialiased">
+    <div className="w-full netflix-main-bg min-h-screen shadow-xl flex flex-col font-display text-white antialiased">
       {/* Header / Navigation */}
       {/* Header / Navigation - Netflix Dark */}
       <header className="sticky top-0 z-50 bg-black/90 backdrop-blur-md border-b border-white/5">

@@ -64,7 +64,7 @@ export default function FavoritesScreen({ onNavigate, params }: FavoritesScreenP
   };
 
   return (
-    <div className="w-full bg-black min-h-screen flex flex-col font-display text-white antialiased overflow-x-hidden">
+    <div className="w-full netflix-main-bg min-h-screen flex flex-col font-display text-white antialiased overflow-x-hidden">
       {/* Header - Premium Dark */}
       <header className="bg-black/90 backdrop-blur-md border-b border-white/5 p-4 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto flex items-center gap-3">
