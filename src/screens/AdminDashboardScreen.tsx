@@ -1520,11 +1520,18 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                     <td className="px-3 py-3 text-right">
                       <div className="flex gap-2 justify-end">
                         <button 
-                          onClick={() => handleOpenEditModal(provider)} 
-                          className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" 
-                          title="Editar Perfil"
+                          onClick={() => onNavigate('profile', { providerId: provider.id })} 
+                          className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors" 
+                          title="Ver Perfil"
                         >
                           <span className="material-symbols-outlined text-[20px]">visibility</span>
+                        </button>
+                        <button 
+                          onClick={() => handleOpenEditModal(provider)} 
+                          className="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-colors" 
+                          title="Editar Perfil"
+                        >
+                          <span className="material-symbols-outlined text-[20px]">edit</span>
                         </button>
                         <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 self-center mx-1"></div>
                         {provider.status === 'blocked' ? (
@@ -1691,10 +1698,10 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       <div className="flex gap-2 justify-end">
                         <button 
                           onClick={() => handleOpenEditModal(client)} 
-                          className="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" 
+                          className="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-colors" 
                           title="Editar Perfil"
                         >
-                          <span className="material-symbols-outlined text-[20px]">visibility</span>
+                          <span className="material-symbols-outlined text-[20px]">edit</span>
                         </button>
                         <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 self-center mx-1"></div>
                         {client.status === 'blocked' ? (
