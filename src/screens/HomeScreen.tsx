@@ -623,14 +623,6 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
               <span className={`material-symbols-outlined text-[15px] leading-none transition-transform ${showLocationDropdown ? 'rotate-180 text-primary' : ''}`}>expand_more</span>
             </button>
 
-            {/* 2. Expanding Search Trigger */}
-            <button 
-              onClick={() => setShowSearchDropdown(!showSearchDropdown)}
-              className="h-8 flex-shrink-0 flex items-center gap-1.5 px-3 rounded-full border border-white/20 bg-white/5 text-[11px] font-black text-white hover:bg-white/10 transition-all"
-            >
-              <span className="material-symbols-outlined text-[15px] text-white">search</span>
-              <span className="leading-none">Busca</span>
-            </button>
 
             {/* 3. Map View Toggle */}
             <button 
@@ -686,42 +678,6 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             </div>
           )}
 
-          {/* Search Dropdown Overlay */}
-          {showSearchDropdown && (
-            <div 
-              className="absolute top-full left-4 mr-4 mt-2 w-[calc(100%-2rem)] md:w-80 bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl p-4 animate-in fade-in slide-in-from-top-2 z-[60]"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="relative">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm z-10">search</span>
-                <input
-                  autoFocus
-                  type="text"
-                  placeholder="O que você procura?"
-                  className="w-full pl-9 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:border-primary outline-none text-xs font-bold text-white transition-all focus:border-primary/50"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      onNavigate('listing', { searchQuery });
-                      setShowSearchDropdown(false);
-                    }
-                  }}
-                />
-              </div>
-              <div className="mt-3 flex justify-end">
-                <button 
-                  onClick={() => {
-                    onNavigate('listing', { searchQuery });
-                    setShowSearchDropdown(false);
-                  }}
-                  className="px-4 py-1.5 bg-primary text-white text-[10px] font-black rounded-lg hover:bg-primary/90 transition-colors uppercase"
-                >
-                  Buscar
-                </button>
-              </div>
-            </div>
-          )}
         </div>
       </header>
 
