@@ -628,7 +628,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
               onClick={() => setShowSearchDropdown(!showSearchDropdown)}
               className="h-8 flex-shrink-0 flex items-center gap-1.5 px-3 rounded-full border border-white/20 bg-white/5 text-[11px] font-black text-white hover:bg-white/10 transition-all"
             >
-              <span className="material-symbols-outlined text-[15px] text-primary">sparkles</span>
+              <span className="material-symbols-outlined text-[15px] text-white">search</span>
               <span className="leading-none">Busca</span>
             </button>
 
@@ -655,7 +655,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             ))}
           </div>
 
-          {/* Dropdown de Localização (Netflix Overlay Style) */}
+          {/* Location Dropdown Overlay */}
           {showLocationDropdown && (
             <div 
               className="absolute top-full left-4 mr-4 mt-2 w-[calc(100%-2rem)] md:w-80 bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl p-5 animate-in fade-in slide-in-from-top-2 z-[60]"
@@ -719,36 +719,40 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                         {/* Cinematic Gradients */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
                         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent"></div>
-                        <div className="absolute inset-0 bg-black/5"></div>
-
-                        {/* Content Section - Anchored at the bottom */}
-                        <div className="absolute bottom-4 lg:bottom-20 left-0 right-0 netflix-gutter transition-all duration-500">
-                          <div className="w-full flex flex-col items-center text-center lg:items-start lg:text-left">
-                            {/* Professional Name - "Graphic Logo" Style */}
-                            <h1 className="netflix-title-logo text-2xl md:text-6xl mb-0.5 max-w-[95%] break-words drop-shadow-2xl leading-none">
-                              {p.name}
-                            </h1>
-
-                            {/* Tags */}
-                            <div className="flex items-center justify-center gap-1.5 mb-2.5 flex-wrap opacity-90">
-                              <span className="text-[8px] md:text-xs font-black text-gray-100 uppercase tracking-[0.2em]">{p.service} - {p.city}</span>
-                            </div>
+                        
+                        {/* Hero Content (Floating Overlay) */}
+                        <div className="absolute inset-x-0 bottom-0 pb-10 md:pb-16 px-6 md:px-12 z-20">
+                          <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
                             
-                            {/* Action Buttons */}
-                            <div className="flex flex-row items-center justify-center lg:justify-start gap-2 w-full">
-                              <button
+                            <div className="mb-4 flex items-center gap-2">
+                              <div className="bg-primary px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest text-white shadow-lg animate-pulse">
+                                Premium
+                              </div>
+                              <span className="text-white/40 text-[10px] font-bold uppercase tracking-widest truncate max-w-[150px]">
+                                {p.service}
+                              </span>
+                            </div>
+
+                            <h2 className="text-3xl md:text-6xl font-black text-white mb-6 tracking-tighter leading-tight drop-shadow-2xl">
+                              {p.name}
+                            </h2>
+                            
+                            {/* Hero Action Buttons */}
+                            <div className="flex items-center gap-2 w-full max-w-xs md:max-w-md">
+                              <button 
                                 onClick={() => onNavigate('profile', { professionalId: p.id })}
-                                className="flex-1 sm:flex-none px-4 flex items-center justify-center gap-1 bg-white text-black h-8 md:h-9 rounded-lg font-black text-[9px] md:text-sm hover:bg-white/90 transition-all active:scale-95 shadow-lg"
+                                className="flex-1 h-8 md:h-9 bg-white text-black rounded flex items-center justify-center gap-2 font-black text-[12px] md:text-sm hover:bg-gray-200 transition-colors shadow-xl"
                               >
-                                <span className="material-symbols-outlined filled text-[16px] md:text-[18px]">play_arrow</span>
+                                <span className="material-symbols-outlined filled text-xl">play_arrow</span>
                                 Ver Perfil
                               </button>
-                              
-                              <button
+                              <button 
                                 onClick={() => toggleFavorite(p.id)}
-                                className="flex-1 sm:flex-none px-4 flex items-center justify-center gap-1 bg-white/10 backdrop-blur-md text-white h-8 md:h-9 rounded-lg font-black text-[9px] md:text-sm hover:bg-white/20 transition-all active:scale-95 border border-white/10"
+                                className="flex-1 h-8 md:h-9 bg-zinc-600/60 backdrop-blur-md text-white rounded flex items-center justify-center gap-2 font-black text-[12px] md:text-sm hover:bg-zinc-600/80 transition-colors border border-white/10 shadow-xl"
                               >
-                                <span className="material-symbols-outlined text-[14px] md:text-[16px]">{isFavorited ? 'check' : 'add'}</span>
+                                <span className={`material-symbols-outlined text-xl ${isFavorited ? 'text-primary filled' : ''}`}>
+                                  {isFavorited ? 'check' : 'add'}
+                                </span>
                                 Favoritos
                               </button>
                             </div>
@@ -759,42 +763,33 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                   );
                 })}
               </div>
-              
-              {/* Indicators - Positioned left on desktop */}
-              <div className="absolute bottom-2 lg:bottom-10 left-1/2 lg:left-[var(--gutter-desktop)] -translate-x-1/2 lg:translate-x-0 z-30 flex gap-2">
-                {heroProviders.slice(0, 5).map((_, idx) => (
-                  <button 
-                    key={idx}
-                    onClick={() => setCurrentHeroIndex(idx)}
-                    className={`h-1 rounded-full transition-all duration-500 ${idx === currentHeroIndex ? 'w-6 bg-primary' : 'w-1.5 bg-white/20'}`}
-                  ></button>
-                ))}
-              </div>
             </div>
           ) : (
-             <div className="netflix-gutter h-full">
-                <div className="h-full w-full rounded-[2.5rem] bg-zinc-900 flex items-center justify-center border border-white/5">
-                  <div className="text-center opacity-50">
-                    <h2 className="text-2xl font-black mb-1 netflix-title-logo text-primary">KNGindica</h2>
-                    <p className="text-[10px] font-bold uppercase tracking-widest">Premium Discovery</p>
-                  </div>
-                </div>
-             </div>
+            /* Loading State for Hero */
+            <div className="h-full w-full bg-zinc-900/50 animate-pulse flex items-center justify-center">
+              <div className="size-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            </div>
           )}
+
+          {/* Hero Navigation Indicators (Dash Style) */}
+          <div className="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-30">
+            {heroProviders.slice(0, 5).map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentHeroIndex(idx)}
+                className={`w-1 transition-all duration-500 rounded-full ${idx === currentHeroIndex ? 'h-8 bg-primary shadow-[0_0_10px_rgba(255,102,0,0.5)]' : 'h-3 bg-white/20'}`}
+              />
+            ))}
+          </div>
         </section>
-        {/* Active Service Tracker (Live Activity Style) */}
+
+        {/* Active Service Tracker (If any) */}
         {activeRequest && (
-          <div className="w-full netflix-gutter -mt-12 md:-mt-16 mb-8 relative z-30 transition-all duration-300">
-            <div 
-              onClick={() => onNavigate('myRequests')}
-              className="bg-primary/95 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl flex items-center justify-between cursor-pointer hover:scale-[1.02] transition-transform animate-pulse-subtle"
-            >
-              <div className="flex items-center gap-3">
-                <div className="size-12 rounded-full overflow-hidden border-2 border-white/20 shadow-lg">
-                  <img 
-                    src={activeRequest.profiles?.avatar_url || `https://ui-avatars.com/api/?name=${activeRequest.profiles?.full_name}&background=random`} 
-                    className="w-full h-full object-cover" 
-                  />
+          <div className="netflix-gutter -mt-10 mb-8 relative z-30 animate-in slide-in-from-bottom-4 duration-500">
+            <div className="bg-gradient-to-r from-primary/90 to-primary/80 backdrop-blur-xl rounded-2xl p-4 flex items-center justify-between shadow-2xl border border-white/20">
+              <div className="flex items-center gap-4">
+                <div className="size-12 bg-white/20 rounded-xl flex items-center justify-center">
+                  <span className="material-symbols-outlined text-white text-3xl">engineering</span>
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
@@ -814,11 +809,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
           </div>
         )}
 
-        
-
-        {/* Collection Rows */}
-        
-        
+        {/* Collection Rows / Map Area */}
         <div className={`w-full relative z-20 pb-10 ${!activeRequest ? '-mt-8' : ''}`}>
           
           {viewMode === 'map' ? (
@@ -839,12 +830,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                     <CircleMarker 
                       center={[userCoords.lat, userCoords.lng]}
                       radius={8}
-                      pathOptions={{ 
-                        fillColor: '#3b82f6', 
-                        color: '#ffffff', 
-                        weight: 3, 
-                        fillOpacity: 1 
-                      }}
+                      pathOptions={{ fillColor: '#3b82f6', color: '#ffffff', weight: 3, fillOpacity: 1 }}
                     >
                       <Popup>📍 Você está aqui</Popup>
                     </CircleMarker>
@@ -897,23 +883,51 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                   )}
 
                   {/* Row: Alvo Indica Recommendations */}
-                    <CollectionRow 
-                      title="Destaques KNGindica" 
-                      subtitle="Os profissionais mais bem avaliados e recomendados."
-                      providers={featuredProviders.length > 0 ? featuredProviders : plusProviders.slice(0, 10)} 
-                      onNavigate={onNavigate}
-                      highlight
-                      onViewMore={() => onNavigate('listing', { featured: true })}
-                    />
+                  <CollectionRow 
+                    title="Destaques KNGindica" 
+                    subtitle="Os profissionais mais bem avaliados e recomendados."
+                    providers={featuredProviders.length > 0 ? featuredProviders : plusProviders.slice(0, 10)} 
+                    onNavigate={onNavigate}
+                    highlight
+                    onViewMore={() => onNavigate('listing', { featured: true })}
+                  />
 
                   {/* Row: All Providers (Fallback/Discovery) */}
-                    <CollectionRow 
-                      title="KNGindica" 
-                      subtitle="Explore todos os prestadores em sua região."
-                      providers={providers} 
-                      onNavigate={onNavigate}
-                      onViewMore={() => onNavigate('listing', { searchQuery: '' })}
-                    />
+                  <CollectionRow 
+                    title="KNGindica" 
+                    subtitle="Explore todos os prestadores em sua região."
+                    providers={providers} 
+                    onNavigate={onNavigate}
+                    onViewMore={() => onNavigate('listing', { searchQuery: '' })}
+                  />
+
+                  {/* Highlight (Destaque) Card - POSITIONED AFTER KNGINDICA */}
+                  <section className="w-full netflix-gutter my-6 relative z-30 transition-all duration-300">
+                    <div className="bg-gradient-to-r from-emerald-600/90 to-emerald-800/95 rounded-xl p-4 md:p-6 shadow-xl relative overflow-hidden group border border-emerald-400/20 lg:max-w-xl lg:mx-0">
+                      <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
+                      <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div className="flex-1 text-center md:text-left">
+                          <div className="inline-flex items-center gap-1.5 bg-black/10 backdrop-blur-sm px-2 py-0.5 rounded-full text-[9px] font-black tracking-wider mb-3 text-emerald-200/80">
+                            <span className="material-symbols-outlined text-[10px]">rocket_launch</span>
+                            Destaque
+                          </div>
+                          <h2 className="text-xl md:text-2xl font-black text-white leading-tight mb-2 tracking-tighter italic">
+                            Você define o <span className="text-emerald-300">preço!</span>
+                          </h2>
+                          <p className="text-emerald-100/60 text-[10px] md:text-sm font-medium max-w-lg leading-snug">
+                            Poste o que você precisa e os profissionais farão suas ofertas.
+                          </p>
+                        </div>
+                        <button 
+                          onClick={() => onNavigate('freelanceRequest')}
+                          className="bg-white text-emerald-900 px-5 py-2.5 rounded-lg font-black text-[10px] shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shrink-0"
+                        >
+                          Solicitar Freelance
+                          <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                        </button>
+                      </div>
+                    </div>
+                  </section>
 
                   {/* Row: My Favorites (Now positioned before dynamic categories) */}
                   {favoriteProviders.length > 0 && (
@@ -936,7 +950,6 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                       onViewMore={() => onNavigate('listing', { category: group.name })}
                     />
                   ))}
-
                 </>
               )}
             </>
