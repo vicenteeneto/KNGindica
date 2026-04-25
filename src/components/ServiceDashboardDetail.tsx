@@ -277,7 +277,22 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                                </button>
                              )}
                              {displayData.status === 'paid' && (
-                                <button onClick={() => setScheduleModal({ isOpen: true, date: '', time: '09:00' })} className="w-full h-11 bg-orange-500 text-white text-xs font-black rounded-xl shadow-xl shadow-orange-500/20 flex items-center justify-center gap-2">
+                                <button onClick={() => {
+                                  let initDate = '';
+                                  let initTime = '09:00';
+                                  if (displayData.desired_date) {
+                                    try {
+                                      const d = new Date(displayData.desired_date);
+                                      if (!isNaN(d.getTime())) {
+                                        initDate = d.toISOString().split('T')[0];
+                                        const hrs = String(d.getHours()).padStart(2, '0');
+                                        const mins = String(d.getMinutes()).padStart(2, '0');
+                                        initTime = `${hrs}:${mins}`;
+                                      }
+                                    } catch (e) {}
+                                  }
+                                  setScheduleModal({ isOpen: true, date: initDate, time: initTime });
+                                }} className="w-full h-11 bg-orange-500 text-white text-xs font-black rounded-xl shadow-xl shadow-orange-500/20 flex items-center justify-center gap-2">
                                  <span className="material-symbols-outlined text-sm">calendar_month</span> Agendar Horário
                                 </button>
                              )}
@@ -549,8 +564,7 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                 try {
                   const finalReason = cancelModal.reason === 'Outro motivo' ? cancelModal.otherText.trim() : cancelModal.reason;
                   const { error } = await supabase.from('service_requests').update({
-                    status: 'cancelled',
-                    cancellation_reason: finalReason
+                    status: 'cancelled'
                   }).eq('id', request.id);
                   if (error) throw error;
 
