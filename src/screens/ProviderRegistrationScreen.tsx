@@ -293,7 +293,6 @@ export default function ProviderRegistrationScreen({ onNavigate }: NavigationPro
                   value={formData.city}
                   onChange={val => setFormData({...formData, city: val})}
                   activeCities={activeCities}
-                  placeholder="Ex: Rondonópolis/MT"
                   className="w-full px-3.5 py-2.5 text-sm netflix-main-bg text-white border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
                 />
               </div>

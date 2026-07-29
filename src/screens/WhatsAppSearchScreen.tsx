@@ -4,6 +4,7 @@ import StarRating from '../components/StarRating';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
+import { DEFAULT_CITY, parseCity } from '../lib/city';
 
 const TEASER_COUNT = 5; // Quantos cards mostrar antes do "blur wall"
 
@@ -13,6 +14,8 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
   const [providers, setProviders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoryName, setCategoryName] = useState('');
+  // A busca do WhatsApp carrega a cidade do lead; sem ela, cai na praça padrão.
+  const [searchCity, setSearchCity] = useState(DEFAULT_CITY.name);
   const [error, setError] = useState('');
 
   // Email register state
@@ -37,6 +40,7 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
         if (searchError || !search) { setError('Pesquisa não encontrada ou expirada.'); setLoading(false); return; }
 
         setCategoryName(search.service_categories?.name || 'Serviços');
+        setSearchCity(parseCity(search.city)?.name || DEFAULT_CITY.name);
         const categoryId = search.category_id;
 
         const { data: serviceLinks } = await supabase
@@ -152,13 +156,13 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
           </div>
 
           <h1 className="text-5xl md:text-6xl font-black mb-6 leading-[0.9] italic tracking-tighter drop-shadow-2xl">
-            ENCONTRAMOS <br />
+            Encontramos <br />
             <span className="text-primary">{providers.length}</span>{' '}
-            EXPECIALISTA{providers.length !== 1 ? 'S' : ''} EM{' '}
-            <span className="text-primary">{categoryName.toUpperCase()}</span>
+            especialista{providers.length !== 1 ? 's' : ''} em{' '}
+            <span className="text-primary">{categoryName}</span>
           </h1>
           <p className="text-slate-400 text-xs font-bold tracking-widest opacity-60">
-            Mais bem avaliados em Rondonópolis
+            Mais bem avaliados em {searchCity}
           </p>
             {/* Provider Grid - Netflix Style Posters */}
           <div className="w-full max-w-none px-4 lg:px-12 grid grid-cols-2 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4 transition-all duration-300">

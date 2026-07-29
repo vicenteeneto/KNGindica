@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { NavigationProps } from '../types';
 import { useNotifications } from '../NotificationContext';
 import { supabase } from '../lib/supabase';
+import { getCityOrDefault } from '../lib/city';
 
 interface Message {
   role: 'user' | 'model';
@@ -15,7 +16,7 @@ export default function MaiaAssistantScreen({ onNavigate }: NavigationProps) {
   const [messages, setMessages] = useState<Message[]>([
     { 
       role: 'model', 
-      parts: [{ text: 'Ol\u00e1! Sou a MAIA, sua assistente virtual de servi\u00e7os em Rondon\u00f3polis. Em que posso te ajudar hoje?' }],
+      parts: [{ text: `Ol\u00e1! Sou a MAIA, sua assistente virtual de servi\u00e7os em ${getCityOrDefault().name}. Em que posso te ajudar hoje?` }],
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);

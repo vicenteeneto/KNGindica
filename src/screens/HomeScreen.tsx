@@ -11,6 +11,7 @@ import 'leaflet/dist/leaflet.css';
 import { CityAutocomplete } from '../components/CityAutocomplete';
 import VerifiedBadge from '../components/VerifiedBadge';
 import StarRating from '../components/StarRating';
+import { getSelectedCity, setSelectedCity } from '../lib/city';
 
 
 // Fix Leaflet Default Icon issue in React
@@ -66,7 +67,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [mapCenter, setMapCenter] = useState<[number, number]>([-15.7801, -47.9292]); // Brasília como fallback neutro
   
-  const [locationName, setLocationName] = useState(() => localStorage.getItem('KNGindica_manualCity') || 'Brasil (Sem GPS)');
+  const [locationName, setLocationName] = useState(() => getSelectedCity()?.slug || 'Brasil (Sem GPS)');
   const [userCoords, setUserCoords] = useState<{lat: number, lng: number} | null>(null);
   const [dbProviders, setDbProviders] = useState<any[]>([]);
   const [previousProviders, setPreviousProviders] = useState<any[]>([]);
@@ -77,9 +78,9 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const [touchStartHero, setTouchStartHero] = useState<number | null>(null);
   const [touchEndHero, setTouchEndHero] = useState<number | null>(null);
-  const [manualCityInput, setManualCityInput] = useState(() => localStorage.getItem('KNGindica_manualCity') || '');
+  const [manualCityInput, setManualCityInput] = useState(() => getSelectedCity()?.slug || '');
   const [availableCities, setAvailableCities] = useState<string[]>([]);
-  const isManualLocation = useRef(!!localStorage.getItem('KNGindica_manualCity'));
+  const isManualLocation = useRef(!!getSelectedCity());
 
   // Geocodifica uma string de cidade para [lat, lng]
   const geocodeCidade = async (cidade: string): Promise<[number, number] | null> => {
@@ -120,7 +121,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
     isManualLocation.current = true;
     setLocationName(city);
     setUserCoords(null);
-    localStorage.setItem('KNGindica_manualCity', city);
+    setSelectedCity(city);
     setShowLocationDropdown(false);
     const coords = await geocodeCidade(city);
     if (coords) setMapCenter(coords);
@@ -167,7 +168,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
   // Ask for location on mount
   useEffect(() => {
-    const savedLocation = localStorage.getItem('KNGindica_manualCity');
+    const savedLocation = getSelectedCity()?.slug;
     if (savedLocation) {
       isManualLocation.current = true;
       // setLocationName e setManualCityInput já foram carregados no useState/initializer
@@ -480,7 +481,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
       const city = manualCityInput.trim();
       setLocationName(city);
       setUserCoords(null); // Clear GPS since we are using explicit city
-      localStorage.setItem('KNGindica_manualCity', city);
+      setSelectedCity(city);
       setShowLocationDropdown(false);
       
       // Geocodificar a cidade e centrar o mapa

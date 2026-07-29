@@ -1,4 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
+import { cityPlaceholder } from '../lib/city';
 
 // Cache estático compartilhado para evitar múltiplas requisições
 let cachedCities: string[] = [];
@@ -31,7 +32,7 @@ export const CityAutocomplete: React.FC<CityAutocompleteProps> = ({
   value, 
   onChange, 
   onSelect, 
-  placeholder = "Ex: Rondonópolis/MT", 
+  placeholder = cityPlaceholder(),
   className,
   inputRef,
   activeCities = []
