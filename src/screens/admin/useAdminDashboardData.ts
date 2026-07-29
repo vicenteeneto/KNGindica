@@ -10,6 +10,8 @@ export interface UseAdminDashboardDataParams {
   onNavigate: NavigationProps['onNavigate'];
   /** Aba ativa — alguns efeitos recarregam dados ao trocar de aba. */
   activeTab: string;
+  /** Repassado ao contexto: várias abas navegam entre si. */
+  setActiveTab: (tab: string) => void;
 }
 
 /**
@@ -19,7 +21,7 @@ export interface UseAdminDashboardDataParams {
  * renderização. O tipo do retorno é inferido — as abas consomem via
  * AdminDashboardContext.
  */
-export function useAdminDashboardData({ onNavigate, activeTab }: UseAdminDashboardDataParams) {
+export function useAdminDashboardData({ onNavigate, activeTab, setActiveTab }: UseAdminDashboardDataParams) {
   const { logout, user, profile, role } = useAuth();
   const isPremiumUser = profile?.plan_type === 'plus' || role === 'admin';
   const { showToast, showModal, unreadNotifications, unreadMessages } = useNotifications();
@@ -1016,6 +1018,9 @@ export function useAdminDashboardData({ onNavigate, activeTab }: UseAdminDashboa
   };
 
   return {
+    activeTab,
+    setActiveTab,
+    onNavigate,
     AVAILABLE_ICONS,
     activeCities,
     adminResponseText,
