@@ -578,7 +578,7 @@ export default function ChatScreen({ onNavigate, params, onClose, isEmbedded = f
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-2 font-bold text-orange-100">
                           <span className="material-symbols-outlined">request_quote</span>
-                          ORÇAMENTO ENVIADO
+                          Orçamento enviado
                         </div>
                         <p className="text-sm font-medium">{msg.content.replace('[PROPOSTA]', '')}</p>
                         <div className="mt-1 pt-2 border-t border-white/20">
@@ -614,7 +614,7 @@ export default function ChatScreen({ onNavigate, params, onClose, isEmbedded = f
                         <div className="flex flex-col gap-3">
                           <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400 font-bold">
                             <span className="material-symbols-outlined">description</span>
-                            ORÇAMENTO RECEBIDO
+                            Orçamento recebido
                           </div>
                           <p className="text-sm font-medium">{msg.content.replace('[PROPOSTA]', '')}</p>
                           
@@ -623,7 +623,7 @@ export default function ChatScreen({ onNavigate, params, onClose, isEmbedded = f
                               onClick={handleAcceptProposal}
                               className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-bold text-xs shadow-md transition-all active:scale-95"
                             >
-                              Aceitar e Pagar Taxa (R$ 10)
+                              Aceitar orçamento
                             </button>
                           )}
                           {serviceRequest?.status !== 'proposed' && serviceRequest?.status !== 'open' && (
@@ -731,7 +731,7 @@ export default function ChatScreen({ onNavigate, params, onClose, isEmbedded = f
                   </div>
                 )}
                 <p className="text-[10px] text-slate-500 mt-3 italic">
-                  * O cliente também pagará uma taxa fixa de R$ 9,90 pelo serviço com garantia.
+                  * O cliente não paga taxa. A intermediação é descontada do valor que você recebe.
                 </p>
               </div>
 

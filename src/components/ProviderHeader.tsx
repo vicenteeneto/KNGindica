@@ -48,7 +48,7 @@ export const ProviderHeader: React.FC<ProviderHeaderProps> = ({
               {title}
             </h2>
             <div className="flex items-center gap-1">
-              <span className="text-[10px] font-black tracking-widest text-[#00E676] uppercase italic">Prestador</span>
+              <span className="text-[10px] font-black tracking-widest text-[#00E676] italic">Prestador</span>
             </div>
           </div>
         </div>

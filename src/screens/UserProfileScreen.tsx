@@ -710,7 +710,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           <div className="flex flex-col items-center lg:items-start gap-3 relative z-10">
             <h1 className="text-2xl font-bold tracking-tight text-center lg:text-left text-slate-900 dark:text-white" style={displayUser.cover ? { color: 'white' } : undefined}>{displayUser.name}</h1>
             <span className={`px-3 py-1 rounded-full text-[10px] font-black italic shadow-sm ${role === 'provider' ? 'bg-emerald-500 text-white' : 'bg-primary text-white'}`}>
-              {role === 'provider' ? 'PRESTADOR DE SERVIÇO' : 'CLIENTE'}
+              {role === 'provider' ? 'Prestador de serviço' : 'CLIENTE'}
             </span>
           </div>
           <p className="text-sm mt-3 mb-1 text-center lg:text-left relative z-10 text-slate-500 dark:text-slate-400" style={displayUser.cover ? { color: '#cbd5e1' } : undefined}>{displayUser.email}</p>
@@ -1266,7 +1266,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                       <div className="flex items-center gap-2 mt-2 px-1">
                         <div className={`size-2 rounded-full ${verificationStatus === 'pending' ? 'bg-amber-500 animate-pulse' : 'bg-red-500'}`}></div>
                         <span className="text-[9px] font-black text-slate-500 italic">
-                          {verificationStatus === 'pending' ? 'DOCUMENTOS EM ANÁLISE PELA EQUIPE' : 'VERIFICAÇÃO RECUSADA - ENVIE NOVAS FOTOS'}
+                          {verificationStatus === 'pending' ? 'Documentos em análise pela equipe' : 'VERIFICAÇÃO RECUSADA - ENVIE NOVAS FOTOS'}
                         </span>
                       </div>
                     )}
@@ -1628,7 +1628,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                   ) : (
                     <>
                       <span className="material-symbols-outlined">rocket_launch</span>
-                      COMEÇAR AGORA
+                      Começar agora
                     </>
                   )}
                 </button>

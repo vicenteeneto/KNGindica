@@ -6,7 +6,7 @@ import { professionals as mockProfessionals } from '../data/mockData';
 import { requestNotificationPermission } from '../lib/OneSignalService';
 import VerifiedBadge from '../components/VerifiedBadge';
 import { supabase } from '../lib/supabase';
-import { maskCurrency, parseCurrency, formatCurrency, normalizeText } from '../lib/formatters';
+import { maskCurrency, parseCurrency, formatCurrency, normalizeText, toNumber } from '../lib/formatters';
 import { CityAutocomplete } from '../components/CityAutocomplete';
 
 interface ServiceListingProps extends NavigationProps {
@@ -99,10 +99,10 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
         result = result.filter(p => p.price <= filters.maxPrice);
       }
       if (filters.minRating) {
-        result = result.filter(p => p.rating >= filters.minRating);
+        result = result.filter(p => toNumber(p.rating) >= filters.minRating!);
       }
       if (filters.maxDistance) {
-        result = result.filter(p => p.distance <= filters.maxDistance);
+        result = result.filter(p => toNumber(p.distance) <= filters.maxDistance!);
       }
     }
 
@@ -119,9 +119,11 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
         if (sortBy === 'price') {
           return sortOrder === 'asc' ? a.price - b.price : b.price - a.price;
         } else if (sortBy === 'rating') {
-          return sortOrder === 'asc' ? a.rating - b.rating : b.rating - a.rating;
+          const [ra, rb] = [toNumber(a.rating), toNumber(b.rating)];
+          return sortOrder === 'asc' ? ra - rb : rb - ra;
         } else if (sortBy === 'distance') {
-          return sortOrder === 'asc' ? a.distance - b.distance : b.distance - a.distance;
+          const [da, db] = [toNumber(a.distance), toNumber(b.distance)];
+          return sortOrder === 'asc' ? da - db : db - da;
         }
         return 0;
       });
@@ -179,7 +181,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
             </div>
             {/* Mobile Title / Tiny Search Trigger */}
             <div className="md:hidden flex-1 flex flex-col overflow-hidden">
-               <span className="text-[10px] font-black text-primary italic uppercase tracking-widest">{selectedCategory || 'Catálogo'}</span>
+               <span className="text-[10px] font-black text-primary italic tracking-widest">{selectedCategory || 'Catálogo'}</span>
                <span className="text-sm font-bold truncate text-white">Explorar Resultados</span>
             </div>
           </div>
@@ -229,14 +231,14 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
             <div className="flex gap-2 pr-4 border-r border-white/10 mr-2 shrink-0">
               <button 
                 onClick={() => handleSort('rating')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${sortBy === 'rating' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10'}`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black tracking-widest transition-colors ${sortBy === 'rating' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10'}`}
               >
                 Melhores
                 {sortBy === 'rating' && <span className="material-symbols-outlined text-[14px]">{sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward'}</span>}
               </button>
               <button 
                 onClick={() => handleSort('price')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${sortBy === 'price' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10'}`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black tracking-widest transition-colors ${sortBy === 'price' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10'}`}
               >
                 Preço
                 {sortBy === 'price' && <span className="material-symbols-outlined text-[14px]">{sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward'}</span>}
@@ -287,7 +289,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
                 {/* Badges Overlay */}
                 <div className="absolute top-1 left-1 flex flex-col gap-1">
                    {professional.plan_type === 'plus' && (
-                     <div className="bg-primary text-[6px] md:text-[8px] font-black text-white px-1.5 py-0.5 rounded shadow-lg italic">PREMIUM</div>
+                     <div className="bg-primary text-[6px] md:text-[8px] font-black text-white px-1.5 py-0.5 rounded shadow-lg italic">Premium</div>
                    )}
                    <div className="bg-black/80 backdrop-blur-md px-1 py-0.5 rounded text-[8px] font-black flex items-center gap-1 border border-white/10 w-fit">
                       <span className="material-symbols-outlined text-[10px] text-yellow-500 filled">star</span>
@@ -299,7 +301,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
                   <h4 className="text-[10px] md:text-sm font-black text-white leading-tight truncate drop-shadow-md">
                     {professional.name}
                   </h4>
-                  <p className="text-[7px] md:text-[10px] font-bold text-primary italic uppercase tracking-tighter truncate drop-shadow-md">
+                  <p className="text-[7px] md:text-[10px] font-bold text-primary italic tracking-tighter truncate drop-shadow-md">
                     {professional.service}
                   </p>
                 </div>
@@ -307,7 +309,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
               
               {/* Desktop Details (Text below) */}
               <div className="mt-2 hidden md:block group-hover:opacity-0 transition-opacity">
-                 <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">{professional.city}</p>
+                 <p className="text-[10px] text-gray-500 font-black tracking-widest">{professional.city}</p>
               </div>
             </div>
           ))}
@@ -315,7 +317,7 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
           {filteredProfessionals.length === 0 && (
             <div className="col-span-full text-center py-20 text-gray-500">
               <span className="material-symbols-outlined text-5xl mb-4 opacity-20">search_off</span>
-              <p className="font-bold tracking-widest uppercase text-xs">Nenhum resultado encontrado</p>
+              <p className="font-bold tracking-widest text-xs">Nenhum resultado encontrado</p>
             </div>
           )}
         </div>

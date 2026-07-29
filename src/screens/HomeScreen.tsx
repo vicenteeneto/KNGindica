@@ -652,7 +652,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="mb-4">
-                <p className="text-[10px] font-black text-primary mb-3 uppercase tracking-widest">Sua Região</p>
+                <p className="text-[10px] font-black text-primary mb-3 tracking-widest">Sua Região</p>
                 <div className="relative">
                   <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm z-10">search</span>
                   <CityAutocomplete
@@ -668,7 +668,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
               <div className="mt-4 pt-4 border-t border-white/5">
                 <button 
                    onClick={() => setShowLocationDropdown(false)}
-                   className="w-full py-2 bg-primary/10 hover:bg-primary/20 text-primary text-[10px] font-black rounded-lg transition-colors uppercase"
+                   className="w-full py-2 bg-primary/10 hover:bg-primary/20 text-primary text-[10px] font-black rounded-lg transition-colors"
                 >
                   Confirmar
                 </button>
@@ -1043,8 +1043,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
                   alt={p.name}
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    const target = e.target;
-                    target.src = 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png';
+                    e.currentTarget.src = 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png';
                   }}
                 />
                 
@@ -1062,7 +1061,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
                 
                 {/* Provider Info Overlay */}
                 <div className="absolute bottom-0 left-0 right-0 p-1 md:p-1.5 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
-                  <h4 className="text-[8px] md:text-xs font-black text-white truncate leading-tight drop-shadow-md uppercase tracking-tight">
+                  <h4 className="text-[8px] md:text-xs font-black text-white truncate leading-tight drop-shadow-md tracking-tight">
                     {p.name}
                   </h4>
                 </div>
@@ -1084,7 +1083,7 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
                   className="w-full aspect-[2/2.8] md:aspect-video rounded-lg border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 transition-all flex flex-col items-center justify-center gap-2 group"
                 >
                   <span className="material-symbols-outlined text-2xl opacity-40 group-hover:opacity-100 group-hover:scale-110 transition-all transition-transform">add_circle</span>
-                  <span className="text-[9px] md:text-xs font-bold text-gray-500 uppercase tracking-widest">Ver tudo</span>
+                  <span className="text-[9px] md:text-xs font-bold text-gray-500 tracking-widest">Ver tudo</span>
                  </button>
               </div>
             )}

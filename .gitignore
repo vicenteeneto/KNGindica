@@ -6,3 +6,10 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Artefatos locais da CLI do Supabase
+supabase/.temp/
+supabase/.branches/
+
+# Scratch local
+tmp/

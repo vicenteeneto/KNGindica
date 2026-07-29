@@ -54,7 +54,16 @@ export default function MaiaAssistantScreen({ onNavigate }: NavigationProps) {
         body: { message: userMsg, history }
       });
 
-      if (error) throw error;
+      // Em respostas não-2xx o corpo com a mensagem real (ex: limite de uso)
+      // vem em error.context — sem isso o usuário só veria um erro genérico.
+      if (error) {
+        let serverMessage = '';
+        try {
+          const body = await (error as any).context?.json?.();
+          serverMessage = body?.error || '';
+        } catch { /* corpo não-JSON: mantém a mensagem padrão */ }
+        throw new Error(serverMessage || 'Não consegui processar sua mensagem agora. Tente novamente em breve.');
+      }
 
       setMessages(prev => [
         ...prev,
@@ -66,7 +75,7 @@ export default function MaiaAssistantScreen({ onNavigate }: NavigationProps) {
       ]);
     } catch (err: any) {
       console.error('Erro na MAIA:', err);
-      showToast('Erro', 'N\u00e3o consegui processar sua mensagem agora. Tente novamente em breve.', 'error');
+      showToast('Erro', err?.message || 'N\u00e3o consegui processar sua mensagem agora. Tente novamente em breve.', 'error');
     } finally {
       setIsTyping(false);
     }

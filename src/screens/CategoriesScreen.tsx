@@ -18,7 +18,7 @@ export default function CategoriesScreen({ onNavigate }: NavigationProps) {
           <button onClick={() => onNavigate('home')} className="text-white flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-white/10 rounded-full transition-colors">
             <span className="material-symbols-outlined text-[24px]">arrow_back</span>
           </button>
-          <h2 className="text-white text-lg font-black leading-tight tracking-tighter italic uppercase flex-1 text-center lg:text-left">Catálogo de Serviços</h2>
+          <h2 className="text-white text-lg font-black leading-tight tracking-tighter italic flex-1 text-center lg:text-left">Catálogo de Serviços</h2>
           <div className="flex size-10 items-center justify-end">
              {/* Spacing */}
           </div>
@@ -27,9 +27,9 @@ export default function CategoriesScreen({ onNavigate }: NavigationProps) {
         <main className="flex-1 pb-24">
           <div className="px-6 py-10 max-w-none lg:mx-0 transition-all duration-300">
             <div className="mb-8">
-               <span className="text-[10px] font-black text-primary italic uppercase tracking-[0.2em] mb-2 block">Explorar KNGindica</span>
+               <span className="text-[10px] font-black text-primary italic tracking-[0.2em] mb-2 block">Explorar KNGindica</span>
                <h1 className="text-4xl md:text-5xl font-black text-white mb-3 italic tracking-tighter leading-none">O QUE VOCÊ PRECISA <br/>HOJE?</h1>
-               <p className="text-gray-500 text-xs font-bold uppercase tracking-widest">Encontre os melhores profissionais da região</p>
+               <p className="text-gray-500 text-xs font-bold tracking-widest">Encontre os melhores profissionais da região</p>
             </div>
             
             <label className="flex flex-col w-full">
@@ -48,8 +48,8 @@ export default function CategoriesScreen({ onNavigate }: NavigationProps) {
 
           <div className="px-6 py-4 max-w-none lg:mx-0 transition-all duration-300">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-lg font-black text-white italic uppercase tracking-tighter">Categorias Principais</h2>
-              <button onClick={() => onNavigate('listing')} className="text-primary text-[10px] font-black uppercase tracking-widest hover:underline">Ver tudo</button>
+              <h2 className="text-lg font-black text-white italic tracking-tighter">Categorias Principais</h2>
+              <button onClick={() => onNavigate('listing')} className="text-primary text-[10px] font-black tracking-widest hover:underline">Ver tudo</button>
             </div>
             
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4">
@@ -68,7 +68,7 @@ export default function CategoriesScreen({ onNavigate }: NavigationProps) {
                     <span className="material-symbols-outlined text-3xl">{cat.icon}</span>
                   </div>
                   <div>
-                    <h3 className="text-white font-black text-xs uppercase tracking-widest">{cat.title}</h3>
+                    <h3 className="text-white font-black text-xs tracking-widest">{cat.title}</h3>
                     <p className="text-gray-500 text-[9px] mt-1 font-bold italic tracking-tighter">{cat.desc}</p>
                   </div>
                 </div>
@@ -79,10 +79,10 @@ export default function CategoriesScreen({ onNavigate }: NavigationProps) {
           <div className="px-6 py-8 mt-4 max-w-none lg:mx-0 transition-all duration-300">
             <div className="rounded-3xl overflow-hidden bg-gradient-to-br from-primary via-orange-600 to-red-600 p-8 md:p-12 text-white relative shadow-2xl flex flex-col items-center text-center">
               <div className="relative z-10">
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] mb-4 block">Fale com a MAIA</span>
+                <span className="text-[10px] font-black tracking-[0.3em] mb-4 block">Fale com a MAIA</span>
                 <h3 className="text-2xl md:text-4xl font-black mb-4 italic tracking-tighter">ESTÁ EM DÚVIDA?</h3>
-                <p className="text-white/80 text-xs font-bold uppercase tracking-widest mb-8 max-w-xs mx-auto">Nós ajudamos você a encontrar o profissional mais qualificado para o seu caso.</p>
-                <button onClick={() => onNavigate('helpCenter')} className="bg-white text-black font-black px-10 py-4 rounded-xl text-xs hover:bg-gray-100 hover:scale-105 active:scale-95 transition-all shadow-2xl uppercase tracking-widest">
+                <p className="text-white/80 text-xs font-bold tracking-widest mb-8 max-w-xs mx-auto">Nós ajudamos você a encontrar o profissional mais qualificado para o seu caso.</p>
+                <button onClick={() => onNavigate('helpCenter')} className="bg-white text-black font-black px-10 py-4 rounded-xl text-xs hover:bg-gray-100 hover:scale-105 active:scale-95 transition-all shadow-2xl tracking-widest">
                   Solicitar Ajuda
                 </button>
               </div>

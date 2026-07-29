@@ -17,6 +17,15 @@ export interface UserProfile {
   loyalty_required_services?: number;
   loyalty_benefit_description?: string | null;
   profiles_private?: { cpf: string | null }[];
+  // Precificação do prestador.
+  // ATENÇÃO: o formulário de perfil grava 'visit' | 'hour' | 'service' | 'quote',
+  // enquanto ProviderDashboard/ProfessionalProfile comparam com 'negotiable' | 'hourly'.
+  // Mantido como string até unificarmos o vocabulário contra os dados reais.
+  pricing_model?: string | null;
+  price_value?: number | null;
+  // Programa de indicações / recompensas
+  reward_points?: number | null;
+  referral_code?: string | null;
 }
 
 interface AuthContextType {

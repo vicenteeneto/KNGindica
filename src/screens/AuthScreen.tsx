@@ -100,10 +100,10 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
             <div className="size-20 bg-primary text-white rounded-3xl flex items-center justify-center mb-6 shadow-2xl shadow-primary/40 rotate-3 transform-cpu">
               <span className="material-symbols-outlined text-5xl">handyman</span>
             </div>
-            <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter mb-2 text-center leading-none uppercase">
+            <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter mb-2 text-center leading-none">
               KNG<span className="text-primary italic">indica</span>
             </h1>
-            <p className="text-gray-400 text-center text-[10px] font-black uppercase tracking-[0.25em] italic">
+            <p className="text-gray-400 text-center text-[10px] font-black tracking-[0.25em] italic">
               {isLogin
                 ? 'Conecte-se aos Melhores Profissionais'
                 : 'Junte-se à Revolução dos Serviços'}
@@ -122,27 +122,27 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
             {!isLogin && (
               <>
                 <div className="flex flex-col gap-2 mb-2">
-                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Tipo de Perfil</label>
+                  <label className="text-[10px] font-black text-gray-500 tracking-widest ml-1">Tipo de Perfil</label>
                   <div className="flex bg-white/5 p-1 rounded-xl border border-white/5">
                     <button
                       type="button"
                       onClick={() => setSignUpRole('client')}
-                      className={`flex-1 py-3 text-[10px] font-black uppercase italic tracking-widest rounded-lg transition-all ${signUpRole === 'client' ? 'bg-primary text-white shadow-xl' : 'text-gray-500 hover:text-white'}`}
+                      className={`flex-1 py-3 text-[10px] font-black italic tracking-widest rounded-lg transition-all ${signUpRole === 'client' ? 'bg-primary text-white shadow-xl' : 'text-gray-500 hover:text-white'}`}
                     >
-                      CLIENTE
+                      Cliente
                     </button>
                     <button
                       type="button"
                       onClick={() => setSignUpRole('provider')}
-                      className={`flex-1 py-3 text-[10px] font-black uppercase italic tracking-widest rounded-lg transition-all ${signUpRole === 'provider' ? 'bg-primary text-white shadow-xl' : 'text-gray-500 hover:text-white'}`}
+                      className={`flex-1 py-3 text-[10px] font-black italic tracking-widest rounded-lg transition-all ${signUpRole === 'provider' ? 'bg-primary text-white shadow-xl' : 'text-gray-500 hover:text-white'}`}
                     >
-                      PRESTADOR
+                      Prestador
                     </button>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Nome Completo</label>
+                  <label className="text-[10px] font-black text-gray-500 tracking-widest ml-1">Nome Completo</label>
                   <div className="relative flex items-center">
                     <span className="material-symbols-outlined absolute left-3 text-gray-600">person</span>
                     <input
@@ -159,7 +159,7 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
             )}
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">E-mail</label>
+              <label className="text-[10px] font-black text-gray-500 tracking-widest ml-1">E-mail</label>
               <div className="relative flex items-center">
                 <span className="material-symbols-outlined absolute left-3 text-gray-600">mail</span>
                 <input
@@ -175,9 +175,9 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
 
             <div className="flex flex-col gap-1.5">
               <div className="flex justify-between items-center ml-1">
-                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Senha</label>
+                <label className="text-[10px] font-black text-gray-500 tracking-widest">Senha</label>
                 {isLogin && (
-                  <button type="button" onClick={() => onNavigate('forgotPassword')} className="text-[10px] font-black text-primary hover:underline italic uppercase tracking-widest">
+                  <button type="button" onClick={() => onNavigate('forgotPassword')} className="text-[10px] font-black text-primary hover:underline italic tracking-widest">
                     Esqueceu?
                   </button>
                 )}
@@ -207,7 +207,7 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
             <button
               type="submit"
               disabled={isLoading}
-              className="mt-6 flex justify-center items-center w-full bg-primary text-white font-black italic uppercase tracking-[0.1em] py-4 text-sm rounded-xl shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+              className="mt-6 flex justify-center items-center w-full bg-primary text-white font-black italic tracking-[0.1em] py-4 text-sm rounded-xl shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <span className="material-symbols-outlined animate-spin">progress_activity</span>
@@ -264,7 +264,7 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
 
           {/* Toggle Mode */}
           <div className="text-center">
-            <p className="text-[10px] font-black italic uppercase tracking-widest text-gray-500">
+            <p className="text-[10px] font-black italic tracking-widest text-gray-500">
               {isLogin ? "Novo por aqui?" : "Já é um membro?"}
               <button
                 onClick={() => setIsLogin(!isLogin)}

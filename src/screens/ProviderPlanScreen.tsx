@@ -2,6 +2,8 @@
 import { NavigationProps } from '../types';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
+import { PREMIUM_PLAN_PRICE, PROVIDER_INTERMEDIATION_FEE, CLIENT_GUARANTEE_FEE } from '../lib/billing';
+import { formatCurrency } from '../lib/formatters';
 
 type PlanType = 'basic' | 'plus';
 
@@ -19,7 +21,7 @@ const PLANS = [
       { text: 'Fotos e descrição dos serviços', active: true },
       { text: 'Recebimento de solicitações', active: true },
       { text: 'Pagamento Seguro (Garantia KNG)', active: true },
-      { text: 'Taxa de 5% por serviço com garantia', active: true },
+      { text: `Taxa de ${formatCurrency(PROVIDER_INTERMEDIATION_FEE)} por serviço intermediado`, active: true },
       { text: 'Destaque nas listagens', active: false },
       { text: 'Prioridade no recebimento', active: false },
       { text: 'Selo Premium no perfil', active: false },
@@ -31,7 +33,7 @@ const PLANS = [
     id: 'plus' as PlanType,
     name: 'Prestador PREMIUM',
     subtitle: 'Mais visibilidade e resultados',
-    price: 'R$ 39,90',
+    price: formatCurrency(PREMIUM_PLAN_PRICE),
     period: '/mês',
     icon: 'verified',
     color: 'primary',
@@ -237,12 +239,14 @@ export default function ProviderPlanScreen({ onNavigate }: NavigationProps) {
               <div className="mt-4 pt-4 border-t border-primary/10 grid grid-cols-2 gap-4">
                 <div>
                   <span className="block text-[10px] text-slate-400 font-bold mb-1">Taxa Cliente</span>
-                  <span className="font-bold text-slate-900 dark:text-white">R$ 9,90</span>
+                  <span className="font-bold text-slate-900 dark:text-white">
+                    {CLIENT_GUARANTEE_FEE > 0 ? formatCurrency(CLIENT_GUARANTEE_FEE) : 'Grátis'}
+                  </span>
                 </div>
                 <div>
                   <span className="block text-[10px] text-slate-400 font-bold mb-1">Taxa Prestador</span>
                   <div className="flex flex-col">
-                    <span className="font-bold text-slate-900 dark:text-white">5% (Free)</span>
+                    <span className="font-bold text-slate-900 dark:text-white">{formatCurrency(PROVIDER_INTERMEDIATION_FEE)} (Free)</span>
                     <span className="text-emerald-500 font-bold">Grátis (Premium)</span>
                   </div>
                 </div>

@@ -23,6 +23,17 @@ export const maskCurrency = (value: string): string => {
   return formatCurrency(num);
 };
 
+/**
+ * Coage para número campos que chegam como número ou texto (rating, distance).
+ * Retorna `fallback` quando o valor não é numérico (ex: 'N/A (Rondonópolis)').
+ */
+export const toNumber = (value: number | string | null | undefined, fallback = 0): number => {
+  if (typeof value === 'number') return isNaN(value) ? fallback : value;
+  if (typeof value !== 'string') return fallback;
+  const num = parseFloat(value);
+  return isNaN(num) ? fallback : num;
+};
+
 export const normalizeText = (text: string): string => {
   if (!text) return '';
   return text

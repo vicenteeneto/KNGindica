@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Padrões de código (.cursorrules)
+        run: npm run check
+
+      - name: Checagem de tipos
+        run: npm run lint
+
+      - name: Build de produção
+        run: npm run build
+        env:
+          # Valores de placeholder: o build só precisa que as variáveis existam.
+          # Os valores reais ficam nos secrets do ambiente de deploy.
+          VITE_SUPABASE_URL: https://placeholder.supabase.co
+          VITE_SUPABASE_ANON_KEY: placeholder-anon-key

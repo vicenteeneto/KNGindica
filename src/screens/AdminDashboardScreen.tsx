@@ -4,6 +4,7 @@ import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
 import { useNotifications } from '../NotificationContext';
 import { formatCurrency, maskCurrency } from '../lib/formatters';
+import { calculateServiceFees, PREMIUM_PLAN_PRICE, PROVIDER_INTERMEDIATION_FEE } from '../lib/billing';
 import { CityAutocomplete } from '../components/CityAutocomplete';
 
 interface AdminProps extends NavigationProps {
@@ -89,8 +90,8 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
     role: 'client'
   });
   const [chatAuditSearchTerm, setChatAuditSearchTerm] = useState('');
-  const [platformCommissionFixed, setPlatformCommissionFixed] = useState(10);
-  const [premiumSubscriptionPrice, setPremiumSubscriptionPrice] = useState(39.90);
+  const [platformCommissionFixed, setPlatformCommissionFixed] = useState(PROVIDER_INTERMEDIATION_FEE);
+  const [premiumSubscriptionPrice, setPremiumSubscriptionPrice] = useState(PREMIUM_PLAN_PRICE);
   const [newAuditMessage, setNewAuditMessage] = useState('');
 
   const ticketCategoryLabels: Record<string, string> = {
@@ -666,7 +667,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
     const rows = concludedOrders.map(order => {
       const date = new Date(order.created_at).toLocaleDateString('pt-BR');
       const val = order.price || 0;
-      const tax = 10; // R$ 10,00 fixed platform fee
+      const tax = calculateServiceFees(val, order.provider?.plan_type).providerFee;
       return `"${order.id}","${order.client?.full_name || ''}","${order.provider?.full_name || ''}","${order.category?.name || 'Serviço Direto'}","${order.status}","R$ ${formatCurrency(val)}","R$ ${formatCurrency(tax)}","${date}"`;
     }).join("\n");
     
@@ -708,13 +709,16 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
       // 3. Fetch reviews
       const { data: reviews } = await supabase.from('reviews').select('*, reviewer:profiles!reviews_reviewer_id_fkey(full_name), provider:profiles!reviews_provider_id_fkey(full_name, role)').order('created_at', { ascending: false });
 
-      // Calculate dynamic platform revenue (R$ 10,00 fixed per completed service)
-      const revenue = compServ.length * 10;
+      // Receita da plataforma: taxa de intermediação por serviço concluído (lib/billing.ts)
+      const revenue = compServ.reduce(
+        (acc: number, s: any) => acc + calculateServiceFees(s.price || 0, s.provider?.plan_type).providerFee,
+        0
+      );
 
       // Enrich providers data
       const providers = (profiles?.filter(p => p.role === 'provider') || []).map(p => {
         const pOrders = (requests || []).filter(r => r.provider_id === p.id && r.status === 'completed');
-        const pEarn = pOrders.reduce((acc, curr) => acc + (curr.price || 0), 0) * 0.85;
+        const pEarn = pOrders.reduce((acc, curr) => acc + calculateServiceFees(curr.price || 0, p.plan_type).providerNet, 0);
         const pReviews = (reviews || []).filter(r => r.provider_id === p.id);
         const pRating = pReviews.length > 0 ? (pReviews.reduce((acc, curr) => acc + (curr.rating || 0), 0) / pReviews.length).toFixed(1) : '--';
         
@@ -894,6 +898,8 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         name: categoryForm.name,
         description: categoryForm.description,
         icon: categoryForm.icon_name || 'handyman',
+        // O campo era editável na UI mas nunca chegava ao banco — o valor digitado se perdia ao salvar.
+        base_price: categoryForm.base_price === '' ? null : Number(categoryForm.base_price),
       };
 
       if (editingCategory) {
@@ -1195,9 +1201,9 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                    <p className="text-sm font-bold truncate">{p.full_name || 'Novo Usuário'}</p>
                    <p className="text-[10px] text-slate-500 font-bold tracking-wider">
                       {p.role === 'provider' ? (
-                         <span className="text-blue-500">PRESTADOR</span>
+                         <span className="text-blue-500">Prestador</span>
                       ) : (
-                         <span className="text-purple-500">CLIENTE</span>
+                         <span className="text-purple-500">Cliente</span>
                       )} • {new Date(p.created_at).toLocaleDateString('pt-BR')}
                    </p>
                 </div>
@@ -2710,7 +2716,10 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
   const renderFinanceTab = () => {
     const concludedOrders = ordersList.filter(o => o.status === 'completed');
     const grossVolume = concludedOrders.reduce((acc, order) => acc + (order.price || 0), 0);
-    const platformRevenue = concludedOrders.length * 10; // R$ 10,00 fixed fee per concluded service
+    const platformRevenue = concludedOrders.reduce(
+      (acc, order) => acc + calculateServiceFees(order.price || 0, order.provider?.plan_type).providerFee,
+      0
+    );
     const avgTicket = concludedOrders.length > 0 ? grossVolume / concludedOrders.length : 0;
 
     return (
@@ -3442,7 +3451,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                   <input 
                     type="number" 
                     value={categoryForm.base_price} 
-                    onChange={e => setCategoryForm({...categoryForm, base_price: Number(e.target.value)})}
+                    onChange={e => setCategoryForm({...categoryForm, base_price: e.target.value})}
                     className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
                   />
                 </div>
