@@ -426,19 +426,27 @@ CREATE TABLE IF NOT EXISTS public.rate_limit_events (
 -- ---------------------------------------------------------
 -- VIEW: provider_wallet_summary
 --
--- Existe em produção (provider_id, full_name, total_earnings,
--- completed_services) mas a introspecção não expõe a definição.
--- Recriada abaixo pela semântica esperada; confirme contra o `db pull`.
+-- ⚠️ DELIBERADAMENTE NÃO EXECUTÁVEL.
+--
+-- A view existe em produção (provider_id, full_name, total_earnings,
+-- completed_services), mas a introspecção do PostgREST não expõe a definição
+-- real. O SQL abaixo é uma RECONSTRUÇÃO POR SUPOSIÇÃO da semântica.
+--
+-- Rodar isso como CREATE OR REPLACE substituiria a view verdadeira por um
+-- palpite e poderia alterar silenciosamente os saldos mostrados aos
+-- prestadores. Fica comentado até que `supabase db pull` traga a definição
+-- real — só então descomente, já com o texto correto.
+--
+-- CREATE OR REPLACE VIEW public.provider_wallet_summary AS
+-- SELECT
+--     p.id                                   AS provider_id,
+--     p.full_name                            AS full_name,
+--     COALESCE(SUM(sr.provider_earnings), 0) AS total_earnings,
+--     COUNT(sr.id)                           AS completed_services
+-- FROM public.profiles p
+-- LEFT JOIN public.service_requests sr
+--        ON sr.provider_id = p.id
+--       AND sr.status = 'completed'
+-- WHERE p.role = 'provider'
+-- GROUP BY p.id, p.full_name;
 -- ---------------------------------------------------------
-CREATE OR REPLACE VIEW public.provider_wallet_summary AS
-SELECT
-    p.id                                   AS provider_id,
-    p.full_name                            AS full_name,
-    COALESCE(SUM(sr.provider_earnings), 0) AS total_earnings,
-    COUNT(sr.id)                           AS completed_services
-FROM public.profiles p
-LEFT JOIN public.service_requests sr
-       ON sr.provider_id = p.id
-      AND sr.status = 'completed'
-WHERE p.role = 'provider'
-GROUP BY p.id, p.full_name;
