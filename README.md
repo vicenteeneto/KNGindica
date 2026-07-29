@@ -97,6 +97,32 @@ O cliente não paga taxa.
 
 ---
 
+## Cidade
+
+A praça é um parâmetro, não texto fixo. Tudo que depende dela sai de **`src/lib/city.ts`**, alimentado por `VITE_DEFAULT_CITY` (padrão `Rondonópolis/MT`).
+
+Para lançar em outra cidade, troque a variável de ambiente. Nunca escreva o nome de uma cidade direto numa tela.
+
+```ts
+import { DEFAULT_CITY, getCityOrDefault, cityPlaceholder } from '../lib/city';
+```
+
+Exceção proposital: o foro na tela de Termos de Uso é a comarca real da empresa, não um parâmetro de produto.
+
+---
+
+## Painel administrativo
+
+Fica em `src/screens/admin/`:
+
+- `useAdminDashboardData.ts` — estado, efeitos e handlers
+- `AdminDashboardContext.tsx` — distribui esse estado às abas
+- `*Tab.tsx` — uma aba por arquivo
+
+`AdminDashboardScreen.tsx` é só o shell: header, navegação e modais. Ao criar uma aba nova, consuma o estado por `useAdminDashboard()` — não passe props em cascata.
+
+---
+
 ## ⚠️ Estado do schema do banco
 
 O schema base foi criado direto no painel do Supabase e nunca foi versionado. `20260728000000_baseline_schema.sql` reconstrói as 30 tabelas por introspecção do PostgREST, mas a introspecção **não enxerga** políticas RLS, índices, triggers, CHECK/UNIQUE constraints, corpos de função nem definições de view.
@@ -137,5 +163,4 @@ RPCs consumidas por esse fluxo e por nenhuma tela: `get_professionals_for_maia`,
 - Pagamento é simulado — não há gateway; o status vai para `paid` a partir do cliente
 - `pricing_model` tem dois vocabulários conflitantes gravados nos mesmos registros: o formulário grava `visit|hour|service|quote`, as comparações usam `hourly|negotiable`. Hoje há dados com `hourly`, `service`, `quote` e `negotiable` na mesma coluna
 - `get_providers_within_radius` e `get_providers_nearby` coexistem fazendo a mesma coisa
-- `AdminDashboardScreen.tsx` tem ~4.000 linhas numa única função, com 47 `useState` e 13 abas
-- Cidade ainda não é parâmetro de primeira classe (textos fixos em Rondonópolis)
+- O workflow do n8n não está versionado neste repositório
