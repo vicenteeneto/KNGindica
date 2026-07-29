@@ -99,24 +99,43 @@ O cliente não paga taxa.
 
 ## ⚠️ Estado do schema do banco
 
-`supabase/migrations/` contém apenas migrations **incrementais**. O schema base (as ~27 tabelas que o app consulta) foi criado direto no painel do Supabase e **não está versionado**.
+O schema base foi criado direto no painel do Supabase e nunca foi versionado. `20260728000000_baseline_schema.sql` reconstrói as 30 tabelas por introspecção do PostgREST, mas a introspecção **não enxerga** políticas RLS, índices, triggers, CHECK/UNIQUE constraints, corpos de função nem definições de view.
 
-Antes de qualquer mudança estrutural, extraia o schema atual:
+Para um dump fiel, rode com a CLI logada e substitua a baseline pelo resultado:
 
 ```bash
-supabase link --project-ref <ref>
+supabase link --project-ref yhtrvhievhrgmzijgpkk
 supabase db pull
 ```
 
-Enquanto isso não for feito, não existe ambiente de staging nem rollback possível.
+### Migrations pendentes de aplicação
+
+`20260728000100` e `20260728000200` foram escritas mas **ainda não aplicadas**. Aplique em staging antes da produção.
+
+---
+
+## Integração WhatsApp (fora deste repositório)
+
+O funil do WhatsApp existe e está ativo, mas **não vive aqui** — roda num fluxo **n8n** que escreve direto no banco:
+
+| Tabela | Papel |
+|---|---|
+| `whatsapp_searches` | Origem do deep link `/search/:id` consumido por `WhatsAppSearchScreen` |
+| `service_demand_requests` | Demanda capturada quando não há prestador para o serviço pedido |
+| `n8n_chat_histories_kngindica` | Memória de conversa do agente |
+| `blocked_numbers` / `rate_limit_events` | Bloqueio e rate limit por telefone |
+
+RPCs consumidas por esse fluxo e por nenhuma tela: `get_professionals_for_maia`, `get_categories_for_prompt`, `search_providers`, `search_providers_fallback`, `block_number`, `is_number_blocked`.
+
+**Consequência:** mudanças de schema neste repositório podem quebrar o n8n silenciosamente. O workflow do n8n deveria ser exportado e versionado aqui.
 
 ---
 
 ## Pendências conhecidas
 
-- Schema base não versionado (acima)
-- 4 funções RPC chamadas pelo frontend não estão em `migrations/`: `get_providers_within_radius`, `get_unread_counts`, `delete_user_entirely`, `admin_remove_reward_points`
+- Schema base só parcialmente versionado (acima); rodar `supabase db pull`
 - Pagamento é simulado — não há gateway; o status vai para `paid` a partir do cliente
-- Integração com WhatsApp não implementada: `WhatsAppSearchScreen` consome a tabela `whatsapp_searches`, mas nada a popula
-- RLS de `profiles` é `USING (true)` — dados de contato ficam legíveis publicamente
-- `pricing_model` tem dois vocabulários conflitantes (`visit|hour|service|quote` no formulário, `hourly|negotiable` nas comparações)
+- `pricing_model` tem dois vocabulários conflitantes gravados nos mesmos registros: o formulário grava `visit|hour|service|quote`, as comparações usam `hourly|negotiable`. Hoje há dados com `hourly`, `service`, `quote` e `negotiable` na mesma coluna
+- `get_providers_within_radius` e `get_providers_nearby` coexistem fazendo a mesma coisa
+- `AdminDashboardScreen.tsx` tem ~4.000 linhas numa única função, com 47 `useState` e 13 abas
+- Cidade ainda não é parâmetro de primeira classe (textos fixos em Rondonópolis)

@@ -41,7 +41,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
   const [categoryRequests, setCategoryRequests] = useState<any[]>([]);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<any>(null);
-  const [categoryForm, setCategoryForm] = useState({ name: '', description: '', icon_name: '', base_price: '' });
+  const [categoryForm, setCategoryForm] = useState({ name: '', description: '', icon_name: '' });
   const [conversionMetrics, setConversionMetrics] = useState<any[]>([]);
   const [recentUsersList, setRecentUsersList] = useState<any[]>([]);
   const [providerSearch, setProviderSearch] = useState('');
@@ -898,8 +898,6 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
         name: categoryForm.name,
         description: categoryForm.description,
         icon: categoryForm.icon_name || 'handyman',
-        // O campo era editável na UI mas nunca chegava ao banco — o valor digitado se perdia ao salvar.
-        base_price: categoryForm.base_price === '' ? null : Number(categoryForm.base_price),
       };
 
       if (editingCategory) {
@@ -997,10 +995,10 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
   const openCategoryModal = (cat: any = null) => {
     if (cat) {
       setEditingCategory(cat);
-      setCategoryForm({ name: cat.name, description: cat.description || '', icon_name: cat.icon || '', base_price: cat.base_price?.toString() || '' });
+      setCategoryForm({ name: cat.name, description: cat.description || '', icon_name: cat.icon || '' });
     } else {
       setEditingCategory(null);
-      setCategoryForm({ name: '', description: '', icon_name: '', base_price: '' });
+      setCategoryForm({ name: '', description: '', icon_name: '' });
     }
     setIsCategoryModalOpen(true);
   };
@@ -2883,15 +2881,14 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                 <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Ícone</th>
                 <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Nome</th>
                 <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Descrição</th>
-                <th className="px-3 py-3 text-[11px] font-semibold text-slate-500">Preço Base</th>
                 <th className="px-3 py-3 text-[11px] font-semibold text-slate-500 text-right">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {loading ? (
-                <tr><td colSpan={5} className="p-6 text-center text-slate-500">Carregando categorias...</td></tr>
+                <tr><td colSpan={4} className="p-6 text-center text-slate-500">Carregando categorias...</td></tr>
               ) : categoriesList.length === 0 ? (
-                <tr><td colSpan={5} className="p-6 text-center text-slate-500">Nenhuma categoria cadastrada.</td></tr>
+                <tr><td colSpan={4} className="p-6 text-center text-slate-500">Nenhuma categoria cadastrada.</td></tr>
               ) : (
                 categoriesList.map(cat => (
                   <tr key={cat.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
@@ -2905,9 +2902,6 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                     </td>
                     <td className="px-3 py-3 text-sm text-slate-500 max-w-xs truncate" title={cat.description}>
                       {cat.description || '-'}
-                    </td>
-                    <td className="px-3 py-3 text-sm font-semibold text-slate-900 dark:text-white">
-                      {cat.base_price ? formatCurrency(cat.base_price) : '-'}
                     </td>
                     <td className="px-3 py-3 text-right">
                       <div className="flex gap-2 justify-end">
@@ -3445,15 +3439,6 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       </button>
                     ))}
                   </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold mb-1">Preço Base (R$)</label>
-                  <input 
-                    type="number" 
-                    value={categoryForm.base_price} 
-                    onChange={e => setCategoryForm({...categoryForm, base_price: e.target.value})}
-                    className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
-                  />
                 </div>
               </div>
               <div className="p-6 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3 bg-slate-50 dark:bg-slate-800/30">

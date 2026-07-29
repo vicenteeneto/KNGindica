@@ -47,11 +47,29 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
         if (!serviceLinks || serviceLinks.length === 0) { setProviders([]); setLoading(false); return; }
 
         const providerIds = serviceLinks.map(s => s.provider_id);
-        const { data: providersData } = await supabase
-          .from('profiles')
-          .select('*')
-          .in('id', providerIds)
-          .eq('role', 'provider');
+
+        const fetchFromProfiles = () =>
+          supabase.from('profiles').select('*').in('id', providerIds).eq('role', 'provider');
+
+        let providersData;
+        if (user) {
+          ({ data: providersData } = await fetchFromProfiles());
+        } else {
+          // Deslogado lê a view profiles_public, que não expõe telefone, e-mail
+          // nem endereço (migration 20260728000200). O fallback mantém a tela
+          // funcionando caso o frontend suba antes da migration ser aplicada.
+          const publicResult = await supabase
+            .from('profiles_public')
+            .select('*')
+            .in('id', providerIds);
+
+          if (publicResult.error) {
+            console.warn('profiles_public indisponível, usando profiles:', publicResult.error.message);
+            ({ data: providersData } = await fetchFromProfiles());
+          } else {
+            providersData = publicResult.data;
+          }
+        }
 
         setProviders(providersData || []);
       } catch (err: any) {
