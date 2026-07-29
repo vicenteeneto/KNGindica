@@ -2675,10 +2675,10 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                           ticket.status === 'answered' ? 'bg-blue-100 text-blue-700' : 
                           'bg-green-100 text-green-700'
                         }`}>{
-                          ticket.status === 'open' ? 'ABERTO' : 
-                          ticket.status === 'in_review' ? 'EM ANÁLISE' : 
-                          ticket.status === 'answered' ? 'RESPONDIDO' :
-                          'RESOLVIDO'
+                          ticket.status === 'open' ? 'Aberto' :
+                          ticket.status === 'in_review' ? 'Em análise' :
+                          ticket.status === 'answered' ? 'Respondido' :
+                          'Resolvido'
                         }</span>
                         <p className="font-bold text-slate-900 dark:text-white truncate lg:max-w-md">{ticket.subject}</p>
                       </div>
@@ -2831,7 +2831,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                       <td className="py-3 font-medium">{m.provider_name}</td>
                       <td className="py-3">
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${m.plan_type === 'plus' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>
-                          {m.plan_type === 'plus' ? 'PREMIUM' : 'BÁSICO'}
+                          {m.plan_type === 'plus' ? 'Premium' : 'Básico'}
                         </span>
                       </td>
                       <td className="py-3 text-center">{m.total_leads}</td>
@@ -3019,7 +3019,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
           </div>
           <div className="flex items-center gap-2">
              <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-xs font-bold tracking-widest">
-               {referralsHistory.length} INDICAÇÕES TOTAIS
+               {referralsHistory.length} indicações totais
              </span>
           </div>
         </div>
@@ -3164,7 +3164,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                   <td className="px-3 py-3">
                     <p className="font-bold text-sm">{room.request?.title || 'Conversa Direta'}</p>
                     <span className={`text-[10px] font-bold rounded px-1.5 py-0.5 ${room.request?.status === 'disputed' ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-500'}`}>
-                      {room.request?.status === 'disputed' ? 'EM DISPUTA' : room.request?.status || 'ATIVO'}
+                      {room.request?.status === 'disputed' ? 'Em disputa' : room.request?.status || 'Ativo'}
                     </span>
                   </td>
                   <td className="px-3 py-3 whitespace-normal break-words">
@@ -3797,7 +3797,7 @@ export default function AdminDashboardScreen({ onNavigate, activeTab, setActiveT
                   chatMessages.map(msg => (
                     <div key={msg.id} className={`flex flex-col ${msg.sender_id === selectedChatRoom.client_id ? 'items-start' : 'items-end'}`}>
                       <span className="text-[9px] font-bold text-slate-400 mb-0.5">
-                        {msg.sender_id === selectedChatRoom.client_id ? 'CLIENTE' : 'PRESTADOR'}
+                        {msg.sender_id === selectedChatRoom.client_id ? 'Cliente' : 'Prestador'}
                       </span>
                       <div className={`max-w-[85%] p-3 rounded-xl text-sm ${msg.sender_id === selectedChatRoom.client_id ? 'bg-white dark:bg-slate-800' : 'bg-primary text-white'} shadow-sm border border-slate-100 dark:border-slate-700/50`}>
                         {msg.content}

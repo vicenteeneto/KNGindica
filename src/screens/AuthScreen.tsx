@@ -270,7 +270,7 @@ export default function AuthScreen({ onNavigate }: NavigationProps) {
                 onClick={() => setIsLogin(!isLogin)}
                 className="ml-2 text-primary hover:underline py-2"
               >
-                {isLogin ? "CRIAR CONTA" : "FAZER LOGIN"}
+                {isLogin ? "Criar conta" : "Fazer login"}
               </button>
             </p>
           </div>
