@@ -31,15 +31,24 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
       if (!searchId) { setError('Link inválido.'); setLoading(false); return; }
       try {
         setLoading(true);
+        // Colunas explícitas de propósito: esta tela roda deslogada, e
+        // `select('*')` traria client_phone junto. Pedir só o necessário
+        // permite revogar a coluna do telefone para o papel anônimo sem
+        // quebrar a página.
         const { data: search, error: searchError } = await supabase
           .from('whatsapp_searches')
-          .select('*, service_categories(id, name)')
+          .select('id, category_id, city, servico, service_categories(id, name)')
           .eq('id', searchId)
           .single();
 
         if (searchError || !search) { setError('Pesquisa não encontrada ou expirada.'); setLoading(false); return; }
 
-        setCategoryName(search.service_categories?.name || 'Serviços');
+        // A relação embutida chega como objeto ou array conforme a inferência
+        // do client; normalizamos para não depender disso.
+        const category = Array.isArray(search.service_categories)
+          ? search.service_categories[0]
+          : search.service_categories;
+        setCategoryName(category?.name || 'Serviços');
         setSearchCity(parseCity(search.city)?.name || DEFAULT_CITY.name);
         const categoryId = search.category_id;
 
