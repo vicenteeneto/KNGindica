@@ -12,15 +12,27 @@ interface Notification {
   created_at: string;
 }
 
+export type ToastType = 'notification' | 'message' | 'success' | 'error' | 'warning' | 'info';
+
 interface Toast {
   id: string;
   title: string;
   message: string;
-  type: 'notification' | 'message' | 'success' | 'error';
+  type: ToastType;
   avatar?: string;
   targetScreen?: Screen;
   params?: any;
 }
+
+// Aparência de cada tipo de toast. Mantido fora do render para não recriar a cada frame.
+const TOAST_STYLES: Record<ToastType, { icon: string; badge: string; text: string }> = {
+  notification: { icon: 'notifications', badge: 'bg-amber-500', text: 'text-amber-500' },
+  message: { icon: 'chat', badge: 'bg-primary', text: 'text-primary' },
+  success: { icon: 'check_circle', badge: 'bg-emerald-500', text: 'text-emerald-500' },
+  error: { icon: 'error', badge: 'bg-red-500', text: 'text-red-500' },
+  warning: { icon: 'warning', badge: 'bg-amber-500', text: 'text-amber-500' },
+  info: { icon: 'info', badge: 'bg-sky-500', text: 'text-sky-500' },
+};
 
 interface ModalConfig {
   title: string;
@@ -37,7 +49,7 @@ interface NotificationContextType {
   unreadMessages: number;
   unreadRequests: number;
   toasts: Toast[];
-  showToast: (title: string, message: string, type?: 'notification' | 'message' | 'success' | 'error', avatar?: string, targetScreen?: Screen, params?: any) => void;
+  showToast: (title: string, message: string, type?: ToastType, avatar?: string, targetScreen?: Screen, params?: any) => void;
   showModal: (config: ModalConfig) => void;
   removeToast: (id: string) => void;
   refreshCounts: () => Promise<void>;
@@ -57,7 +69,7 @@ export function NotificationProvider({ children, onNavigate }: { children: React
   const showToast = (
     title: string, 
     message: string, 
-    type: 'notification' | 'message' | 'success' | 'error' = 'notification', 
+    type: ToastType = 'notification',
     avatar?: string,
     targetScreen?: Screen,
     params?: any
@@ -396,15 +408,15 @@ export function NotificationProvider({ children, onNavigate }: { children: React
                  {toast.avatar ? (
                    <img src={toast.avatar} className="size-12 rounded-full border-2 border-primary shadow-sm" alt="Avatar" />
                  ) : (
-                   <div className={`size-12 rounded-full flex items-center justify-center ${toast.type === 'message' ? 'bg-primary text-white' : 'bg-amber-500 text-white shadow-lg shadow-amber-500/20'}`}>
+                   <div className={`size-12 rounded-full flex items-center justify-center text-white shadow-lg ${TOAST_STYLES[toast.type].badge}`}>
                      <span className="material-symbols-outlined text-2xl">
-                       {toast.type === 'message' ? 'chat' : 'notifications'}
+                       {TOAST_STYLES[toast.type].icon}
                      </span>
                    </div>
                  )}
                  <div className="absolute -bottom-1 -right-1 size-5 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-sm">
-                   <span className={`material-symbols-outlined text-[10px] ${toast.type === 'message' ? 'text-primary' : 'text-amber-500'}`}>
-                     {toast.type === 'message' ? 'chat' : 'notifications'}
+                   <span className={`material-symbols-outlined text-[10px] ${TOAST_STYLES[toast.type].text}`}>
+                     {TOAST_STYLES[toast.type].icon}
                    </span>
                  </div>
               </div>

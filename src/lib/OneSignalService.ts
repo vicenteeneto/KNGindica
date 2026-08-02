@@ -1,51 +1,82 @@
 import { supabase } from './supabase';
 
+/**
+ * Integração com o OneSignal Web SDK v16.
+ *
+ * O projeto tinha dois sistemas de push concorrentes (OneSignal + Web Push/VAPID
+ * próprio), ambos com chaves placeholder. Ficou só o OneSignal, que não exige
+ * backend para disparar notificações. O Web Push próprio foi removido.
+ *
+ * O SDK é carregado por <script> no index.html e responde pela fila global
+ * OneSignalDeferred. Sem VITE_ONESIGNAL_APP_ID configurado, tudo vira no-op —
+ * o app funciona normalmente, apenas sem push.
+ */
+
 declare global {
   interface Window {
-    OneSignal: any;
+    OneSignalDeferred?: Array<(oneSignal: any) => void | Promise<void>>;
   }
 }
 
-export const initOneSignal = async (userId: string | undefined) => {
-  if (typeof window === 'undefined') return;
+const APP_ID = import.meta.env.VITE_ONESIGNAL_APP_ID as string | undefined;
 
-  const OneSignal = window.OneSignal || [];
+export const isPushConfigured = (): boolean => !!APP_ID;
 
-  OneSignal.push(function() {
-    OneSignal.init({
-      appId: "YOUR_ONESIGNAL_APP_ID", // TODO: Replace with user's ID
-      safari_web_id: "web.onesignal.auto.69a66d0c-611a-4d4b-97e3-0c1fc9940714",
-      notifyButton: {
-        enable: false,
-      },
-      allowLocalhostAsSecureOrigin: true,
-    });
+const enqueue = (fn: (oneSignal: any) => void | Promise<void>) => {
+  if (typeof window === 'undefined' || !APP_ID) return;
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  window.OneSignalDeferred.push(fn);
+};
 
-    if (userId) {
-      OneSignal.setExternalUserId(userId);
-      
-      OneSignal.on('subscriptionChange', async (isSubscribed: boolean) => {
-        if (isSubscribed) {
-          const deviceState = await OneSignal.getDeviceState();
-          if (deviceState && deviceState.userId) {
-            await supabase
-              .from('profiles')
-              .update({ 
-                onesignal_id: deviceState.userId,
-                push_token: deviceState.pushToken 
-              })
-              .eq('id', userId);
-          }
-        }
-      });
+let initialized = false;
+
+/** Inicializa o SDK e associa a inscrição ao usuário logado. */
+export const initOneSignal = (userId: string | undefined) => {
+  if (!userId) return;
+
+  enqueue(async (OneSignal) => {
+    try {
+      if (!initialized) {
+        await OneSignal.init({
+          appId: APP_ID,
+          allowLocalhostAsSecureOrigin: true,
+        });
+        initialized = true;
+      }
+
+      // Vincula o dispositivo ao usuário para permitir envio por external id.
+      await OneSignal.login(userId);
+
+      const persistSubscription = async () => {
+        const subscriptionId = OneSignal.User?.PushSubscription?.id;
+        if (!subscriptionId) return;
+        await supabase
+          .from('profiles')
+          .update({ onesignal_id: subscriptionId })
+          .eq('id', userId);
+      };
+
+      await persistSubscription();
+      OneSignal.User?.PushSubscription?.addEventListener?.('change', persistSubscription);
+    } catch (err) {
+      console.error('Falha ao inicializar OneSignal:', err);
     }
   });
 };
 
+/** Abre o prompt nativo de permissão de notificações. */
 export const requestNotificationPermission = () => {
-    if (typeof window === 'undefined') return;
-    const OneSignal = window.OneSignal || [];
-    OneSignal.push(function() {
-        OneSignal.showNativePrompt();
-    });
+  enqueue(async (OneSignal) => {
+    try {
+      await OneSignal.Notifications.requestPermission();
+    } catch (err) {
+      console.error('Falha ao solicitar permissão de push:', err);
+    }
+  });
+};
+
+/** Permissão atual do navegador, sem depender do SDK ter carregado. */
+export const getPushPermission = (): NotificationPermission => {
+  if (typeof Notification === 'undefined') return 'denied';
+  return Notification.permission;
 };

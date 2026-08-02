@@ -4,6 +4,7 @@ import StarRating from '../components/StarRating';
 import { NavigationProps } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
+import { DEFAULT_CITY, parseCity } from '../lib/city';
 
 const TEASER_COUNT = 5; // Quantos cards mostrar antes do "blur wall"
 
@@ -13,6 +14,8 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
   const [providers, setProviders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoryName, setCategoryName] = useState('');
+  // A busca do WhatsApp carrega a cidade do lead; sem ela, cai na praça padrão.
+  const [searchCity, setSearchCity] = useState(DEFAULT_CITY.name);
   const [error, setError] = useState('');
 
   // Email register state
@@ -37,6 +40,7 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
         if (searchError || !search) { setError('Pesquisa não encontrada ou expirada.'); setLoading(false); return; }
 
         setCategoryName(search.service_categories?.name || 'Serviços');
+        setSearchCity(parseCity(search.city)?.name || DEFAULT_CITY.name);
         const categoryId = search.category_id;
 
         const { data: serviceLinks } = await supabase
@@ -47,11 +51,29 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
         if (!serviceLinks || serviceLinks.length === 0) { setProviders([]); setLoading(false); return; }
 
         const providerIds = serviceLinks.map(s => s.provider_id);
-        const { data: providersData } = await supabase
-          .from('profiles')
-          .select('*')
-          .in('id', providerIds)
-          .eq('role', 'provider');
+
+        const fetchFromProfiles = () =>
+          supabase.from('profiles').select('*').in('id', providerIds).eq('role', 'provider');
+
+        let providersData;
+        if (user) {
+          ({ data: providersData } = await fetchFromProfiles());
+        } else {
+          // Deslogado lê a view profiles_public, que não expõe telefone, e-mail
+          // nem endereço (migration 20260728000200). O fallback mantém a tela
+          // funcionando caso o frontend suba antes da migration ser aplicada.
+          const publicResult = await supabase
+            .from('profiles_public')
+            .select('*')
+            .in('id', providerIds);
+
+          if (publicResult.error) {
+            console.warn('profiles_public indisponível, usando profiles:', publicResult.error.message);
+            ({ data: providersData } = await fetchFromProfiles());
+          } else {
+            providersData = publicResult.data;
+          }
+        }
 
         setProviders(providersData || []);
       } catch (err: any) {
@@ -130,17 +152,17 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
         {/* Header - KNGflix Cinematic */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full border border-primary/20 mb-8 animate-fade-in">
-             <span className="text-[10px] font-black uppercase tracking-[0.2em] italic">Oportunidade Local</span>
+             <span className="text-[10px] font-black tracking-[0.2em] italic">Oportunidade Local</span>
           </div>
 
           <h1 className="text-5xl md:text-6xl font-black mb-6 leading-[0.9] italic tracking-tighter drop-shadow-2xl">
-            ENCONTRAMOS <br />
+            Encontramos <br />
             <span className="text-primary">{providers.length}</span>{' '}
-            EXPECIALISTA{providers.length !== 1 ? 'S' : ''} EM{' '}
-            <span className="text-primary">{categoryName.toUpperCase()}</span>
+            especialista{providers.length !== 1 ? 's' : ''} em{' '}
+            <span className="text-primary">{categoryName}</span>
           </h1>
-          <p className="text-slate-400 text-xs font-bold uppercase tracking-widest opacity-60">
-            Mais bem avaliados em Rondonópolis
+          <p className="text-slate-400 text-xs font-bold tracking-widest opacity-60">
+            Mais bem avaliados em {searchCity}
           </p>
             {/* Provider Grid - Netflix Style Posters */}
           <div className="w-full max-w-none px-4 lg:px-12 grid grid-cols-2 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4 transition-all duration-300">
@@ -177,7 +199,7 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
                   <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
                      <div className={`${isBlurred ? 'blur-[4px] select-none' : ''}`}>
                         <h3 className="text-sm font-black text-white leading-tight truncate">{p.full_name?.toUpperCase()}</h3>
-                        <p className="text-[8px] font-bold text-primary italic uppercase tracking-tighter truncate">
+                        <p className="text-[8px] font-bold text-primary italic tracking-tighter truncate">
                            {p.service || categoryName}
                         </p>
                      </div>

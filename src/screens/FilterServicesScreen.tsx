@@ -86,7 +86,6 @@ export default function FilterServicesScreen({ onNavigate, params }: NavigationP
                 value={tempCity}
                 onChange={val => setTempCity(val)}
                 activeCities={activeCities}
-                placeholder="Ex: Rondonópolis/MT"
                 className="w-full bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-800 rounded-2xl pl-12 pr-4 py-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none font-medium transition-all"
               />
             </div>

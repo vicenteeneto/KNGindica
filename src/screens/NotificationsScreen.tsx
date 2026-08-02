@@ -3,7 +3,7 @@ import { NavigationProps, Screen } from '../types';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../lib/supabase';
 import { useNotifications } from '../NotificationContext';
-import { usePushNotifications } from '../hooks/usePushNotifications';
+import { requestNotificationPermission, getPushPermission, isPushConfigured } from '../lib/OneSignalService';
 import { formatCurrency } from '../lib/formatters';
 import { TabBar } from '../components/TabBar';
 
@@ -65,7 +65,18 @@ function getIconForType(type: string) {
 export default function NotificationsScreen({ onNavigate, params }: NotificationsScreenProps) {
   const { role, user } = useAuth();
   const { refreshCounts, showToast } = useNotifications();
-  const push = usePushNotifications();
+  const [pushPermission, setPushPermission] = useState<NotificationPermission>(getPushPermission);
+  const [pushLoading, setPushLoading] = useState(false);
+
+  const handleEnablePush = () => {
+    setPushLoading(true);
+    requestNotificationPermission();
+    // O prompt é assíncrono e fora do controle do React; reavaliamos a permissão
+    // quando a aba volta ao foco, que é quando o usuário terminou de responder.
+    const sync = () => setPushPermission(getPushPermission());
+    window.addEventListener('focus', sync, { once: true });
+    setTimeout(() => { sync(); setPushLoading(false); }, 1500);
+  };
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'unread'>('all');
@@ -229,7 +240,7 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
           </div>
 
           {/* Push Notification Banner */}
-          {showPushBanner && push.permission !== 'granted' && (
+          {showPushBanner && isPushConfigured() && pushPermission !== 'granted' && (
             <div className="mx-4 my-2 bg-slate-800/60 rounded-xl border border-white/5 p-3 flex items-center gap-3 relative">
               <button onClick={handleDismissPushBanner} className="absolute top-2 right-2 text-slate-500 hover:text-white">
                 <span className="material-symbols-outlined text-[16px]">close</span>
@@ -242,11 +253,11 @@ export default function NotificationsScreen({ onNavigate, params }: Notification
                 <p className="text-[10px] text-slate-400">Receba avisos de novos pedidos instantaneamente.</p>
               </div>
               <button
-                onClick={push.subscribeUser}
-                disabled={push.loading}
+                onClick={handleEnablePush}
+                disabled={pushLoading}
                 className="bg-primary text-white text-[10px] font-bold px-3 py-1.5 rounded-lg shrink-0 hover:brightness-110 disabled:opacity-50"
               >
-                {push.loading ? '...' : 'Ativar'}
+                {pushLoading ? '...' : 'Ativar'}
               </button>
             </div>
           )}

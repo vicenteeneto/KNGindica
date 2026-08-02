@@ -1,50 +1,70 @@
-export const CLIENT_GUARANTEE_FEE = 9.90;
-export const PROVIDER_FREE_FEE_PERCENT = 0.05;
-export const PROVIDER_FREE_MIN_FEE = 9.90;
-export const PROVIDER_FREE_MAX_FEE = 50.00;
-export const PREMIUM_PLAN_PRICE = 39.90;
+/**
+ * Fonte única de verdade do modelo de monetização da KNGindica.
+ *
+ * Modelo híbrido:
+ *   - Prestador gratuito : sem mensalidade, paga uma taxa fixa por serviço intermediado.
+ *   - Prestador afiliado : mensalidade fixa, sem comissão por indicação.
+ *   - Cliente            : não paga taxa.
+ *
+ * Antes desta unificação o projeto tinha três regras conflitantes espalhadas
+ * (5% com piso/teto aqui, R$ 9,90 no checkout, R$ 10 fixo no chat e no admin).
+ * Qualquer mudança de preço deve acontecer SOMENTE neste arquivo.
+ */
+
+/** Taxa fixa cobrada do prestador do plano gratuito por serviço intermediado. */
+export const PROVIDER_INTERMEDIATION_FEE = 10.0;
+
+/** Mensalidade do plano afiliado (isenta de comissão por serviço). */
+export const PREMIUM_PLAN_PRICE = 39.9;
+
+/**
+ * Taxa cobrada do cliente. Zero no modelo atual.
+ * O código anterior cobrava R$ 9,90 a título de "Garantia KNG"; se o produto
+ * voltar a adotar essa cobrança, basta alterar este valor.
+ */
+export const CLIENT_GUARANTEE_FEE = 0;
+
+export type PlanType = 'basic' | 'plus' | null | undefined;
 
 export interface BillingSummary {
+  /** Valor combinado do serviço, sem taxas. */
   grossAmount: number;
+  /** Quanto o cliente paga além do valor do serviço. */
   clientFee: number;
+  /** Total efetivamente cobrado do cliente. */
   clientTotal: number;
+  /** Quanto a plataforma retém do prestador. */
   providerFee: number;
+  /** Quanto o prestador recebe líquido. */
   providerNet: number;
   isPremium: boolean;
 }
 
+export const isPremiumPlan = (planType: PlanType): boolean => planType === 'plus';
+
 /**
- * Calcula o detalhamento de taxas para um serviço com garantia
- * @param amount Valor bruto do serviço combinado
- * @param planType Tipo de plano do prestador ('basic' ou 'plus')
- * @returns BillingSummary
+ * Calcula o detalhamento de taxas de um serviço.
+ *
+ * @param amount   Valor bruto combinado do serviço
+ * @param planType Plano do prestador ('basic' | 'plus')
  */
-export const calculateServiceFees = (amount: number, planType: 'basic' | 'plus' | null | undefined): BillingSummary => {
-  const isPremium = planType === 'plus';
-  
-  // Taxa do Cliente é sempre fixa em R$ 9,90 para serviços com garantia
+export const calculateServiceFees = (amount: number, planType: PlanType): BillingSummary => {
+  const grossAmount = Number.isFinite(amount) && amount > 0 ? amount : 0;
+  const isPremium = isPremiumPlan(planType);
+
   const clientFee = CLIENT_GUARANTEE_FEE;
-  const clientTotal = amount + clientFee;
-  
-  let providerFee = 0;
-  if (!isPremium) {
-    // Prestador FREE paga 5%, com piso de 9,90 e teto de 50,00
-    providerFee = amount * PROVIDER_FREE_FEE_PERCENT;
-    if (providerFee < PROVIDER_FREE_MIN_FEE) providerFee = PROVIDER_FREE_MIN_FEE;
-    if (providerFee > PROVIDER_FREE_MAX_FEE) providerFee = PROVIDER_FREE_MAX_FEE;
-    
-    // A taxa não pode ser maior que o próprio serviço (caso de serviços muito baratos)
-    if (providerFee > amount) providerFee = amount;
-  }
-  
-  const providerNet = amount - providerFee;
-  
+  const clientTotal = grossAmount + clientFee;
+
+  // Afiliado não paga comissão. Gratuito paga a taxa fixa, nunca acima do
+  // próprio valor do serviço (protege serviços muito baratos).
+  const providerFee = isPremium ? 0 : Math.min(PROVIDER_INTERMEDIATION_FEE, grossAmount);
+
   return {
-    grossAmount: amount,
+    grossAmount,
     clientFee,
     clientTotal,
     providerFee,
-    providerNet,
-    isPremium
+    providerNet: grossAmount - providerFee,
+    isPremium,
   };
 };

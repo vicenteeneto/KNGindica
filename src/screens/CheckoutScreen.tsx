@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
 import { formatCurrency } from '../lib/formatters';
+import { calculateServiceFees } from '../lib/billing';
 
 interface CheckoutScreenProps extends NavigationProps {
   params?: any;
@@ -27,7 +28,7 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
       if (params?.freelanceOrderId) {
         const { data, error } = await supabase
           .from('freelance_orders')
-          .select(`*, profiles:assigned_provider_id(full_name, avatar_url), service_categories(name)`)
+          .select(`*, profiles:assigned_provider_id(full_name, avatar_url, plan_type), service_categories(name)`)
           .eq('id', params.freelanceOrderId)
           .single();
         if (!error && data) {
@@ -41,7 +42,7 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
         .from('service_requests')
         .select(`
           *,
-          profiles:provider_id(full_name, avatar_url),
+          profiles:provider_id(full_name, avatar_url, plan_type),
           service_categories(name)
         `);
 
@@ -81,18 +82,19 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
       }
 
       // 2. Registrar transação
-      const totalAmount = (request?.budget_amount || 0) + PLATFORM_FEE;
+      const fees = calculateServiceFees(request?.budget_amount || 0, request?.profiles?.plan_type);
       await supabase.from('transactions').insert({
         request_id: request?.is_freelance ? null : params.requestId,
         freelance_order_id: request?.is_freelance ? params.freelanceOrderId : null,
         user_id: user.id,
         type: request?.is_freelance ? 'freelance_payment' : 'service_payment',
-        amount: totalAmount,
+        amount: fees.clientTotal,
         status: 'completed',
-        metadata: { 
+        metadata: {
           method: paymentMethod,
-          service_amount: request?.budget_amount,
-          platform_fee: PLATFORM_FEE
+          service_amount: fees.grossAmount,
+          platform_fee: fees.providerFee,
+          client_fee: fees.clientFee
         }
       });
 
@@ -159,7 +161,8 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
     service_categories: { name: 'Serviço' }
   };
 
-  const PLATFORM_FEE = 9.90;
+  // Taxas derivadas de lib/billing.ts — não usar números soltos aqui.
+  const fees = calculateServiceFees(displayData.budget_amount || 0, displayData.profiles?.plan_type);
 
   return (
     <div className="flex flex-col min-h-screen netflix-main-bg font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden text-white">
@@ -205,14 +208,21 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
                 <span>Valor do Orçamento (A pagar ao prestador)</span>
                 <span>{formatCurrency(displayData.budget_amount || 0)}</span>
               </div>
-              <div className="flex justify-between text-slate-600 dark:text-slate-300 font-bold">
-                <span>Taxa de Intermediação (Agora)</span>
-                <span>{formatCurrency(PLATFORM_FEE)}</span>
-              </div>
+              {fees.clientFee > 0 && (
+                <div className="flex justify-between text-slate-600 dark:text-slate-300 font-bold">
+                  <span>Taxa de Intermediação (Agora)</span>
+                  <span>{formatCurrency(fees.clientFee)}</span>
+                </div>
+              )}
               <div className="flex justify-between font-bold text-lg pt-2 mt-2 border-t border-slate-100 dark:border-slate-700">
                 <span>Total a pagar via App</span>
-                <span className="text-primary">{formatCurrency((displayData.budget_amount || 0) + PLATFORM_FEE)}</span>
+                <span className="text-primary">{formatCurrency(fees.clientTotal)}</span>
               </div>
+              {fees.providerFee > 0 && (
+                <p className="text-[10px] text-slate-400">
+                  * A taxa de intermediação de {formatCurrency(fees.providerFee)} é descontada do profissional. Você não paga taxa.
+                </p>
+              )}
               <p className="text-[10px] text-slate-400 mt-2">* O valor do serviço ficará retido com a KNGindica e será liberado ao profissional após a conclusão.</p>
             </div>
           </section>
@@ -275,7 +285,7 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
               </div>
               <h3 className="font-bold text-lg mb-1">Escaneie o QR Code</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-[250px]">
-                Abra o app do seu banco e escaneie o código acima para pagar a taxa de intermediação de R$ 9,90.
+                Abra o app do seu banco e escaneie o código acima para pagar {formatCurrency(fees.clientTotal)}.
               </p>
               <button onClick={() => showToast('Copiado', 'Código Copiado!', 'success')} className="flex items-center gap-2 font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-6 py-3 rounded-full hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors">
                 <span className="material-symbols-outlined">content_copy</span>
@@ -292,7 +302,7 @@ export default function CheckoutScreen({ onNavigate, params }: CheckoutScreenPro
         <div className="max-w-4xl mx-auto w-full flex items-center gap-4">
           <div className="flex-col hidden sm:flex">
             <span className="text-xs text-slate-500 font-bold">Total</span>
-            <span className="text-xl font-black text-slate-900 dark:text-white leading-none">{formatCurrency((displayData.budget_amount || 0) + PLATFORM_FEE)}</span>
+            <span className="text-xl font-black text-slate-900 dark:text-white leading-none">{formatCurrency(fees.clientTotal)}</span>
           </div>
           <button 
             type={paymentMethod === 'credit' ? 'submit' : 'button'}

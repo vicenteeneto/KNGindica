@@ -71,7 +71,7 @@ export default function FavoritesScreen({ onNavigate, params }: FavoritesScreenP
           <button onClick={() => onNavigate('back')} className="text-primary hover:bg-white/10 p-1 rounded-full transition-colors">
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
-          <h1 className="text-xl font-black italic uppercase tracking-tighter">Minha Lista</h1>
+          <h1 className="text-xl font-black italic tracking-tighter">Minha Lista</h1>
         </div>
       </header>
 
@@ -87,13 +87,13 @@ export default function FavoritesScreen({ onNavigate, params }: FavoritesScreenP
             <div className="size-20 rounded-full bg-white/5 flex items-center justify-center mb-6">
                <span className="material-symbols-outlined text-4xl text-gray-700">favorite_border</span>
             </div>
-            <h3 className="text-lg font-black uppercase tracking-widest italic mb-2">Sua lista está vazia</h3>
-            <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mb-10">Comece a salvar seus profissionais favoritos <br/>para encontrá-los aqui rapidamente.</p>
+            <h3 className="text-lg font-black tracking-widest italic mb-2">Sua lista está vazia</h3>
+            <p className="text-gray-500 text-xs font-bold tracking-widest mb-10">Comece a salvar seus profissionais favoritos <br/>para encontrá-los aqui rapidamente.</p>
             <button 
               onClick={() => onNavigate('home')}
               className="bg-primary text-white px-10 py-4 rounded-xl font-black italic tracking-tighter shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all text-sm"
             >
-              EXPLORAR CATÁLOGO
+              Explorar catálogo
             </button>
           </div>
         ) : (
@@ -118,7 +118,7 @@ export default function FavoritesScreen({ onNavigate, params }: FavoritesScreenP
                       <h4 className="text-[9px] md:text-sm font-black text-white leading-tight truncate">
                          {provider.full_name?.toUpperCase()}
                       </h4>
-                      <p className="text-[7px] md:text-[10px] font-bold text-primary italic uppercase tracking-tighter truncate">
+                      <p className="text-[7px] md:text-[10px] font-bold text-primary italic tracking-tighter truncate">
                          {provider.categories?.[0] || 'Profissional'}
                       </p>
                     </div>

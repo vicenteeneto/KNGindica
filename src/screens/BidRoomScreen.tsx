@@ -437,7 +437,7 @@ export default function BidRoomScreen({ onNavigate, params }: BidRoomScreenProps
               Encerrar Freelance Antecipadamente
             </button>
             <button onClick={handleCancelOrder} className="text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 px-4 py-2 rounded-xl text-sm font-black transition-colors">
-              CANCELAR ESTE FREELANCE
+              Cancelar este freelance
             </button>
           </div>
         </div>

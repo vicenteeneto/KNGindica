@@ -1,41 +1,45 @@
-import React, { useState, useEffect } from 'react';
-import HomeScreen from './screens/HomeScreen';
-import ServiceListingScreen from './screens/ServiceListingScreen';
-import ProfessionalProfileScreen from './screens/ProfessionalProfileScreen';
-import ProviderDashboardScreen from './screens/ProviderDashboardScreen';
-import ChatListScreen from './screens/ChatListScreen';
-import ChatScreen from './screens/ChatScreen';
-import NotificationsScreen from './screens/NotificationsScreen';
-import ProviderRegistrationScreen from './screens/ProviderRegistrationScreen';
-import ProviderPlanScreen from './screens/ProviderPlanScreen';
-import FilterServicesScreen from './screens/FilterServicesScreen';
-import MaiaAssistantScreen from './screens/MaiaAssistantScreen';
-import ProfessionalReviewsScreen from './screens/ProfessionalReviewsScreen';
-import ServiceConfirmationScreen from './screens/ServiceConfirmationScreen';
-import ProviderRequestsScreen from './screens/ProviderRequestsScreen';
-import ServiceStatusScreen from './screens/ServiceStatusScreen';
-import ServiceRequestFormScreen from './screens/ServiceRequestFormScreen';
-import UserProfileScreen from './screens/UserProfileScreen';
-import AdminDashboardScreen from './screens/AdminDashboardScreen';
-import CheckoutScreen from './screens/CheckoutScreen';
-import CategoriesScreen from './screens/CategoriesScreen';
-import MyRequestsScreen from './screens/MyRequestsScreen';
-import MyFreelancesScreen from './screens/MyFreelancesScreen';
-import ProviderWalletScreen from './screens/ProviderWalletScreen';
-import AuthScreen from './screens/AuthScreen';
-import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
-import UpdatePasswordScreen from './screens/UpdatePasswordScreen';
-import HelpCenterScreen from './screens/HelpCenterScreen';
-import ProviderScheduleScreen from './screens/ProviderScheduleScreen';
-import WriteReviewScreen from './screens/WriteReviewScreen';
-import FavoritesScreen from './screens/FavoritesScreen';
-import FreelanceRequestScreen from './screens/FreelanceRequestScreen';
-import OpenOrdersScreen from './screens/OpenOrdersScreen';
-import WhatsAppSearchScreen from './screens/WhatsAppSearchScreen';
-import TermsConsentScreen from './screens/TermsConsentScreen';
-import BidRoomScreen from './screens/BidRoomScreen';
-import RewardsScreen from './screens/RewardsScreen';
-import FreelanceStatusScreen from './screens/FreelanceStatusScreen';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
+
+// Telas carregadas sob demanda: cada uma vira um chunk próprio, para que o
+// primeiro carregamento não baixe as 38 telas do app de uma vez.
+const HomeScreen = lazy(() => import('./screens/HomeScreen'));
+const ServiceListingScreen = lazy(() => import('./screens/ServiceListingScreen'));
+const ProfessionalProfileScreen = lazy(() => import('./screens/ProfessionalProfileScreen'));
+const ProviderDashboardScreen = lazy(() => import('./screens/ProviderDashboardScreen'));
+const ChatListScreen = lazy(() => import('./screens/ChatListScreen'));
+const ChatScreen = lazy(() => import('./screens/ChatScreen'));
+const NotificationsScreen = lazy(() => import('./screens/NotificationsScreen'));
+const ProviderRegistrationScreen = lazy(() => import('./screens/ProviderRegistrationScreen'));
+const ProviderPlanScreen = lazy(() => import('./screens/ProviderPlanScreen'));
+const FilterServicesScreen = lazy(() => import('./screens/FilterServicesScreen'));
+const MaiaAssistantScreen = lazy(() => import('./screens/MaiaAssistantScreen'));
+const ProfessionalReviewsScreen = lazy(() => import('./screens/ProfessionalReviewsScreen'));
+const ServiceConfirmationScreen = lazy(() => import('./screens/ServiceConfirmationScreen'));
+const ProviderRequestsScreen = lazy(() => import('./screens/ProviderRequestsScreen'));
+const ServiceStatusScreen = lazy(() => import('./screens/ServiceStatusScreen'));
+const ServiceRequestFormScreen = lazy(() => import('./screens/ServiceRequestFormScreen'));
+const UserProfileScreen = lazy(() => import('./screens/UserProfileScreen'));
+const AdminDashboardScreen = lazy(() => import('./screens/AdminDashboardScreen'));
+const CheckoutScreen = lazy(() => import('./screens/CheckoutScreen'));
+const CategoriesScreen = lazy(() => import('./screens/CategoriesScreen'));
+const MyRequestsScreen = lazy(() => import('./screens/MyRequestsScreen'));
+const MyFreelancesScreen = lazy(() => import('./screens/MyFreelancesScreen'));
+const ProviderWalletScreen = lazy(() => import('./screens/ProviderWalletScreen'));
+const AuthScreen = lazy(() => import('./screens/AuthScreen'));
+const ForgotPasswordScreen = lazy(() => import('./screens/ForgotPasswordScreen'));
+const UpdatePasswordScreen = lazy(() => import('./screens/UpdatePasswordScreen'));
+const HelpCenterScreen = lazy(() => import('./screens/HelpCenterScreen'));
+const ProviderScheduleScreen = lazy(() => import('./screens/ProviderScheduleScreen'));
+const WriteReviewScreen = lazy(() => import('./screens/WriteReviewScreen'));
+const FavoritesScreen = lazy(() => import('./screens/FavoritesScreen'));
+const FreelanceRequestScreen = lazy(() => import('./screens/FreelanceRequestScreen'));
+const OpenOrdersScreen = lazy(() => import('./screens/OpenOrdersScreen'));
+const WhatsAppSearchScreen = lazy(() => import('./screens/WhatsAppSearchScreen'));
+const TermsConsentScreen = lazy(() => import('./screens/TermsConsentScreen'));
+const BidRoomScreen = lazy(() => import('./screens/BidRoomScreen'));
+const RewardsScreen = lazy(() => import('./screens/RewardsScreen'));
+const FreelanceStatusScreen = lazy(() => import('./screens/FreelanceStatusScreen'));
+
 import { initOneSignal } from './lib/OneSignalService';
 import { Screen } from './types';
 import { ThemeProvider, useTheme } from './ThemeContext';
@@ -67,6 +71,14 @@ const ADMIN_TABS = [
   { id: 'settings', icon: 'settings', label: 'Configurações' },
   { id: 'maintenance', icon: 'construction', label: 'Manutenção' },
 ];
+
+function ScreenLoader() {
+  return (
+    <div className="min-h-screen netflix-main-bg flex items-center justify-center">
+      <span className="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span>
+    </div>
+  );
+}
 
 function AppContent() {
   const { user, role, profile, loading } = useAuth();
@@ -240,11 +252,7 @@ function AppContent() {
   };
 
   if (loading && !profile) {
-    return (
-      <div className="min-h-screen netflix-main-bg flex items-center justify-center">
-        <span className="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span>
-      </div>
-    );
+    return <ScreenLoader />;
   }
 
   const renderScreen = () => {
@@ -355,7 +363,9 @@ function AppContent() {
         )}
         <div className={`flex-1 w-full ${!NON_PERSISTENT_SCREENS.includes(currentScreen) ? 'lg:pl-16' : ''} transition-all duration-300`}>
           <PullToRefresh>
-            {renderScreen()}
+            <Suspense fallback={<ScreenLoader />}>
+              {renderScreen()}
+            </Suspense>
             {!NON_PERSISTENT_SCREENS.includes(currentScreen) && currentScreen !== 'adminDashboard' && role !== 'admin' && (
               <MobileNav onNavigate={handleNavigate} currentScreen={currentScreen} role={role} />
             )}
@@ -364,14 +374,16 @@ function AppContent() {
       </div>
       {activeChat && (
         <div className="fixed bottom-0 right-0 z-[100] md:bottom-4 md:right-4 w-full h-full md:w-auto md:h-auto font-display">
-          <ChatScreen 
-            onNavigate={handleNavigate} 
-            params={activeChat} 
-            onClose={() => {
-              setActiveChat(null);
-              localStorage.removeItem('KNGindica_activeChat');
-            }} 
-          />
+          <Suspense fallback={null}>
+            <ChatScreen
+              onNavigate={handleNavigate}
+              params={activeChat}
+              onClose={() => {
+                setActiveChat(null);
+                localStorage.removeItem('KNGindica_activeChat');
+              }}
+            />
+          </Suspense>
         </div>
       )}
     </NotificationProvider>

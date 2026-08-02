@@ -5,6 +5,7 @@ import { useAuth } from '../AuthContext';
 import { useNotifications } from '../NotificationContext';
 import { parseCurrency, maskCurrency } from '../lib/formatters';
 import { CityAutocomplete } from '../components/CityAutocomplete';
+import { DEFAULT_CITY } from '../lib/city';
 
 export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) {
   const { user } = useAuth();
@@ -23,7 +24,8 @@ export default function FreelanceRequestScreen({ onNavigate }: NavigationProps) 
     street: '',
     number: '',
     neighborhood: '',
-    state: 'MT',
+    // UF da praça configurada; o preenchimento por CEP sobrescreve.
+    state: DEFAULT_CITY.state,
     cep: '',
     expiresInHours: '24',
     attachments: [] as string[]

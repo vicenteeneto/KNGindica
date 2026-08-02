@@ -350,13 +350,13 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
           <div className="bg-primary/10 border-t border-white/5 py-2 px-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-sm">visibility</span>
-              <p className="text-[10px] font-black text-primary leading-none uppercase tracking-widest">Modo de pré-visualização</p>
+              <p className="text-[10px] font-black text-primary leading-none tracking-widest">Modo de pré-visualização</p>
             </div>
             <button 
               onClick={() => onNavigate('userProfile')}
               className="text-[9px] font-black text-white hover:underline bg-white/10 px-2 py-1 rounded"
             >
-              EDITAR PERFIL
+              Editar perfil
             </button>
           </div>
         </div>
@@ -369,7 +369,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
             >
               <span className="material-symbols-outlined">arrow_back</span>
             </button>
-            <h2 className="text-white text-xs font-black italic uppercase tracking-widest flex-1 text-center">
+            <h2 className="text-white text-xs font-black italic tracking-widest flex-1 text-center">
               Ficha Técnica
             </h2>
             <div className="flex items-center justify-end gap-2">
@@ -424,14 +424,14 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                   <div className="mb-2">
                     {professional.plan_type === 'plus' && (
                       <div className="flex flex-wrap gap-2 mb-2">
-                        <span className="bg-amber-500/20 text-amber-500 text-[10px] font-black px-2 py-1 rounded italic uppercase tracking-widest border border-amber-500/20">PREMIUM</span>
+                        <span className="bg-amber-500/20 text-amber-500 text-[10px] font-black px-2 py-1 rounded italic tracking-widest border border-amber-500/20">Premium</span>
                       </div>
                     )}
                     <h1 className="text-2xl md:text-5xl font-black italic tracking-tighter leading-none mb-1 drop-shadow-2xl flex items-center gap-2 flex-wrap">
                       {professional.name?.toUpperCase()}
                       {professional.isVerified && <VerifiedBadge className="inline-block shrink-0" />}
                     </h1>
-                    <p className="text-primary font-black uppercase text-xs md:text-sm tracking-[0.2em] italic">
+                    <p className="text-primary font-black text-xs md:text-sm tracking-[0.2em] italic">
                       {professional.category} • {professional.city || 'Disponível'}
                     </p>
                   </div>
@@ -442,31 +442,31 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                 {/* Information Metadata Bar */}
                 <div className="grid grid-cols-3 border-y border-white/10 bg-white/5 py-3">
                     <div className="flex flex-col items-center border-r border-white/10">
-                       <span className="text-gray-500 text-[9px] font-black uppercase tracking-widest mb-1">Avaliação</span>
+                       <span className="text-gray-500 text-[9px] font-black tracking-widest mb-1">Avaliação</span>
                        <div className="flex items-center gap-1.5">
                           <span className="text-lg font-black italic">{displayRating}</span>
                           <span className="material-symbols-outlined text-yellow-500 filled !text-sm">star</span>
                        </div>
                     </div>
                     <div className="flex flex-col items-center border-r border-white/10">
-                       <span className="text-gray-500 text-[9px] font-black uppercase tracking-widest mb-1">Feedback</span>
+                       <span className="text-gray-500 text-[9px] font-black tracking-widest mb-1">Feedback</span>
                        <div className="flex items-center gap-1.5">
                           <span className="text-lg font-black italic">{displayReviewsCount}</span>
                           <span className="material-symbols-outlined text-gray-500 !text-sm">reviews</span>
                        </div>
                     </div>
                     <div className="flex flex-col items-center">
-                       <span className="text-gray-500 text-[9px] font-black uppercase tracking-widest mb-1">Investimento</span>
+                       <span className="text-gray-500 text-[9px] font-black tracking-widest mb-1">Investimento</span>
                        <div className="flex flex-col items-center leading-none">
                           {professional.show_price ? (
                             <span className="text-lg font-black italic truncate max-w-[100px]">
-                              {professional.pricing_model === 'negotiable' ? 'VAGO' : formatCurrency(parseFloat(professional.price || '0'))}
+                              {professional.pricing_model === 'negotiable' ? 'A combinar' : formatCurrency(parseFloat(professional.price || '0'))}
                             </span>
                           ) : (
-                            <span className="text-sm font-black italic opacity-50 uppercase tracking-tighter">Sob Consulta</span>
+                            <span className="text-sm font-black italic opacity-50 tracking-tighter">Sob Consulta</span>
                           )}
-                          <span className="text-[8px] text-gray-600 font-bold uppercase mt-1">
-                             {professional.pricing_model === 'hourly' ? 'POR HORA' : 'VALOR FIXO'}
+                          <span className="text-[8px] text-gray-600 font-bold mt-1">
+                             {professional.pricing_model === 'hourly' ? 'Por hora' : 'Valor fixo'}
                           </span>
                        </div>
                     </div>
@@ -477,7 +477,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                   <div className="px-6 pt-3">
                     <span className="inline-flex items-center gap-1.5 text-amber-500 bg-amber-500/10 px-3 py-1 rounded-full text-[10px] font-black border border-amber-500/20">
                       <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>stars</span>
-                      MEMBRO PREMIUM KNG
+                      Membro Premium KNG
                     </span>
                   </div>
                 )}
@@ -499,7 +499,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
               {/* Portfolio Gallery */}
               {portfolioImages.length > 0 && (
                 <div className="p-8 border-t border-white/5">
-                  <h3 className="text-slate-100 text-[9px] font-black mb-4 flex items-center gap-2 uppercase tracking-widest">
+                  <h3 className="text-slate-100 text-[9px] font-black mb-4 flex items-center gap-2 tracking-widest">
                     <span className="material-symbols-outlined text-primary text-base">photo_library</span>
                     Portfólio de Trabalhos
                   </h3>
@@ -524,7 +524,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
               {/* Reviews Section */}
               <div className="p-8 border-t border-white/5">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-slate-100 text-[9px] font-black flex items-center gap-2 uppercase tracking-widest">
+                  <h3 className="text-slate-100 text-[9px] font-black flex items-center gap-2 tracking-widest">
                     <span className="material-symbols-outlined text-amber-500 text-base">reviews</span>
                     Avaliações dos Clientes
                   </h3>
@@ -587,7 +587,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                    <span className="material-symbols-outlined text-6xl">verified_user</span>
                 </div>
                 
-                <h3 className="text-xs font-black mb-4 text-primary italic uppercase tracking-widest">Opções de Contratação</h3>
+                <h3 className="text-xs font-black mb-4 text-primary italic tracking-widest">Opções de Contratação</h3>
                 
                 {professional.plan_type === 'plus' && professional.whatsapp && (
                   <a
@@ -595,10 +595,10 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => trackLead(professional.id, 'whatsapp_click')}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-5 rounded-2xl font-black uppercase italic tracking-widest flex items-center justify-center gap-3 transition-all active:scale-95 shadow-lg shadow-emerald-600/20"
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-5 rounded-2xl font-black italic tracking-widest flex items-center justify-center gap-3 transition-all active:scale-95 shadow-lg shadow-emerald-600/20"
                   >
                     <span className="material-symbols-outlined">chat</span>
-                    WHATSAPP DIRETO
+                    WhatsApp direto
                   </a>
                 )}
                 
@@ -615,14 +615,14 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                     className="bg-white/10 hover:bg-white/20 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-sm"
                   >
                     <span className="material-symbols-outlined !text-lg">forum</span>
-                    CHAT
+                    Chat
                   </button>
                   <button
                     onClick={handleShare}
                     className="bg-white/10 hover:bg-white/20 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-sm"
                   >
                     <span className="material-symbols-outlined !text-lg">share</span>
-                    INDICAR
+                    Indicar
                   </button>
                 </div>
                 
@@ -634,13 +634,13 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                   className="w-full bg-primary hover:bg-primary/95 text-white py-6 rounded-2xl font-black italic tracking-tighter text-lg flex items-center justify-center gap-3 shadow-2xl transition-all active:scale-95 mt-2"
                 >
                   <span className="material-symbols-outlined text-2xl">bolt</span>
-                  SOLICITAR ORÇAMENTO
+                  Solicitar orçamento
                 </button>
               </div>
 
               {/* Business Info Card */}
               <div className="p-8 border-t border-white/5 space-y-6">
-                <h3 className="text-slate-100 text-xs font-black flex items-center gap-2 uppercase tracking-widest">
+                <h3 className="text-slate-100 text-xs font-black flex items-center gap-2 tracking-widest">
                   <span className="material-symbols-outlined text-primary text-base">info</span>
                   Informações Comerciais
                 </h3>
@@ -760,7 +760,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
               trackLead(professional.id, 'chat_start');
               onNavigate('chat', { opponentId: professional.id, opponentName: professional.name, opponentAvatar: professional.image });
             }}
-            className="flex-1 bg-white/10 text-white h-11 rounded-xl font-black italic uppercase tracking-widest text-[10px] flex items-center justify-center gap-1.5 transition-transform active:scale-95 min-w-0 px-2"
+            className="flex-1 bg-white/10 text-white h-11 rounded-xl font-black italic tracking-widest text-[10px] flex items-center justify-center gap-1.5 transition-transform active:scale-95 min-w-0 px-2"
           >
             <span className="material-symbols-outlined !text-base">forum</span>
             <span>Chat</span>
@@ -770,7 +770,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
               trackLead(professional.id, 'chat_start');
               onNavigate('serviceRequestForm', { providerId: professional.id, providerName: professional.name });
             }}
-            className="flex-[2] bg-primary text-white h-11 px-4 rounded-xl font-black italic uppercase tracking-tighter text-xs flex items-center justify-center gap-1.5 shadow-2xl shadow-primary/40 transition-transform active:scale-95"
+            className="flex-[2] bg-primary text-white h-11 px-4 rounded-xl font-black italic tracking-tighter text-xs flex items-center justify-center gap-1.5 shadow-2xl shadow-primary/40 transition-transform active:scale-95"
           >
             <span className="material-symbols-outlined !text-base">bolt</span>
             <span>Contratar</span>

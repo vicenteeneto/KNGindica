@@ -13,13 +13,24 @@ export interface Professional {
   reviews: number;
   price: number;
   priceUnit: string;
-  distance: number;
+  /**
+   * Distância até o cliente. HomeScreen grava um rótulo já formatado
+   * ('3.4', 'N/A', 'N/A (Rondonópolis)'); ServiceListingScreen grava km numérico.
+   * Use toNumber() de lib/formatters antes de comparar ou ordenar.
+   */
+  distance: number | string;
   image: string;
   description: string;
   isAffiliate?: boolean;
   isNew?: boolean;
   category: string;
   isVerified?: boolean;
+  city?: string | null;
+  plan_type?: string | null;
+  pricing_model?: string | null;
+  show_price?: boolean;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export interface Ticket {

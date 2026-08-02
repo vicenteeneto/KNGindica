@@ -45,7 +45,7 @@ export default function UpdatePasswordScreen({ onNavigate }: NavigationProps) {
       showModal({
         title: 'Erro',
         message: err.message || 'Falha ao atualizar a senha.',
-        type: 'error'
+        type: 'danger'
       });
     } finally {
       setIsLoading(false);

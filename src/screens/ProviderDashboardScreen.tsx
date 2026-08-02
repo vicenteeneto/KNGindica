@@ -99,14 +99,16 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
 
         const pendingBalance = pendingReqs?.reduce((acc, req) => acc + (Number(req.budget_amount || 0) - Number(req.platform_fee || 0)), 0) || 0;
 
-        setStats({ 
-          requests: reqCount || 0, 
+        // Atualização parcial: preserva latestReview, preenchido em outro ponto do fluxo.
+        setStats(prev => ({
+          ...prev,
+          requests: reqCount || 0,
           visits: visits,
           leads: leads,
-          earnings: walletData?.total_earnings || 0,
+          earnings: Number(walletData?.total_earnings || 0),
           pending: pendingBalance,
           rating: Number(avg.toFixed(1))
-        });
+        }));
 
         // 4. Fetch recent requests with same category filter
         let recentQuery = supabase
@@ -306,7 +308,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
                 onClick={() => onNavigate('userProfile')}
                 className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-black text-sm rounded-2xl shadow-xl shadow-red-600/20 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
               >
-                FINALIZAR MEU PERFIL AGORA
+                Finalizar meu perfil agora
                 <span className="material-symbols-outlined">arrow_forward</span>
               </button>
             </div>
@@ -368,7 +370,7 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
             <div>
               <h4 className="text-white font-black text-[10px] flex items-center gap-2">
                 Taxa de Conversão
-                <span className="bg-primary/20 text-primary border border-primary/30 px-1 py-0.5 rounded-[4px] text-[7px] leading-none">SMART METRIC</span>
+                <span className="bg-primary/20 text-primary border border-primary/30 px-1 py-0.5 rounded-[4px] text-[7px] leading-none">Smart metric</span>
               </h4>
               <p className="text-slate-400 text-[9px] mt-0.5 font-medium italic">Visitas convertidas em contatos reais</p>
             </div>

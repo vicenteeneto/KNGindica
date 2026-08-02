@@ -356,7 +356,7 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                      </div>
                      <p className="text-[10px] font-black text-slate-500 tracking-[1px] mb-2 leading-none">Orçamento do serviço</p>
                      {displayData.status === 'open' ? (
-                        <p className="text-[10px] font-black text-primary animate-pulse italic">A DEFINIR</p>
+                        <p className="text-[10px] font-black text-primary animate-pulse italic">A definir</p>
                      ) : (
                         <div>
                            <p className="text-xl font-black text-white italic leading-none mb-1">{formatCurrency(displayData.budget_amount || 0)}</p>
@@ -371,7 +371,7 @@ export function ServiceDashboardDetail({ requestId, onNavigate, isEmbedded = fal
                      </div>
                      <p className="text-[10px] font-black text-slate-500 tracking-[1px] mb-2 leading-none">Prazo previsto</p>
                      <p className="text-xl font-black text-white italic leading-none mb-1">
-                        {displayData.desired_date ? new Date(displayData.desired_date).toLocaleDateString('pt-BR') : 'A DEFINIR'}
+                        {displayData.desired_date ? new Date(displayData.desired_date).toLocaleDateString('pt-BR') : 'A definir'}
                      </p>
                      <p className="text-[8px] font-bold text-slate-500 tracking-tight">
                         {displayData.desired_date ? new Date(displayData.desired_date).toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}) : 'Horário pendente'}
