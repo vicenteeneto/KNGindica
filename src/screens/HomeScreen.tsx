@@ -1,48 +1,18 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
 import { NavigationProps, Screen } from '../types';
 // import { professionals as mockProfessionals } from '../data/mockData';
 import MobileNav from '../components/MobileNav';
 import { useAuth } from '../AuthContext';
 import { formatCurrency, normalizeText } from '../lib/formatters';
 import { supabase } from '../lib/supabase';
-import { MapContainer, TileLayer, Marker, Popup, useMap, CircleMarker } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+// O mapa e todo o Leaflet ficam num chunk à parte: só baixa quando o usuário
+// troca para o modo mapa.
+const ProvidersMap = lazy(() => import('../components/ProvidersMap'));
 import { CityAutocomplete } from '../components/CityAutocomplete';
 import VerifiedBadge from '../components/VerifiedBadge';
 import StarRating from '../components/StarRating';
 import { getSelectedCity, setSelectedCity } from '../lib/city';
 import { isListable } from '../lib/providerProfile';
-
-
-// Fix Leaflet Default Icon issue in React
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
-
-let DefaultIcon = L.icon({
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41]
-});
-L.Marker.prototype.options.icon = DefaultIcon;
-
-// Custom Marker for Providers
-const createProviderIcon = (imageUrl: string) => L.divIcon({
-  className: 'custom-provider-marker',
-  html: `<div class="size-10 rounded-full border-2 border-primary bg-white overflow-hidden shadow-lg transform -translate-x-1/2 -translate-y-1/2"><img src="${imageUrl}" class="w-full h-full object-cover" /></div>`,
-  iconSize: [40, 40],
-  iconAnchor: [20, 20]
-});
-
-// Helper component to update map view
-function MapUpdater({ center }: { center: [number, number] }) {
-  const map = useMap();
-  useEffect(() => {
-    map.setView(center, 13);
-  }, [center, map]);
-  return null;
-}
 
 // Helper for calculating distance in km (Haversine Formula)
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
@@ -703,51 +673,18 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
              /* Map View Container */
              <div className="px-4 md:px-0 h-full">
                <div className="w-full h-full md:rounded-none rounded-2xl overflow-hidden shadow-2xl border border-white/10 relative ring-1 ring-white/10">
-                  <MapContainer 
-                    center={mapCenter} 
-                    zoom={userCoords ? 13 : 12} 
-                    style={{ height: '100%', width: '100%' }}
-                    className="z-0"
-                  >
-                    <TileLayer
-                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  <Suspense fallback={
+                    <div className="w-full h-full flex items-center justify-center bg-black/40">
+                      <span className="material-symbols-outlined animate-spin text-3xl text-primary">progress_activity</span>
+                    </div>
+                  }>
+                    <ProvidersMap
+                      center={mapCenter}
+                      userCoords={userCoords}
+                      providers={providers}
+                      onNavigate={onNavigate}
                     />
-                    <MapUpdater center={mapCenter} />
-                    {userCoords && (
-                      <CircleMarker 
-                        center={[userCoords.lat, userCoords.lng]}
-                        radius={8}
-                        pathOptions={{ fillColor: '#3b82f6', color: '#ffffff', weight: 3, fillOpacity: 1 }}
-                      >
-                        <Popup>📍 Você está aqui</Popup>
-                      </CircleMarker>
-                    )}
-                    {providers.map(p => {
-                      if (!p.latitude || !p.longitude) return null;
-                      return (
-                        <Marker 
-                          key={p.id} 
-                          position={[p.latitude, p.longitude]} 
-                          icon={createProviderIcon(p.image)}
-                        >
-                          <Popup className="provider-popup">
-                            <div className="p-2 w-48 font-display bg-[#0f171e] text-white rounded-lg">
-                              <img src={p.image} loading="lazy" decoding="async" className="w-full h-24 object-cover rounded-md mb-2" alt={p.name} />
-                              <h4 className="font-bold text-white">{p.name}</h4>
-                              <p className="text-xs text-primary font-bold mb-1">{p.service}</p>
-                              <button 
-                                onClick={() => onNavigate('profile', { professionalId: p.id })}
-                                className="w-full bg-primary text-white text-[10px] py-2 rounded font-black mt-2"
-                              >
-                                Ver Perfil
-                              </button>
-                            </div>
-                          </Popup>
-                        </Marker>
-                      );
-                    })}
-                  </MapContainer>
+                  </Suspense>
                </div>
              </div>
           ) : (
