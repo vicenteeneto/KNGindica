@@ -331,10 +331,11 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
     const fetchPreviousProviders = async () => {
       if (!user) return;
       try {
-        // 1. Get distinct provider IDs from completed requests
+        // Uma consulta só: o perfil vem embutido no pedido. Antes eram duas
+        // idas ao banco em sequência (pedidos, depois perfis pelos ids).
         const { data: requests, error: reqError } = await supabase
           .from('service_requests')
-          .select('provider_id')
+          .select('provider_id, profile:provider_id(*)')
           .eq('client_id', user.id)
           .eq('status', 'completed')
           .order('created_at', { ascending: false });
@@ -342,18 +343,17 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         if (reqError) throw reqError;
         if (!requests || requests.length === 0) return;
 
-        const distinctIds = Array.from(new Set(requests.map(r => r.provider_id)));
-
-        // 2. Fetch profiles for these IDs
-        const { data: profilesData, error: profError } = await supabase
-          .from('profiles')
-          .select('*')
-          .in('id', distinctIds);
-
-        if (profError) throw profError;
-
-        if (profilesData) {
-          const mapped = profilesData.map((p: any) => ({
+        // Mantém a ordem do mais recente e descarta repetições e pedidos que
+        // ficaram sem prestador.
+        const vistos = new Set<string>();
+        const mapped = requests
+          .map((r: any) => (Array.isArray(r.profile) ? r.profile[0] : r.profile))
+          .filter((p: any) => {
+            if (!p?.id || vistos.has(p.id)) return false;
+            vistos.add(p.id);
+            return true;
+          })
+          .map((p: any) => ({
             id: p.id,
             name: p.company_name || p.full_name || 'Profissional',
             service: p.categories?.[0] || 'Serviços Gerais',
@@ -361,8 +361,8 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
             distance: p.city ? 'Distância N/A' : '99+', // Basic mock for now
             image: p.cover_image || p.avatar_url || 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a'
           }));
-          setPreviousProviders(mapped);
-        }
+
+        setPreviousProviders(mapped);
       } catch (e) {
         console.error("Error fetching previous providers:", e);
       }
