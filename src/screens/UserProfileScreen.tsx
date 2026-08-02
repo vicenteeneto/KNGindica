@@ -13,6 +13,7 @@ import { requestNotificationPermission } from '../lib/OneSignalService';
 import VerifiedBadge from '../components/VerifiedBadge';
 import { supabase } from '../lib/supabase';
 import { maskCurrency, parseCurrency, formatCurrency } from '../lib/formatters';
+import { PRICING_MODELS, normalizePricingModel, isQuoteOnly } from '../lib/pricing';
 import { CityAutocomplete } from '../components/CityAutocomplete';
 L.Icon.Default.prototype.options.iconUrl = markerIcon;
 L.Icon.Default.prototype.options.shadowUrl = markerShadow;
@@ -110,10 +111,10 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
     categories: (profile as any)?.categories || [],
     whatsapp_number: (profile as any)?.whatsapp_number || '',
     plan_type: (profile as any)?.plan_type || 'basic',
-    pricing_model: (profile as any)?.pricing_model || 'hourly',
+    pricing_model: normalizePricingModel((profile as any)?.pricing_model),
     price_value: (profile as any)?.price_value ? formatCurrency((profile as any).price_value) : '',
     show_price: (profile as any).show_price !== false,
-    is_negotiable: (profile as any)?.pricing_model === 'negotiable',
+    is_negotiable: isQuoteOnly((profile as any)?.pricing_model),
   });
 
   const [isFetchingCep, setIsFetchingCep] = useState(false);
@@ -158,10 +159,10 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
         categories: (profile as any).categories || [],
         whatsapp_number: formatPhone((profile as any).whatsapp_number || ''),
         plan_type: (profile as any).plan_type || 'basic',
-        pricing_model: (profile as any).pricing_model || 'hourly',
+        pricing_model: normalizePricingModel((profile as any).pricing_model),
         price_value: (profile as any).price_value ? formatCurrency((profile as any).price_value) : '',
         show_price: (profile as any).show_price !== false,
-        is_negotiable: (profile as any)?.pricing_model === 'negotiable',
+        is_negotiable: isQuoteOnly((profile as any)?.pricing_model),
       });
       // Sincroniza coords/cidade ao carregar o perfil
       if ((profile as any).latitude && (profile as any).longitude) {
@@ -383,7 +384,7 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
           bio: formData.bio,
           categories: formData.categories,
           whatsapp_number: formData.whatsapp_number,
-          pricing_model: formData.is_negotiable ? 'negotiable' : formData.pricing_model,
+          pricing_model: formData.is_negotiable ? 'quote' : formData.pricing_model,
           price_value: (formData.is_negotiable || !formData.price_value) ? null : parseCurrency(formData.price_value),
           show_price: formData.show_price,
           opening_hours: businessInfo.opening_hours,
@@ -1436,13 +1437,12 @@ export default function UserProfileScreen({ onNavigate }: NavigationProps) {
                       <label className="block text-[13px] font-medium text-slate-500 mb-1.5 ml-1">Unidade</label>
                       <select
                         value={formData.pricing_model}
-                        onChange={(e) => setFormData({...formData, pricing_model: e.target.value})}
+                        onChange={(e) => setFormData({...formData, pricing_model: normalizePricingModel(e.target.value)})}
                         className="w-full px-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold text-slate-900 dark:text-white text-xs"
                       >
-                        <option value="visit">Por Visita</option>
-                        <option value="hour">Por Hora</option>
-                        <option value="service">Por Serviço</option>
-                        <option value="quote">Sob Orçamento</option>
+                        {PRICING_MODELS.map(m => (
+                          <option key={m.value} value={m.value}>{m.label}</option>
+                        ))}
                       </select>
                     </div>
                   </div>

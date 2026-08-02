@@ -6,6 +6,7 @@ import StarRating from '../components/StarRating';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../AuthContext';
 import { useSEO } from '../hooks/useSEO';
+import { hasPublishedPrice, pricingUnitLabel } from '../lib/pricing';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -458,16 +459,18 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                     <div className="flex flex-col items-center">
                        <span className="text-gray-500 text-[9px] font-black tracking-widest mb-1">Investimento</span>
                        <div className="flex flex-col items-center leading-none">
-                          {professional.show_price ? (
-                            <span className="text-lg font-black italic truncate max-w-[100px]">
-                              {professional.pricing_model === 'negotiable' ? 'A combinar' : formatCurrency(parseFloat(professional.price || '0'))}
-                            </span>
+                          {hasPublishedPrice(professional.pricing_model, parseFloat(professional.price || '0'), professional.show_price) ? (
+                            <>
+                              <span className="text-lg font-black italic truncate max-w-[100px]">
+                                {formatCurrency(parseFloat(professional.price || '0'))}
+                              </span>
+                              <span className="text-[8px] text-gray-600 font-bold mt-1">
+                                {pricingUnitLabel(professional.pricing_model, parseFloat(professional.price || '0'))}
+                              </span>
+                            </>
                           ) : (
-                            <span className="text-sm font-black italic opacity-50 tracking-tighter">Sob Consulta</span>
+                            <span className="text-sm font-black italic opacity-50 tracking-tighter">Sob orçamento</span>
                           )}
-                          <span className="text-[8px] text-gray-600 font-bold mt-1">
-                             {professional.pricing_model === 'hourly' ? 'Por hora' : 'Valor fixo'}
-                          </span>
                        </div>
                     </div>
                 </div>
@@ -651,9 +654,15 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                       <span className="material-symbols-outlined text-primary text-xl">location_on</span>
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-100">Endereço</h4>
+                      <h4 className="text-sm font-bold text-slate-100">Região de atendimento</h4>
+                      {/* Só bairro e cidade. O endereço completo do prestador era
+                          exibido a qualquer usuário logado, logo abaixo de um aviso
+                          que prometia "localização aproximada". O endereço exato só
+                          faz sentido depois que existe um serviço combinado. */}
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
-                        {professional.address || `${professional.city || 'Atendimento em domicílio'}, ${professional.state || ''}`}
+                        {[professional.neighborhood, professional.city, professional.state]
+                          .filter(Boolean)
+                          .join(' · ') || 'Atendimento em domicílio'}
                       </p>
                     </div>
                   </div>

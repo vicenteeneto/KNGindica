@@ -7,6 +7,8 @@
  * duplicada e implícita no ProviderDashboard; agora é uma só.
  */
 
+import { isQuoteOnly } from './pricing';
+
 export interface ProviderProfileLike {
   city?: string | null;
   categories?: unknown;
@@ -19,14 +21,16 @@ export interface ProviderProfileLike {
   longitude?: number | null;
 }
 
-/** Modelos de precificação em que não se informa valor — o preço é combinado. */
-const PRICING_WITHOUT_VALUE = ['negotiable', 'quote'];
-
 const hasCategories = (value: unknown): boolean =>
   Array.isArray(value) ? value.length > 0 : !!value;
 
+/**
+ * Considera-se precificação definida quando o prestador publicou um valor ou
+ * escolheu deliberadamente "sob orçamento". O vocabulário legado é traduzido
+ * em lib/pricing, então `negotiable` e `hourly` antigos continuam válidos.
+ */
 export const hasPricing = (p: ProviderProfileLike): boolean =>
-  PRICING_WITHOUT_VALUE.includes(p.pricing_model ?? '') || !!p.price_value;
+  isQuoteOnly(p.pricing_model) || !!p.price_value;
 
 /**
  * Requisitos mínimos para o prestador ser exibido a clientes.
