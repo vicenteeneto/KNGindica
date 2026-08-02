@@ -116,7 +116,7 @@ export default function FavoritesScreen({ onNavigate, params }: FavoritesScreenP
                     {/* Dark Gradient Overlay */}
                     <div className="absolute inset-x-0 bottom-0 p-1.5 md:p-3 bg-gradient-to-t from-black via-black/40 to-transparent">
                       <h4 className="text-[9px] md:text-sm font-black text-white leading-tight truncate">
-                         {provider.full_name?.toUpperCase()}
+                         {provider.full_name}
                       </h4>
                       <p className="text-[7px] md:text-[10px] font-bold text-primary italic tracking-tighter truncate">
                          {provider.categories?.[0] || 'Profissional'}

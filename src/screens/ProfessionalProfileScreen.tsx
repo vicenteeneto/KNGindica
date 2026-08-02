@@ -428,7 +428,7 @@ export default function ProfessionalProfileScreen({ onNavigate, params }: Profes
                       </div>
                     )}
                     <h1 className="text-2xl md:text-5xl font-black italic tracking-tighter leading-none mb-1 drop-shadow-2xl flex items-center gap-2 flex-wrap">
-                      {professional.name?.toUpperCase()}
+                      {professional.name}
                       {professional.isVerified && <VerifiedBadge className="inline-block shrink-0" />}
                     </h1>
                     <p className="text-primary font-black text-xs md:text-sm tracking-[0.2em] italic">

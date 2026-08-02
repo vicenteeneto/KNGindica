@@ -202,7 +202,10 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
           if (!isManualLocation.current) {
             setLocationName("Localização Indisponível (GPS Negado)");
           }
-        }
+        },
+        // Sem timeout o padrão é infinito: quem ignorasse o pedido de
+        // localização do navegador ficava esperando para sempre.
+        { timeout: 8000, maximumAge: 5 * 60 * 1000, enableHighAccuracy: false }
       );
     }
   }, []);
@@ -594,19 +597,24 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
 
             {/* Right: Actions */}
             <div className="flex items-center gap-4">
-              <button onClick={() => onNavigate('listing', { searchQuery: '' })} className="p-1 hover:text-primary transition-colors">
+              <button aria-label="Buscar profissionais" onClick={() => onNavigate('listing', { searchQuery: '' })} className="p-1 hover:text-primary transition-colors">
                 <span className="material-symbols-outlined text-[28px] shrink-0">search</span>
               </button>
-              
-              <button onClick={() => onNavigate('notifications')} className="p-1 hover:text-primary transition-colors relative">
+
+              <button
+                aria-label={unreadNotifications > 0 ? `Avisos, ${unreadNotifications} não lidos` : 'Avisos'}
+                onClick={() => onNavigate('notifications')}
+                className="p-1 hover:text-primary transition-colors relative"
+              >
                 <span className="material-symbols-outlined text-[28px] shrink-0">notifications</span>
                 {unreadNotifications > 0 && (
                   <span className="absolute top-1 right-1 size-2 bg-red-500 rounded-full border border-black animate-pulse"></span>
                 )}
               </button>
 
-              <button 
-                onClick={() => onNavigate('userProfile')} 
+              <button
+                aria-label="Meu perfil"
+                onClick={() => onNavigate('userProfile')}
                 className={`size-8 rounded-full overflow-hidden border transition-all ${
                   isPremiumUser ? 'border-primary' : 'border-white/20'
                 }`}
@@ -725,7 +733,7 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                         >
                           <Popup className="provider-popup">
                             <div className="p-2 w-48 font-display bg-[#0f171e] text-white rounded-lg">
-                              <img src={p.image} className="w-full h-24 object-cover rounded-md mb-2" alt={p.name} />
+                              <img src={p.image} loading="lazy" decoding="async" className="w-full h-24 object-cover rounded-md mb-2" alt={p.name} />
                               <h4 className="font-bold text-white">{p.name}</h4>
                               <p className="text-xs text-primary font-bold mb-1">{p.service}</p>
                               <button 
@@ -1044,6 +1052,8 @@ function CollectionRow({ title, subtitle, providers, onNavigate, highlight, onVi
                 <img
                   src={p.image}
                   alt={p.name}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     e.currentTarget.src = 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png';

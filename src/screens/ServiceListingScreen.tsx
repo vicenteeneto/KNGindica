@@ -286,6 +286,8 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
               <div className="relative aspect-[2/3] lg:aspect-video rounded-md lg:rounded-xl overflow-hidden shadow-2xl bg-white/5 transition-all duration-300 lg:group-hover:scale-110 lg:group-hover:z-50 ring-0 lg:group-hover:ring-4 ring-primary/40">
                 <img
                   alt={professional.name}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover transition-transform duration-700"
                   src={professional.image}
                 />

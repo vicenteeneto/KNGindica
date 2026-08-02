@@ -28,23 +28,35 @@
   --color-netflix-red: var(--netflix-red);
 }
 
-/* 🛡️ FIX GERAL DE ÍCONES (PROTEÇÃO CONTRA UPPERCASE) */
-.material-symbols-outlined {
-  font-family: 'Material Symbols Outlined' !important;
-  font-weight: normal;
-  font-style: normal;
-  font-size: 24px;
-  line-height: 1;
-  letter-spacing: normal;
-  text-transform: none !important;
-  display: inline-block;
-  white-space: nowrap;
-  word-wrap: normal;
-  direction: ltr;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-feature-settings: 'liga' !important;
-  font-display: block;
+/* 🛡️ FIX GERAL DE ÍCONES (PROTEÇÃO CONTRA UPPERCASE)
+ *
+ * Precisa ficar em @layer base: fora de camada, esta regra tinha a mesma
+ * especificidade dos utilitários do Tailwind e vencia por ordem de cascata,
+ * fixando TODO ícone em 24px. Classes como text-[15px] e text-[28px] eram
+ * silenciosamente ignoradas — no celular isso estourava linhas, badges e
+ * botões, porque ícones desenhados para 10-15px apareciam a 24px.
+ *
+ * Dentro de @layer base, o 24px continua valendo como padrão e os
+ * utilitários voltam a poder sobrescrevê-lo.
+ */
+@layer base {
+  .material-symbols-outlined {
+    font-family: 'Material Symbols Outlined' !important;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none !important;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'liga' !important;
+    font-display: block;
+  }
 }
 
 @layer base {
