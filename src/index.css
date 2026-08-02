@@ -38,13 +38,15 @@
  * desenhados para 10-15px apareciam a 24px.
  *
  * A dupla abaixo devolve o controle às classes utilitárias:
- *   1. `revert-layer` sem camada descarta o valor do Google e volta ao que as
- *      camadas definiram — ou seja, ao utilitário, quando existe um.
- *   2. `:where()` tem especificidade zero, então serve de padrão de 24px
- *      quando nenhuma classe de tamanho foi aplicada.
+ *   1. Sem camada, `revert-layer` descarta o valor do Google e devolve o que
+ *      as camadas definiram — o utilitário quando existe um.
+ *   2. O padrão de 24px vai DENTRO de @layer base, que é onde o `revert-layer`
+ *      aterrissa quando não há utilitário. Fora de camada ele não funcionaria:
+ *      `revert-layer` ignora as demais declarações sem camada, e os ícones sem
+ *      classe de tamanho cairiam para os 16px herdados do body.
  *
- * Mantidas fora de @layer de propósito: dentro de uma camada elas voltariam a
- * perder para a folha do Google.
+ * A primeira regra fica fora de @layer de propósito: dentro de uma camada ela
+ * voltaria a perder para a folha do Google.
  */
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined' !important;
@@ -64,8 +66,10 @@
   font-display: block;
 }
 
-:where(.material-symbols-outlined) {
-  font-size: 24px;
+@layer base {
+  .material-symbols-outlined {
+    font-size: 24px;
+  }
 }
 
 @layer base {
