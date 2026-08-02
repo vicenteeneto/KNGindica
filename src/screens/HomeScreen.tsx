@@ -696,9 +696,14 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
                       const isFavorited = favoriteProviders.some(f => f.id === p.id);
                       
                       return (
-                        <div 
+                        <div
                           key={p.id}
-                          className={`absolute inset-0 transition-all duration-1000 ease-in-out ${idx === currentHeroIndex ? 'opacity-100 z-10 translate-y-0 scale-100' : 'opacity-0 z-0 translate-y-4 scale-95'}`}
+                          aria-hidden={idx !== currentHeroIndex}
+                          /* Os slides inativos ficam empilhados na mesma área. Sem
+                             pointer-events-none eles continuavam capturando o clique
+                             mesmo invisíveis, e "Ver Perfil" abria o perfil de outro
+                             profissional — o que estava por cima, não o que aparecia. */
+                          className={`absolute inset-0 transition-all duration-1000 ease-in-out ${idx === currentHeroIndex ? 'opacity-100 z-10 translate-y-0 scale-100' : 'opacity-0 z-0 translate-y-4 scale-95 pointer-events-none'}`}
                         >
                           <div className="relative h-full w-full md:rounded-none rounded-2xl overflow-hidden bg-[#0A0A0A]">
                             {/* Background (Poster Style) */}
