@@ -12,6 +12,7 @@ import { CityAutocomplete } from '../components/CityAutocomplete';
 import VerifiedBadge from '../components/VerifiedBadge';
 import StarRating from '../components/StarRating';
 import { getSelectedCity, setSelectedCity } from '../lib/city';
+import { isListable } from '../lib/providerProfile';
 
 
 // Fix Leaflet Default Icon issue in React
@@ -278,8 +279,9 @@ export default function HomeScreen({ onNavigate }: NavigationProps) {
         }
 
 
-        // Map them to look like our UI components expect
-        let mapped = (data || []).map(p => {
+        // Perfis sem cidade, categoria ou descrição não entram nas vitrines:
+        // apareciam como cards vazios, sem nada para o cliente decidir.
+        let mapped = (data || []).filter(isListable).map(p => {
           let distanceStr = 'N/A';
           if (userCoords && p.latitude && p.longitude) {
             const dist = calculateDistance(userCoords.lat, userCoords.lng, p.latitude, p.longitude);

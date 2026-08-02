@@ -26,6 +26,12 @@ export interface UserProfile {
   // Programa de indicações / recompensas
   reward_points?: number | null;
   referral_code?: string | null;
+  // Contato e localização
+  phone?: string | null;
+  whatsapp_number?: string | null;
+  city?: string | null;
+  bio?: string | null;
+  categories?: string[] | null;
 }
 
 interface AuthContextType {
