@@ -5,6 +5,7 @@ import { useNotifications } from '../NotificationContext';
 import { formatCurrency } from '../lib/formatters';
 import { supabase } from '../lib/supabase';
 import { ProviderHeader } from '../components/ProviderHeader';
+import { missingProfileFields, isListable } from '../lib/providerProfile';
 
 export default function ProviderDashboardScreen({ onNavigate }: NavigationProps) {
   const { logout, profile, user } = useAuth();
@@ -261,13 +262,14 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
 
       {/* Completude do Perfil - PRIORIDADE TOTAL NO TOPO SE INCOMPLETO */}
       {(() => {
-        const missing = [];
-        if (!profile?.avatar_url) missing.push("Foto de Perfil");
-        if (!(profile as any)?.bio || (profile as any)?.bio.length < 30) missing.push("Bio completa");
-        if (!(profile as any)?.categories || (profile as any)?.categories.length === 0) missing.push("Categorias");
-        if (!(profile as any)?.latitude || !(profile as any)?.longitude) missing.push("Localização (GPS)");
-        if (!profile?.pricing_model || (profile.pricing_model !== 'negotiable' && !profile.price_value)) missing.push("Preço do serviço");
-        if (portfolioCount === 0) missing.push("Fotos no Portfólio");
+        // Regra única em lib/providerProfile.ts — antes estava duplicada aqui e
+        // em outro ponto da tela, com critérios diferentes entre si.
+        const missing = [...missingProfileFields(profile as any)];
+        if (!profile?.avatar_url) missing.push('Foto de perfil');
+        if (portfolioCount === 0) missing.push('Fotos no portfólio');
+        if (!isListable(profile as any)) {
+          missing.unshift('⚠️ Seu perfil ainda não aparece nas buscas');
+        }
 
         if (missing.length === 0) return null;
 
@@ -650,13 +652,9 @@ export default function ProviderDashboardScreen({ onNavigate }: NavigationProps)
                       Status da Conta
                     </h3>
                     {(() => {
-                      const missingForStatus = [];
-                      if (!profile?.avatar_url) missingForStatus.push("Foto");
-                      if (!(profile as any)?.bio || (profile as any)?.bio.length < 30) missingForStatus.push("Bio");
-                      if (!(profile as any)?.categories || (profile as any)?.categories.length === 0) missingForStatus.push("Categorias");
-                      if (!(profile as any)?.latitude || !(profile as any)?.longitude) missingForStatus.push("Localização");
-                      if (!(profile?.pricing_model === 'negotiable' || profile?.price_value)) missingForStatus.push("Preço");
-                      if (portfolioCount === 0) missingForStatus.push("Portfólio");
+                      const missingForStatus = [...missingProfileFields(profile as any)];
+                      if (!profile?.avatar_url) missingForStatus.push('Foto');
+                      if (portfolioCount === 0) missingForStatus.push('Portfólio');
 
                       const isComplete = missingForStatus.length === 0;
 

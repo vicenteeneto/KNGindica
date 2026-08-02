@@ -8,6 +8,8 @@ import VerifiedBadge from '../components/VerifiedBadge';
 import { supabase } from '../lib/supabase';
 import { maskCurrency, parseCurrency, formatCurrency, normalizeText, toNumber } from '../lib/formatters';
 import { CityAutocomplete } from '../components/CityAutocomplete';
+import DemandCapture from '../components/DemandCapture';
+import { isListable } from '../lib/providerProfile';
 
 interface ServiceListingProps extends NavigationProps {
   initialParams?: {
@@ -38,7 +40,9 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
         if (error) throw error;
 
         if (data) {
-          const mapped: Professional[] = data.map((p: any) => ({
+          // Perfis sem cidade, categoria ou descrição não têm o que oferecer ao
+          // cliente — apareciam como cards vazios na listagem.
+          const mapped: Professional[] = data.filter(isListable).map((p: any) => ({
             id: p.id,
             name: p.company_name || p.full_name || 'Profissional',
             service: p.categories?.[0] || 'Serviços',
@@ -282,6 +286,8 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
               <div className="relative aspect-[2/3] lg:aspect-video rounded-md lg:rounded-xl overflow-hidden shadow-2xl bg-white/5 transition-all duration-300 lg:group-hover:scale-110 lg:group-hover:z-50 ring-0 lg:group-hover:ring-4 ring-primary/40">
                 <img
                   alt={professional.name}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover transition-transform duration-700"
                   src={professional.image}
                 />
@@ -314,10 +320,12 @@ export default function ServiceListingScreen({ onNavigate, initialParams }: Serv
             </div>
           ))}
           
-          {filteredProfessionals.length === 0 && (
-            <div className="col-span-full text-center py-20 text-gray-500">
-              <span className="material-symbols-outlined text-5xl mb-4 opacity-20">search_off</span>
-              <p className="font-bold tracking-widest text-xs">Nenhum resultado encontrado</p>
+          {filteredProfessionals.length === 0 && !loading && (
+            <div className="col-span-full py-16 px-4">
+              <DemandCapture
+                servico={initialParams?.filters?.category || selectedCategory || searchQuery}
+                city={selectedCity}
+              />
             </div>
           )}
         </div>

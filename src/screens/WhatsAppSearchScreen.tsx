@@ -207,7 +207,7 @@ export default function WhatsAppSearchScreen({ onNavigate, params }: NavigationP
                   {/* Info Overlay */}
                   <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
                      <div className={`${isBlurred ? 'blur-[4px] select-none' : ''}`}>
-                        <h3 className="text-sm font-black text-white leading-tight truncate">{p.full_name?.toUpperCase()}</h3>
+                        <h3 className="text-sm font-black text-white leading-tight truncate">{p.full_name}</h3>
                         <p className="text-[8px] font-bold text-primary italic tracking-tighter truncate">
                            {p.service || categoryName}
                         </p>
