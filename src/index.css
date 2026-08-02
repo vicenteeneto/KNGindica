@@ -28,35 +28,44 @@
   --color-netflix-red: var(--netflix-red);
 }
 
-/* 🛡️ FIX GERAL DE ÍCONES (PROTEÇÃO CONTRA UPPERCASE)
+/* 🛡️ FIX GERAL DE ÍCONES (PROTEÇÃO CONTRA UPPERCASE E TAMANHO FIXO)
  *
- * Precisa ficar em @layer base: fora de camada, esta regra tinha a mesma
- * especificidade dos utilitários do Tailwind e vencia por ordem de cascata,
- * fixando TODO ícone em 24px. Classes como text-[15px] e text-[28px] eram
- * silenciosamente ignoradas — no celular isso estourava linhas, badges e
- * botões, porque ícones desenhados para 10-15px apareciam a 24px.
+ * O Google Fonts serve a própria folha do Material Symbols com
+ * `.material-symbols-outlined { font-size: 24px }` FORA de camada. Em CSS,
+ * declaração sem camada vence qualquer camada, então esse 24px anulava as
+ * classes de tamanho do Tailwind: text-[15px] e text-[28px] saíam ambos a
+ * 24px. No celular isso estourava linhas, badges e botões, porque ícones
+ * desenhados para 10-15px apareciam a 24px.
  *
- * Dentro de @layer base, o 24px continua valendo como padrão e os
- * utilitários voltam a poder sobrescrevê-lo.
+ * A dupla abaixo devolve o controle às classes utilitárias:
+ *   1. `revert-layer` sem camada descarta o valor do Google e volta ao que as
+ *      camadas definiram — ou seja, ao utilitário, quando existe um.
+ *   2. `:where()` tem especificidade zero, então serve de padrão de 24px
+ *      quando nenhuma classe de tamanho foi aplicada.
+ *
+ * Mantidas fora de @layer de propósito: dentro de uma camada elas voltariam a
+ * perder para a folha do Google.
  */
-@layer base {
-  .material-symbols-outlined {
-    font-family: 'Material Symbols Outlined' !important;
-    font-weight: normal;
-    font-style: normal;
-    font-size: 24px;
-    line-height: 1;
-    letter-spacing: normal;
-    text-transform: none !important;
-    display: inline-block;
-    white-space: nowrap;
-    word-wrap: normal;
-    direction: ltr;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    font-feature-settings: 'liga' !important;
-    font-display: block;
-  }
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined' !important;
+  font-weight: normal;
+  font-style: normal;
+  font-size: revert-layer;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none !important;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'liga' !important;
+  font-display: block;
+}
+
+:where(.material-symbols-outlined) {
+  font-size: 24px;
 }
 
 @layer base {
